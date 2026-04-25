@@ -1,0 +1,24 @@
+# build
+dist/
+.astro/
+
+# deps
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# env
+.env
+.env.local
+.env.production
+
+# editor
+.vscode/
+.idea/
+.DS_Store
+
+# fetched docs (regenerated on build)
+src/content/docs/docs/_fetched/

@@ -1,0 +1,63 @@
+---
+title: Hapbeat devtools
+description: 触覚デバイス Hapbeat のクリエイター・開発者向けツール、SDK、ドキュメントのポータル
+template: splash
+hero:
+  tagline: 触覚デバイス Hapbeat のためのクリエイター・開発者向けツールとドキュメント
+  actions:
+    - text: Getting Started
+      link: /docs/getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: ツール一覧を見る
+      link: /docs/manager/
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## ツール
+
+<CardGrid>
+  <LinkCard
+    title="Hapbeat Studio"
+    href="/studio/"
+    description="Web ベースの統合デザインツール。波形・LED・ディスプレイレイアウトの編集と Kit ビルド。"
+  />
+  <LinkCard
+    title="Hapbeat Manager"
+    href="/docs/manager/"
+    description="デバイス管理デスクトップアプリ。Serial/TCP/UDP でデバイスと通信し、ファーム書き込み・Kit 転送を行う。"
+  />
+  <LinkCard
+    title="Unity SDK"
+    href="/docs/unity-sdk/"
+    description="Unity 向け SDK。Trigger コンポーネントや EventMap で触覚を簡単に組み込む。"
+  />
+  <LinkCard
+    title="Creative Kit"
+    href="/docs/creative-kit/"
+    description="TouchDesigner / Max 向けテンプレートとサンプル（準備中）。"
+  />
+</CardGrid>
+
+## まず何をすればいい？
+
+<CardGrid>
+  <Card title="Hapbeat を手に入れたばかり" icon="rocket">
+    [Getting Started](/docs/getting-started/) に従い、Manager を入れてファームを書き込み、Studio で最初の Kit を作ってみる。
+  </Card>
+  <Card title="コンテンツを作りたい" icon="pencil">
+    [Hapbeat Studio](/studio/) をブラウザで開き、[Studio ガイド](/docs/studio/) に沿って波形・LED・ディスプレイを編集して Kit を書き出す。
+  </Card>
+  <Card title="ゲームに組み込みたい" icon="puzzle">
+    [Unity SDK](/docs/unity-sdk/) または [Unreal SDK](/docs/unreal-sdk/) を導入し、[Event ID / Pack 仕様](/docs/pack/) を参照しながら実装する。
+  </Card>
+  <Card title="ハードウェアを深く知りたい" icon="setting">
+    [アーキテクチャ](/docs/concepts/) と [Protocol リファレンス](/docs/protocol/) で通信・アドレシング・メッセージ仕様を確認する。
+  </Card>
+</CardGrid>
+
+## ダウンロード
+
+[Downloads ページ](/downloads/) から Manager の installer、Unity SDK パッケージ、ファームウェアバイナリを入手できる。各配布物は GitHub Release 経由で常に最新が提供される。

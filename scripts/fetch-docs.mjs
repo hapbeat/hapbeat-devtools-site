@@ -1,0 +1,149 @@
+#!/usr/bin/env node
+// fetch-docs.mjs
+//
+// 各サブ repo の docs/ を build 時に取り込む集約スクリプト。
+//
+// 動作:
+//  - ローカル dev: ../<repo>/docs/ が存在すればそこから cp（高速）
+//  - CI: git clone --depth=1 して docs/ をコピー
+//
+// 出力先: src/content/docs/docs/_fetched/<repo-short>/
+//   ※ このディレクトリは .gitignore 対象。build 時に regenerate される。
+//
+// Starlight の sidebar で参照する際は `/docs/_fetched/<repo-short>/<page>` で固定。
+
+import { execSync } from 'node:child_process';
+import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, '..');
+const TARGET_DIR = path.join(ROOT, 'src', 'content', 'docs', 'docs', '_fetched');
+const TMP_DIR = path.join(ROOT, '.astro', '_fetch-tmp');
+const WORKSPACE_SIBLING = path.resolve(ROOT, '..'); // hapbeat-sdk-workspace/
+
+const SOURCES = [
+  { short: 'contracts',  repo: 'hapbeat-contracts',           url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
+  { short: 'pack-tools', repo: 'hapbeat-pack-tools',          url: 'https://github.com/Hapbeat/hapbeat-pack-tools.git' },
+  { short: 'firmware',   repo: 'hapbeat-device-firmware',     url: 'https://github.com/Hapbeat/hapbeat-device-firmware.git' },
+  { short: 'manager',    repo: 'hapbeat-manager',             url: 'https://github.com/Hapbeat/hapbeat-manager.git' },
+  { short: 'studio',     repo: 'hapbeat-studio',              url: 'https://github.com/Hapbeat/hapbeat-studio.git' },
+  { short: 'unity-sdk',  repo: 'hapbeat-unity-sdk',           url: 'https://github.com/Hapbeat/hapbeat-unity-sdk.git' },
+  { short: 'unreal-sdk', repo: 'hapbeat-unreal-sdk',          url: 'https://github.com/Hapbeat/hapbeat-unreal-sdk.git' },
+  { short: 'bridge',     repo: 'hapbeat-bridge',              url: 'https://github.com/Hapbeat/hapbeat-bridge.git' },
+  { short: 'transmitter',repo: 'hapbeat-transmitter-firmware',url: 'https://github.com/Hapbeat/hapbeat-transmitter-firmware.git' },
+  { short: 'creative-kit', repo: 'hapbeat-creative-kit',      url: 'https://github.com/Hapbeat/hapbeat-creative-kit.git' },
+];
+
+async function isDir(p) {
+  try {
+    const s = await stat(p);
+    return s.isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+async function resetDir(p) {
+  if (existsSync(p)) await rm(p, { recursive: true, force: true });
+  await mkdir(p, { recursive: true });
+}
+
+function run(cmd, opts = {}) {
+  execSync(cmd, { stdio: 'inherit', ...opts });
+}
+
+async function fetchFromSibling(src) {
+  const siblingDocs = path.join(WORKSPACE_SIBLING, src.repo, 'docs');
+  if (!(await isDir(siblingDocs))) return false;
+  const dest = path.join(TARGET_DIR, src.short);
+  await cp(siblingDocs, dest, { recursive: true });
+  console.log(`  ok: sibling ${src.repo}/docs → _fetched/${src.short}/`);
+  return true;
+}
+
+async function fetchFromGit(src) {
+  const tmpRepo = path.join(TMP_DIR, src.repo);
+  if (existsSync(tmpRepo)) await rm(tmpRepo, { recursive: true, force: true });
+  try {
+    run(`git clone --depth=1 ${src.url} "${tmpRepo}"`);
+  } catch (e) {
+    console.warn(`  skip: clone failed for ${src.repo} (${e.message})`);
+    return false;
+  }
+  const gitDocs = path.join(tmpRepo, 'docs');
+  if (!(await isDir(gitDocs))) {
+    console.warn(`  skip: no docs/ in ${src.repo}`);
+    return false;
+  }
+  const dest = path.join(TARGET_DIR, src.short);
+  await cp(gitDocs, dest, { recursive: true });
+  console.log(`  ok: clone ${src.repo}/docs → _fetched/${src.short}/`);
+  return true;
+}
+
+// Starlight requires `title` in frontmatter. 取り込んだ .md にこれを保証する。
+//  - frontmatter があり title もあれば触らない
+//  - frontmatter があるが title なし → 先頭 H1 or ファイル名から派生して挿入
+//  - frontmatter なし → 新規生成して付与
+async function normalizeMarkdownFrontmatter(filePath) {
+  const raw = await readFile(filePath, 'utf8');
+  const fmMatch = raw.match(/^---\n([\s\S]*?)\n---\n?/);
+  let frontmatter = fmMatch ? fmMatch[1] : '';
+  let body = fmMatch ? raw.slice(fmMatch[0].length) : raw;
+
+  if (/^title\s*:/m.test(frontmatter)) return; // already ok
+
+  const h1 = body.match(/^#\s+(.+)$/m);
+  const fallbackTitle = h1
+    ? h1[1].trim()
+    : path.basename(filePath, path.extname(filePath))
+        .replace(/[-_]+/g, ' ')
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const escaped = fallbackTitle.replace(/"/g, '\\"');
+  const newFm = frontmatter ? `${frontmatter}\ntitle: "${escaped}"` : `title: "${escaped}"`;
+  await writeFile(filePath, `---\n${newFm}\n---\n${body}`);
+}
+
+async function walkAndNormalize(dir) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const p = path.join(dir, entry.name);
+    if (entry.isDirectory()) await walkAndNormalize(p);
+    else if (entry.isFile() && (p.endsWith('.md') || p.endsWith('.mdx'))) {
+      await normalizeMarkdownFrontmatter(p);
+    }
+  }
+}
+
+async function main() {
+  console.log('[fetch-docs] aggregating docs from sibling repos…');
+  await resetDir(TARGET_DIR);
+  await mkdir(TMP_DIR, { recursive: true });
+
+  const useGit = process.env.FETCH_DOCS_MODE === 'git' || !!process.env.CI;
+  if (useGit) console.log('  (mode: git clone — CI or forced)');
+
+  for (const src of SOURCES) {
+    console.log(`- ${src.repo}`);
+    let ok = false;
+    if (!useGit) ok = await fetchFromSibling(src);
+    if (!ok) ok = await fetchFromGit(src);
+    if (!ok) console.warn(`  warn: ${src.repo} skipped — page may render as placeholder only`);
+  }
+
+  // Normalize frontmatter: Starlight requires `title` in every doc page.
+  console.log('[fetch-docs] normalizing frontmatter…');
+  if (existsSync(TARGET_DIR)) await walkAndNormalize(TARGET_DIR);
+
+  // clean tmp
+  if (existsSync(TMP_DIR)) await rm(TMP_DIR, { recursive: true, force: true });
+  console.log('[fetch-docs] done.');
+}
+
+main().catch((e) => {
+  console.error('[fetch-docs] fatal:', e);
+  process.exit(1);
+});
