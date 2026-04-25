@@ -67,10 +67,20 @@ async function fetchFromSibling(src) {
 async function fetchFromGit(src) {
   const tmpRepo = path.join(TMP_DIR, src.repo);
   if (existsSync(tmpRepo)) await rm(tmpRepo, { recursive: true, force: true });
+  // private repo の clone には認証必須。DOCS_FETCH_TOKEN (org の repo を read できる
+  // fine-grained PAT) が env にあれば clone URL に注入する。
+  // GitHub Actions default の GITHUB_TOKEN は current repo scoped なので cross-repo は不可。
+  const token = process.env.DOCS_FETCH_TOKEN;
+  let cloneUrl = src.url;
+  if (token && cloneUrl.startsWith('https://github.com/')) {
+    cloneUrl = cloneUrl.replace('https://github.com/', `https://x-access-token:${token}@github.com/`);
+  }
   try {
-    run(`git clone --depth=1 ${src.url} "${tmpRepo}"`);
+    run(`git clone --depth=1 "${cloneUrl}" "${tmpRepo}"`);
   } catch (e) {
-    console.warn(`  skip: clone failed for ${src.repo} (${e.message})`);
+    // エラーメッセージに token が混入する可能性を伏字化
+    const safeMsg = String(e.message || '').replace(/x-access-token:[^@]+@/g, 'x-access-token:***@');
+    console.warn(`  skip: clone failed for ${src.repo} (${safeMsg})`);
     return false;
   }
   const gitDocs = path.join(tmpRepo, 'docs');
