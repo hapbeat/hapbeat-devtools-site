@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
-// 参考: docs/protocol と docs/pack 等の情報源は各 repo の docs/ を
+// 参考: docs/protocol と docs/kit 等の情報源は各 repo の docs/ を
 // scripts/fetch-docs.mjs で src/content/docs/docs/ に取り込んでから build する。
 
 export default defineConfig({
@@ -44,7 +44,7 @@ export default defineConfig({
           label: 'デバイスと仕様',
           items: [
             { label: 'Device Firmware', link: '/docs/firmware/' },
-            { label: 'Pack / Kit フォーマット', link: '/docs/pack/' },
+            { label: 'Kit フォーマット', link: '/docs/kit/' },
             { label: 'Protocol リファレンス', link: '/docs/protocol/' },
           ],
         },

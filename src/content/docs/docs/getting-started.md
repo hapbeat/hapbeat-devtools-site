@@ -50,5 +50,5 @@ Studio のテスト再生、または [Unity SDK](/docs/unity-sdk/) のサンプ
 ## 次に読むページ
 
 - [アーキテクチャと主要概念](/docs/concepts/)
-- [Event ID / Kit フォーマット](/docs/pack/)
+- [Event ID / Kit フォーマット](/docs/kit/)
 - [Protocol リファレンス](/docs/protocol/)

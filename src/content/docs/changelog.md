@@ -17,7 +17,7 @@ description: 各ツール・リポジトリのリリース履歴。
 
 - [Device Firmware releases](https://github.com/Hapbeat/hapbeat-device-firmware/releases)
 - [Transmitter Firmware releases](https://github.com/Hapbeat/hapbeat-transmitter-firmware/releases)
-- [Pack Tools releases](https://github.com/Hapbeat/hapbeat-pack-tools/releases)
+- [Kit Tools releases](https://github.com/Hapbeat/hapbeat-kit-tools/releases)
 
 ## 仕様
 

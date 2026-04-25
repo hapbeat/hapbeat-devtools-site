@@ -35,7 +35,7 @@ FETCH_DOCS_MODE=git npm run build
 | 参照先 | 集約対象 |
 |--------|---------|
 | hapbeat-contracts | `docs/*.md` |
-| hapbeat-pack-tools | `docs/*.md` |
+| hapbeat-kit-tools | `docs/*.md` |
 | hapbeat-device-firmware | `docs/*.md` |
 | hapbeat-manager | `docs/*.md` |
 | hapbeat-studio | `docs/*.md` |

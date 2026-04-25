@@ -23,8 +23,8 @@ description: UDP / TCP / Serial / WebSocket 各プロトコルの仕様、アド
 - `device-addressing.md` — device ID / group ID の割り当て
 - `serial-config.md` — シリアル設定プロトコル
 - `display-layout.md` — OLED ブロック配置
-- `pack-format.md` — Kit（Pack）ファイルフォーマット
-- `pack-install-protocol.md` — Kit 転送の TCP シーケンス
+- `kit-format.md` — Kitファイルフォーマット
+- `kit-install-protocol.md` — Kit 転送の TCP シーケンス
 - `event-id.md` — Event ID 命名規則
 - `bridge-api.md` — Bridge 経由時の API
 - `internal-bridge-transmitter.md` — Bridge ↔ Transmitter 内部仕様
@@ -33,4 +33,4 @@ description: UDP / TCP / Serial / WebSocket 各プロトコルの仕様、アド
 ## 次に読むページ
 
 - [アーキテクチャと主要概念](/docs/concepts/)
-- [Pack / Kit フォーマット](/docs/pack/)
+- [Kit フォーマット](/docs/kit/)

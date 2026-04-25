@@ -26,7 +26,7 @@ const WORKSPACE_SIBLING = path.resolve(ROOT, '..'); // hapbeat-sdk-workspace/
 
 const SOURCES = [
   { short: 'contracts',  repo: 'hapbeat-contracts',           url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
-  { short: 'pack-tools', repo: 'hapbeat-pack-tools',          url: 'https://github.com/Hapbeat/hapbeat-pack-tools.git' },
+  { short: 'kit-tools', repo: 'hapbeat-kit-tools',          url: 'https://github.com/Hapbeat/hapbeat-kit-tools.git' },
   { short: 'firmware',   repo: 'hapbeat-device-firmware',     url: 'https://github.com/Hapbeat/hapbeat-device-firmware.git' },
   { short: 'manager',    repo: 'hapbeat-manager',             url: 'https://github.com/Hapbeat/hapbeat-manager.git' },
   { short: 'studio',     repo: 'hapbeat-studio',              url: 'https://github.com/Hapbeat/hapbeat-studio.git' },
