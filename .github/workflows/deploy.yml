@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Install deps (ci)
@@ -27,6 +27,9 @@ jobs:
         run: npm run build
         env:
           FETCH_DOCS_MODE: git
+          # Cross-repo private clone token. Optional: if not set, fetch-docs falls back to placeholders.
+          # 設定する場合: org の private repo を read できる fine-grained PAT を Settings > Secrets で DOCS_FETCH_TOKEN に登録。
+          DOCS_FETCH_TOKEN: ${{ secrets.DOCS_FETCH_TOKEN }}
 
       - name: FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
