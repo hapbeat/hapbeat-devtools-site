@@ -24,17 +24,18 @@ const TARGET_DIR = path.join(ROOT, 'src', 'content', 'docs', 'docs', '_fetched')
 const TMP_DIR = path.join(ROOT, '.astro', '_fetch-tmp');
 const WORKSPACE_SIBLING = path.resolve(ROOT, '..'); // hapbeat-sdk-workspace/
 
+// ユーザー向け docs/ を持つ repo のみ列挙する。
+// hapbeat-bridge / hapbeat-transmitter-firmware は内部コンポーネント
+// (ユーザー直接操作なし) なので集約対象外。
 const SOURCES = [
-  { short: 'contracts',  repo: 'hapbeat-contracts',           url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
-  { short: 'kit-tools', repo: 'hapbeat-kit-tools',          url: 'https://github.com/Hapbeat/hapbeat-kit-tools.git' },
-  { short: 'firmware',   repo: 'hapbeat-device-firmware',     url: 'https://github.com/Hapbeat/hapbeat-device-firmware.git' },
-  { short: 'manager',    repo: 'hapbeat-manager',             url: 'https://github.com/Hapbeat/hapbeat-manager.git' },
-  { short: 'studio',     repo: 'hapbeat-studio',              url: 'https://github.com/Hapbeat/hapbeat-studio.git' },
-  { short: 'unity-sdk',  repo: 'hapbeat-unity-sdk',           url: 'https://github.com/Hapbeat/hapbeat-unity-sdk.git' },
-  { short: 'unreal-sdk', repo: 'hapbeat-unreal-sdk',          url: 'https://github.com/Hapbeat/hapbeat-unreal-sdk.git' },
-  { short: 'bridge',     repo: 'hapbeat-bridge',              url: 'https://github.com/Hapbeat/hapbeat-bridge.git' },
-  { short: 'transmitter',repo: 'hapbeat-transmitter-firmware',url: 'https://github.com/Hapbeat/hapbeat-transmitter-firmware.git' },
-  { short: 'creative-kit', repo: 'hapbeat-creative-kit',      url: 'https://github.com/Hapbeat/hapbeat-creative-kit.git' },
+  { short: 'contracts',    repo: 'hapbeat-contracts',           url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
+  { short: 'kit-tools',    repo: 'hapbeat-kit-tools',           url: 'https://github.com/Hapbeat/hapbeat-kit-tools.git' },
+  { short: 'firmware',     repo: 'hapbeat-device-firmware',     url: 'https://github.com/Hapbeat/hapbeat-device-firmware.git' },
+  { short: 'manager',      repo: 'hapbeat-manager',             url: 'https://github.com/Hapbeat/hapbeat-manager.git' },
+  { short: 'studio',       repo: 'hapbeat-studio',              url: 'https://github.com/Hapbeat/hapbeat-studio.git' },
+  { short: 'unity-sdk',    repo: 'hapbeat-unity-sdk',           url: 'https://github.com/Hapbeat/hapbeat-unity-sdk.git' },
+  { short: 'unreal-sdk',   repo: 'hapbeat-unreal-sdk',          url: 'https://github.com/Hapbeat/hapbeat-unreal-sdk.git' },
+  { short: 'creative-kit', repo: 'hapbeat-creative-kit',        url: 'https://github.com/Hapbeat/hapbeat-creative-kit.git' },
 ];
 
 async function isDir(p) {

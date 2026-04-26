@@ -34,13 +34,17 @@ FETCH_DOCS_MODE=git npm run build
 
 | 参照先 | 集約対象 |
 |--------|---------|
-| hapbeat-contracts | `docs/*.md` |
+| hapbeat-contracts | `docs/*.md` (＋ `specs/*.md` を将来的に追加予定) |
 | hapbeat-kit-tools | `docs/*.md` |
 | hapbeat-device-firmware | `docs/*.md` |
 | hapbeat-manager | `docs/*.md` |
 | hapbeat-studio | `docs/*.md` |
 | hapbeat-unity-sdk | `docs/*.md` |
-| その他 repo | `docs/*.md`（存在すれば） |
+| hapbeat-unreal-sdk / hapbeat-creative-kit | `docs/*.md`（実装後） |
+
+**集約対象外** (内部コンポーネント): hapbeat-bridge / hapbeat-transmitter-firmware
+
+各 repo の `dev-notes/` (内部開発知見) は portal には掲載しない。
 
 ## デプロイ
 
