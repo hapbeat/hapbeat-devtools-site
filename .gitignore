@@ -30,3 +30,7 @@ src/content/docs/docs/studio/
 src/content/docs/docs/unity-sdk/
 src/content/docs/docs/unreal-sdk/
 src/content/docs/docs/creative-kit/
+
+# Legacy: 旧 fetch-docs.mjs が出していた _fetched/ ディレクトリ
+# (現在は使わないが、ローカル残骸を track しないよう保持)
+src/content/docs/docs/_fetched/
