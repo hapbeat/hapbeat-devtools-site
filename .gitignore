@@ -20,5 +20,13 @@ yarn-error.log*
 .idea/
 .DS_Store
 
-# fetched docs (regenerated on build)
-src/content/docs/docs/_fetched/
+# fetched docs (regenerated on build by scripts/fetch-docs.mjs)
+# 各サブ repo から build 時に集約されるディレクトリ。SOURCES の short と同名。
+src/content/docs/docs/contracts/
+src/content/docs/docs/kit-tools/
+src/content/docs/docs/firmware/
+src/content/docs/docs/manager/
+src/content/docs/docs/studio/
+src/content/docs/docs/unity-sdk/
+src/content/docs/docs/unreal-sdk/
+src/content/docs/docs/creative-kit/

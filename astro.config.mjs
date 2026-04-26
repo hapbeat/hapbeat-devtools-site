@@ -15,9 +15,13 @@ export default defineConfig({
     starlight({
       title: 'Hapbeat devtools',
       description: '触覚デバイス Hapbeat のクリエイター・開発者向けツールとドキュメント',
-      defaultLocale: 'ja',
+      // i18n: 日本語を root (URL prefix なし) として配信し、英語を /en/ 配下に。
+      // Starlight の慣例で「default = root」「alternate = /<lang>/」のパターン。
+      // 英訳は AI 訳を順次掲載予定。未訳ページは fallback メッセージで案内される。
+      defaultLocale: 'root',
       locales: {
-        ja: { label: '日本語', lang: 'ja' },
+        root: { label: '日本語', lang: 'ja' },
+        en: { label: 'English', lang: 'en' },
       },
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/Hapbeat' },
@@ -31,41 +35,41 @@ export default defineConfig({
           ],
         },
         // 各 repo の docs/ は scripts/fetch-docs.mjs が build 時に
-        //   src/content/docs/docs/_fetched/<short>/ に集約する。
+        //   src/content/docs/docs/<short>/ に集約する。
         // autogenerate でそのディレクトリ配下を自動でサイドバー化する。
         {
           label: 'Hapbeat Manager',
-          autogenerate: { directory: 'docs/_fetched/manager' },
+          autogenerate: { directory: 'docs/manager' },
         },
         {
           label: 'Hapbeat Studio',
-          autogenerate: { directory: 'docs/_fetched/studio' },
+          autogenerate: { directory: 'docs/studio' },
         },
         {
           label: 'Unity SDK',
-          autogenerate: { directory: 'docs/_fetched/unity-sdk' },
+          autogenerate: { directory: 'docs/unity-sdk' },
         },
         {
           label: 'Unreal SDK',
           badge: { text: 'WIP', variant: 'caution' },
-          autogenerate: { directory: 'docs/_fetched/unreal-sdk' },
+          autogenerate: { directory: 'docs/unreal-sdk' },
         },
         {
           label: 'Creative Kit',
           badge: { text: 'WIP', variant: 'caution' },
-          autogenerate: { directory: 'docs/_fetched/creative-kit' },
+          autogenerate: { directory: 'docs/creative-kit' },
         },
         {
           label: 'Device Firmware',
-          autogenerate: { directory: 'docs/_fetched/firmware' },
+          autogenerate: { directory: 'docs/firmware' },
         },
         {
           label: 'Kit Tools (CLI)',
-          autogenerate: { directory: 'docs/_fetched/kit-tools' },
+          autogenerate: { directory: 'docs/kit-tools' },
         },
         {
           label: 'Contracts (仕様)',
-          autogenerate: { directory: 'docs/_fetched/contracts' },
+          autogenerate: { directory: 'docs/contracts' },
         },
         {
           label: 'その他',

@@ -1,0 +1,67 @@
+---
+title: Hapbeat devtools
+description: Developer portal for the Hapbeat haptic device — tools, SDKs, and documentation.
+template: splash
+hero:
+  tagline: Tools, SDKs, and documentation for the Hapbeat haptic device.
+  actions:
+    - text: Getting Started
+      link: /en/docs/getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: Install Manager
+      link: /en/docs/manager/installation/
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+:::caution
+**English documentation is partial.** Most pages are still being translated. Untranslated pages will display the Japanese version. AI-assisted translations are planned.
+:::
+
+## Tools
+
+<CardGrid>
+  <LinkCard
+    title="Hapbeat Studio"
+    href="/studio/"
+    description="Web-based design tool. Edit waveforms, LED, display layout, and build Kits."
+  />
+  <LinkCard
+    title="Hapbeat Manager"
+    href="/en/docs/manager/installation/"
+    description="Desktop app for device management. Serial/TCP/UDP communication, firmware flashing, Kit transfer."
+  />
+  <LinkCard
+    title="Unity SDK"
+    href="/en/docs/unity-sdk/installation/"
+    description="Unity SDK. Add haptics easily with Trigger components and EventMap."
+  />
+  <LinkCard
+    title="Creative Kit"
+    href="/en/docs/creative-kit/coming-soon/"
+    description="Templates and samples for TouchDesigner / Max (under development)."
+  />
+</CardGrid>
+
+## Where to start
+
+<CardGrid>
+  <Card title="Just got a Hapbeat" icon="rocket">
+    Follow [Getting Started](/en/docs/getting-started/): install Manager, flash firmware, build your first Kit in Studio.
+  </Card>
+  <Card title="Want to create content" icon="pencil">
+    Open [Hapbeat Studio](/studio/) and follow the [Studio guide](/en/docs/studio/getting-started/) to edit waveforms, LEDs, display, and export a Kit.
+  </Card>
+  <Card title="Want to integrate with a game" icon="puzzle">
+    Install the [Unity SDK](/en/docs/unity-sdk/installation/) and reference the [Contracts spec](/en/docs/contracts/overview/). Unreal is [in development](/en/docs/unreal-sdk/coming-soon/).
+  </Card>
+  <Card title="Want to dive into the hardware" icon="setting">
+    Check [Architecture & concepts](/en/docs/concepts/) and [Contracts overview](/en/docs/contracts/overview/) for protocol, addressing, message format.
+  </Card>
+</CardGrid>
+
+## Downloads
+
+Get the latest Manager installer, Unity SDK package, and firmware binaries from the [Downloads page](/en/downloads/). All releases are distributed via GitHub Releases.

@@ -18,7 +18,7 @@ Unity Package Manager（UPM）経由でインストール可能。
 
 - [最新リリース (GitHub)](https://github.com/Hapbeat/hapbeat-unity-sdk/releases/latest)
 - UPM 登録 URL: `https://github.com/Hapbeat/hapbeat-unity-sdk.git` （タグ指定推奨）
-- 導入手順: [Unity SDK インストール](/docs/_fetched/unity-sdk/installation/)
+- 導入手順: [Unity SDK インストール](/docs/unity-sdk/installation/)
 
 ## Device Firmware
 

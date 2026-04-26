@@ -20,7 +20,11 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const TARGET_DIR = path.join(ROOT, 'src', 'content', 'docs', 'docs', '_fetched');
+// 各 repo の docs/ は src/content/docs/docs/<short>/ へ集約する。
+// portal URL は /docs/<short>/<page>/ となり、fetched という実装名は表に出ない。
+// hand-written な docs/getting-started.md / docs/concepts.md と棲み分けるため、
+// repo の追加ごとに per-short のサブディレクトリを reset する設計にしている。
+const TARGET_PARENT = path.join(ROOT, 'src', 'content', 'docs', 'docs');
 const TMP_DIR = path.join(ROOT, '.astro', '_fetch-tmp');
 const WORKSPACE_SIBLING = path.resolve(ROOT, '..'); // hapbeat-sdk-workspace/
 
@@ -69,9 +73,9 @@ function run(cmd, opts = {}) {
 async function fetchFromSibling(src) {
   const siblingDocs = path.join(WORKSPACE_SIBLING, src.repo, 'docs');
   if (!(await isDir(siblingDocs))) return false;
-  const dest = path.join(TARGET_DIR, src.short);
+  const dest = path.join(TARGET_PARENT, src.short);
   await cp(siblingDocs, dest, { recursive: true });
-  console.log(`  ok: sibling ${src.repo}/docs → _fetched/${src.short}/`);
+  console.log(`  ok: sibling ${src.repo}/docs → docs/${src.short}/`);
   return true;
 }
 
@@ -99,9 +103,9 @@ async function fetchFromGit(src) {
     console.warn(`  skip: no docs/ in ${src.repo}`);
     return false;
   }
-  const dest = path.join(TARGET_DIR, src.short);
+  const dest = path.join(TARGET_PARENT, src.short);
   await cp(gitDocs, dest, { recursive: true });
-  console.log(`  ok: clone ${src.repo}/docs → _fetched/${src.short}/`);
+  console.log(`  ok: clone ${src.repo}/docs → docs/${src.short}/`);
   return true;
 }
 
@@ -148,7 +152,7 @@ async function walkAndNormalize(dir) {
 
 async function main() {
   console.log('[fetch-docs] aggregating docs from sibling repos…');
-  await resetDir(TARGET_DIR);
+  await mkdir(TARGET_PARENT, { recursive: true });
   await mkdir(TMP_DIR, { recursive: true });
 
   const useGit = process.env.FETCH_DOCS_MODE === 'git' || !!process.env.CI;
@@ -156,15 +160,20 @@ async function main() {
 
   for (const src of SOURCES) {
     console.log(`- ${src.repo}`);
+    // Per-short の宛先を reset (hand-written な docs/getting-started.md 等を温存するため)。
+    const dest = path.join(TARGET_PARENT, src.short);
+    await resetDir(dest);
+
     let ok = false;
     if (!useGit) ok = await fetchFromSibling(src);
     if (!ok) ok = await fetchFromGit(src);
-    if (!ok) console.warn(`  warn: ${src.repo} skipped — page may render as placeholder only`);
+    if (!ok) {
+      console.warn(`  warn: ${src.repo} skipped — page may render as placeholder only`);
+      continue;
+    }
+    // Normalize frontmatter (Starlight requires title) and strip excluded files.
+    await walkAndNormalize(dest);
   }
-
-  // Normalize frontmatter: Starlight requires `title` in every doc page.
-  console.log('[fetch-docs] normalizing frontmatter…');
-  if (existsSync(TARGET_DIR)) await walkAndNormalize(TARGET_DIR);
 
   // clean tmp
   if (existsSync(TMP_DIR)) await rm(TMP_DIR, { recursive: true, force: true });

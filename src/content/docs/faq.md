@@ -19,7 +19,7 @@ description: よくある質問と典型的なトラブルへの対処法。
 ### Q. Wi-Fi 接続できない
 
 - Hapbeat は 2.4 GHz 帯のみ対応。5 GHz 専用ルーターでは動作しない
-- Serial 経由で SSID / パスワードを再設定: [Wi-Fi 設定ガイド](/docs/_fetched/firmware/wifi-setup/)
+- Serial 経由で SSID / パスワードを再設定: [Wi-Fi 設定ガイド](/docs/firmware/wifi-setup/)
 
 ### Q. VR HMD（Quest 等）から直接使いたい
 
