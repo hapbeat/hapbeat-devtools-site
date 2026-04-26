@@ -27,9 +27,13 @@ const WORKSPACE_SIBLING = path.resolve(ROOT, '..'); // hapbeat-sdk-workspace/
 // ユーザー向け docs/ を持つ repo のみ列挙する。
 // hapbeat-bridge / hapbeat-transmitter-firmware は内部コンポーネント
 // (ユーザー直接操作なし) なので集約対象外。
+// short = portal URL prefix (forward-looking 名)
+// repo  = ローカル sibling ディレクトリ名 / 現在の GitHub repo 名
+//   pack-tools → kit-tools への repo rename はまだ未実施なので、
+//   short のみ kit-tools に先行統一し、repo / url は現行の pack-tools を指す。
 const SOURCES = [
   { short: 'contracts',    repo: 'hapbeat-contracts',           url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
-  { short: 'kit-tools',    repo: 'hapbeat-kit-tools',           url: 'https://github.com/Hapbeat/hapbeat-kit-tools.git' },
+  { short: 'kit-tools',    repo: 'hapbeat-pack-tools',          url: 'https://github.com/Hapbeat/hapbeat-pack-tools.git' },
   { short: 'firmware',     repo: 'hapbeat-device-firmware',     url: 'https://github.com/Hapbeat/hapbeat-device-firmware.git' },
   { short: 'manager',      repo: 'hapbeat-manager',             url: 'https://github.com/Hapbeat/hapbeat-manager.git' },
   { short: 'studio',       repo: 'hapbeat-studio',              url: 'https://github.com/Hapbeat/hapbeat-studio.git' },
@@ -37,6 +41,12 @@ const SOURCES = [
   { short: 'unreal-sdk',   repo: 'hapbeat-unreal-sdk',          url: 'https://github.com/Hapbeat/hapbeat-unreal-sdk.git' },
   { short: 'creative-kit', repo: 'hapbeat-creative-kit',        url: 'https://github.com/Hapbeat/hapbeat-creative-kit.git' },
 ];
+
+// 集約後に portal で表示しないファイル名 (case-insensitive)。
+//  - README.md: docs/ ディレクトリの説明 (contributor 向けメタ文書)
+//  - .meta:     Unity の asset metadata
+const EXCLUDE_FILES = new Set(['readme.md']);
+const EXCLUDE_EXTS = new Set(['.meta']);
 
 async function isDir(p) {
   try {
@@ -122,6 +132,13 @@ async function normalizeMarkdownFrontmatter(filePath) {
 async function walkAndNormalize(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const p = path.join(dir, entry.name);
+    const lower = entry.name.toLowerCase();
+    const ext = path.extname(lower);
+    // 除外: portal に出すべきでないファイルを集約後に削除
+    if (entry.isFile() && (EXCLUDE_FILES.has(lower) || EXCLUDE_EXTS.has(ext))) {
+      await rm(p, { force: true });
+      continue;
+    }
     if (entry.isDirectory()) await walkAndNormalize(p);
     else if (entry.isFile() && (p.endsWith('.md') || p.endsWith('.mdx'))) {
       await normalizeMarkdownFrontmatter(p);

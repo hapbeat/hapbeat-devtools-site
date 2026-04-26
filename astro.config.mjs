@@ -6,6 +6,11 @@ import starlight from '@astrojs/starlight';
 
 export default defineConfig({
   site: 'https://devtools.hapbeat.com',
+  server: {
+    // hapbeat-studio が Vite default の 5173 を使うため衝突を避けて 1313 に固定。
+    // 1313 は Hugo docs site の慣例ポートで覚えやすい。
+    port: 1313,
+  },
   integrations: [
     starlight({
       title: 'Hapbeat devtools',
@@ -25,28 +30,42 @@ export default defineConfig({
             { label: 'アーキテクチャと主要概念', link: '/docs/concepts/' },
           ],
         },
+        // 各 repo の docs/ は scripts/fetch-docs.mjs が build 時に
+        //   src/content/docs/docs/_fetched/<short>/ に集約する。
+        // autogenerate でそのディレクトリ配下を自動でサイドバー化する。
         {
-          label: 'ツール',
-          items: [
-            { label: 'Hapbeat Manager', link: '/docs/manager/' },
-            { label: 'Hapbeat Studio', link: '/docs/studio/' },
-          ],
+          label: 'Hapbeat Manager',
+          autogenerate: { directory: 'docs/_fetched/manager' },
         },
         {
-          label: 'SDK',
-          items: [
-            { label: 'Unity SDK', link: '/docs/unity-sdk/' },
-            { label: 'Unreal SDK', link: '/docs/unreal-sdk/', badge: { text: 'WIP', variant: 'caution' } },
-            { label: 'Creative Kit', link: '/docs/creative-kit/', badge: { text: 'WIP', variant: 'caution' } },
-          ],
+          label: 'Hapbeat Studio',
+          autogenerate: { directory: 'docs/_fetched/studio' },
         },
         {
-          label: 'デバイスと仕様',
-          items: [
-            { label: 'Device Firmware', link: '/docs/firmware/' },
-            { label: 'Kit フォーマット', link: '/docs/kit/' },
-            { label: 'Protocol リファレンス', link: '/docs/protocol/' },
-          ],
+          label: 'Unity SDK',
+          autogenerate: { directory: 'docs/_fetched/unity-sdk' },
+        },
+        {
+          label: 'Unreal SDK',
+          badge: { text: 'WIP', variant: 'caution' },
+          autogenerate: { directory: 'docs/_fetched/unreal-sdk' },
+        },
+        {
+          label: 'Creative Kit',
+          badge: { text: 'WIP', variant: 'caution' },
+          autogenerate: { directory: 'docs/_fetched/creative-kit' },
+        },
+        {
+          label: 'Device Firmware',
+          autogenerate: { directory: 'docs/_fetched/firmware' },
+        },
+        {
+          label: 'Kit Tools (CLI)',
+          autogenerate: { directory: 'docs/_fetched/kit-tools' },
+        },
+        {
+          label: 'Contracts (仕様)',
+          autogenerate: { directory: 'docs/_fetched/contracts' },
         },
         {
           label: 'その他',

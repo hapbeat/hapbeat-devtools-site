@@ -26,7 +26,7 @@ Hapbeat は「固定ランタイム + Kit + SDK」の 3 分離を基礎に、制
 
 触覚コンテンツを識別する軽量な文字列 ID。SDK は Event ID を送信し、Hapbeat 側で Kit からクリップを解決して再生する。
 
-詳細: [Kit フォーマット](/docs/kit/)
+詳細: [Contracts 概要](/docs/_fetched/contracts/overview/)
 
 ## Group ID
 
@@ -42,5 +42,5 @@ Hapbeat は「固定ランタイム + Kit + SDK」の 3 分離を基礎に、制
 
 ## 次に読むページ
 
-- [Protocol リファレンス](/docs/protocol/) — メッセージ仕様・アドレシング・display-layout
-- [Device Firmware](/docs/firmware/)
+- [Contracts 概要](/docs/_fetched/contracts/overview/) — メッセージ仕様・アドレシング・display-layout 等のリファレンス入口
+- [Device Firmware](/docs/_fetched/firmware/wifi-setup/)
