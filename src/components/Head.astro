@@ -1,0 +1,25 @@
+---
+/**
+ * Head override.
+ *
+ * Starlight default の Head (meta / preload / favicon 等) を温存しつつ、
+ * Astro View Transitions を全ページで有効化する。
+ *
+ * 効果:
+ *   - ページ遷移時の白フラッシュが消える (full reload → smooth swap)
+ *   - サイドバー / ヘッダー / フッター が transition:persist で維持される
+ *   - search modal や theme toggle の custom element は connectedCallback が
+ *     再バインドされるため動作継続
+ *
+ * 注意:
+ *   - <ClientRouter /> は astro:transitions が提供する仮想 element
+ *   - SSG 出力でも runtime で fetch+swap する SPA-like 挙動になる
+ *   - script type="module" / inline event handler は transition 対応が必要
+ *     (Starlight 標準の theme/menu/lang script は対応済み)
+ */
+import Default from '@astrojs/starlight/components/Head.astro';
+import { ClientRouter } from 'astro:transitions';
+---
+
+<Default {...Astro.props}><slot /></Default>
+<ClientRouter />

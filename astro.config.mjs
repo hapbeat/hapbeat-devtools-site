@@ -35,6 +35,7 @@ export default defineConfig({
       //   - Footer: Starlight default に加えてサイトフッター追加
       // ロゴ画像は使わず CSS グラデーションで描画するため logo config はなし。
       components: {
+        Head: './src/components/Head.astro',
         Header: './src/components/Header.astro',
         SiteTitle: './src/components/SiteTitle.astro',
         LanguageSelect: './src/components/LanguageSelect.astro',
