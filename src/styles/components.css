@@ -337,93 +337,134 @@ starlight-toc h2,
 }
 
 /* ------------------------------------------------------------
- * Resizable columns (sidebar / TOC)
+ * Sidebar / TOC: 固定幅 + 格納 (collapse) ボタン
  *
- * Head.astro の inline script が #starlight__sidebar と
- * .right-sidebar-container に <div class="hb-resize-handle"> を注入する。
- * ドラッグで --sl-sidebar-width (左) / --hb-toc-w (右) を更新 +
- * localStorage に永続化する。
+ * 方針:
+ *   - サイドバーと TOC は **固定幅** に寄せる (リサイズ機能は撤去)
+ *   - ヘッダーに 2 個の icon ボタン (左 sidebar / 右 TOC) で格納トグル
+ *   - 格納状態は <html> の class で制御し localStorage に永続化
+ *   - 早期 inline script (Head.astro) が DOM 構築前に class を当てて FOUC 抑止
  *
- * ハンドル本体は通常透明、hover/drag 中だけ accent カラーで可視化。
- * touch-action: none でモバイル長押し選択を抑制 (タブレット resize 用)。
- * 50rem 以下では hide (モバイルはサイドバー自体がドロワー化)。
+ * 何故リサイズを止めたか:
+ *   Starlight 標準レイアウトが --sl-sidebar-width を main-pane / TOC 両方の
+ *   width 計算に組み込んでいるため、左 sidebar を変えると右 TOC の折り返し
+ *   挙動が変動する結合状態になっていた。固定幅にすればこの問題は解消、
+ *   ユーザのニーズ (TOC 独立) も満たせる。 + collapse 機能で柔軟性を担保。
  * ------------------------------------------------------------ */
 
-/* 当たり判定 14px (狭い 6px だと精密マウス操作が必要だった)。
- * 視覚的には透明な広いヒットエリア + ::before で 2px の細線インジケータ。
- * hover/drag 中だけ accent カラーで可視化。 */
-.hb-resize-handle {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 14px;
-  z-index: 50;
-  background: transparent;
-  cursor: col-resize;
-  touch-action: none;
-  display: flex;
-  justify-content: center;
-}
-.hb-resize-handle--end {
-  right: -7px;
-}
-.hb-resize-handle--start {
-  left: -7px;
-}
-.hb-resize-handle::before {
-  content: '';
-  width: 2px;
-  background: transparent;
-  transition: background 0.15s;
-}
-.hb-resize-handle:hover::before,
-.hb-resize-handle.is-dragging::before {
-  background: var(--sl-color-accent);
+/* 固定幅 (Starlight default に合わせる) + TOC 専用変数 */
+:root {
+  --sl-sidebar-width: 18.75rem;   /* 左 sidebar 幅 (= Starlight default) */
+  --hb-toc-w: 280px;              /* 右 TOC 幅 */
 }
 
-/* Drag 中はカーソル統一 + テキスト選択無効化 */
-body.is-resizing,
-body.is-resizing * {
-  cursor: col-resize !important;
-  user-select: none !important;
-}
-
-/* ハンドル取り付けの positioning context:
- *   - .sidebar-pane (#starlight__sidebar) は Starlight default で position:fixed
- *     なのでそのままで absolute ハンドルが効く (override 不要)
- *   - .right-sidebar-container は Starlight default で position:relative なので
- *     こちらも override 不要
- *   ※ 過去 ここで position:relative を強制していたが、それが fixed を破壊して
- *     サイドバーが通常フローに落ちる事故を起こしたため撤去。
- *
- * サイドバーの横スクロール禁止: 幅を狭くしたときに長い項目で横スクロールが
- * 出ないよう overflow-x:hidden を当てる。縦は引き続き auto。 */
+/* sidebar の overflow を引き締め (横スクロール禁止 + bubble 抑止) */
 .sidebar-pane {
   overflow-x: hidden;
+  overscroll-behavior: contain;
 }
-
-/* TOC 幅は sidebar 幅から完全に独立させる。
- * Starlight default は calc(sidebar-w + (100% - content-w - sidebar-w)/2)
- * という対称レイアウト用の式だったが、これだと「左 sidebar を resize すると
- * 右 TOC の折り返し位置も変わる」結合状態になっていた。
- * 固定 default 280px + --hb-toc-w でユーザ resize 値を反映する。
- * これで TOC 幅は left sidebar 幅と独立する。 */
-.right-sidebar-container {
-  width: var(--hb-toc-w, 280px) !important;
-}
-
-/* .right-sidebar は position:fixed で width:100% 指定だが、その 100% は
- * (containing block = .right-sidebar-container) に解決される。
- * Starlight default の border-inline-start の 1px が hover handle と
- * 重なって "縦バーが二重に見える" 違和感の原因になりうるため撤去。 */
 .right-sidebar {
-  border-inline-start: 0 !important;
+  overscroll-behavior: contain;
 }
 
+/* TOC 幅を sidebar 幅から完全独立させる
+ * Starlight default の calc(sidebar-w + ...) を !important で上書き */
+.right-sidebar-container {
+  width: var(--hb-toc-w) !important;
+  transition: width 0.2s ease;
+}
+/* main-pane も sidebar-w 依存だったので fixed 幅に揃える
+ * (TOC 280px を引いた残り全部を main-pane に) */
+.main-pane {
+  width: calc(100% - var(--hb-toc-w)) !important;
+  margin-inline: 0 !important;
+  transition: width 0.2s ease;
+}
+
+/* TOC の左罫線は復活させる (デザイン上必要)。ただし top:0 だとヘッダーの上に
+ * かぶさる事故が起きるため、top をヘッダー高さ分下げる。
+ * ※ Starlight default の top:0 + padding-top:nav-height はコンテンツを下げる
+ *   だけで border 自体は viewport top から伸びていた。 */
+.right-sidebar {
+  top: var(--sl-nav-height) !important;
+  padding-top: 0 !important;
+  height: calc(100vh - var(--sl-nav-height)) !important;
+  border-inline-start: 1px solid var(--hb-line) !important;
+}
+
+/* main-frame のレイアウト遷移も滑らかに */
+.main-frame {
+  transition: padding-inline-start 0.2s ease;
+}
+.sidebar-pane,
+nav.sidebar {
+  transition: width 0.2s ease, transform 0.2s ease;
+}
+
+/* ====== Collapsed states ====== */
+
+/* 左 sidebar collapsed: 幅 0、可視性は visibility で消す
+ * (display:none だと transition が効かないため) */
+html.hb-sidebar-collapsed {
+  --sl-sidebar-width: 0px;
+}
+html.hb-sidebar-collapsed .sidebar-pane,
+html.hb-sidebar-collapsed nav.sidebar {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* 右 TOC collapsed: --hb-toc-w を 0 に、main-pane が伸びる */
+html.hb-toc-collapsed {
+  --hb-toc-w: 0px;
+}
+html.hb-toc-collapsed .right-sidebar-container,
+html.hb-toc-collapsed .right-sidebar {
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Collapse / expand 用のヘッダーボタン (Header.astro 側で配置) */
+.hb-collapse-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  color: var(--hb-ink-mute);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex: none;
+}
+.hb-collapse-btn:hover {
+  background: var(--hb-bg-soft);
+  color: var(--hb-ink);
+}
+/* Collapsed 中は accent でアクティブ表示 */
+html.hb-sidebar-collapsed .hb-collapse-btn--sidebar {
+  color: var(--sl-color-accent);
+}
+html.hb-toc-collapsed .hb-collapse-btn--toc {
+  color: var(--sl-color-accent);
+}
+/* mobile では collapse ボタンを隠す (Starlight 標準の menu に任せる) */
 @media (max-width: 50rem) {
-  .hb-resize-handle {
+  .hb-collapse-btn {
     display: none;
   }
+}
+
+/* mobile の "On this page" 上部コラプシブを廃止
+ * (ユーザ希望: 縦方向情報量を減らしたくない、代わりに右 TOC 格納ボタン
+ *  でコントロールする) */
+mobile-starlight-toc {
+  display: none !important;
+}
+:root {
+  --sl-mobile-toc-height: 0 !important;
 }
 
 /* ------------------------------------------------------------

@@ -25,6 +25,18 @@ import MenuButton from '@astrojs/starlight/components/MobileMenuToggle.astro';
 
 <div class="hb-topbar">
   <div class="hb-topbar__left">
+    <button
+      type="button"
+      class="hb-collapse-btn hb-collapse-btn--sidebar"
+      data-hb-toggle="sidebar"
+      aria-label="サイドバーの表示/非表示"
+      title="サイドバーの表示/非表示"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect width="18" height="18" x="3" y="3" rx="2" />
+        <path d="M9 3v18" />
+      </svg>
+    </button>
     <SiteTitle {...Astro.props} />
   </div>
 
@@ -41,6 +53,18 @@ import MenuButton from '@astrojs/starlight/components/MobileMenuToggle.astro';
     <div class="hb-topbar__icons">
       <ThemeSelect {...Astro.props} />
       <SocialIcons {...Astro.props} />
+      <button
+        type="button"
+        class="hb-collapse-btn hb-collapse-btn--toc"
+        data-hb-toggle="toc"
+        aria-label="目次の表示/非表示"
+        title="目次の表示/非表示"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect width="18" height="18" x="3" y="3" rx="2" />
+          <path d="M15 3v18" />
+        </svg>
+      </button>
     </div>
   </div>
 

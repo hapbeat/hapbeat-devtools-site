@@ -5,17 +5,13 @@
  * Starlight default の Head (meta / preload / favicon 等) を温存しつつ、
  * Astro View Transitions を全ページで有効化する。
  *
- * 効果:
- *   - ページ遷移時の白フラッシュが消える (full reload → smooth swap)
- *   - サイドバー / ヘッダー / フッター が transition:persist で維持される
- *   - search modal や theme toggle の custom element は connectedCallback が
- *     再バインドされるため動作継続
+ * 機能:
+ *   (1) View Transitions (ClientRouter) — ページ遷移の白フラッシュ抑止
+ *   (2) サイドバー scroll 位置の保持 (astro:before-swap / after-swap)
+ *   (3) サイドバー / TOC の collapse トグル + localStorage 永続化
+ *       早期 inline script で <html> に class を当てて FOUC 抑止
  *
- * 注意:
- *   - <ClientRouter /> は astro:transitions が提供する仮想 element
- *   - SSG 出力でも runtime で fetch+swap する SPA-like 挙動になる
- *   - script type="module" / inline event handler は transition 対応が必要
- *     (Starlight 標準の theme/menu/lang script は対応済み)
+ * リサイズ機能は撤去済み (固定幅 + collapse 方針)。
  */
 import Default from '@astrojs/starlight/components/Head.astro';
 import { ClientRouter } from 'astro:transitions';
@@ -25,46 +21,26 @@ import { ClientRouter } from 'astro:transitions';
 <ClientRouter />
 
 <script is:inline>
-  /**
-   * (1) Sidebar scroll position persistence across View Transitions.
-   *
-   * Starlight default の sl-sidebar-state-persist は visibilitychange /
-   * pagehide で sessionStorage に保存しているが、ClientRouter による
-   * SPA 遷移では これらが発火しないため scroll 位置がリセットされる。
-   * Astro が提供する astro:before-swap / astro:after-swap で補完する。
-   * details の open 状態は sl-sidebar-state-persist の click ハンドラが
-   * 別途保存しているため、ここでは scroll のみ扱う。
-   *
-   * (2) Resizable columns (sidebar / TOC).
-   *
-   * #starlight__sidebar / .right-sidebar-container の端に hb-resize-handle
-   * を注入してマウスドラッグで幅を変更可能にする。
-   * 値は localStorage (hb-sidebar-w / hb-toc-w) に永続化し、初期描画前に
-   * CSS 変数 --sl-sidebar-width / --hb-toc-w へ反映する (FOUC 抑止)。
-   * View Transitions 後は DOM が差し替わるため astro:after-swap で再注入。
-   */
   (() => {
-    // ---------- Storage keys + 制約 ----------
     const KEY_SCROLL = 'hb-sidebar-scroll';
-    const KEY_SIDEBAR_W = 'hb-sidebar-w';
-    const KEY_TOC_W = 'hb-toc-w';
-    const SIDEBAR_MIN = 180,
-      SIDEBAR_MAX = 480;
-    const TOC_MIN = 160,
-      TOC_MAX = 360;
+    const KEY_SIDEBAR_COLLAPSED = 'hb-sidebar-collapsed';
+    const KEY_TOC_COLLAPSED = 'hb-toc-collapsed';
 
-    // ---------- 早期適用 (FOUC 抑止: DOM 構築前に CSS 変数だけ先に当てる) ----------
+    // ---------- 早期適用 (FOUC 抑止) ----------
+    // DOM 構築前 (head 内 inline script) に <html> へクラスを当てる。
+    // これでサイドバーが一瞬広がってから閉じる、という FOUC を防ぐ。
     try {
-      const sw = parseInt(localStorage.getItem(KEY_SIDEBAR_W) || '0', 10);
-      const tw = parseInt(localStorage.getItem(KEY_TOC_W) || '0', 10);
-      if (sw > 0)
-        document.documentElement.style.setProperty('--sl-sidebar-width', sw + 'px');
-      if (tw > 0)
-        document.documentElement.style.setProperty('--hb-toc-w', tw + 'px');
+      if (localStorage.getItem(KEY_SIDEBAR_COLLAPSED) === '1') {
+        document.documentElement.classList.add('hb-sidebar-collapsed');
+      }
+      if (localStorage.getItem(KEY_TOC_COLLAPSED) === '1') {
+        document.documentElement.classList.add('hb-toc-collapsed');
+      }
     } catch {}
 
-    // ---------- Sidebar scroll restore ----------
-    const getSidebar = () => document.getElementById('starlight__sidebar');
+    // ---------- Sidebar scroll restore (View Transitions 対応) ----------
+    const getSidebar = () =>
+      document.getElementById('starlight__sidebar');
 
     document.addEventListener('astro:before-swap', () => {
       const sb = getSidebar();
@@ -75,71 +51,33 @@ import { ClientRouter } from 'astro:transitions';
       }
     });
 
-    // ---------- Resize handle 生成 ----------
-    function attachHandle(target, opts) {
-      if (!target || target.querySelector('.hb-resize-handle')) return;
-      const handle = document.createElement('div');
-      handle.className =
-        'hb-resize-handle hb-resize-handle--' + opts.edge;
-      handle.setAttribute('role', 'separator');
-      handle.setAttribute('aria-orientation', 'vertical');
-      handle.setAttribute('aria-label', opts.label);
-      target.appendChild(handle);
-
-      let dragging = false;
-      let startX = 0,
-        startW = 0;
-
-      handle.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        dragging = true;
-        startX = e.clientX;
-        startW = parseFloat(getComputedStyle(target).width) || 0;
+    // ---------- Collapse トグルのバインド ----------
+    function bindToggle() {
+      // [data-hb-toggle="sidebar"] / [data-hb-toggle="toc"]
+      const onClick = (target, key, cls) => {
+        const collapsed = document.documentElement.classList.toggle(cls);
         try {
-          handle.setPointerCapture(e.pointerId);
+          localStorage.setItem(key, collapsed ? '1' : '0');
         } catch {}
-        handle.classList.add('is-dragging');
-        document.body.classList.add('is-resizing');
-      });
-
-      handle.addEventListener('pointermove', (e) => {
-        if (!dragging) return;
-        const delta = e.clientX - startX;
-        let newW = opts.edge === 'end' ? startW + delta : startW - delta;
-        if (newW < opts.min) newW = opts.min;
-        if (newW > opts.max) newW = opts.max;
-        document.documentElement.style.setProperty(opts.cssVar, newW + 'px');
-      });
-
-      const stop = (e) => {
-        if (!dragging) return;
-        dragging = false;
-        try {
-          handle.releasePointerCapture(e.pointerId);
-        } catch {}
-        handle.classList.remove('is-dragging');
-        document.body.classList.remove('is-resizing');
-        const v = document.documentElement.style.getPropertyValue(opts.cssVar);
-        const px = parseFloat(v);
-        if (px > 0) {
-          try {
-            localStorage.setItem(opts.storageKey, String(Math.round(px)));
-          } catch {}
-        }
       };
-      handle.addEventListener('pointerup', stop);
-      handle.addEventListener('pointercancel', stop);
-      // double-click でデフォルト復帰
-      handle.addEventListener('dblclick', () => {
-        document.documentElement.style.removeProperty(opts.cssVar);
-        try {
-          localStorage.removeItem(opts.storageKey);
-        } catch {}
+      document.querySelectorAll('[data-hb-toggle="sidebar"]').forEach((btn) => {
+        if (btn.dataset.hbBound === '1') return;
+        btn.dataset.hbBound = '1';
+        btn.addEventListener('click', () =>
+          onClick(btn, KEY_SIDEBAR_COLLAPSED, 'hb-sidebar-collapsed')
+        );
+      });
+      document.querySelectorAll('[data-hb-toggle="toc"]').forEach((btn) => {
+        if (btn.dataset.hbBound === '1') return;
+        btn.dataset.hbBound = '1';
+        btn.addEventListener('click', () =>
+          onClick(btn, KEY_TOC_COLLAPSED, 'hb-toc-collapsed')
+        );
       });
     }
 
     function setup() {
-      // Scroll restore (after-swap)
+      // Scroll restore (after-swap で発火)
       const sb = getSidebar();
       if (sb) {
         try {
@@ -147,24 +85,7 @@ import { ClientRouter } from 'astro:transitions';
           if (v != null) sb.scrollTop = parseInt(v, 10) || 0;
         } catch {}
       }
-
-      // Inject handles
-      attachHandle(sb, {
-        edge: 'end',
-        cssVar: '--sl-sidebar-width',
-        storageKey: KEY_SIDEBAR_W,
-        min: SIDEBAR_MIN,
-        max: SIDEBAR_MAX,
-        label: 'サイドバーの幅を変更',
-      });
-      attachHandle(document.querySelector('.right-sidebar-container'), {
-        edge: 'start',
-        cssVar: '--hb-toc-w',
-        storageKey: KEY_TOC_W,
-        min: TOC_MIN,
-        max: TOC_MAX,
-        label: '目次の幅を変更',
-      });
+      bindToggle();
     }
 
     document.addEventListener('DOMContentLoaded', setup);
