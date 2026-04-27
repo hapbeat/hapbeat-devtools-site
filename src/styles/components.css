@@ -339,91 +339,95 @@ starlight-toc h2,
 }
 
 /* ------------------------------------------------------------
- * Sidebar (左カラム)
- * - グループラベルにブランドアクセント色を割当
- * - 各グループの左に色付きの 2px 縦線
+ * Sidebar (左カラム) — Starlight 実 DOM:
+ *   .sidebar-content
+ *     <sl-sidebar-state-persist>
+ *       <ul class="top-level">
+ *         <li>
+ *           <details>
+ *             <summary>
+ *               <span class="group-label">
+ *                 <span class="large">グループ名</span>
+ *                 <span class="sl-badge ...">WIP</span>?
+ *               </span>
+ *               <svg class="caret">...</svg>
+ *             </summary>
+ *             <ul>
+ *               <li><a href=...>...</a></li>
+ *             </ul>
+ *           </details>
+ *         </li>
+ *         ...
+ *
+ * デザイン目標:
+ *   - 各グループ <li> の左に 2px の色線 (--sb-color)
+ *   - グループラベルの先頭に同色の 8px 角丸ドット
+ *   - グループラベルテキストにグループ色を 80% 適用
+ *   - active 子リンク (aria-current="page") に同色の薄背景
  * ------------------------------------------------------------ */
 
-/* グループ summary (label) を太字に */
-.sidebar-content details > summary,
-.sidebar-content > ul > li > details > summary {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  color: var(--hb-ink);
-}
-
-/* グループに左縦線 (2px) — 既定は灰、.sb-* で色を上書き */
-.sidebar-content > ul > li {
+/* デフォルト sb 色 (上書きされなかったグループ向け) */
+.sidebar-content ul.top-level > li {
   --sb-color: var(--hb-line-strong);
-}
-.sidebar-content > ul > li:has(> details),
-.sidebar-content > ul > li:has(> ul) {
   border-left: 2px solid var(--sb-color);
   padding-left: 12px;
   margin-bottom: 18px;
 }
 
-/* グループラベル前のドット */
-.sidebar-content > ul > li > details > summary > span:first-child::before,
-.sidebar-content > ul > li > a::before {
+/* グループラベルを inline-flex にして先頭にドット */
+.sidebar-content ul.top-level > li > details > summary > .group-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: color-mix(in oklab, var(--sb-color) 80%, var(--hb-ink) 20%);
+}
+:root[data-theme='dark']
+  .sidebar-content
+  ul.top-level
+  > li
+  > details
+  > summary
+  > .group-label {
+  color: color-mix(in oklab, var(--sb-color) 60%, var(--hb-ink) 40%);
+}
+.sidebar-content ul.top-level > li > details > summary > .group-label::before {
   content: '';
-  display: inline-block;
   width: 8px;
   height: 8px;
   border-radius: 2px;
   background: var(--sb-color);
-  margin-right: 8px;
-  vertical-align: 0;
   flex: none;
 }
 
-/* グループ別アクセント色 (ラベル文字列の前方一致で割当) */
-.sidebar-content > ul > li:has(summary span:is([dir]):first-letter) {
-  /* placeholder for selector below */
-}
+/* グループ別カラー割当 (順序依存)
+ *   1: はじめに     purple
+ *   2: Manager      red
+ *   3: Studio       purple
+ *   4: Unity SDK    teal
+ *   5: Unreal SDK   teal
+ *   6: Creative Kit red
+ *   7: Firmware     indigo
+ *   8: Kit Tools    indigo
+ *   9: Contracts    blue
+ *  10: その他       mute
+ * ※ 順序が変わったら下記も追従させること */
+.sidebar-content ul.top-level > li:nth-of-type(1) { --sb-color: var(--hb-purple); }
+.sidebar-content ul.top-level > li:nth-of-type(2) { --sb-color: var(--hb-red); }
+.sidebar-content ul.top-level > li:nth-of-type(3) { --sb-color: var(--hb-purple); }
+.sidebar-content ul.top-level > li:nth-of-type(4) { --sb-color: var(--hb-teal); }
+.sidebar-content ul.top-level > li:nth-of-type(5) { --sb-color: var(--hb-teal); }
+.sidebar-content ul.top-level > li:nth-of-type(6) { --sb-color: var(--hb-red); }
+.sidebar-content ul.top-level > li:nth-of-type(7) { --sb-color: var(--hb-indigo); }
+.sidebar-content ul.top-level > li:nth-of-type(8) { --sb-color: var(--hb-indigo); }
+.sidebar-content ul.top-level > li:nth-of-type(9) { --sb-color: var(--hb-blue); }
+.sidebar-content ul.top-level > li:nth-of-type(10) { --sb-color: var(--hb-ink-mute); }
 
-/* ラベル文字列でグループを識別して色を当てる
- * (Starlight が summary 内に label をプレーンテキストで入れる。
- *  :has() + textContent 直接マッチングは不可なので、属性 or ID は付かない。
- *  実用的には :nth-of-type で順序依存となるが順序が頻繁に変わるならコメントアウト。)
- *
- * 現サイドバー順:
- *   1: はじめに    (purple)
- *   2: Manager     (red)
- *   3: Studio      (purple)
- *   4: Unity SDK   (teal)
- *   5: Unreal SDK  (teal)
- *   6: Creative Kit(red)
- *   7: Firmware    (indigo)
- *   8: Kit Tools   (indigo)
- *   9: Contracts   (blue)
- *  10: その他      (mute)
- */
-.sidebar-content > ul > li:nth-of-type(1) { --sb-color: var(--hb-purple); }
-.sidebar-content > ul > li:nth-of-type(2) { --sb-color: var(--hb-red); }
-.sidebar-content > ul > li:nth-of-type(3) { --sb-color: var(--hb-purple); }
-.sidebar-content > ul > li:nth-of-type(4) { --sb-color: var(--hb-teal); }
-.sidebar-content > ul > li:nth-of-type(5) { --sb-color: var(--hb-teal); }
-.sidebar-content > ul > li:nth-of-type(6) { --sb-color: var(--hb-red); }
-.sidebar-content > ul > li:nth-of-type(7) { --sb-color: var(--hb-indigo); }
-.sidebar-content > ul > li:nth-of-type(8) { --sb-color: var(--hb-indigo); }
-.sidebar-content > ul > li:nth-of-type(9) { --sb-color: var(--hb-blue); }
-.sidebar-content > ul > li:nth-of-type(10) { --sb-color: var(--hb-ink-mute); }
-
-/* グループラベル本体にも sb-color をうっすら反映 */
-.sidebar-content > ul > li > details > summary {
-  color: color-mix(in oklab, var(--sb-color) 80%, var(--hb-ink) 20%);
-}
-:root[data-theme='dark'] .sidebar-content > ul > li > details > summary {
-  color: color-mix(in oklab, var(--sb-color) 60%, var(--hb-ink) 40%);
-}
-
-/* active link は accent 色 → グループ色に置き換え */
-.sidebar-content a[aria-current='page'] {
+/* active 子リンク (aria-current="page") を sb-color に染める */
+.sidebar-content ul.top-level a[aria-current='page'] {
   color: var(--sb-color, var(--sl-color-accent)) !important;
-  background: color-mix(in oklab, var(--sb-color, var(--sl-color-accent)) 12%, transparent);
+  background: color-mix(in oklab, var(--sb-color, var(--sl-color-accent)) 14%, transparent) !important;
+  font-weight: 600;
 }
-:root[data-theme='dark'] .sidebar-content a[aria-current='page'] {
-  background: color-mix(in oklab, var(--sb-color, var(--sl-color-accent)) 22%, transparent);
+:root[data-theme='dark'] .sidebar-content ul.top-level a[aria-current='page'] {
+  background: color-mix(in oklab, var(--sb-color, var(--sl-color-accent)) 24%, transparent) !important;
 }
