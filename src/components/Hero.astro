@@ -1,0 +1,161 @@
+---
+/**
+ * Hero override.
+ *
+ * Starlight default の Hero (template: splash 用) を design ハンドオフの
+ * .hero / .diagram レイアウトに置き換える。
+ *
+ * 構造:
+ *   - 左カラム: eyebrow chip ("DEVELOPER PORTAL · v0.4 PREVIEW")
+ *               + h1 (<em>Hapbeat</em> はグラデーション color)
+ *               + lede 段落
+ *               + 2 ボタン (primary=dark / ghost=outline)
+ *   - 右カラム: 4-layer stack diagram (SDK → Manager → Kit → Hapbeat)
+ *
+ * frontmatter `hero` から title / tagline / actions を受け取る。
+ * title / tagline は HTML を許容 (`set:html`)。
+ */
+// Starlight 0.30+ では entry は Astro.locals.starlightRoute.entry に格納される
+// (旧 API は Astro.props.entry だった)。404 等で entry が無いケースを optional
+// chain で吸収。
+const entry = (Astro.locals as any)?.starlightRoute?.entry;
+const hero = entry?.data?.hero ?? {};
+const title: string | undefined = hero.title;
+const tagline: string | undefined = hero.tagline;
+type Action = { text?: string; link?: string; variant?: string };
+const actions: Action[] = Array.isArray(hero.actions) ? hero.actions : [];
+
+// hero data が無いページ (404 / 通常ページ) では何も描画しない
+const shouldRender = !!(title || tagline || actions.length);
+
+// Eyebrow / diagram は landing 固有の static content。i18n 対応のため
+// Astro.currentLocale で英文に切替。
+const isEn = Astro.currentLocale === 'en';
+const eyebrowText = isEn ? 'DEVELOPER PORTAL · v0.4 PREVIEW' : 'DEVELOPER PORTAL · v0.4 PREVIEW';
+const stackLabel = isEn ? 'STACK' : 'STACK';
+const overviewLabel = isEn ? '4-LAYER OVERVIEW' : '4-LAYER OVERVIEW';
+
+const layers = [
+  {
+    chip: '🎮',
+    name: 'SDK',
+    sub: isEn ? 'Unity / Unreal / Creative' : 'Unity / Unreal / Creative',
+    edge: 'L4',
+    arrow: 'UDP / WS',
+  },
+  {
+    chip: '🖥',
+    name: 'Manager',
+    sub: 'Studio / CLI',
+    edge: 'L4',
+    arrow: '.hbkit',
+  },
+  {
+    chip: '📦',
+    name: 'Kit',
+    sub: isEn ? 'events + clips + layouts' : 'events + clips + layouts',
+    edge: 'L2',
+    arrow: 'Wi-Fi',
+  },
+  {
+    chip: '⚡',
+    name: 'Hapbeat',
+    sub: 'ESP32-S3 firmware',
+    edge: 'L1',
+    arrow: null,
+  },
+];
+---
+
+{shouldRender && (
+<section class="hb-hero">
+  <div class="hb-hero__copy">
+    <span class="hb-hero__eyebrow">
+      <span class="hb-hero__dot" aria-hidden="true"></span>
+      {eyebrowText}
+    </span>
+
+    {title && <h1 class="hb-hero__title" id="_top" data-page-title set:html={title} />}
+
+    {tagline && <p class="hb-hero__lede" set:html={tagline} />}
+
+    {actions.length > 0 && (
+      <div class="hb-hero__cta">
+        {actions.map((a) => {
+          const isPrimary = a.variant === 'primary';
+          return (
+            <a
+              href={a.link}
+              class:list={[
+                'hb-btn',
+                isPrimary ? 'hb-btn--primary' : 'hb-btn--ghost',
+              ]}
+            >
+              {!isPrimary && (
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                </svg>
+              )}
+              <span>{a.text}</span>
+              {isPrimary && (
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              )}
+            </a>
+          );
+        })}
+      </div>
+    )}
+  </div>
+
+  <div class="hb-diag" aria-hidden="true">
+    <div class="hb-diag__head">
+      <span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0" />
+        </svg>
+        {stackLabel}
+      </span>
+      <span>{overviewLabel}</span>
+    </div>
+    <div class="hb-diag__row">
+      {layers.map((l, i) => (
+        <>
+          <div class="hb-diag__node">
+            <span class="hb-diag__chip" aria-hidden="true">{l.chip}</span>
+            <span class="hb-diag__text">
+              <strong>{l.name}</strong> <small>{l.sub}</small>
+            </span>
+            <small class="hb-diag__edge">{l.edge}</small>
+          </div>
+          {l.arrow && (
+            <div class="hb-diag__arrow"><span>{l.arrow}</span></div>
+          )}
+        </>
+      ))}
+    </div>
+  </div>
+</section>
+)}

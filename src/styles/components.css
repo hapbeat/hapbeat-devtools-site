@@ -339,6 +339,222 @@ starlight-toc h2,
 }
 
 /* ------------------------------------------------------------
+ * Hero (template: splash 用 / Hero.astro override)
+ * design ハンドオフ .design-handoff/docs.css の .hero / .btn / .diagram 系を
+ * .hb-* prefix で再現。
+ * ------------------------------------------------------------ */
+
+.hb-hero {
+  padding: 64px 0 56px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 56px;
+  align-items: center;
+  border-bottom: 1px solid var(--hb-line);
+  margin-bottom: 8px;
+}
+
+/* Eyebrow */
+.hb-hero__eyebrow {
+  font-family: var(--hb-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--sl-color-accent);
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--hb-purple-soft);
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+.hb-hero__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sl-color-accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--sl-color-accent) 40%, transparent);
+  animation: hb-pulse 2s infinite ease-in-out;
+}
+@keyframes hb-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+/* H1 */
+.hb-hero__title {
+  font-size: clamp(36px, 5.5vw, 56px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin: 18px 0 18px;
+  color: var(--hb-ink);
+  text-wrap: balance;
+}
+.hb-hero__title em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--hb-red) 0%, var(--hb-purple) 50%, var(--hb-teal) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Lede */
+.hb-hero__lede {
+  font-size: 17px;
+  color: var(--hb-ink-soft);
+  line-height: 1.7;
+  max-width: 56ch;
+  margin: 0 0 28px;
+  text-wrap: pretty;
+}
+
+/* CTA buttons */
+.hb-hero__cta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.hb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 9px;
+  font-weight: 500;
+  font-size: 14.5px;
+  text-decoration: none !important;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.05s;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.hb-btn:active { transform: translateY(1px); }
+.hb-btn--primary {
+  background: var(--hb-ink);
+  color: var(--hb-bg);
+}
+.hb-btn--primary:hover {
+  background: color-mix(in oklab, var(--hb-ink) 92%, var(--hb-bg) 8%);
+  color: var(--hb-bg);
+}
+.hb-btn--ghost {
+  border-color: var(--hb-line-strong);
+  color: var(--hb-ink);
+  background: transparent;
+}
+.hb-btn--ghost:hover {
+  background: var(--hb-bg-soft);
+  border-color: var(--hb-ink-mute);
+}
+
+/* Stack diagram */
+.hb-diag {
+  position: relative;
+  background: var(--hb-bg-elev);
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius-lg);
+  padding: 28px 24px 24px;
+  box-shadow: var(--hb-shadow-md);
+  font-family: var(--hb-font-mono);
+  font-size: 12px;
+  display: grid;
+  gap: 12px;
+}
+.hb-diag__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--hb-ink-mute);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.hb-diag__head span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.hb-diag__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.hb-diag__node {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--hb-bg-soft);
+  border: 1px solid var(--hb-line);
+  border-radius: 8px;
+  font-family: var(--hb-font-sans);
+  color: var(--hb-ink);
+  font-size: 13px;
+  font-weight: 500;
+}
+.hb-diag__node strong { font-weight: 600; }
+.hb-diag__node small {
+  color: var(--hb-ink-mute);
+  font-weight: 400;
+  font-family: var(--hb-font-mono);
+  font-size: 11px;
+}
+.hb-diag__chip {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  background: var(--hb-purple-soft);
+  color: var(--hb-purple-ink);
+  font-size: 14px;
+}
+:root[data-theme='dark'] .hb-diag__chip {
+  color: var(--sl-color-accent-high);
+}
+.hb-diag__edge {
+  font-family: var(--hb-font-mono);
+}
+.hb-diag__arrow {
+  height: 16px;
+  display: flex;
+  justify-content: center;
+  color: var(--hb-ink-faint);
+  font-family: var(--hb-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  position: relative;
+}
+.hb-diag__arrow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--hb-line-strong);
+  transform: translateX(-0.5px);
+}
+.hb-diag__arrow span {
+  background: var(--hb-bg-elev);
+  padding: 0 8px;
+  z-index: 1;
+  position: relative;
+}
+
+/* tablet 以下: 1 列に積む */
+@media (max-width: 60rem) {
+  .hb-hero {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 40px 0 36px;
+  }
+}
+
+/* ------------------------------------------------------------
  * Header / Topbar (Starlight default header に design tokens を当てる)
  *
  * Starlight の <header class="header"> 内側に Header.astro override が入る。
@@ -564,11 +780,27 @@ starlight-lang-select label {
 
 /* Starlight default の nested ul に付く左 border (indent guide) を消す。
  * これが design ハンドオフ画面で見えていた "内側の縦線" の正体。
- * 外側 1 本のみにしたいので nested ul / details の border は強制 0。 */
+ * 外側 1 本のみにしたいので nested ul / details の border は強制 0。
+ * margin/padding inline-start も 0 にして全長を揃える。 */
 .sidebar-content ul.top-level ul,
 .sidebar-content ul.top-level details {
   border: 0 !important;
+  border-inline-start: 0 !important;
+  margin-inline-start: 0 !important;
+  padding-inline-start: 0 !important;
   padding-left: 0;
+}
+
+/* グループ summary 内の caret (collapsible chevron) は design に存在しないため
+ * 完全に非表示。グループは常に展開された状態で見える。
+ * ※ クリックで開閉自体は <details> の機能で動作するが視覚指標を消す */
+.sidebar-content ul.top-level > li > details > summary > svg.caret,
+.sidebar-content ul.top-level > li > details > summary > .caret {
+  display: none !important;
+}
+/* summary を flex の justify-content: space-between から左寄せに */
+.sidebar-content ul.top-level > li > details > summary {
+  justify-content: flex-start;
 }
 
 /* active 子リンク (aria-current="page") を sb-color に染める */
