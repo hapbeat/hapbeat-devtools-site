@@ -1,0 +1,67 @@
+---
+/**
+ * LanguageSelect override.
+ *
+ * design の .lang-switch (JA / EN のピル型 segmented control) に差し替える。
+ * Starlight default は <select> なので別物に置き換え。
+ *
+ * 動作: 現在パスが /en/... なら EN active、それ以外は JA active。
+ *       クリックで対応する他言語版 URL に navigate (相対パス保持)。
+ */
+
+const path = Astro.url.pathname;
+
+// 現在 locale 判定
+const isEn = path.startsWith('/en/') || path === '/en';
+
+// JA URL: 現在 EN なら /en を剥がす、JA なら現状維持
+// EN URL: JA なら /en を被せる、EN なら現状維持
+const jaUrl = isEn ? path.replace(/^\/en/, '') || '/' : path;
+const enUrl = isEn ? path : '/en' + (path === '/' ? '/' : path);
+---
+
+<div class="hb-lang" role="group" aria-label="Language">
+  <a
+    href={jaUrl}
+    class:list={['hb-lang__btn', !isEn && 'is-active']}
+    aria-current={!isEn ? 'true' : undefined}
+    lang="ja"
+  >JA</a>
+  <a
+    href={enUrl}
+    class:list={['hb-lang__btn', isEn && 'is-active']}
+    aria-current={isEn ? 'true' : undefined}
+    lang="en"
+  >EN</a>
+</div>
+
+<style>
+  .hb-lang {
+    display: inline-flex;
+    background: var(--hb-bg-soft);
+    border: 1px solid var(--hb-line);
+    border-radius: 7px;
+    overflow: hidden;
+    height: 32px;
+    flex: none;
+  }
+  .hb-lang__btn {
+    padding: 0 10px;
+    font-size: 12px;
+    font-family: var(--hb-font-mono);
+    letter-spacing: 0.04em;
+    color: var(--hb-ink-mute);
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.15s, background 0.15s;
+  }
+  .hb-lang__btn:hover {
+    color: var(--hb-ink);
+  }
+  .hb-lang__btn.is-active {
+    background: var(--hb-bg-elev);
+    color: var(--hb-ink);
+    box-shadow: inset 0 0 0 1px var(--hb-line);
+  }
+</style>

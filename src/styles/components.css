@@ -339,6 +339,137 @@ starlight-toc h2,
 }
 
 /* ------------------------------------------------------------
+ * Header / Topbar (Starlight default header に design tokens を当てる)
+ *
+ * Starlight の <header class="header"> 内側に Header.astro override が入る。
+ * その内側で .hb-topbar が grid layout を作っている (Header.astro 側で完結)。
+ *
+ * ここではヘッダー全体の高さ・bg・blur と、Starlight 内蔵 Search / ThemeSelect /
+ * SocialIcons の見た目を design に合わせる。
+ * ------------------------------------------------------------ */
+
+/* ヘッダー本体: backdrop blur + 半透明背景 */
+.header {
+  height: 60px;
+  background: color-mix(in oklab, var(--hb-bg) 85%, transparent);
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  border-bottom: 1px solid var(--hb-line);
+}
+
+/* Starlight default header の flex 子を消して grid に任せる
+ * (Header.astro override が grid を組んでいる) */
+.header > .sl-flex {
+  display: contents;
+}
+
+/* Search: Pagefind ボタンを design の検索バー風に */
+site-search button[data-open-modal] {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 480px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--hb-bg-soft);
+  border: 1px solid var(--hb-line);
+  color: var(--hb-ink-mute);
+  font-family: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+site-search button[data-open-modal]:hover {
+  border-color: var(--sl-color-accent);
+  background: var(--hb-bg-elev);
+}
+site-search button[data-open-modal] svg {
+  color: var(--hb-ink-mute);
+  flex: none;
+}
+/* placeholder text */
+site-search button[data-open-modal] > :is(span, .sl-hidden) {
+  color: var(--hb-ink-mute);
+}
+/* ⌘K kbd hint */
+site-search button[data-open-modal] kbd {
+  font-family: var(--hb-font-mono);
+  font-size: 11px;
+  color: var(--hb-ink-mute);
+  background: var(--hb-bg-elev);
+  border: 1px solid var(--hb-line);
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-left: auto;
+}
+
+/* ThemeSelect: select 要素を icon-btn 風に圧縮 */
+starlight-theme-select {
+  display: inline-flex;
+}
+starlight-theme-select label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 32px !important;
+  height: 32px;
+  border-radius: 7px;
+  color: var(--hb-ink-mute);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  --sl-select-width: 32px !important;
+}
+starlight-theme-select label:hover {
+  background: var(--hb-bg-soft);
+  color: var(--hb-ink);
+}
+starlight-theme-select select {
+  /* select 自体は透明にしてアイコンだけ見せる */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+/* テーマアイコン */
+starlight-theme-select label > svg.label-icon {
+  margin: 0 auto;
+  pointer-events: none;
+}
+/* select の隣の caret は隠す (icon button っぽくするため) */
+starlight-theme-select label > svg.caret {
+  display: none;
+}
+
+/* Starlight default LanguageSelect は使わない (LanguageSelect.astro で
+ * .hb-lang ピルに置換されている)。default が万一残った場合の保険として圧縮。 */
+starlight-lang-select label {
+  height: 32px;
+}
+
+/* SocialIcons: アイコン link を icon-btn 風に */
+.social-icons {
+  display: inline-flex;
+  gap: 4px;
+}
+.social-icons a {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  color: var(--hb-ink-mute);
+  transition: background 0.15s, color 0.15s;
+}
+.social-icons a:hover {
+  background: var(--hb-bg-soft);
+  color: var(--hb-ink);
+}
+
+/* ------------------------------------------------------------
  * Sidebar (左カラム) — Starlight 実 DOM:
  *   .sidebar-content
  *     <sl-sidebar-state-persist>

@@ -1,0 +1,144 @@
+---
+/**
+ * Header override.
+ *
+ * design の .topbar レイアウトを再現:
+ *   [ brand | search | nav (Downloads / FAQ) | lang-switch | theme | github ]
+ *
+ * Starlight default の Header は SiteTitle / Search / SocialIcons / ThemeSelect
+ * / LanguageSelect を縦に積む単純な flex だが、これを設計通りに 3 領域構成
+ * (brand-left / search-center / actions-right) に並べ替える。
+ *
+ * 各 component は virtual:starlight/components/ 経由で import するので
+ * ユーザーオーバーライド (SiteTitle / LanguageSelect) があれば自動で
+ * そちらが使われる。
+ */
+import SiteTitle from 'virtual:starlight/components/SiteTitle';
+import Search from 'virtual:starlight/components/Search';
+import SocialIcons from 'virtual:starlight/components/SocialIcons';
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
+
+// メニュートグル (mobile) は Starlight 標準を使う
+import MenuButton from '@astrojs/starlight/components/MobileMenuToggle.astro';
+---
+
+<div class="hb-topbar">
+  <div class="hb-topbar__left">
+    <SiteTitle {...Astro.props} />
+  </div>
+
+  <div class="hb-topbar__center">
+    <Search {...Astro.props} />
+  </div>
+
+  <div class="hb-topbar__right">
+    <nav class="hb-topbar__nav" aria-label="主要セクション">
+      <a href="/downloads/">Downloads</a>
+      <a href="/faq/">FAQ</a>
+    </nav>
+    <LanguageSelect {...Astro.props} />
+    <div class="hb-topbar__icons">
+      <ThemeSelect {...Astro.props} />
+      <SocialIcons {...Astro.props} />
+    </div>
+  </div>
+
+  <div class="hb-topbar__menu">
+    <MenuButton />
+  </div>
+</div>
+
+<style>
+  .hb-topbar {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    grid-template-areas: 'left center right menu';
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+  }
+  .hb-topbar__left {
+    grid-area: left;
+    display: flex;
+    align-items: center;
+  }
+  .hb-topbar__center {
+    grid-area: center;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+  }
+  .hb-topbar__right {
+    grid-area: right;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .hb-topbar__menu {
+    grid-area: menu;
+    display: none;
+  }
+  .hb-topbar__nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .hb-topbar__nav a {
+    height: 32px;
+    padding: 0 10px;
+    border-radius: 7px;
+    font-size: 13px;
+    color: var(--hb-ink-mute);
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none !important;
+    transition: background 0.15s, color 0.15s;
+  }
+  .hb-topbar__nav a:hover {
+    color: var(--hb-ink);
+    background: var(--hb-bg-soft);
+  }
+  .hb-topbar__nav a[aria-current='page'] {
+    color: var(--hb-ink);
+    background: var(--hb-bg-soft);
+  }
+  .hb-topbar__icons {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding-left: 4px;
+    border-left: 1px solid var(--hb-line);
+    margin-left: 4px;
+  }
+
+  /* タブレット以下: nav の text label は隠して icons + lang のみ */
+  @media (max-width: 60rem) {
+    .hb-topbar {
+      grid-template-columns: auto 1fr auto auto;
+    }
+    .hb-topbar__nav {
+      display: none;
+    }
+  }
+
+  /* モバイル: search を非表示にして brand + lang + menu のみ */
+  @media (max-width: 50rem) {
+    .hb-topbar {
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas: 'left right menu';
+      gap: 12px;
+    }
+    .hb-topbar__center {
+      display: none;
+    }
+    .hb-topbar__menu {
+      display: flex;
+    }
+    .hb-topbar__icons {
+      border-left: 0;
+      padding-left: 0;
+      margin-left: 0;
+    }
+  }
+</style>

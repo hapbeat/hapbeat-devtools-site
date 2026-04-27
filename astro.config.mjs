@@ -28,12 +28,16 @@ export default defineConfig({
           },
         },
       ],
-      // Brand mark + サイトタイトルを差し替えるため SiteTitle component を override。
-      // ロゴは CSS グラデーションで描画する (design 準拠) ため Starlight 標準の logo
-      // config は使わない。ファビコン・OG 画像用の webp は public/hapbeat-logo.webp。
-      // Footer は default 機能 (pagination 等) を保ったままサイトフッターを下に追加。
+      // Component overrides:
+      //   - Header: design の topbar layout (brand / search / nav / lang / theme / github)
+      //   - SiteTitle: brand mark (gradient + concentric) + Hapbeat / devtools + version chip
+      //   - LanguageSelect: JA/EN ピル型 segmented control
+      //   - Footer: Starlight default に加えてサイトフッター追加
+      // ロゴ画像は使わず CSS グラデーションで描画するため logo config はなし。
       components: {
+        Header: './src/components/Header.astro',
         SiteTitle: './src/components/SiteTitle.astro',
+        LanguageSelect: './src/components/LanguageSelect.astro',
         Footer: './src/components/Footer.astro',
       },
       // i18n: 日本語を root (URL prefix なし) として配信し、英語を /en/ 配下に。
@@ -92,12 +96,12 @@ export default defineConfig({
           label: 'Contracts (仕様)',
           autogenerate: { directory: 'docs/contracts' },
         },
+        // Downloads / FAQ は topbar の nav に昇格 (design 準拠)。サイドバーには
+        // Showcase と Changelog のみを補助グループとして残す。
         {
-          label: 'その他',
+          label: 'リソース',
           items: [
-            { label: 'Downloads', link: '/downloads/' },
             { label: 'Showcase', link: '/showcase/', badge: { text: 'WIP', variant: 'caution' } },
-            { label: 'FAQ', link: '/faq/' },
             { label: 'Changelog', link: '/changelog/' },
           ],
         },
