@@ -8,10 +8,13 @@
  * 機能:
  *   (1) View Transitions (ClientRouter) — ページ遷移の白フラッシュ抑止
  *   (2) サイドバー scroll 位置の保持 (astro:before-swap / after-swap)
- *   (3) サイドバー / TOC の collapse トグル + localStorage 永続化
- *       早期 inline script で <html> に class を当てて FOUC 抑止
- *
- * リサイズ機能は撤去済み (固定幅 + collapse 方針)。
+ *   (3) サイドバーの details 開閉状態を sessionStorage で永続化し
+ *       SPA 遷移後も維持 (Starlight 純正の SidebarPersistState は
+ *       初回ロード時の closure 内 state を使い回すため SPA 遷移で
+ *       新 DOM が古い snapshot で復元される。これを置き換える)
+ *   (4) サイドバーグループ見出し (.group-label) クリックで
+ *       「当該グループのみ open + 先頭ページへ SPA 遷移」、
+ *       他グループの開閉状態は変更しない
  */
 import Default from '@astrojs/starlight/components/Head.astro';
 import { ClientRouter } from 'astro:transitions';
@@ -23,20 +26,7 @@ import { ClientRouter } from 'astro:transitions';
 <script is:inline>
   (() => {
     const KEY_SCROLL = 'hb-sidebar-scroll';
-    const KEY_SIDEBAR_COLLAPSED = 'hb-sidebar-collapsed';
-    const KEY_TOC_COLLAPSED = 'hb-toc-collapsed';
-
-    // ---------- 早期適用 (FOUC 抑止) ----------
-    // DOM 構築前 (head 内 inline script) に <html> へクラスを当てる。
-    // これでサイドバーが一瞬広がってから閉じる、という FOUC を防ぐ。
-    try {
-      if (localStorage.getItem(KEY_SIDEBAR_COLLAPSED) === '1') {
-        document.documentElement.classList.add('hb-sidebar-collapsed');
-      }
-      if (localStorage.getItem(KEY_TOC_COLLAPSED) === '1') {
-        document.documentElement.classList.add('hb-toc-collapsed');
-      }
-    } catch {}
+    const KEY_SIDEBAR_STATE = 'sl-sidebar-state';  // Starlight 純正と互換
 
     // ---------- Sidebar scroll restore (View Transitions 対応) ----------
     const getSidebar = () =>
@@ -51,42 +41,96 @@ import { ClientRouter } from 'astro:transitions';
       }
     });
 
-    // ---------- Collapse トグルのバインド ----------
-    function bindToggle() {
-      // 各ボタン kind ごとに { class, key } を渡して共通処理
-      const setupBtn = (kind, cls, key) => {
-        const collapsed = document.documentElement.classList.contains(cls);
-        document
-          .querySelectorAll('[data-hb-toggle="' + kind + '"]')
-          .forEach((btn) => {
-            // 初期 aria-expanded (a11y: SR ユーザに展開/格納状態を伝える)
-            btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-            if (btn.dataset.hbBound === '1') return;
-            btn.dataset.hbBound = '1';
-            btn.addEventListener('click', () => {
-              const next = document.documentElement.classList.toggle(cls);
-              try {
-                localStorage.setItem(key, next ? '1' : '0');
-              } catch {}
-              // 全 toggle ボタンの aria-expanded を再同期
-              document
-                .querySelectorAll('[data-hb-toggle="' + kind + '"]')
-                .forEach((b) =>
-                  b.setAttribute('aria-expanded', next ? 'false' : 'true')
-                );
-            });
-          });
-      };
-      setupBtn('sidebar', 'hb-sidebar-collapsed', KEY_SIDEBAR_COLLAPSED);
-      setupBtn('toc', 'hb-toc-collapsed', KEY_TOC_COLLAPSED);
+    // ---------- Sidebar persist replacement ----------
+    // Starlight の SidebarPersister.astro は inline script で
+    //   const state = JSON.parse(sessionStorage.getItem('sl-sidebar-state') || '0');
+    //   customElements.define('sl-sidebar-restore', ... uses `state` from closure ...)
+    // としているため、SPA 遷移で新 DOM が swap されると新 <sl-sidebar-restore>
+    // の connectedCallback は **初回ロード時に capture した state** を参照し、
+    // その後の sessionStorage 更新が反映されない。
+    // また persist の click listener も初回 capture した target に bind され
+    // SPA 遷移で target が detach された後は発火しない。
+    // → 我々が完全に置き換える。
+    function getSidebarHash() {
+      const t = document.querySelector('sl-sidebar-state-persist');
+      return (t && t.dataset && t.dataset.hash) || '';
+    }
+    function readSidebarState() {
+      try {
+        const raw = sessionStorage.getItem(KEY_SIDEBAR_STATE);
+        const p = raw ? JSON.parse(raw) : {};
+        return {
+          hash: p.hash || '',
+          open: Array.isArray(p.open) ? p.open.slice() : [],
+          scroll: typeof p.scroll === 'number' ? p.scroll : 0,
+        };
+      } catch {
+        return { hash: '', open: [], scroll: 0 };
+      }
+    }
+    function writeSidebarState(s) {
+      try {
+        sessionStorage.setItem(KEY_SIDEBAR_STATE, JSON.stringify(s));
+      } catch {}
+    }
+    function setDetailsOpenInStorage(idx, open) {
+      if (isNaN(idx)) return;
+      const s = readSidebarState();
+      s.hash = getSidebarHash();
+      s.open[idx] = open;
+      writeSidebarState(s);
+    }
+    function getDetailsIndex(details) {
+      const restore = details.querySelector('sl-sidebar-restore');
+      if (!restore) return NaN;
+      return parseInt(restore.dataset.index || '', 10);
     }
 
-    // ---------- Group label クリック → 先頭ページへ navigate ----------
-    // Starlight default では <summary> 全体が details の開閉ハンドラだが、
-    // ユーザ要望: 見出しクリックで「そのグループの先頭ページ」に遷移、
-    // caret クリックでのみ開閉、にしたい。
-    // .group-label にイベントを当てて preventDefault で開閉を止め、
-    // ul の最初の <a> に navigate する。
+    // 現在の sessionStorage を新 DOM に適用 (Starlight 純正 restore の代替)
+    function restoreSidebarFromStorage() {
+      try {
+        if (!matchMedia('(min-width: 50em)').matches) return;
+        const hash = getSidebarHash();
+        if (!hash) return;
+        const s = readSidebarState();
+        if (s.hash !== hash) return;
+        document
+          .querySelectorAll('.sidebar-content sl-sidebar-restore')
+          .forEach((el) => {
+            const idx = parseInt(el.dataset.index || '', 10);
+            if (isNaN(idx)) return;
+            const details = el.closest('details');
+            if (details && typeof s.open[idx] === 'boolean') {
+              details.open = s.open[idx];
+            }
+          });
+      } catch {}
+    }
+
+    // ユーザが <summary> (caret 部) を click した時の toggle を
+    // sessionStorage に保存する (Starlight 純正 listener の代替)。
+    // .group-label クリックは bindGroupLabelNav が握るのでスキップ。
+    function bindSidebarToggleCapture() {
+      const sb = document.querySelector('.sidebar-content');
+      if (!sb || sb.dataset.hbToggleBound === '1') return;
+      sb.dataset.hbToggleBound = '1';
+      sb.addEventListener('click', (e) => {
+        const t = e.target;
+        if (!(t instanceof Element)) return;
+        if (t.closest('.group-label')) return;  // group-label は別ハンドラ
+        const summary = t.closest('summary');
+        if (!summary) return;
+        const details = summary.closest('details');
+        if (!details) return;
+        const idx = getDetailsIndex(details);
+        if (isNaN(idx)) return;
+        // click listener は default action (details toggle) より前に走るので
+        // details.open は OLD 値。次の状態は !details.open。
+        setDetailsOpenInStorage(idx, !details.open);
+      });
+    }
+
+    // ---------- Group label クリック → 当該グループ open + SPA 遷移 ----------
     function bindGroupLabelNav() {
       document
         .querySelectorAll(
@@ -98,18 +142,22 @@ import { ClientRouter } from 'astro:transitions';
           label.addEventListener('click', (e) => {
             const details = label.closest('details');
             if (!details) return;
-            const firstLink = details.querySelector('ul a[href]');
-            if (!firstLink) return;
             e.preventDefault();
             e.stopPropagation();
-            const href = firstLink.getAttribute('href');
-            if (href) window.location.href = href;
+            // 当該グループのみ open に。他グループの開閉状態は触らない。
+            if (!details.open) {
+              details.open = true;
+              const idx = getDetailsIndex(details);
+              if (!isNaN(idx)) setDetailsOpenInStorage(idx, true);
+            }
+            const firstLink = details.querySelector('ul a[href]');
+            if (firstLink) firstLink.click();
           });
         });
     }
 
     function setup() {
-      // Scroll restore (after-swap で発火)
+      // Scroll restore
       const sb = getSidebar();
       if (sb) {
         try {
@@ -117,7 +165,8 @@ import { ClientRouter } from 'astro:transitions';
           if (v != null) sb.scrollTop = parseInt(v, 10) || 0;
         } catch {}
       }
-      bindToggle();
+      restoreSidebarFromStorage();
+      bindSidebarToggleCapture();
       bindGroupLabelNav();
     }
 

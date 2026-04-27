@@ -307,6 +307,10 @@ starlight-toc nav a {
   line-height: 1.5;
   font-size: 13px;
   transition: color 0.15s;
+  /* 長い見出しは折り返し (cut off 防止) */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 .right-sidebar nav a:hover,
 starlight-toc nav a:hover {
@@ -337,197 +341,133 @@ starlight-toc h2,
 }
 
 /* ------------------------------------------------------------
- * 3-column layout: 固定幅 + 格納 (collapse)
+ * Layout — viewport-based responsive (no toggle buttons)
+ *
+ * Starlight の標準 responsive を踏襲しつつ、TOC 表示のブレイクポイントを
+ * 80rem (1280px) に引き上げる。
  *
  * 構造:
  *   <header><nav.sidebar>           ← position:fixed, width:--sl-sidebar-width
- *   <main-frame>                    ← padding-inline-start:--sl-content-inline-start
- *     <.lg:sl-flex>                 ← flex 親
+ *   <main-frame>                    ← padding-inline-start:--sl-sidebar-width
+ *     <.lg:sl-flex>                 ← flex 親 (≥80rem でのみ flex 化)
  *       <main.main-pane>            ← flex:1 1 auto (残りを取る)
  *       <aside.right-sidebar-container>   ← flex:0 0 --hb-toc-w
  *         <.right-sidebar>          ← position:fixed, width:--hb-toc-w
  *
- * 依存関係:
- *   - --sl-sidebar-width → sidebar 幅 + main-frame padding (左空間の唯一のドライバ)
- *   - --hb-toc-w        → right-sidebar-container 幅 + .right-sidebar 幅
- *                         (右 TOC 空間の唯一のドライバ)
- *   - main-pane 幅は flex の残りを自動で取る (calc 不要)
+ * ブレイクポイント (Starlight default に従う + TOC のみ 80rem 引き上げ):
+ *   ≥ 80rem (1280px) … 3 列 (sidebar + main + TOC)
+ *   50-80rem         … 2 列 (sidebar + main, TOC 隠す)
+ *   < 50rem (800px)  … 1 列 (sidebar は Starlight ハンバーガーで開閉)
  *
- * Starlight default は main-pane と right-sidebar-container の両方が
- * --sl-sidebar-width に依存する calc 式で結合していた。これを断ち切る。
- *
- * 格納時:
- *   html.hb-sidebar-collapsed  → --sl-sidebar-width: 0
- *   html.hb-toc-collapsed      → --hb-toc-w: 0
- *   どちらも幅 0 になり main-pane が flex:1 で空間を吸収する。
+ * 50-80rem の sidebar 表示 + main-frame padding は Starlight default
+ * (`--sl-content-inline-start: var(--sl-sidebar-width)` at md:) に任せる。
  * ------------------------------------------------------------ */
 
-/* 固定幅 default */
 :root {
   --sl-sidebar-width: 17rem;   /* 左 sidebar (272px) */
-  --hb-toc-w: 200px;           /* 右 TOC (狭めに) */
+  --hb-toc-w: 240px;           /* 右 TOC (text wrap 余裕を持たせる) */
 }
 
-/* main-frame は padding-inline-start を --sl-sidebar-width で決定 */
-.main-frame {
-  padding-inline-start: var(--sl-sidebar-width) !important;
-  transition: padding-inline-start 0.2s ease;
+/* docs ページ (sidebar あり) の content max-width を撤廃して
+ * main-pane の flex:1 1 auto で取る空間を最大限使う。
+ * Starlight default は 45rem (720px) で wide viewport で余白が出る。 */
+[data-has-sidebar] {
+  --sl-content-width: 100% !important;
 }
 
-/* lg:sl-flex を常に flex に (Starlight default は 72rem 以上のみ) */
-.lg\:sl-flex {
-  display: flex !important;
-}
-
-/* main-pane: 残りを flex:1 で取る。calc 不要、width 上書きしない */
-.main-pane {
-  flex: 1 1 auto !important;
-  width: auto !important;
-  min-width: 0;
-  margin-inline: 0 !important;
-  order: 1;
-}
-
-/* right-sidebar-container: 固定幅 (--hb-toc-w) + flex 縮まない */
-.right-sidebar-container {
-  flex: 0 0 var(--hb-toc-w) !important;
-  width: var(--hb-toc-w) !important;
-  order: 2;
-  transition: flex-basis 0.2s ease, width 0.2s ease;
-}
-
-/* .right-sidebar (position:fixed の内側要素) も明示的に --hb-toc-w に縛る。
- * これを忘れると width:100% が 100vw になりオーバーフローする。 */
-.right-sidebar {
-  width: var(--hb-toc-w) !important;
-  top: var(--sl-nav-height) !important;
-  padding-top: 0 !important;
-  height: calc(100vh - var(--sl-nav-height)) !important;
-  border-inline-start: 1px solid var(--hb-line) !important;
-  transition: width 0.2s ease;
-  overscroll-behavior: contain;
-}
-
-/* sidebar の挙動 */
-.sidebar-pane {
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  transition: width 0.2s ease;
-}
-
-/* ====== Collapsed states ====== */
-
-html.hb-sidebar-collapsed {
-  --sl-sidebar-width: 0px;
-}
-html.hb-sidebar-collapsed .sidebar-pane,
-html.hb-sidebar-collapsed nav.sidebar {
-  visibility: hidden;
-  pointer-events: none;
-}
-
-html.hb-toc-collapsed {
-  --hb-toc-w: 0px;
-}
-html.hb-toc-collapsed .right-sidebar-container,
-html.hb-toc-collapsed .right-sidebar {
-  visibility: hidden;
-  pointer-events: none;
-  overflow: hidden;
-  border: 0 !important;
-}
-
-/* mobile-starlight-toc を廃止 (縦方向情報量を減らさない) */
+/* mobile-starlight-toc を廃止 (TOC は右カラム or 非表示の二択)。
+ * 値は必ず単位付き (0rem) にすること。Starlight の
+ * `.main-frame { padding-top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height)) }`
+ * 内で単位なし `0` を入れると calc が invalid になり padding-top が 0 に潰れて
+ * h1 がヘッダー下に潜り込む。 */
 mobile-starlight-toc {
   display: none !important;
 }
 :root {
-  --sl-mobile-toc-height: 0 !important;
+  --sl-mobile-toc-height: 0rem !important;
 }
 
-/* ------------------------------------------------------------
- * Floating collapse トグル ボタン (各サイドバーの境界線付近に配置)
- *
- * position:fixed で sidebar / TOC の境界線をまたぐ位置に固定。
- * 状態に応じて chevron を反転 (< / >) して、クリックで toggle。
- * ヘッダー組み込み版は撤去 (デザイン要件: さりげない位置)。
- * ------------------------------------------------------------ */
-
-.hb-side-toggle {
-  position: fixed;
-  z-index: 60;
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  display: grid;
-  place-items: center;
-  background: var(--hb-bg);
-  border: 1px solid var(--hb-line);
-  color: var(--hb-ink-mute);
-  cursor: pointer;
-  padding: 0;
-  top: calc(var(--sl-nav-height) + 14px);
-  opacity: 0.55;
-  transition: opacity 0.15s, background 0.15s, color 0.15s, left 0.2s ease, right 0.2s ease;
+/* MobileMenuToggle (PageFrame.astro が描画) の見た目と位置を上書き。
+ * Starlight default: position:fixed + inset-inline-end (右端に丸ボタン)。
+ * 本サイトはヘッダー左にハンバーガーを置きたいので位置と装飾を差し替える。
+ * <50rem (mobile) かつ docs ページ ([data-has-sidebar]) でのみ表示。 */
+starlight-menu-button > button {
+  position: fixed !important;
+  top: calc((var(--sl-nav-height) - 36px) / 2) !important;
+  inset-inline-start: 12px !important;  /* 左端 */
+  inset-inline-end: auto !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  color: var(--hb-ink) !important;
+  box-shadow: none !important;
+  border: 1px solid var(--hb-line) !important;
 }
-/* 視覚は 22px だが ::before で実タッチエリアを 44x44 に拡張 (WCAG AAA 推奨) */
-.hb-side-toggle::before {
-  content: '';
-  position: absolute;
-  inset: -11px;
-  cursor: col-resize;
-  cursor: pointer;
+starlight-menu-button > button:hover {
+  background: var(--hb-bg-soft) !important;
 }
-.hb-side-toggle:hover {
-  opacity: 1;
-  color: var(--hb-ink);
-  background: var(--hb-bg-elev);
+:root[data-theme='light'] starlight-menu-button > button {
+  background: transparent !important;
+  color: var(--hb-ink) !important;
 }
-.hb-side-toggle:focus-visible {
-  outline: 2px solid var(--sl-color-accent);
-  outline-offset: 2px;
-  opacity: 1;
-}
-.hb-side-toggle--left {
-  /* 通常は sidebar の右端に重ねる位置 */
-  left: calc(var(--sl-sidebar-width) - 11px);
-}
-.hb-side-toggle--right {
-  right: calc(var(--hb-toc-w) - 11px);
-}
-/* CRITICAL: collapsed (--sl-sidebar-width: 0) のとき left:-11px で viewport
- * 外に飛び出して操作不能になる事故を回避。viewport 内に固定する。 */
-html.hb-sidebar-collapsed .hb-side-toggle--left {
-  left: 6px;
-}
-html.hb-toc-collapsed .hb-side-toggle--right {
-  right: 6px;
-}
-.hb-side-toggle svg {
-  width: 12px;
-  height: 12px;
-  transition: transform 0.2s ease;
-}
-/* 状態に応じて chevron を回転 (collapsed = 反対向き) */
-html.hb-sidebar-collapsed .hb-side-toggle--left svg {
-  transform: rotate(180deg);
-}
-html.hb-toc-collapsed .hb-side-toggle--right svg {
-  transform: rotate(180deg);
+/* sidebar が無いページ (landing / 404 / Hero) ではハンバーガー不要 */
+html:not([data-has-sidebar]) starlight-menu-button {
+  display: none !important;
 }
 
-/* mobile では非表示 (Starlight 標準 menu に委譲) */
-@media (max-width: 50rem) {
-  .hb-side-toggle {
-    display: none;
+/* sidebar 内部の挙動 */
+.sidebar-pane {
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+/* main-pane: タブレット帯で 3 列が詰まりすぎても破綻しないよう horizontal scroll 許可 */
+.main-pane {
+  overflow-x: auto;
+}
+
+/* ====== < 80rem: TOC 強制非表示 (Starlight default は 72rem≥ で出すが、
+ * 80rem 未満では本文を優先したい) ====== */
+@media (max-width: calc(80rem - 0.01px)) {
+  .right-sidebar-container,
+  .right-sidebar {
+    display: none !important;
   }
 }
 
-/* タブレット帯 (50-72rem) で 3 列が詰まりすぎる場合の保険:
- * main-pane に horizontal scroll を許してコンテンツの破綻を防ぐ
- * (狭くてもユーザは collapse で解消できる) */
-.main-pane {
-  overflow-x: auto;
+/* ====== ≥ 80rem: 3 列 (TOC 表示 + flex layout) ====== */
+@media (min-width: 80rem) {
+  /* .lg:sl-flex を flex 化 (Starlight 標準は 72rem≥; 80rem に引き上げ) */
+  .lg\:sl-flex {
+    display: flex !important;
+  }
+
+  /* main-pane: flex:1 で残りを取る。Starlight default の calc 結合を断ち切る */
+  .main-pane {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0;
+    margin-inline: 0 !important;
+    order: 1;
+  }
+
+  /* right-sidebar-container: 固定幅 + 縮まない */
+  .right-sidebar-container {
+    flex: 0 0 var(--hb-toc-w) !important;
+    width: var(--hb-toc-w) !important;
+    order: 2;
+  }
+
+  /* .right-sidebar (position:fixed): width:100% が 100vw になる罠を回避 */
+  .right-sidebar {
+    width: var(--hb-toc-w) !important;
+    top: var(--sl-nav-height) !important;
+    padding-top: 0 !important;
+    height: calc(100vh - var(--sl-nav-height)) !important;
+    border-inline-start: 1px solid var(--hb-line) !important;
+    overscroll-behavior: contain;
+  }
 }
 
 /* ------------------------------------------------------------

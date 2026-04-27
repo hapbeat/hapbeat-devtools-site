@@ -5,9 +5,8 @@
  * design の .topbar レイアウトを再現:
  *   [ brand | search | nav (Downloads / FAQ) | lang-switch | theme | github ]
  *
- * Collapse 用のトグルボタンはこの topbar には置かず、別途 floating な
- * 位置 (.hb-side-toggle--left/--right) で各サイドバーの境界線に乗せる。
- * components.css 側で実装。
+ * サイドバー / TOC は viewport 幅で自動レスポンシブ (components.css 参照)。
+ * 開閉トグルは持たない。
  */
 import SiteTitle from 'virtual:starlight/components/SiteTitle';
 import Search from 'virtual:starlight/components/Search';
@@ -15,8 +14,9 @@ import SocialIcons from 'virtual:starlight/components/SocialIcons';
 import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
 import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
 
-// メニュートグル (mobile) は Starlight 標準を使う
-import MenuButton from '@astrojs/starlight/components/MobileMenuToggle.astro';
+// メニュートグル (mobile) は Starlight 標準を PageFrame.astro が描画する。
+// ここでは描画せず、CSS で position を上書きしてヘッダー左に再配置する
+// (Starlight default は position:fixed で右端に固定)。
 ---
 
 <div class="hb-topbar">
@@ -30,6 +30,7 @@ import MenuButton from '@astrojs/starlight/components/MobileMenuToggle.astro';
 
   <div class="hb-topbar__right">
     <nav class="hb-topbar__nav" aria-label="主要セクション">
+      <a href="/docs/getting-started/">Docs</a>
       <a href="/downloads/">Downloads</a>
       <a href="/faq/">FAQ</a>
     </nav>
@@ -39,42 +40,13 @@ import MenuButton from '@astrojs/starlight/components/MobileMenuToggle.astro';
       <SocialIcons {...Astro.props} />
     </div>
   </div>
-
-  <div class="hb-topbar__menu">
-    <MenuButton />
-  </div>
 </div>
-
-{/* Floating sidebar / TOC collapse トグル (各サイドバーの境界に固定配置)。
-    components.css 側で .hb-side-toggle のスタイルを定義 */}
-<button
-  type="button"
-  class="hb-side-toggle hb-side-toggle--left"
-  data-hb-toggle="sidebar"
-  aria-label="サイドバーの表示/非表示"
-  title="サイドバーの表示/非表示"
->
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <polyline points="15 18 9 12 15 6" />
-  </svg>
-</button>
-<button
-  type="button"
-  class="hb-side-toggle hb-side-toggle--right"
-  data-hb-toggle="toc"
-  aria-label="目次の表示/非表示"
-  title="目次の表示/非表示"
->
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <polyline points="9 18 15 12 9 6" />
-  </svg>
-</button>
 
 <style>
   .hb-topbar {
     display: grid;
-    grid-template-columns: auto 1fr auto auto;
-    grid-template-areas: 'left center right menu';
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'left center right';
     align-items: center;
     gap: 32px;
     width: 100%;
@@ -138,7 +110,6 @@ import MenuButton from '@astrojs/starlight/components/MobileMenuToggle.astro';
   /* タブレット以下: nav の text label は隠して icons + lang のみ */
   @media (max-width: 60rem) {
     .hb-topbar {
-      grid-template-columns: auto 1fr auto auto;
       gap: 20px;
     }
     .hb-topbar__nav {
@@ -146,18 +117,22 @@ import MenuButton from '@astrojs/starlight/components/MobileMenuToggle.astro';
     }
   }
 
-  /* モバイル: search を非表示にして brand + lang + menu のみ */
+  /* モバイル: search 隠して brand + right。
+     PageFrame.astro が描画する MobileMenuToggle は CSS で
+     ヘッダー左に再配置する (components.css 側)。
+     ハンバーガー領域確保 (padding-left) は docs ページ
+     (sidebar あり) のみに適用する。 */
   @media (max-width: 50rem) {
     .hb-topbar {
       grid-template-columns: auto 1fr auto;
-      grid-template-areas: 'left right menu';
+      grid-template-areas: 'left center right';
       gap: 12px;
+    }
+    :global(html[data-has-sidebar]) .hb-topbar {
+      padding-left: 56px;
     }
     .hb-topbar__center {
       display: none;
-    }
-    .hb-topbar__menu {
-      display: flex;
     }
     .hb-topbar__icons {
       border-left: 0;
