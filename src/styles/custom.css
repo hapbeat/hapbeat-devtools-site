@@ -1,17 +1,202 @@
-/* Landing splash カラーを hapbeat-devtools-landing と揃える */
+/* ===========================================================
+ * Hapbeat devtools — design tokens (Claude Design 由来)
+ * .design-handoff/docs.css をベースに、Starlight の --sl-* 変数に
+ * マッピングしてサイト全体に適用する。
+ *
+ * デザイン要点:
+ *   - ブランドグラデーション: red (#e22d3f) → purple (#9542a0) → teal (#00516d)
+ *   - 既定 accent はブランドパープル
+ *   - OKLCH で表現された 3-step neutral / brand スケール
+ *   - Inter (英) + Noto Sans JP (日) + JetBrains Mono (code)
+ * =========================================================== */
+
+/* -------- Hapbeat design tokens (raw、参照用) -------- */
 :root {
-  --sl-color-accent-low: #18365a;
-  --sl-color-accent: #4a90e2;
-  --sl-color-accent-high: #b5d4f2;
+  /* Brand gradient stops */
+  --hb-red: #e22d3f;
+  --hb-magenta: #c0366b;
+  --hb-purple: #9542a0;
+  --hb-indigo: #4f5ea6;
+  --hb-blue: #275897;
+  --hb-teal: #00516d;
+
+  /* OKLCH brand soft / ink (light mode) */
+  --hb-red-soft: oklch(0.93 0.05 20);
+  --hb-red-ink: oklch(0.45 0.17 22);
+  --hb-purple-soft: oklch(0.93 0.05 320);
+  --hb-purple-ink: oklch(0.42 0.16 320);
+  --hb-teal-soft: oklch(0.93 0.045 220);
+  --hb-teal-ink: oklch(0.42 0.11 220);
+
+  /* Brand gradient (utility) */
+  --hb-gradient: linear-gradient(
+    135deg,
+    var(--hb-red) 0%,
+    var(--hb-purple) 50%,
+    var(--hb-teal) 100%
+  );
+
+  /* Neutrals (light) */
+  --hb-bg: oklch(0.985 0.003 80);
+  --hb-bg-elev: oklch(1 0 0);
+  --hb-bg-soft: oklch(0.965 0.005 60);
+  --hb-bg-code: oklch(0.965 0.006 60);
+  --hb-line: oklch(0.92 0.008 50);
+  --hb-line-strong: oklch(0.86 0.012 40);
+  --hb-ink: oklch(0.22 0.02 255);
+  --hb-ink-soft: oklch(0.42 0.018 255);
+  --hb-ink-mute: oklch(0.58 0.012 255);
+  --hb-ink-faint: oklch(0.72 0.008 255);
+
+  /* Shadows / radius */
+  --hb-shadow-sm: 0 1px 2px oklch(0.2 0.02 255 / 0.05);
+  --hb-shadow-md:
+    0 4px 12px oklch(0.2 0.02 255 / 0.06),
+    0 1px 3px oklch(0.2 0.02 255 / 0.05);
+  --hb-shadow-lg: 0 24px 48px -16px oklch(0.2 0.04 255 / 0.18);
+  --hb-radius-sm: 6px;
+  --hb-radius: 10px;
+  --hb-radius-lg: 14px;
+
+  /* Typography */
+  --hb-font-sans:
+    "Inter", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Helvetica, Arial, sans-serif;
+  --hb-font-jp:
+    "Noto Sans JP", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --hb-font-mono:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
-:root[data-theme='light'] {
-  --sl-color-accent-low: #dae9f7;
-  --sl-color-accent: #2563eb;
-  --sl-color-accent-high: #13335f;
+/* Dark-mode brand soft / ink + neutrals */
+:root[data-theme="dark"] {
+  --hb-bg: oklch(0.18 0.014 255);
+  --hb-bg-elev: oklch(0.22 0.014 255);
+  --hb-bg-soft: oklch(0.24 0.014 255);
+  --hb-bg-code: oklch(0.26 0.014 255);
+  --hb-line: oklch(0.32 0.012 255);
+  --hb-line-strong: oklch(0.4 0.012 255);
+  --hb-ink: oklch(0.95 0.005 250);
+  --hb-ink-soft: oklch(0.78 0.012 250);
+  --hb-ink-mute: oklch(0.62 0.012 250);
+  --hb-ink-faint: oklch(0.48 0.012 250);
+
+  --hb-red-soft: oklch(0.32 0.08 22);
+  --hb-red-ink: oklch(0.86 0.13 22);
+  --hb-purple-soft: oklch(0.32 0.08 320);
+  --hb-purple-ink: oklch(0.86 0.12 320);
+  --hb-teal-soft: oklch(0.3 0.06 220);
+  --hb-teal-ink: oklch(0.84 0.1 220);
+
+  --hb-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.3);
+  --hb-shadow-md:
+    0 4px 12px oklch(0 0 0 / 0.35),
+    0 1px 3px oklch(0 0 0 / 0.3);
+  --hb-shadow-lg: 0 24px 48px -16px oklch(0 0 0 / 0.5);
 }
 
-/* splash hero の左右余白を少し広めに */
-.hero {
-  padding-block: 3rem;
+/* -------- Starlight variable mapping -------- */
+/* Starlight が使う --sl-color-* / --sl-font / 他に上記の Hapbeat tokens を流し込む。
+ * これだけで Header / Sidebar / Article / TOC / Code block の色味と書体が
+ * デザインに揃う (DOM 構造は Starlight 標準のまま)。 */
+
+:root {
+  /* Accent (brand purple) */
+  --sl-color-accent-low: var(--hb-purple-soft);
+  --sl-color-accent: var(--hb-purple);
+  --sl-color-accent-high: var(--hb-purple-ink);
+
+  /* Backgrounds & surfaces */
+  --sl-color-bg: var(--hb-bg);
+  --sl-color-bg-nav: color-mix(in oklab, var(--hb-bg) 85%, transparent);
+  --sl-color-bg-sidebar: var(--hb-bg);
+  --sl-color-bg-inline-code: var(--hb-bg-code);
+  --sl-color-bg-accent: var(--hb-purple-soft);
+
+  /* Text */
+  --sl-color-white: var(--hb-ink);            /* Starlight は ink 系を --white で扱う */
+  --sl-color-gray-1: var(--hb-ink-soft);
+  --sl-color-gray-2: var(--hb-ink-mute);
+  --sl-color-gray-3: var(--hb-ink-faint);
+  --sl-color-gray-4: var(--hb-line-strong);
+  --sl-color-gray-5: var(--hb-line);
+  --sl-color-gray-6: var(--hb-bg-soft);
+  --sl-color-text: var(--hb-ink);
+  --sl-color-text-accent: var(--hb-purple-ink);
+  --sl-color-text-invert: var(--hb-bg);
+
+  /* Borders */
+  --sl-color-hairline-light: var(--hb-line);
+  --sl-color-hairline: var(--hb-line);
+  --sl-color-hairline-shade: var(--hb-line-strong);
+
+  /* Shadows */
+  --sl-shadow-sm: var(--hb-shadow-sm);
+  --sl-shadow-md: var(--hb-shadow-md);
+  --sl-shadow-lg: var(--hb-shadow-lg);
+
+  /* Typography */
+  --sl-font: var(--hb-font-jp);
+  --sl-font-mono: var(--hb-font-mono);
+  --sl-line-height: 1.75;
+  --sl-line-height-headings: 1.2;
+}
+
+:root[data-theme="dark"] {
+  --sl-color-accent-low: oklch(0.32 0.08 320);
+  --sl-color-accent: oklch(0.78 0.14 320);
+  --sl-color-accent-high: oklch(0.86 0.13 320);
+  --sl-color-text-accent: oklch(0.86 0.13 320);
+
+  --sl-color-bg: var(--hb-bg);
+  --sl-color-bg-nav: color-mix(in oklab, var(--hb-bg) 80%, transparent);
+  --sl-color-bg-sidebar: var(--hb-bg);
+  --sl-color-bg-inline-code: var(--hb-bg-code);
+
+  --sl-color-white: var(--hb-ink);
+  --sl-color-gray-1: var(--hb-ink-soft);
+  --sl-color-gray-2: var(--hb-ink-mute);
+  --sl-color-gray-3: var(--hb-ink-faint);
+  --sl-color-gray-4: var(--hb-line-strong);
+  --sl-color-gray-5: var(--hb-line);
+  --sl-color-gray-6: var(--hb-bg-soft);
+  --sl-color-text: var(--hb-ink);
+
+  --sl-color-hairline-light: var(--hb-line);
+  --sl-color-hairline: var(--hb-line);
+  --sl-color-hairline-shade: var(--hb-line-strong);
+}
+
+/* -------- Subtle global tweaks -------- */
+
+/* japanese typography polish */
+html {
+  font-feature-settings: "palt" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header: backdrop blur (デザインのトップバー風) */
+.header {
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+}
+
+/* H1 / Hero タイトルの字間調整 */
+.sl-markdown-content h1,
+.hero h1 {
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* Inline code: design 風に */
+.sl-markdown-content :not(pre) > code {
+  font-family: var(--hb-font-mono);
+  font-size: 0.88em;
+  background: var(--hb-bg-code);
+  border: 1px solid var(--hb-line);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--hb-ink);
 }

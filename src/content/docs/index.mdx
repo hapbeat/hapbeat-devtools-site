@@ -3,43 +3,74 @@ title: Hapbeat devtools
 description: 触覚デバイス Hapbeat のクリエイター・開発者向けツール、SDK、ドキュメントのポータル
 template: splash
 hero:
-  tagline: 触覚デバイス Hapbeat のためのクリエイター・開発者向けツールとドキュメント
+  tagline: 触覚デバイス <em>Hapbeat</em> のためのクリエイター・開発者向けツールとドキュメント
   actions:
     - text: Getting Started
       link: /docs/getting-started/
       icon: right-arrow
       variant: primary
-    - text: Manager のインストール
-      link: /docs/manager/installation/
+    - text: Manager をダウンロード
+      link: /downloads/
       variant: minimal
 ---
 
-import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import { Card, CardGrid } from '@astrojs/starlight/components';
+import ToolCard from '../../components/ToolCard.astro';
+import ToolGrid from '../../components/ToolGrid.astro';
 
 ## ツール
 
-<CardGrid>
-  <LinkCard
+<ToolGrid>
+  <ToolCard
     title="Hapbeat Studio"
+    description="Web ベースの統合デザインツール。波形・LED・ディスプレイレイアウトの編集と Kit ビルドを行えます。"
     href="/studio/"
-    description="Web ベースの統合デザインツール。波形・LED・ディスプレイレイアウトの編集と Kit ビルド。"
+    icon="🎛"
+    chip="Web App"
+    meta={["browser-only", "no install"]}
   />
-  <LinkCard
+  <ToolCard
     title="Hapbeat Manager"
+    description="デバイス管理デスクトップアプリ。Serial / TCP / UDP でデバイスと通信し、ファーム書き込み・Kit 転送を行います。"
     href="/docs/manager/installation/"
-    description="デバイス管理デスクトップアプリ。Serial/TCP/UDP でデバイスと通信し、ファーム書き込み・Kit 転送を行う。"
+    icon="🖥"
+    chip="Desktop"
+    meta={["Windows 10/11", ".exe installer"]}
   />
-  <LinkCard
+  <ToolCard
     title="Unity SDK"
+    description="Unity 向け SDK。Trigger コンポーネントや EventMap で触覚を簡単に組み込めます。"
     href="/docs/unity-sdk/installation/"
-    description="Unity 向け SDK。Trigger コンポーネントや EventMap で触覚を簡単に組み込む。"
+    icon="🎮"
+    chip="UPM"
+    meta={["Unity 2022.3+", "VR / 平面 両対応"]}
   />
-  <LinkCard
+  <ToolCard
+    title="Device Firmware"
+    description="ESP32-S3 上で動く固定ランタイム。Wi-Fi 設定・OTA 更新・LED / 表示カスタマイズ。"
+    href="/docs/firmware/wifi-setup/"
+    icon="⚡"
+    chip="Firmware"
+    meta={["ESP32-S3", "OTA 対応"]}
+  />
+  <ToolCard
+    title="Kit Tools (CLI)"
+    description="Kit のビルド・検証・転送を行う Python CLI。Studio / Manager から内部利用、上級者は単独でも操作可能。"
+    href="/docs/kit-tools/cli-reference/"
+    icon="📦"
+    chip="CLI"
+    meta={["Python 3.10+", "pipx install"]}
+  />
+  <ToolCard
     title="Creative Kit"
-    href="/docs/creative-kit/coming-soon/"
     description="TouchDesigner / Max 向けテンプレートとサンプル（準備中）。"
+    href="/docs/creative-kit/coming-soon/"
+    icon="🎨"
+    chip="WIP"
+    chipVariant="wip"
+    meta={["coming soon"]}
   />
-</CardGrid>
+</ToolGrid>
 
 ## まず何をすればいい？
 

@@ -34,3 +34,8 @@ src/content/docs/docs/creative-kit/
 # Legacy: 旧 fetch-docs.mjs が出していた _fetched/ ディレクトリ
 # (現在は使わないが、ローカル残骸を track しないよう保持)
 src/content/docs/docs/_fetched/
+
+# Design handoff (reference material from Claude Design)
+# 抽出済みの React/HTML プロトタイプは git 管理外。
+# 必要に応じて design-handoff.zip を別途保存してアーカイブする。
+.design-handoff/

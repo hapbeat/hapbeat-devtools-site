@@ -1,0 +1,29 @@
+---
+/**
+ * ToolGrid — ToolCard を 3 列で並べる薄いラッパ。
+ * モバイル幅では 1 列に折り返し。
+ */
+---
+
+<div class="hb-tool-grid">
+  <slot />
+</div>
+
+<style>
+  .hb-tool-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 24px 0 32px;
+  }
+  @media (max-width: 60rem) {
+    .hb-tool-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 40rem) {
+    .hb-tool-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

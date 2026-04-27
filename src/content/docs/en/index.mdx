@@ -3,18 +3,20 @@ title: Hapbeat devtools
 description: Developer portal for the Hapbeat haptic device — tools, SDKs, and documentation.
 template: splash
 hero:
-  tagline: Tools, SDKs, and documentation for the Hapbeat haptic device.
+  tagline: Tools, SDKs, and documentation for the <em>Hapbeat</em> haptic device.
   actions:
     - text: Getting Started
       link: /en/docs/getting-started/
       icon: right-arrow
       variant: primary
-    - text: Install Manager
-      link: /en/docs/manager/installation/
+    - text: Download Manager
+      link: /en/downloads/
       variant: minimal
 ---
 
-import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import { Card, CardGrid } from '@astrojs/starlight/components';
+import ToolCard from '../../../components/ToolCard.astro';
+import ToolGrid from '../../../components/ToolGrid.astro';
 
 :::caution
 **English documentation is partial.** Most pages are still being translated. Untranslated pages will display the Japanese version. AI-assisted translations are planned.
@@ -22,28 +24,57 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
 ## Tools
 
-<CardGrid>
-  <LinkCard
+<ToolGrid>
+  <ToolCard
     title="Hapbeat Studio"
-    href="/studio/"
     description="Web-based design tool. Edit waveforms, LED, display layout, and build Kits."
+    href="/studio/"
+    icon="🎛"
+    chip="Web App"
+    meta={["browser-only", "no install"]}
   />
-  <LinkCard
+  <ToolCard
     title="Hapbeat Manager"
+    description="Desktop app for device management. Serial / TCP / UDP communication, firmware flashing, Kit transfer."
     href="/en/docs/manager/installation/"
-    description="Desktop app for device management. Serial/TCP/UDP communication, firmware flashing, Kit transfer."
+    icon="🖥"
+    chip="Desktop"
+    meta={["Windows 10/11", ".exe installer"]}
   />
-  <LinkCard
+  <ToolCard
     title="Unity SDK"
-    href="/en/docs/unity-sdk/installation/"
     description="Unity SDK. Add haptics easily with Trigger components and EventMap."
+    href="/en/docs/unity-sdk/installation/"
+    icon="🎮"
+    chip="UPM"
+    meta={["Unity 2022.3+", "VR / non-VR"]}
   />
-  <LinkCard
+  <ToolCard
+    title="Device Firmware"
+    description="Fixed runtime on ESP32-S3. Wi-Fi setup, OTA updates, LED and display customization."
+    href="/en/docs/firmware/wifi-setup/"
+    icon="⚡"
+    chip="Firmware"
+    meta={["ESP32-S3", "OTA"]}
+  />
+  <ToolCard
+    title="Kit Tools (CLI)"
+    description="Python CLI for building, validating, and transferring Kits. Used internally by Studio / Manager."
+    href="/en/docs/kit-tools/cli-reference/"
+    icon="📦"
+    chip="CLI"
+    meta={["Python 3.10+", "pipx install"]}
+  />
+  <ToolCard
     title="Creative Kit"
-    href="/en/docs/creative-kit/coming-soon/"
     description="Templates and samples for TouchDesigner / Max (under development)."
+    href="/en/docs/creative-kit/coming-soon/"
+    icon="🎨"
+    chip="WIP"
+    chipVariant="wip"
+    meta={["coming soon"]}
   />
-</CardGrid>
+</ToolGrid>
 
 ## Where to start
 

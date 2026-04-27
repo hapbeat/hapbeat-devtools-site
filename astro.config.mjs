@@ -15,6 +15,25 @@ export default defineConfig({
     starlight({
       title: 'Hapbeat devtools',
       description: '触覚デバイス Hapbeat のクリエイター・開発者向けツールとドキュメント',
+      // Google Fonts を <head> に注入 (design tokens の font-family と一致させる)。
+      // Inter (英) + Noto Sans JP (日) + JetBrains Mono (code)。
+      head: [
+        { tag: 'link', attrs: { rel: 'preconnect', href: 'https://fonts.googleapis.com' } },
+        { tag: 'link', attrs: { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'true' } },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'stylesheet',
+            href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap',
+          },
+        },
+      ],
+      // Brand mark + サイトタイトルを差し替えるため SiteTitle component を override。
+      // ロゴは CSS グラデーションで描画する (design 準拠) ため Starlight 標準の logo
+      // config は使わない。ファビコン・OG 画像用の webp は public/hapbeat-logo.webp。
+      components: {
+        SiteTitle: './src/components/SiteTitle.astro',
+      },
       // i18n: 日本語を root (URL prefix なし) として配信し、英語を /en/ 配下に。
       // Starlight の慣例で「default = root」「alternate = /<lang>/」のパターン。
       // 英訳は AI 訳を順次掲載予定。未訳ページは fallback メッセージで案内される。

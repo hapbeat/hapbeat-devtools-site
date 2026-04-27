@@ -1,0 +1,89 @@
+---
+/**
+ * SiteTitle override.
+ *
+ * Starlight default の SiteTitle (タイトル文字 or logo image) を、
+ * Hapbeat デザインのブランドマーク (グラデーション四角 + 同心円) +
+ * "Hapbeat / devtools" のテキストロックアップに差し替える。
+ *
+ * design 出典: .design-handoff/docs.css の .brand / .brand__mark / .brand__name
+ */
+
+const homeUrl = import.meta.env.BASE_URL || '/';
+---
+
+<a class="hb-brand" href={homeUrl} aria-label="Hapbeat devtools — ホーム">
+  <span class="hb-brand__mark" aria-hidden="true"></span>
+  <span class="hb-brand__name">
+    <span class="hb-brand__primary">Hapbeat</span>
+    <span class="hb-brand__sub">devtools</span>
+  </span>
+</a>
+
+<style>
+  .hb-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--sl-color-text);
+    text-decoration: none;
+    font-family: var(--hb-font-sans);
+    line-height: 1;
+  }
+  .hb-brand:hover {
+    text-decoration: none;
+  }
+  .hb-brand__mark {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    background: var(--hb-gradient);
+    box-shadow: var(--hb-shadow-sm);
+    display: inline-grid;
+    place-items: center;
+    position: relative;
+    flex: none;
+  }
+  .hb-brand__mark::before,
+  .hb-brand__mark::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    border: 1.4px solid oklch(1 0 0 / 0.85);
+    pointer-events: none;
+  }
+  .hb-brand__mark::before {
+    width: 9px;
+    height: 9px;
+    opacity: 0.95;
+  }
+  .hb-brand__mark::after {
+    width: 17px;
+    height: 17px;
+    opacity: 0.5;
+  }
+  .hb-brand__name {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .hb-brand__primary {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    color: var(--sl-color-text);
+  }
+  .hb-brand__sub {
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--sl-color-gray-2);
+    letter-spacing: 0;
+  }
+
+  /* モバイル: サブ "devtools" は隠す */
+  @media (max-width: 50rem) {
+    .hb-brand__sub {
+      display: none;
+    }
+  }
+</style>
