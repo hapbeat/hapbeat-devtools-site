@@ -31,8 +31,10 @@ export default defineConfig({
       // Brand mark + サイトタイトルを差し替えるため SiteTitle component を override。
       // ロゴは CSS グラデーションで描画する (design 準拠) ため Starlight 標準の logo
       // config は使わない。ファビコン・OG 画像用の webp は public/hapbeat-logo.webp。
+      // Footer は default 機能 (pagination 等) を保ったままサイトフッターを下に追加。
       components: {
         SiteTitle: './src/components/SiteTitle.astro',
+        Footer: './src/components/Footer.astro',
       },
       // i18n: 日本語を root (URL prefix なし) として配信し、英語を /en/ 配下に。
       // Starlight の慣例で「default = root」「alternate = /<lang>/」のパターン。
@@ -100,7 +102,7 @@ export default defineConfig({
           ],
         },
       ],
-      customCss: ['./src/styles/custom.css'],
+      customCss: ['./src/styles/custom.css', './src/styles/components.css'],
     }),
   ],
 });

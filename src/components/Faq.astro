@@ -1,0 +1,95 @@
+---
+/**
+ * Faq — <details>/<summary> ベースのアコーディオン項目。
+ * design の .faq__item / .faq__q / .faq__a 準拠。
+ *
+ * 利用例 (mdx):
+ *   <Faq question="デバイスが見つからない">
+ *     - ファームウェア書き込み済みか確認
+ *     - 同一ネットワークか確認
+ *   </Faq>
+ */
+interface Props {
+  question: string;
+  open?: boolean;
+}
+const { question, open = false } = Astro.props;
+---
+
+<details class="hb-faq" open={open}>
+  <summary class="hb-faq__q">
+    <span>{question}</span>
+    <svg
+      class="hb-faq__chev"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </summary>
+  <div class="hb-faq__a">
+    <slot />
+  </div>
+</details>
+
+<style>
+  .hb-faq {
+    border: 1px solid var(--hb-line);
+    border-radius: var(--hb-radius);
+    background: var(--hb-bg-elev);
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .hb-faq__q {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--hb-ink);
+    font-size: 15px;
+    list-style: none;
+    user-select: none;
+  }
+  .hb-faq__q::-webkit-details-marker {
+    display: none;
+  }
+  .hb-faq__q:hover {
+    background: var(--hb-bg-soft);
+  }
+  .hb-faq__chev {
+    color: var(--hb-ink-mute);
+    transition: transform 0.2s;
+    flex: none;
+  }
+  .hb-faq[open] .hb-faq__chev {
+    transform: rotate(180deg);
+  }
+  .hb-faq__a {
+    padding: 14px 18px 16px;
+    font-size: 14px;
+    color: var(--hb-ink-soft);
+    line-height: 1.7;
+    border-top: 1px solid var(--hb-line);
+  }
+  .hb-faq__a > :global(p:first-child) {
+    margin-top: 0;
+  }
+  .hb-faq__a > :global(p:last-child),
+  .hb-faq__a > :global(ul:last-child) {
+    margin-bottom: 0;
+  }
+  .hb-faq__a :global(ul) {
+    margin: 0;
+    padding-left: 1.2em;
+  }
+</style>

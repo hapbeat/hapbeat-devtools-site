@@ -1,0 +1,429 @@
+/* ===========================================================
+ * Hapbeat devtools — Starlight 標準 component の見た目を
+ * Claude Design ハンドオフに寄せるためのオーバーライド集。
+ *
+ * 対象:
+ *   - Admonition / Aside (.starlight-aside)
+ *   - Steps (.sl-steps)
+ *   - Pagination (.pagination-links)
+ *   - TOC (.starlight-aside__toc, sl-toc)
+ *   - Article 内 typography (.sl-markdown-content)
+ *   - Sidebar (.sidebar-content)
+ *
+ * すべて Starlight の DOM 構造を尊重し、CSS だけで意匠を寄せる。
+ * 構造を変える要素 (Footer / SiteTitle) は別途 component override で対応。
+ * =========================================================== */
+
+/* ------------------------------------------------------------
+ * Article — 見出し / リード / 段落の典格を design に揃える
+ * ------------------------------------------------------------ */
+
+/* H1: design は 36px / 字間 -0.02em / wrap balance */
+.sl-markdown-content h1:first-child,
+.sl-markdown-content > h1:first-of-type {
+  font-size: clamp(28px, 4.2vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  color: var(--hb-ink);
+  text-wrap: balance;
+}
+
+/* H2: 56px の上余白 + 左に小ドット (hover 時表示) */
+.sl-markdown-content h2 {
+  font-size: clamp(20px, 2.6vw, 24px);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 56px 0 16px;
+  position: relative;
+  color: var(--hb-ink);
+}
+.sl-markdown-content h2::before {
+  content: '';
+  position: absolute;
+  left: -18px;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sl-color-accent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.sl-markdown-content h2:hover::before {
+  opacity: 1;
+}
+
+/* H3 */
+.sl-markdown-content h3 {
+  font-size: clamp(16px, 2vw, 18px);
+  font-weight: 600;
+  margin: 36px 0 10px;
+  color: var(--hb-ink);
+}
+
+/* 段落: ink-soft + line-height 1.75 + pretty wrap */
+.sl-markdown-content p,
+.sl-markdown-content ul,
+.sl-markdown-content ol {
+  color: var(--hb-ink-soft);
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+.sl-markdown-content strong {
+  color: var(--hb-ink);
+  font-weight: 600;
+}
+.sl-markdown-content li::marker {
+  color: var(--hb-ink-faint);
+}
+
+/* description (frontmatter) を lede 風に */
+.sl-markdown-content > p:first-of-type:not(:has(img)) {
+  font-size: 17px;
+  color: var(--hb-ink-soft);
+  line-height: 1.65;
+  text-wrap: pretty;
+  max-width: 62ch;
+}
+
+/* テーブル */
+.sl-markdown-content table {
+  font-size: 14px;
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius);
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.sl-markdown-content thead th {
+  background: var(--hb-bg-soft);
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: var(--hb-ink);
+  text-align: left;
+}
+.sl-markdown-content tbody td code,
+.sl-markdown-content tbody td a code {
+  color: var(--sl-color-accent);
+}
+
+/* ------------------------------------------------------------
+ * Admonition (:::note / :::caution / :::tip / :::danger)
+ * Starlight の .starlight-aside に design の .callout 系スタイルを当てる。
+ * ------------------------------------------------------------ */
+
+.starlight-aside {
+  margin: 24px 0;
+  padding: 14px 18px 14px 16px;
+  border-radius: var(--hb-radius);
+  border-width: 1px;
+  border-style: solid;
+  border-left-width: 1px;            /* design は左太線 NG なので統一 */
+  background: var(--hb-bg-soft);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+.starlight-aside__title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin-bottom: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.starlight-aside__content {
+  color: var(--hb-ink-soft);
+}
+.starlight-aside__content > p {
+  margin: 0 0 6px;
+}
+.starlight-aside__content > p:last-child {
+  margin-bottom: 0;
+}
+
+/* note */
+.starlight-aside--note {
+  border-color: color-mix(in oklab, var(--sl-color-accent) 25%, var(--hb-line));
+  background: color-mix(in oklab, var(--hb-purple-soft) 60%, var(--hb-bg-soft));
+}
+.starlight-aside--note .starlight-aside__title {
+  color: var(--sl-color-accent);
+}
+
+/* tip → 緑系 */
+.starlight-aside--tip {
+  border-color: color-mix(in oklab, oklch(0.6 0.13 155) 35%, var(--hb-line));
+  background: oklch(0.95 0.04 155);
+}
+:root[data-theme='dark'] .starlight-aside--tip {
+  background: oklch(0.3 0.06 155);
+}
+.starlight-aside--tip .starlight-aside__title {
+  color: oklch(0.36 0.12 155);
+}
+:root[data-theme='dark'] .starlight-aside--tip .starlight-aside__title {
+  color: oklch(0.84 0.1 155);
+}
+
+/* caution → 黄/オレンジ系 */
+.starlight-aside--caution {
+  border-color: color-mix(in oklab, oklch(0.62 0.13 60) 35%, var(--hb-line));
+  background: oklch(0.96 0.04 75);
+}
+:root[data-theme='dark'] .starlight-aside--caution {
+  background: oklch(0.32 0.08 75);
+}
+.starlight-aside--caution .starlight-aside__title {
+  color: oklch(0.4 0.13 50);
+}
+:root[data-theme='dark'] .starlight-aside--caution .starlight-aside__title {
+  color: oklch(0.86 0.1 75);
+}
+
+/* danger → 赤 (ブランド赤を流用) */
+.starlight-aside--danger {
+  border-color: color-mix(in oklab, var(--hb-red) 35%, var(--hb-line));
+  background: var(--hb-red-soft);
+}
+.starlight-aside--danger .starlight-aside__title {
+  color: var(--hb-red-ink);
+}
+
+/* ------------------------------------------------------------
+ * Steps (Starlight built-in: ordered list with .sl-steps)
+ * デザインの .steps__item に寄せる
+ * ------------------------------------------------------------ */
+
+.sl-markdown-content ol.sl-steps {
+  counter-reset: step;
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+  display: grid;
+  gap: 8px;
+}
+.sl-markdown-content ol.sl-steps > li {
+  counter-increment: step;
+  padding: 14px 16px 14px 60px;
+  position: relative;
+  border-radius: var(--hb-radius);
+  border: 1px solid var(--hb-line);
+  background: var(--hb-bg-elev);
+  transition: border-color 0.15s, background 0.15s;
+  margin: 0;
+}
+.sl-markdown-content ol.sl-steps > li:hover {
+  border-color: var(--hb-line-strong);
+}
+.sl-markdown-content ol.sl-steps > li::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  font-family: var(--hb-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sl-color-accent);
+  background: var(--hb-purple-soft);
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 26px;
+}
+.sl-markdown-content ol.sl-steps > li::marker {
+  content: '';
+}
+
+/* ------------------------------------------------------------
+ * Pagination (prev / next)
+ * Starlight の .pagination-links を design の .pager に寄せる
+ * ------------------------------------------------------------ */
+
+.pagination-links {
+  margin: 64px 0 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.pagination-links a {
+  display: block;
+  padding: 14px 18px;
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius);
+  text-decoration: none !important;
+  color: inherit;
+  transition: border-color 0.15s;
+  background: var(--hb-bg-elev);
+}
+.pagination-links a:hover {
+  border-color: var(--sl-color-accent);
+}
+.pagination-links a > span:first-child,
+.pagination-links a > svg + span {
+  font-size: 11.5px;
+  color: var(--hb-ink-mute);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  display: block;
+}
+.pagination-links a .link-title {
+  margin-top: 4px;
+  color: var(--hb-ink);
+  font-weight: 600;
+  font-size: 14.5px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ------------------------------------------------------------
+ * TOC (右カラム)
+ * - 細い縦線 + active 項目で太線 + accent カラー
+ * - h3 は字下げ
+ * ------------------------------------------------------------ */
+
+.right-sidebar nav ul,
+starlight-toc nav ul {
+  list-style: none !important;
+  padding: 0;
+  margin: 0;
+  border-left: 1px solid var(--hb-line);
+}
+.right-sidebar nav li,
+starlight-toc nav li {
+  margin: 0 !important;
+}
+.right-sidebar nav a,
+starlight-toc nav a {
+  display: block;
+  padding: 4px 12px;
+  margin-left: -1px;
+  color: var(--hb-ink-mute);
+  border-left: 2px solid transparent;
+  text-decoration: none;
+  line-height: 1.5;
+  font-size: 13px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.right-sidebar nav a:hover,
+starlight-toc nav a:hover {
+  color: var(--hb-ink);
+}
+.right-sidebar nav a[aria-current='true'],
+starlight-toc nav a[aria-current='true'] {
+  color: var(--sl-color-accent);
+  border-left-color: var(--sl-color-accent);
+  font-weight: 500;
+}
+/* h3 (子) は字下げ */
+.right-sidebar nav ul ul a,
+starlight-toc nav ul ul a {
+  padding-left: 22px;
+  font-size: 12.5px;
+}
+
+/* TOC 見出し "On this page" などのラベル */
+.right-sidebar h2,
+starlight-toc h2,
+.right-sidebar > nav > h2 {
+  font-size: 11px !important;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hb-ink-mute) !important;
+  margin-bottom: 12px !important;
+}
+
+/* ------------------------------------------------------------
+ * Sidebar (左カラム)
+ * - グループラベルにブランドアクセント色を割当
+ * - 各グループの左に色付きの 2px 縦線
+ * ------------------------------------------------------------ */
+
+/* グループ summary (label) を太字に */
+.sidebar-content details > summary,
+.sidebar-content > ul > li > details > summary {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--hb-ink);
+}
+
+/* グループに左縦線 (2px) — 既定は灰、.sb-* で色を上書き */
+.sidebar-content > ul > li {
+  --sb-color: var(--hb-line-strong);
+}
+.sidebar-content > ul > li:has(> details),
+.sidebar-content > ul > li:has(> ul) {
+  border-left: 2px solid var(--sb-color);
+  padding-left: 12px;
+  margin-bottom: 18px;
+}
+
+/* グループラベル前のドット */
+.sidebar-content > ul > li > details > summary > span:first-child::before,
+.sidebar-content > ul > li > a::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--sb-color);
+  margin-right: 8px;
+  vertical-align: 0;
+  flex: none;
+}
+
+/* グループ別アクセント色 (ラベル文字列の前方一致で割当) */
+.sidebar-content > ul > li:has(summary span:is([dir]):first-letter) {
+  /* placeholder for selector below */
+}
+
+/* ラベル文字列でグループを識別して色を当てる
+ * (Starlight が summary 内に label をプレーンテキストで入れる。
+ *  :has() + textContent 直接マッチングは不可なので、属性 or ID は付かない。
+ *  実用的には :nth-of-type で順序依存となるが順序が頻繁に変わるならコメントアウト。)
+ *
+ * 現サイドバー順:
+ *   1: はじめに    (purple)
+ *   2: Manager     (red)
+ *   3: Studio      (purple)
+ *   4: Unity SDK   (teal)
+ *   5: Unreal SDK  (teal)
+ *   6: Creative Kit(red)
+ *   7: Firmware    (indigo)
+ *   8: Kit Tools   (indigo)
+ *   9: Contracts   (blue)
+ *  10: その他      (mute)
+ */
+.sidebar-content > ul > li:nth-of-type(1) { --sb-color: var(--hb-purple); }
+.sidebar-content > ul > li:nth-of-type(2) { --sb-color: var(--hb-red); }
+.sidebar-content > ul > li:nth-of-type(3) { --sb-color: var(--hb-purple); }
+.sidebar-content > ul > li:nth-of-type(4) { --sb-color: var(--hb-teal); }
+.sidebar-content > ul > li:nth-of-type(5) { --sb-color: var(--hb-teal); }
+.sidebar-content > ul > li:nth-of-type(6) { --sb-color: var(--hb-red); }
+.sidebar-content > ul > li:nth-of-type(7) { --sb-color: var(--hb-indigo); }
+.sidebar-content > ul > li:nth-of-type(8) { --sb-color: var(--hb-indigo); }
+.sidebar-content > ul > li:nth-of-type(9) { --sb-color: var(--hb-blue); }
+.sidebar-content > ul > li:nth-of-type(10) { --sb-color: var(--hb-ink-mute); }
+
+/* グループラベル本体にも sb-color をうっすら反映 */
+.sidebar-content > ul > li > details > summary {
+  color: color-mix(in oklab, var(--sb-color) 80%, var(--hb-ink) 20%);
+}
+:root[data-theme='dark'] .sidebar-content > ul > li > details > summary {
+  color: color-mix(in oklab, var(--sb-color) 60%, var(--hb-ink) 40%);
+}
+
+/* active link は accent 色 → グループ色に置き換え */
+.sidebar-content a[aria-current='page'] {
+  color: var(--sb-color, var(--sl-color-accent)) !important;
+  background: color-mix(in oklab, var(--sb-color, var(--sl-color-accent)) 12%, transparent);
+}
+:root[data-theme='dark'] .sidebar-content a[aria-current='page'] {
+  background: color-mix(in oklab, var(--sb-color, var(--sl-color-accent)) 22%, transparent);
+}

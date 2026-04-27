@@ -1,0 +1,82 @@
+---
+/**
+ * Footer override.
+ *
+ * Starlight default の Footer (pagination + edit-this-page + last-updated)
+ * の下にサイトフッターを追加する。
+ *
+ * default Footer を import + 同一 props で再描画 → そのままの機能を維持。
+ */
+import Default from '@astrojs/starlight/components/Footer.astro';
+
+const year = new Date().getFullYear();
+---
+
+<Default {...Astro.props}><slot /></Default>
+
+<footer class="hb-footer">
+  <div class="hb-footer__inner">
+    <div class="hb-footer__brand">
+      <span class="hb-footer__mark" aria-hidden="true"></span>
+      <span>© {year} Hapbeat — devtools.hapbeat.com</span>
+    </div>
+    <ul class="hb-footer__links">
+      <li><a href="https://hapbeat.com">hapbeat.com</a></li>
+      <li><a href="https://github.com/Hapbeat" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="/changelog/">Changelog</a></li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .hb-footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--hb-line);
+    font-size: 13px;
+    color: var(--hb-ink-mute);
+  }
+  .hb-footer__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .hb-footer__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hb-footer__mark {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    background: var(--hb-gradient);
+    flex: none;
+    box-shadow: var(--hb-shadow-sm);
+  }
+  .hb-footer__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 18px;
+  }
+  .hb-footer__links a {
+    color: var(--hb-ink-mute);
+    text-decoration: none;
+  }
+  .hb-footer__links a:hover {
+    color: var(--hb-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  @media (max-width: 40rem) {
+    .hb-footer__inner {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

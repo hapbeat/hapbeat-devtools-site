@@ -1,0 +1,97 @@
+---
+/**
+ * DownloadItem
+ *
+ * Downloads ページ用の配布物リスト 1 行分。
+ * design の .dl-item / .dl-item__icon / .dl-item__name / .dl-item__btn 準拠。
+ */
+interface Props {
+  name: string;
+  description?: string;
+  href: string;
+  icon?: string;
+  btnLabel?: string;
+}
+const {
+  name,
+  description,
+  href,
+  icon = '⬇',
+  btnLabel = 'Download',
+} = Astro.props;
+---
+
+<a class="hb-dl" href={href} target="_blank" rel="noopener">
+  <span class="hb-dl__icon" aria-hidden="true">{icon}</span>
+  <div class="hb-dl__body">
+    <div class="hb-dl__name">{name}</div>
+    {description && <div class="hb-dl__desc">{description}</div>}
+  </div>
+  <span class="hb-dl__btn">{btnLabel} →</span>
+</a>
+
+<style>
+  .hb-dl {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--hb-line);
+    border-radius: var(--hb-radius);
+    background: var(--hb-bg-elev);
+    text-decoration: none !important;
+    color: inherit;
+    transition: border-color 0.15s, transform 0.1s;
+    margin-bottom: 10px;
+  }
+  .hb-dl:hover {
+    border-color: var(--sl-color-accent);
+  }
+  .hb-dl:active {
+    transform: translateY(1px);
+  }
+  .hb-dl__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--hb-purple-soft);
+    color: var(--hb-purple-ink);
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    flex: none;
+  }
+  :global([data-theme='dark']) .hb-dl__icon {
+    color: var(--sl-color-accent-high);
+  }
+  .hb-dl__body {
+    min-width: 0;
+  }
+  .hb-dl__name {
+    font-weight: 600;
+    color: var(--hb-ink);
+    font-size: 14.5px;
+    line-height: 1.4;
+  }
+  .hb-dl__desc {
+    font-size: 12.5px;
+    color: var(--hb-ink-mute);
+    margin-top: 2px;
+  }
+  .hb-dl__btn {
+    font-family: var(--hb-font-mono);
+    font-size: 12px;
+    color: var(--hb-ink-mute);
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: var(--hb-bg-soft);
+    border: 1px solid var(--hb-line);
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .hb-dl:hover .hb-dl__btn {
+    color: var(--sl-color-accent);
+    border-color: var(--sl-color-accent);
+  }
+</style>

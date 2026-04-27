@@ -1,0 +1,70 @@
+---
+title: Downloads
+description: Manager installer、Unity SDK パッケージ、ファームウェアバイナリの入手先。
+---
+
+import DownloadItem from '../../components/DownloadItem.astro';
+
+各配布物は GitHub Releases から提供される。以下のリンクは常に **最新リリース** を指す（GitHub が自動で `/releases/latest` を最新版へリダイレクトする）。
+
+## Hapbeat Manager
+
+デバイス管理デスクトップアプリ（Windows）。
+
+<DownloadItem
+  name="Hapbeat Manager (Windows installer)"
+  description="最新版 .exe — 初回起動時にファイアウォール許可が必要"
+  href="https://github.com/Hapbeat/hapbeat-manager/releases/latest"
+  icon="🖥"
+  btnLabel="GitHub Release"
+/>
+
+[全リリース履歴](https://github.com/Hapbeat/hapbeat-manager/releases)
+
+## Unity SDK
+
+Unity Package Manager（UPM）経由でインストール可能。
+
+<DownloadItem
+  name="Hapbeat Unity SDK (UPM tarball)"
+  description="Unity 2022.3 LTS 以上 / VR・平面 両対応"
+  href="https://github.com/Hapbeat/hapbeat-unity-sdk/releases/latest"
+  icon="🎮"
+  btnLabel="GitHub Release"
+/>
+
+UPM 登録 URL: `https://github.com/Hapbeat/hapbeat-unity-sdk.git`（タグ指定推奨）
+
+導入手順: [Unity SDK インストール](/docs/unity-sdk/installation/)
+
+## Device Firmware
+
+Hapbeat 本体（ESP32-S3）用ファームウェア。通常は Manager に同梱されるので個別ダウンロードは上級者向け。
+
+<DownloadItem
+  name="Hapbeat Device Firmware (.bin)"
+  description="ESP32-S3 用、Manager 経由の OTA 更新が標準"
+  href="https://github.com/Hapbeat/hapbeat-device-firmware/releases/latest"
+  icon="⚡"
+  btnLabel="GitHub Release"
+/>
+
+## Transmitter Firmware
+
+ESP-NOW 送信機ファームウェア（大規模構成向け）。
+
+<DownloadItem
+  name="Hapbeat Transmitter Firmware (.bin)"
+  description="数十台同時送信や Wi-Fi 不可環境向けの送信機専用ファーム"
+  href="https://github.com/Hapbeat/hapbeat-transmitter-firmware/releases/latest"
+  icon="📡"
+  btnLabel="GitHub Release"
+/>
+
+## ソースコード
+
+各リポジトリは [Hapbeat GitHub org](https://github.com/Hapbeat) で公開予定。
+
+:::note
+リリースビルドは各 repo の GitHub Actions が tag push で自動生成する。バージョン履歴は GitHub Releases ページで確認できる。
+:::
