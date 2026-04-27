@@ -339,6 +339,29 @@ starlight-toc h2,
 }
 
 /* ------------------------------------------------------------
+ * View Transitions (Astro <ClientRouter />)
+ *
+ * デフォルトは ~200ms cross-fade。docs サイトはページ間切替が多いので
+ * もっと素早く感じる 120ms に短縮 + ease-out で出る側を切れ味よく。
+ *
+ * ::view-transition-old / -new(root) はブラウザ標準の View Transitions API
+ * の擬似要素。Astro が <html> ルート全体を 1 グループでアニメさせている。
+ * prefers-reduced-motion の人には完全に無効化する。
+ * ------------------------------------------------------------ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 120ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------
  * Hero (template: splash 用 / Hero.astro override)
  * design ハンドオフ .design-handoff/docs.css の .hero / .btn / .diagram 系を
  * .hb-* prefix で再現。
