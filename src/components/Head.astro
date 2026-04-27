@@ -23,3 +23,42 @@ import { ClientRouter } from 'astro:transitions';
 
 <Default {...Astro.props}><slot /></Default>
 <ClientRouter />
+
+<script is:inline>
+  /**
+   * Sidebar scroll position persistence across View Transitions.
+   *
+   * Starlight default の sl-sidebar-state-persist は visibilitychange /
+   * pagehide で sessionStorage に保存しているが、ClientRouter による
+   * SPA 遷移では これらが発火しないため scroll 位置がリセットされる。
+   *
+   * Astro が提供する astro:before-swap (旧 DOM 保持中) / astro:after-swap
+   * (新 DOM 適用直後) のフックで保存・復元する。
+   *
+   * details の open 状態は sl-sidebar-state-persist が click ハンドラで
+   * 保存している (event-driven なので transition でも動く)。なのでスクロール
+   * のみここで補完する。
+   */
+  (() => {
+    const KEY = 'hb-sidebar-scroll';
+    const getSidebar = () => document.getElementById('starlight__sidebar');
+
+    document.addEventListener('astro:before-swap', () => {
+      const sb = getSidebar();
+      if (sb) {
+        try {
+          sessionStorage.setItem(KEY, String(sb.scrollTop));
+        } catch {}
+      }
+    });
+
+    document.addEventListener('astro:after-swap', () => {
+      const sb = getSidebar();
+      if (!sb) return;
+      try {
+        const v = sessionStorage.getItem(KEY);
+        if (v != null) sb.scrollTop = parseInt(v, 10) || 0;
+      } catch {}
+    });
+  })();
+</script>
