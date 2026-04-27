@@ -1,0 +1,127 @@
+---
+/**
+ * ThemeSelect override.
+ *
+ * Starlight default の <select> 3 択 (light/dark/auto) を、design の
+ * .icon-btn 風に圧縮した 1 ボタン (sun/moon icon トグル) に置換する。
+ *
+ * 動作:
+ *   - 現在 <html data-theme> から状態を読む
+ *   - クリックで dark ↔ light をトグル
+ *   - localStorage["starlight-theme"] に保存 (Starlight default と互換)
+ *   - 既存の StarlightThemeProvider があれば updatePickers() を呼んで
+ *     他箇所 (mobile menu 等) と同期
+ *   - auto は明示 UI から外したが、初期値が auto の場合は OS preference を
+ *     正しく反映してから初回トグルする
+ */
+---
+
+<starlight-theme-toggle>
+  <button
+    type="button"
+    class="hb-theme-btn"
+    aria-label="テーマ切替"
+    title="テーマ切替"
+  >
+    <svg
+      class="hb-theme-btn__sun"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+    </svg>
+    <svg
+      class="hb-theme-btn__moon"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+</starlight-theme-toggle>
+
+<script is:inline>
+  // Self-contained custom element (Starlight default の StarlightThemeProvider と
+  // localStorage キーを共有して状態同期する)。
+  customElements.define(
+    'starlight-theme-toggle',
+    class extends HTMLElement {
+      connectedCallback() {
+        const btn = this.querySelector('button');
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+          const current =
+            document.documentElement.dataset.theme === 'light'
+              ? 'light'
+              : 'dark';
+          const next = current === 'dark' ? 'light' : 'dark';
+          // Starlight 互換キーで localStorage に保存
+          try {
+            localStorage.setItem('starlight-theme', next);
+          } catch {}
+          // <html data-theme> を更新
+          document.documentElement.dataset.theme = next;
+          // 既存の Starlight picker (mobile 等) があれば同期
+          if (
+            typeof window.StarlightThemeProvider !== 'undefined' &&
+            typeof window.StarlightThemeProvider.updatePickers === 'function'
+          ) {
+            window.StarlightThemeProvider.updatePickers(next);
+          }
+        });
+      }
+    }
+  );
+</script>
+
+<style>
+  .hb-theme-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+    color: var(--hb-ink-mute);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+  .hb-theme-btn:hover {
+    color: var(--hb-ink);
+    background: var(--hb-bg-soft);
+  }
+  /* light mode は moon、dark mode は sun を表示 */
+  .hb-theme-btn__sun,
+  .hb-theme-btn__moon {
+    grid-area: 1 / 1;
+  }
+  .hb-theme-btn__sun {
+    display: none;
+  }
+  .hb-theme-btn__moon {
+    display: block;
+  }
+  :global([data-theme='dark']) .hb-theme-btn__sun {
+    display: block;
+  }
+  :global([data-theme='dark']) .hb-theme-btn__moon {
+    display: none;
+  }
+</style>

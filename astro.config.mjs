@@ -38,6 +38,7 @@ export default defineConfig({
         Header: './src/components/Header.astro',
         SiteTitle: './src/components/SiteTitle.astro',
         LanguageSelect: './src/components/LanguageSelect.astro',
+        ThemeSelect: './src/components/ThemeSelect.astro',
         Footer: './src/components/Footer.astro',
       },
       // i18n: 日本語を root (URL prefix なし) として配信し、英語を /en/ 配下に。

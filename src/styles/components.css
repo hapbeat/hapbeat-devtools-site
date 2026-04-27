@@ -505,21 +505,13 @@ starlight-lang-select label {
   margin-bottom: 18px;
 }
 
-/* グループラベルを inline-flex にして先頭にドット */
+/* グループラベル: 先頭ドット + group-color を直接適用 (design 準拠) */
 .sidebar-content ul.top-level > li > details > summary > .group-label {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: color-mix(in oklab, var(--sb-color) 80%, var(--hb-ink) 20%);
-}
-:root[data-theme='dark']
-  .sidebar-content
-  ul.top-level
-  > li
-  > details
-  > summary
-  > .group-label {
-  color: color-mix(in oklab, var(--sb-color) 60%, var(--hb-ink) 40%);
+  color: var(--sb-color);
+  font-weight: 700;
 }
 .sidebar-content ul.top-level > li > details > summary > .group-label::before {
   content: '';
@@ -530,28 +522,54 @@ starlight-lang-select label {
   flex: none;
 }
 
-/* グループ別カラー割当 (順序依存)
- *   1: はじめに     purple
- *   2: Manager      red
- *   3: Studio       purple
- *   4: Unity SDK    teal
- *   5: Unreal SDK   teal
- *   6: Creative Kit red
- *   7: Firmware     indigo
- *   8: Kit Tools    indigo
- *   9: Contracts    blue
- *  10: その他       mute
+/* グループ別カラー割当: design (.design-handoff/docs-shell.jsx) のブランド
+ * グラデーションを順に 1 周だけ適用する (red → magenta → purple → indigo →
+ * blue → teal、最後の "リソース" のみ neutral)。
+ * design ハンドオフの色を hex で直接当てて gradient 連続性を確保。
+ *
+ * 順序 (astro.config.mjs の sidebar 配列順):
+ *   1: はじめに      #e22d3f  red
+ *   2: Manager       #d0345c  red→magenta
+ *   3: Studio        #c0366b  magenta
+ *   4: Unity SDK     #9542a0  purple
+ *   5: Unreal SDK    #7a4ba8  purple→indigo
+ *   6: Creative Kit  #4f5ea6  indigo
+ *   7: Firmware      #275897  blue
+ *   8: Kit Tools     #155f80  blue→teal
+ *   9: Contracts     #00516d  teal
+ *  10: リソース      neutral (mute)
  * ※ 順序が変わったら下記も追従させること */
-.sidebar-content ul.top-level > li:nth-of-type(1) { --sb-color: var(--hb-purple); }
-.sidebar-content ul.top-level > li:nth-of-type(2) { --sb-color: var(--hb-red); }
-.sidebar-content ul.top-level > li:nth-of-type(3) { --sb-color: var(--hb-purple); }
-.sidebar-content ul.top-level > li:nth-of-type(4) { --sb-color: var(--hb-teal); }
-.sidebar-content ul.top-level > li:nth-of-type(5) { --sb-color: var(--hb-teal); }
-.sidebar-content ul.top-level > li:nth-of-type(6) { --sb-color: var(--hb-red); }
-.sidebar-content ul.top-level > li:nth-of-type(7) { --sb-color: var(--hb-indigo); }
-.sidebar-content ul.top-level > li:nth-of-type(8) { --sb-color: var(--hb-indigo); }
-.sidebar-content ul.top-level > li:nth-of-type(9) { --sb-color: var(--hb-blue); }
-.sidebar-content ul.top-level > li:nth-of-type(10) { --sb-color: var(--hb-ink-mute); }
+.sidebar-content ul.top-level > li:nth-of-type(1)  { --sb-color: #e22d3f; }
+.sidebar-content ul.top-level > li:nth-of-type(2)  { --sb-color: #d0345c; }
+.sidebar-content ul.top-level > li:nth-of-type(3)  { --sb-color: #c0366b; }
+.sidebar-content ul.top-level > li:nth-of-type(4)  { --sb-color: #9542a0; }
+.sidebar-content ul.top-level > li:nth-of-type(5)  { --sb-color: #7a4ba8; }
+.sidebar-content ul.top-level > li:nth-of-type(6)  { --sb-color: #4f5ea6; }
+.sidebar-content ul.top-level > li:nth-of-type(7)  { --sb-color: #275897; }
+.sidebar-content ul.top-level > li:nth-of-type(8)  { --sb-color: #155f80; }
+.sidebar-content ul.top-level > li:nth-of-type(9)  { --sb-color: #00516d; }
+.sidebar-content ul.top-level > li:nth-of-type(10) { --sb-color: #5a6577; }
+
+/* dark mode は彩度をやや上げて視認性を確保 */
+:root[data-theme='dark'] .sidebar-content ul.top-level > li:nth-of-type(1)  { --sb-color: #ff5563; }
+:root[data-theme='dark'] .sidebar-content ul.top-level > li:nth-of-type(2)  { --sb-color: #ff5d80; }
+:root[data-theme='dark'] .sidebar-content ul.top-level > li:nth-of-type(3)  { --sb-color: #ec5e8f; }
+:root[data-theme='dark'] .sidebar-content ul.top-level > li:nth-of-type(4)  { --sb-color: #c768d2; }
+:root[data-theme='dark'] .sidebar-content ul.top-level > li:nth-of-type(5)  { --sb-color: #a672cf; }
+:root[data-theme='dark'] .sidebar-content ul.top-level > li:nth-of-type(6)  { --sb-color: #7d8acc; }
+:root[data-theme='dark'] .sidebar-content ul.top-level > li:nth-of-type(7)  { --sb-color: #4f80c2; }
+:root[data-theme='dark'] .sidebar-content ul.top-level > li:nth-of-type(8)  { --sb-color: #3995b8; }
+:root[data-theme='dark'] .sidebar-content ul.top-level > li:nth-of-type(9)  { --sb-color: #2c87a0; }
+:root[data-theme='dark'] .sidebar-content ul.top-level > li:nth-of-type(10) { --sb-color: #8a93a3; }
+
+/* Starlight default の nested ul に付く左 border (indent guide) を消す。
+ * これが design ハンドオフ画面で見えていた "内側の縦線" の正体。
+ * 外側 1 本のみにしたいので nested ul / details の border は強制 0。 */
+.sidebar-content ul.top-level ul,
+.sidebar-content ul.top-level details {
+  border: 0 !important;
+  padding-left: 0;
+}
 
 /* active 子リンク (aria-current="page") を sb-color に染める */
 .sidebar-content ul.top-level a[aria-current='page'] {
@@ -561,4 +579,54 @@ starlight-lang-select label {
 }
 :root[data-theme='dark'] .sidebar-content ul.top-level a[aria-current='page'] {
   background: color-mix(in oklab, var(--sb-color, var(--sl-color-accent)) 24%, transparent) !important;
+}
+
+/* ------------------------------------------------------------
+ * Scrollbar (sidebar / TOC / 全体)
+ * design 準拠: thin + line-strong 色のサム
+ * ------------------------------------------------------------ */
+
+/* Firefox + Edge: scrollbar-width / -color */
+.sidebar-pane,
+.right-sidebar,
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--hb-line-strong) transparent;
+}
+
+/* WebKit / Chromium 系 */
+.sidebar-pane::-webkit-scrollbar,
+.right-sidebar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.sidebar-pane::-webkit-scrollbar-track,
+.right-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-pane::-webkit-scrollbar-thumb,
+.right-sidebar::-webkit-scrollbar-thumb {
+  background: var(--hb-line-strong);
+  border-radius: 3px;
+}
+.sidebar-pane::-webkit-scrollbar-thumb:hover,
+.right-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--hb-ink-faint);
+}
+
+/* グローバル (body) スクロールバーも揃える */
+html::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+html::-webkit-scrollbar-track {
+  background: var(--hb-bg);
+}
+html::-webkit-scrollbar-thumb {
+  background: var(--hb-line-strong);
+  border: 2px solid var(--hb-bg);
+  border-radius: 5px;
+}
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--hb-ink-faint);
 }
