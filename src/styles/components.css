@@ -286,12 +286,13 @@
  * - h3 は字下げ
  * ------------------------------------------------------------ */
 
+/* TOC: 縦線・"["状の indent guide を撤去し、テキストのみで構成。
+ * active は色 + 太字でのみ表現する。シンプル路線。 */
 .right-sidebar nav ul,
 starlight-toc nav ul {
   list-style: none !important;
   padding: 0;
   margin: 0;
-  border-left: 1px solid var(--hb-line);
 }
 .right-sidebar nav li,
 starlight-toc nav li {
@@ -300,14 +301,12 @@ starlight-toc nav li {
 .right-sidebar nav a,
 starlight-toc nav a {
   display: block;
-  padding: 4px 12px;
-  margin-left: -1px;
+  padding: 4px 0;
   color: var(--hb-ink-mute);
-  border-left: 2px solid transparent;
   text-decoration: none;
   line-height: 1.5;
   font-size: 13px;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.15s;
 }
 .right-sidebar nav a:hover,
 starlight-toc nav a:hover {
@@ -316,7 +315,6 @@ starlight-toc nav a:hover {
 .right-sidebar nav a[aria-current='true'],
 starlight-toc nav a[aria-current='true'] {
   color: var(--sl-color-accent);
-  border-left-color: var(--sl-color-accent);
   font-weight: 500;
 }
 /* h3 (子) は字下げ */
@@ -380,10 +378,18 @@ body.is-resizing * {
   user-select: none !important;
 }
 
-/* ハンドル取り付けに position:relative が必要なコンテナ */
-#starlight__sidebar,
-.right-sidebar-container {
-  position: relative;
+/* ハンドル取り付けの positioning context:
+ *   - .sidebar-pane (#starlight__sidebar) は Starlight default で position:fixed
+ *     なのでそのままで absolute ハンドルが効く (override 不要)
+ *   - .right-sidebar-container は Starlight default で position:relative なので
+ *     こちらも override 不要
+ *   ※ 過去 ここで position:relative を強制していたが、それが fixed を破壊して
+ *     サイドバーが通常フローに落ちる事故を起こしたため撤去。
+ *
+ * サイドバーの横スクロール禁止: 幅を狭くしたときに長い項目で横スクロールが
+ * 出ないよう overflow-x:hidden を当てる。縦は引き続き auto。 */
+.sidebar-pane {
+  overflow-x: hidden;
 }
 
 /* TOC 幅を localStorage 値で上書き (--hb-toc-w が set されていれば優先) */
