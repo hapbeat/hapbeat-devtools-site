@@ -349,25 +349,35 @@ starlight-toc h2,
  * 50rem 以下では hide (モバイルはサイドバー自体がドロワー化)。
  * ------------------------------------------------------------ */
 
+/* 当たり判定 14px (狭い 6px だと精密マウス操作が必要だった)。
+ * 視覚的には透明な広いヒットエリア + ::before で 2px の細線インジケータ。
+ * hover/drag 中だけ accent カラーで可視化。 */
 .hb-resize-handle {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 6px;
+  width: 14px;
   z-index: 50;
   background: transparent;
   cursor: col-resize;
   touch-action: none;
-  transition: background 0.15s;
+  display: flex;
+  justify-content: center;
 }
 .hb-resize-handle--end {
-  right: -3px;
+  right: -7px;
 }
 .hb-resize-handle--start {
-  left: -3px;
+  left: -7px;
 }
-.hb-resize-handle:hover,
-.hb-resize-handle.is-dragging {
+.hb-resize-handle::before {
+  content: '';
+  width: 2px;
+  background: transparent;
+  transition: background 0.15s;
+}
+.hb-resize-handle:hover::before,
+.hb-resize-handle.is-dragging::before {
   background: var(--sl-color-accent);
 }
 
@@ -392,9 +402,22 @@ body.is-resizing * {
   overflow-x: hidden;
 }
 
-/* TOC 幅を localStorage 値で上書き (--hb-toc-w が set されていれば優先) */
+/* TOC 幅は sidebar 幅から完全に独立させる。
+ * Starlight default は calc(sidebar-w + (100% - content-w - sidebar-w)/2)
+ * という対称レイアウト用の式だったが、これだと「左 sidebar を resize すると
+ * 右 TOC の折り返し位置も変わる」結合状態になっていた。
+ * 固定 default 280px + --hb-toc-w でユーザ resize 値を反映する。
+ * これで TOC 幅は left sidebar 幅と独立する。 */
 .right-sidebar-container {
-  width: var(--hb-toc-w, calc(var(--sl-sidebar-width) + (100% - var(--sl-content-width) - var(--sl-sidebar-width)) / 2)) !important;
+  width: var(--hb-toc-w, 280px) !important;
+}
+
+/* .right-sidebar は position:fixed で width:100% 指定だが、その 100% は
+ * (containing block = .right-sidebar-container) に解決される。
+ * Starlight default の border-inline-start の 1px が hover handle と
+ * 重なって "縦バーが二重に見える" 違和感の原因になりうるため撤去。 */
+.right-sidebar {
+  border-inline-start: 0 !important;
 }
 
 @media (max-width: 50rem) {
