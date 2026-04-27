@@ -339,6 +339,65 @@ starlight-toc h2,
 }
 
 /* ------------------------------------------------------------
+ * Resizable columns (sidebar / TOC)
+ *
+ * Head.astro の inline script が #starlight__sidebar と
+ * .right-sidebar-container に <div class="hb-resize-handle"> を注入する。
+ * ドラッグで --sl-sidebar-width (左) / --hb-toc-w (右) を更新 +
+ * localStorage に永続化する。
+ *
+ * ハンドル本体は通常透明、hover/drag 中だけ accent カラーで可視化。
+ * touch-action: none でモバイル長押し選択を抑制 (タブレット resize 用)。
+ * 50rem 以下では hide (モバイルはサイドバー自体がドロワー化)。
+ * ------------------------------------------------------------ */
+
+.hb-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  z-index: 50;
+  background: transparent;
+  cursor: col-resize;
+  touch-action: none;
+  transition: background 0.15s;
+}
+.hb-resize-handle--end {
+  right: -3px;
+}
+.hb-resize-handle--start {
+  left: -3px;
+}
+.hb-resize-handle:hover,
+.hb-resize-handle.is-dragging {
+  background: var(--sl-color-accent);
+}
+
+/* Drag 中はカーソル統一 + テキスト選択無効化 */
+body.is-resizing,
+body.is-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+/* ハンドル取り付けに position:relative が必要なコンテナ */
+#starlight__sidebar,
+.right-sidebar-container {
+  position: relative;
+}
+
+/* TOC 幅を localStorage 値で上書き (--hb-toc-w が set されていれば優先) */
+.right-sidebar-container {
+  width: var(--hb-toc-w, calc(var(--sl-sidebar-width) + (100% - var(--sl-content-width) - var(--sl-sidebar-width)) / 2)) !important;
+}
+
+@media (max-width: 50rem) {
+  .hb-resize-handle {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------
  * View Transitions (Astro <ClientRouter />)
  *
  * デフォルトは ~200ms cross-fade。docs サイトはページ間切替が多いので
