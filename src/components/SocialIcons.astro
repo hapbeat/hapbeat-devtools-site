@@ -1,0 +1,44 @@
+---
+/**
+ * SocialIcons override.
+ *
+ * Starlight default は外部リンクを同タブで開く (`target` 未指定)。
+ * GitHub などの外部 SNS リンクは新規タブで開きたいので
+ * `target="_blank" rel="me noopener noreferrer"` を付与する。
+ */
+import config from 'virtual:starlight/user-config';
+import { Icon } from '@astrojs/starlight/components';
+
+const links = config.social || [];
+---
+
+{
+  links.length > 0 ? (
+    <div class="social-icons">
+      {links.map(({ label, href, icon }) => (
+        <a
+          {href}
+          target="_blank"
+          rel="me noopener noreferrer"
+          class="sl-flex"
+        >
+          <span class="sr-only">{label}</span>
+          <Icon name={icon} />
+        </a>
+      ))}
+    </div>
+  ) : null
+}
+
+<style>
+  @layer starlight.core {
+    a {
+      color: var(--sl-color-text-accent);
+      padding: 0.5em;
+      margin: -0.5em;
+    }
+    a:hover {
+      color: var(--sl-color-white);
+    }
+  }
+</style>

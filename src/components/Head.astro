@@ -27,6 +27,77 @@ import { ClientRouter } from 'astro:transitions';
   (() => {
     const KEY_SCROLL = 'hb-sidebar-scroll';
     const KEY_SIDEBAR_STATE = 'sl-sidebar-state';  // Starlight 純正と互換
+    const KEY_THEME = 'starlight-theme';
+
+    // ---------- Theme persist (View Transitions 対応) ----------
+    // Page.astro が SSR で `<html data-theme="dark">` を出すため、
+    // SPA 遷移後の新 DOM が常に dark に「リセット」される。
+    // Starlight 純正の ThemeProvider は inline script で初回ロード時のみ
+    // 走り、SPA 遷移後には再実行されないので localStorage の値を強制適用。
+    function applyStoredTheme() {
+      try {
+        const stored = localStorage.getItem(KEY_THEME);
+        const theme =
+          stored ||
+          (window.matchMedia('(prefers-color-scheme: light)').matches
+            ? 'light'
+            : 'dark');
+        document.documentElement.dataset.theme =
+          theme === 'light' ? 'light' : 'dark';
+      } catch {}
+    }
+    // SSR の data-theme="dark" が swap 直後に視覚反映される前に上書き
+    document.addEventListener('astro:after-swap', applyStoredTheme);
+
+    // ---------- Wheel re-routing (sticky scroll target 解消) ----------
+    // 方針:
+    //   - 同一 target の wheel はブラウザ任せ → 慣性 / smooth animation 維持
+    //   - target 切替時: preventDefault + behavior:'smooth' で新 target に
+    //     スムーズに乗せ替える (旧 target の残り慣性は強制停止せず自然減衰
+    //     させる。snap して見えないのを優先 / 「即時性」とのトレードオフ)
+    function findScrollable(el) {
+      while (el && el !== document.documentElement) {
+        const cs = getComputedStyle(el);
+        if (
+          (cs.overflowY === 'auto' || cs.overflowY === 'scroll') &&
+          el.scrollHeight > el.clientHeight
+        ) {
+          return el;
+        }
+        el = el.parentElement;
+      }
+      return document.scrollingElement || document.documentElement;
+    }
+    let _lastWheelTarget = null;
+    document.addEventListener(
+      'wheel',
+      (e) => {
+        if (e.ctrlKey) return;  // zoom 操作は触らない
+        const under = document.elementFromPoint(e.clientX, e.clientY);
+        if (!under) return;
+        const target = findScrollable(under);
+        if (!target) return;
+        if (_lastWheelTarget && _lastWheelTarget !== target) {
+          // ── target 切替時 ──
+          // 旧 target の慣性は止めない (止めると "kakutto" と snap する)。
+          // 新 target に smooth scroll で乗せ替えてブラウザ default を奪う。
+          let dy = e.deltaY;
+          let dx = e.deltaX;
+          if (e.deltaMode === 1) {
+            dy *= 16;
+            dx *= 16;
+          } else if (e.deltaMode === 2) {
+            dy *= window.innerHeight;
+            dx *= window.innerWidth;
+          }
+          e.preventDefault();
+          target.scrollBy({ top: dy, left: dx, behavior: 'smooth' });
+        }
+        // 同一 target のときは preventDefault しない → browser の慣性継続
+        _lastWheelTarget = target;
+      },
+      { passive: false }
+    );
 
     // ---------- Sidebar scroll restore (View Transitions 対応) ----------
     const getSidebar = () =>
@@ -156,6 +227,22 @@ import { ClientRouter } from 'astro:transitions';
         });
     }
 
+    // ---------- 現在ページの sidebar 項目を必ず可視に ----------
+    // scroll restore で前回位置を再現するが、別ページから来た場合は
+    // 復元位置に active 項目が無いため、a[aria-current="page"] が
+    // viewport 外なら scrollIntoView で中央付近に強制表示する。
+    function ensureActiveSidebarVisible() {
+      const sb = getSidebar();
+      if (!sb) return;
+      const active = sb.querySelector('a[aria-current="page"]');
+      if (!active) return;
+      const sr = sb.getBoundingClientRect();
+      const ar = active.getBoundingClientRect();
+      if (ar.top < sr.top || ar.bottom > sr.bottom) {
+        active.scrollIntoView({ block: 'center', behavior: 'auto' });
+      }
+    }
+
     function setup() {
       // Scroll restore
       const sb = getSidebar();
@@ -168,6 +255,7 @@ import { ClientRouter } from 'astro:transitions';
       restoreSidebarFromStorage();
       bindSidebarToggleCapture();
       bindGroupLabelNav();
+      ensureActiveSidebarVisible();
     }
 
     document.addEventListener('DOMContentLoaded', setup);

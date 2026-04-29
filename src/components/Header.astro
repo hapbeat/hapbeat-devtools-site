@@ -30,12 +30,12 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
 
   <div class="hb-topbar__right">
     <nav class="hb-topbar__nav" aria-label="主要セクション">
-      <a href="/docs/getting-started/">Docs</a>
-      <a href="/downloads/">Downloads</a>
-      <a href="/faq/">FAQ</a>
+      <a href="/docs/getting-started/" class="hb-topbar__nav--lvl1">Docs</a>
+      <a href="/downloads/" class="hb-topbar__nav--lvl2">Downloads</a>
+      <a href="/docs/support/" class="hb-topbar__nav--lvl3">Support</a>
     </nav>
-    <LanguageSelect {...Astro.props} />
     <div class="hb-topbar__icons">
+      <LanguageSelect {...Astro.props} />
       <ThemeSelect {...Astro.props} />
       <SocialIcons {...Astro.props} />
     </div>
@@ -107,13 +107,50 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
     margin-left: 4px;
   }
 
-  /* タブレット以下: nav の text label は隠して icons + lang のみ */
+  /* 段階的 hide。優先度順 (高 → 低):
+     右「| 以降の icons」グループ (lang/theme/github) は nav よりも低優先度。
+     icons が先に消え、次に nav の lvl3 → lvl2 の順で消える。
+     Docs (lvl1) は常時表示。
+
+     最小幅試算 (icons 全消し時):
+       brand "Hapbeat" 96 + hamburger 92 + nav 232(Docs+DL+Support) + 余白 ≈ 446px
+     → 28rem (448px) を boundary に Support 維持
+
+     ※ 基底 `.hb-topbar__nav a` (0,1,1) より specificity を上げるため
+     `a.hb-topbar__nav--lvlX` 形式で書く。 */
+  /* 右 icons (低優先度から先に消える) */
+  @media (max-width: calc(50rem - 0.01px)) {
+    .hb-topbar__icons :global(.social-icons) {
+      display: none;
+    }
+  }
+  @media (max-width: calc(40rem - 0.01px)) {
+    .hb-topbar__icons :global(starlight-theme-toggle) {
+      display: none;
+    }
+  }
+  @media (max-width: calc(36rem - 0.01px)) {
+    .hb-topbar__icons :global(.hb-lang) {
+      display: none;
+    }
+  }
+  /* nav (中・高優先度)。実測: 500px で全部 fit、450px だと overflow するため
+     30rem (480px) を Support の boundary、26rem (416px) を Downloads の boundary に。 */
+  @media (max-width: calc(30rem - 0.01px)) {
+    .hb-topbar__nav a.hb-topbar__nav--lvl3 {
+      display: none;
+    }
+  }
+  @media (max-width: calc(26rem - 0.01px)) {
+    .hb-topbar__nav a.hb-topbar__nav--lvl2 {
+      display: none;
+    }
+  }
+
+  /* タブレット帯 (60rem 未満): gap を詰める */
   @media (max-width: 60rem) {
     .hb-topbar {
-      gap: 20px;
-    }
-    .hb-topbar__nav {
-      display: none;
+      gap: 16px;
     }
   }
 
@@ -126,7 +163,7 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
     .hb-topbar {
       grid-template-columns: auto 1fr auto;
       grid-template-areas: 'left center right';
-      gap: 12px;
+      gap: 10px;
     }
     :global(html[data-has-sidebar]) .hb-topbar {
       padding-left: 56px;

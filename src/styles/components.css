@@ -55,6 +55,22 @@
   opacity: 1;
 }
 
+/* 見出しの anchor link (sl-anchor-link) を控えめに。
+ * Starlight default は 0.8275em で見出しに張り付くサイズ。
+ * 0.55em + ink-faint カラー + gap 拡大 で「見出しを邪魔しない」存在に。 */
+.sl-markdown-content .sl-heading-wrapper {
+  --sl-anchor-icon-size: 0.55em !important;
+  --sl-anchor-icon-gap: 0.5em !important;
+}
+.sl-markdown-content .sl-anchor-icon {
+  color: var(--hb-ink-faint);
+  transition: color 0.15s;
+}
+.sl-markdown-content .sl-anchor-link:hover .sl-anchor-icon,
+.sl-markdown-content .sl-anchor-link:focus .sl-anchor-icon {
+  color: var(--sl-color-accent);
+}
+
 /* H3 */
 .sl-markdown-content h3 {
   font-size: clamp(16px, 2vw, 18px);
@@ -343,23 +359,20 @@ starlight-toc h2,
 /* ------------------------------------------------------------
  * Layout — viewport-based responsive (no toggle buttons)
  *
- * Starlight の標準 responsive を踏襲しつつ、TOC 表示のブレイクポイントを
- * 80rem (1280px) に引き上げる。
- *
  * 構造:
  *   <header><nav.sidebar>           ← position:fixed, width:--sl-sidebar-width
  *   <main-frame>                    ← padding-inline-start:--sl-sidebar-width
- *     <.lg:sl-flex>                 ← flex 親 (≥80rem でのみ flex 化)
+ *     <.lg:sl-flex>                 ← flex 親 (≥64rem でのみ flex 化)
  *       <main.main-pane>            ← flex:1 1 auto (残りを取る)
  *       <aside.right-sidebar-container>   ← flex:0 0 --hb-toc-w
  *         <.right-sidebar>          ← position:fixed, width:--hb-toc-w
  *
- * ブレイクポイント (Starlight default に従う + TOC のみ 80rem 引き上げ):
- *   ≥ 80rem (1280px) … 3 列 (sidebar + main + TOC)
- *   50-80rem         … 2 列 (sidebar + main, TOC 隠す)
+ * ブレイクポイント:
+ *   ≥ 64rem (1024px) … 3 列 (sidebar + main + TOC)
+ *   50-64rem         … 2 列 (sidebar + main, TOC 隠す)
  *   < 50rem (800px)  … 1 列 (sidebar は Starlight ハンバーガーで開閉)
  *
- * 50-80rem の sidebar 表示 + main-frame padding は Starlight default
+ * 50-64rem の sidebar 表示 + main-frame padding は Starlight default
  * (`--sl-content-inline-start: var(--sl-sidebar-width)` at md:) に任せる。
  * ------------------------------------------------------------ */
 
@@ -427,23 +440,44 @@ html:not([data-has-sidebar]) starlight-menu-button {
   overflow-x: auto;
 }
 
-/* ====== < 80rem: TOC 強制非表示 (Starlight default は 72rem≥ で出すが、
- * 80rem 未満では本文を優先したい) ====== */
-@media (max-width: calc(80rem - 0.01px)) {
+/* ====== TOC visibility — single source of truth ======
+ *
+ * TOC 表示の breakpoint は **64rem (1024px)** に統一する。
+ * Starlight のデフォルトは複数の lg:* utility class が 72rem で揃っており、
+ * これに乗ると container だけ表示されて中身が空になる事故が起きる。
+ *
+ * 関与する DOM (Starlight 0.30+):
+ *   <div class="lg:sl-flex">                       ← TwoColumnContent flex 親
+ *     <aside class="right-sidebar-container">      ← TOC 列の box
+ *       <div class="right-sidebar">                ← position:fixed wrapper
+ *         <div class="right-sidebar-panel sl-hidden lg:sl-block">  ← 内容ラッパ
+ *           <div class="sl-container">             ← starlight-toc 親
+ *             <starlight-toc>
+ *
+ * Starlight default の壁:
+ *   - `.lg:sl-flex` が `display: flex` になるのは ≥72rem
+ *   - `.right-sidebar-panel` は `sl-hidden lg:sl-block` で <72rem は完全に display:none
+ *   - 我々が container だけ ≥64rem で出しても中身は <72rem で hide されたまま
+ *
+ * 対処: 64rem 境界で関与する全要素 (container / fixed wrapper / 内容 panel /
+ * lg:sl-flex 親) をまとめて切替える。
+ * ------------------------------------------------------------ */
+
+@media not all and (min-width: 64rem) {
   .right-sidebar-container,
-  .right-sidebar {
+  .right-sidebar,
+  .right-sidebar-panel {
     display: none !important;
   }
 }
 
-/* ====== ≥ 80rem: 3 列 (TOC 表示 + flex layout) ====== */
-@media (min-width: 80rem) {
-  /* .lg:sl-flex を flex 化 (Starlight 標準は 72rem≥; 80rem に引き上げ) */
+@media (min-width: 64rem) {
+  /* flex 親を flex 化 (Starlight 標準 72rem を 64rem に引き下げ) */
   .lg\:sl-flex {
     display: flex !important;
   }
 
-  /* main-pane: flex:1 で残りを取る。Starlight default の calc 結合を断ち切る */
+  /* main-pane: flex:1 で残りを取る (Starlight の calc 結合を切る) */
   .main-pane {
     flex: 1 1 auto !important;
     width: auto !important;
@@ -467,6 +501,25 @@ html:not([data-has-sidebar]) starlight-menu-button {
     height: calc(100vh - var(--sl-nav-height)) !important;
     border-inline-start: 1px solid var(--hb-line) !important;
     overscroll-behavior: contain;
+    /* scrollbar 分を常に確保 (scrollbar 重なり対策) */
+    scrollbar-gutter: stable;
+  }
+
+  /* `.right-sidebar-panel` は Starlight default で `sl-hidden lg:sl-block`、
+   * <72rem では sl-hidden の display:none が勝つ。64rem-72rem 帯では
+   * 内容が出ないので明示的に display:block を上書き。 */
+  .right-sidebar-panel {
+    display: block !important;
+  }
+
+  /* PageSidebar.astro の `.sl-container` は
+   *   width: calc(var(--sl-sidebar-width) - 2*var(--sl-sidebar-pad-x))
+   * で 17rem - 2rem = 15rem (240px) を強制するが --hb-toc-w を
+   * 参照しておらず scrollbar-gutter / panel padding も引かない。
+   * → 100% にして親 (.right-sidebar-panel padding 1rem) に素直に収める。 */
+  .right-sidebar .right-sidebar-panel .sl-container {
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }
 
@@ -734,13 +787,24 @@ html:not([data-has-sidebar]) starlight-menu-button {
   display: contents;
 }
 
-/* Search: Pagefind ボタンを design の検索バー風に */
+/* <site-search> はデフォルト display: inline で、内側の button が
+ * width: 100% を指定しても親の inline サイズに制約されてしまう。
+ * 中央列の余白いっぱいまで伸ばすため block + 100% 幅を強制。 */
+site-search {
+  display: block;
+  width: 100%;
+}
+
+/* Search: Pagefind ボタンを design の検索バー風に。
+ * 中央列 (.hb-topbar__center) の flex 余白いっぱいまで自然に伸びる
+ * (Starlight default の max-width: 22rem を撤廃)。
+ * ⌘K ヒントは可能な限り表示し続ける。 */
 site-search button[data-open-modal] {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   width: 100%;
-  max-width: 480px;
+  max-width: none !important;
   height: 36px;
   padding: 0 12px;
   border-radius: 8px;
@@ -751,6 +815,12 @@ site-search button[data-open-modal] {
   font-size: 13.5px;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
+}
+/* < 36rem (= 576px): kbd ヒントを隠してアイコン + プレースホルダのみに */
+@media (max-width: calc(36rem - 0.01px)) {
+  site-search button[data-open-modal] kbd {
+    display: none;
+  }
 }
 site-search button[data-open-modal]:hover {
   border-color: var(--sl-color-accent);
@@ -819,6 +889,16 @@ starlight-theme-select label > svg.caret {
  * .hb-lang ピルに置換されている)。default が万一残った場合の保険として圧縮。 */
 starlight-lang-select label {
   height: 32px;
+}
+
+/* defensive: LanguageSelect.astro の scoped CSS が hydration 前に未適用な
+ * 一瞬で browser default link (青 + 下線) がフラッシュしないよう、
+ * グローバルに最低限のスタイルを当てる。 */
+.hb-lang,
+.hb-lang:link,
+.hb-lang:visited {
+  color: var(--hb-ink-mute);
+  text-decoration: none !important;
 }
 
 /* SocialIcons: アイコン link を icon-btn 風に */

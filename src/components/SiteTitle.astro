@@ -2,19 +2,18 @@
 /**
  * SiteTitle override.
  *
- * Starlight default の SiteTitle (タイトル文字 or logo image) を、
- * Hapbeat デザインのブランドマーク (グラデーション四角 + 同心円) +
- * "Hapbeat / devtools" のテキストロックアップ + version chip に差し替え。
+ * Starlight default の SiteTitle を、Hapbeat ブランドマーク
+ * (グラデ四角 + 同心円) + "Hapbeat / devtools" テキストロックアップに差替。
  *
- * design 出典: .design-handoff/docs.css の .brand / .brand__mark / .brand__chip
+ * 表示優先度:
+ *   - ロゴマーク + "Hapbeat" は常時表示
+ *   - "devtools" サブタイトルは ≥80rem のみ (ヘッダーが詰まる時は省略)
+ *   - version chip は廃止 (UI 上の優先度が低い)
+ *
+ * design 出典: .design-handoff/docs.css の .brand / .brand__mark
  */
 
 const homeUrl = import.meta.env.BASE_URL || '/';
-
-// バージョン chip 表示。リリース時に手動で書き換える。
-// (package.json から自動取得もできるが、portal は単発リリースしないので
-//  デザイン上の表示用に固定。)
-const versionLabel = 'v0.4';
 ---
 
 <a class="hb-brand" href={homeUrl} aria-label="Hapbeat devtools — ホーム">
@@ -23,7 +22,6 @@ const versionLabel = 'v0.4';
     <span class="hb-brand__primary">Hapbeat</span>
     <span class="hb-brand__sub">devtools</span>
   </span>
-  <span class="hb-brand__chip">{versionLabel}</span>
 </a>
 
 <style>
@@ -85,21 +83,10 @@ const versionLabel = 'v0.4';
     color: var(--sl-color-gray-2);
     letter-spacing: 0;
   }
-  .hb-brand__chip {
-    font-family: var(--hb-font-mono);
-    font-size: 10px;
-    background: var(--hb-bg-soft);
-    color: var(--hb-ink-mute);
-    border: 1px solid var(--hb-line);
-    padding: 2px 6px;
-    border-radius: 4px;
-    letter-spacing: 0.04em;
-  }
 
-  /* モバイル: サブと chip は隠す */
-  @media (max-width: 50rem) {
-    .hb-brand__sub,
-    .hb-brand__chip {
+  /* < 60rem (タブレット未満): "devtools" サブタイトルを省略 */
+  @media (max-width: calc(60rem - 0.01px)) {
+    .hb-brand__sub {
       display: none;
     }
   }

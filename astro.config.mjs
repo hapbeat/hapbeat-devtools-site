@@ -40,6 +40,7 @@ export default defineConfig({
         SiteTitle: './src/components/SiteTitle.astro',
         LanguageSelect: './src/components/LanguageSelect.astro',
         ThemeSelect: './src/components/ThemeSelect.astro',
+        SocialIcons: './src/components/SocialIcons.astro',
         Hero: './src/components/Hero.astro',
         Footer: './src/components/Footer.astro',
       },
@@ -99,13 +100,17 @@ export default defineConfig({
           label: 'Contracts (仕様)',
           autogenerate: { directory: 'docs/contracts' },
         },
-        // Downloads / FAQ は topbar の nav に昇格 (design 準拠)。サイドバーには
-        // Showcase と Changelog のみを補助グループとして残す。
+        // Downloads は docs ではなくリソース配布 (バイナリ等) のため
+        // sidebar に入れず header nav 専用。
+        // Showcase は将来「触覚デモを体験できる」専用ページとして再構築するため
+        // sidebar から外し、現時点では header からも切り離す (URL は残す)。
+        // FAQ / Changelog は docs 配下に移設済み (URL: /docs/faq/, /docs/changelog/)。
         {
-          label: 'リソース',
+          label: 'その他',
           items: [
-            { label: 'Showcase', link: '/showcase/', badge: { text: 'WIP', variant: 'caution' } },
-            { label: 'Changelog', link: '/changelog/' },
+            { label: 'FAQ', link: '/docs/faq/' },
+            { label: 'サポート / お問い合わせ', link: '/docs/support/' },
+            { label: 'Changelog', link: '/docs/changelog/' },
           ],
         },
       ],
