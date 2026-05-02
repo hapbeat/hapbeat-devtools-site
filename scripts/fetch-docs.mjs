@@ -40,6 +40,7 @@ const SOURCES = [
   { short: 'kit-tools',    repo: 'hapbeat-pack-tools',          url: 'https://github.com/Hapbeat/hapbeat-pack-tools.git' },
   { short: 'firmware',     repo: 'hapbeat-device-firmware',     url: 'https://github.com/Hapbeat/hapbeat-device-firmware.git' },
   { short: 'manager',      repo: 'hapbeat-manager',             url: 'https://github.com/Hapbeat/hapbeat-manager.git' },
+  { short: 'helper',       repo: 'hapbeat-helper',              url: 'https://github.com/Hapbeat/hapbeat-helper.git' },
   { short: 'studio',       repo: 'hapbeat-studio',              url: 'https://github.com/Hapbeat/hapbeat-studio.git' },
   { short: 'unity-sdk',    repo: 'hapbeat-unity-sdk',           url: 'https://github.com/Hapbeat/hapbeat-unity-sdk.git' },
   { short: 'unreal-sdk',   repo: 'hapbeat-unreal-sdk',          url: 'https://github.com/Hapbeat/hapbeat-unreal-sdk.git' },
