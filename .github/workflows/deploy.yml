@@ -5,6 +5,13 @@ on:
     branches:
       - master
   workflow_dispatch:
+  # 他リポジトリの docs/ 変更通知で起動するためのフック。
+  # 各サブ repo (hapbeat-helper / hapbeat-studio / ...) は
+  # docs/** を含む push 時に repository_dispatch (event_type: docs-updated)
+  # でこのワークフローを叩いて、Astro 側の fetch-docs を再走させる。
+  # PAT は各サブ repo の secret `DOCS_SITE_DISPATCH_TOKEN` に格納。
+  repository_dispatch:
+    types: [docs-updated]
 
 jobs:
   build-and-deploy:
