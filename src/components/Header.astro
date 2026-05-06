@@ -33,6 +33,7 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
       <a href="/docs/getting-started/" class="hb-topbar__nav--lvl1">Docs</a>
       <a href="/downloads/" class="hb-topbar__nav--lvl2">Downloads</a>
       <a href="/docs/support/" class="hb-topbar__nav--lvl3">Support</a>
+      <a href="/studio/" class="hb-topbar__cta">Studio<span class="hb-topbar__cta-arrow" aria-hidden="true">↗</span></a>
     </nav>
     <div class="hb-topbar__icons">
       <LanguageSelect {...Astro.props} />
@@ -97,6 +98,27 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
   .hb-topbar__nav a[aria-current='page'] {
     color: var(--hb-ink);
     background: var(--hb-bg-soft);
+  }
+  /* Studio CTA: 既存ナビと差別化された accent pill。常時表示。
+     `.hb-topbar__nav a` の base スタイル (height/padding/radius/transition) を継承し、
+     色とフォント太さだけ override する。 */
+  .hb-topbar__nav a.hb-topbar__cta {
+    color: #fff;
+    background: var(--hb-purple);
+    font-weight: 600;
+    padding: 0 14px;
+    margin-left: 4px;
+  }
+  .hb-topbar__nav a.hb-topbar__cta:hover {
+    color: #fff;
+    background: var(--hb-purple);
+    filter: brightness(1.12);
+  }
+  .hb-topbar__cta-arrow {
+    margin-left: 4px;
+    font-size: 0.9em;
+    line-height: 1;
+    transform: translateY(-1px);
   }
   .hb-topbar__icons {
     display: inline-flex;

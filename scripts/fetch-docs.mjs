@@ -159,6 +159,7 @@ async function main() {
   const useGit = process.env.FETCH_DOCS_MODE === 'git' || !!process.env.CI;
   if (useGit) console.log('  (mode: git clone — CI or forced)');
 
+  const failed = [];
   for (const src of SOURCES) {
     console.log(`- ${src.repo}`);
     // Per-short の宛先を reset (hand-written な docs/getting-started.md 等を温存するため)。
@@ -170,6 +171,7 @@ async function main() {
     if (!ok) ok = await fetchFromGit(src);
     if (!ok) {
       console.warn(`  warn: ${src.repo} skipped — page may render as placeholder only`);
+      failed.push(src.repo);
       continue;
     }
     // Normalize frontmatter (Starlight requires title) and strip excluded files.
@@ -178,6 +180,18 @@ async function main() {
 
   // clean tmp
   if (existsSync(TMP_DIR)) await rm(TMP_DIR, { recursive: true, force: true });
+
+  // CI で失敗した場合は build 失敗扱いにする。
+  // 過去 (DOCS_FETCH_TOKEN 未設定で全 clone 失敗 → 空 dir で build success → docs 反映漏れ) の
+  // silent-fail 事故を防ぐため、CI 時のみ厳格にする。
+  // ローカルは sibling 不在の repo があり得るので従来通り skip 許容。
+  if (useGit && failed.length > 0) {
+    console.error(`[fetch-docs] CI mode: ${failed.length} repo(s) failed to fetch:`);
+    for (const repo of failed) console.error(`  - ${repo}`);
+    console.error('  → DOCS_FETCH_TOKEN secret が未設定 / 期限切れ / 権限不足の可能性。');
+    process.exit(1);
+  }
+
   console.log('[fetch-docs] done.');
 }
 
