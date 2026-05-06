@@ -155,6 +155,15 @@ async function main() {
   await mkdir(TARGET_PARENT, { recursive: true });
   await mkdir(TMP_DIR, { recursive: true });
 
+  // devtools-site 自身の docs/ をまず TARGET_PARENT へフラットにコピーする。
+  // 各サブ repo と同じく "ルート直下の docs/ が編集場所" に統一するための仕組み。
+  const localDocs = path.join(ROOT, 'docs');
+  if (await isDir(localDocs)) {
+    await cp(localDocs, TARGET_PARENT, { recursive: true });
+    await walkAndNormalize(TARGET_PARENT);
+    console.log('  ok: local docs/ → docs/ (portal root pages)');
+  }
+
   const useGit = process.env.FETCH_DOCS_MODE === 'git' || !!process.env.CI;
   if (useGit) console.log('  (mode: git clone — CI or forced)');
 
