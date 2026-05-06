@@ -88,11 +88,12 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
     gap: 6px;
   }
   .hb-topbar__nav a {
-    height: 36px;
-    padding: 0 12px;
-    border-radius: 7px;
+    height: 40px;
+    padding: 0 13px;
+    border-radius: 8px;
     font-size: 13px;
-    color: var(--hb-ink-mute);
+    color: var(--hb-ink-soft);
+    background: oklch(1 0 0 / 0.72);
     display: inline-flex;
     align-items: center;
     text-decoration: none !important;
@@ -100,28 +101,25 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
   }
   .hb-topbar__nav a:hover {
     color: var(--hb-ink);
-    background: var(--hb-bg-soft);
+    background: oklch(1 0 0 / 0.92);
   }
   .hb-topbar__nav a[aria-current='page'] {
     color: var(--hb-ink);
-    background: var(--hb-bg-soft);
+    background: oklch(1 0 0 / 0.92);
   }
-  /* Studio CTA: outline pill。filled purple より主張を抑えつつ他ナビと差別化。
-     常時表示 (レスポンシブ hide ルールに含めない)。 */
+  /* Studio CTA: 彩度低めの purple tint 背景。border なし。常時表示。 */
   .hb-topbar__nav a.hb-topbar__cta {
-    color: var(--hb-purple);
-    background: transparent;
-    border: 1.5px solid var(--hb-purple);
+    color: var(--hb-purple-ink);
+    background: color-mix(in oklch, var(--hb-purple) 14%, oklch(1 0 0 / 0.72));
+    border: none;
     font-weight: 500;
-    padding: 0 12px;
-    margin-left: 4px;
+    padding: 0 13px;
+    margin-left: 2px;
     gap: 5px;
-    opacity: 0.85;
   }
   .hb-topbar__nav a.hb-topbar__cta:hover {
-    color: var(--hb-purple);
-    background: color-mix(in oklch, var(--hb-purple) 8%, transparent);
-    opacity: 1;
+    color: var(--hb-purple-ink);
+    background: color-mix(in oklch, var(--hb-purple) 22%, oklch(1 0 0 / 0.92));
   }
   .hb-topbar__cta-icon {
     width: 12px;
