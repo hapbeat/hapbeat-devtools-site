@@ -15,6 +15,7 @@ export default defineConfig({
     starlight({
       title: 'Hapbeat devtools',
       description: '触覚デバイス Hapbeat のクリエイター・開発者向けツールとドキュメント',
+      favicon: '/favicon.svg',
       // Google Fonts を <head> に注入 (design tokens の font-family と一致させる)。
       // Inter (英) + Noto Sans JP (日) + JetBrains Mono (code)。
       head: [
