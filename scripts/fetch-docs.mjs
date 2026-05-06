@@ -31,13 +31,12 @@ const WORKSPACE_SIBLING = path.resolve(ROOT, '..'); // hapbeat-sdk-workspace/
 // ユーザー向け docs/ を持つ repo のみ列挙する。
 // hapbeat-bridge / hapbeat-transmitter-firmware は内部コンポーネント
 // (ユーザー直接操作なし) なので集約対象外。
-// short = portal URL prefix (forward-looking 名)
-// repo  = ローカル sibling ディレクトリ名 / 現在の GitHub repo 名
-//   pack-tools → kit-tools への repo rename はまだ未実施なので、
-//   short のみ kit-tools に先行統一し、repo / url は現行の pack-tools を指す。
+// short = portal URL prefix
+// repo  = ローカル sibling ディレクトリ名 (旧 hapbeat-pack-tools のまま)
+// url   = GitHub の現行 canonical URL (rename 済みの名前)
 const SOURCES = [
   { short: 'contracts',    repo: 'hapbeat-contracts',           url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
-  { short: 'kit-tools',    repo: 'hapbeat-pack-tools',          url: 'https://github.com/Hapbeat/hapbeat-pack-tools.git' },
+  { short: 'kit-tools',    repo: 'hapbeat-pack-tools',          url: 'https://github.com/Hapbeat/hapbeat-kit-tools.git' },
   { short: 'firmware',     repo: 'hapbeat-device-firmware',     url: 'https://github.com/Hapbeat/hapbeat-device-firmware.git' },
   { short: 'manager',      repo: 'hapbeat-manager',             url: 'https://github.com/Hapbeat/hapbeat-manager.git' },
   { short: 'helper',       repo: 'hapbeat-helper',              url: 'https://github.com/Hapbeat/hapbeat-helper.git' },
