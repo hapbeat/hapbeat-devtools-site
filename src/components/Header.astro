@@ -109,8 +109,8 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
   }
   /* Studio CTA: 彩度低めの purple tint 背景。border なし。常時表示。 */
   .hb-topbar__nav a.hb-topbar__cta {
-    color: var(--hb-purple-ink);
-    background: color-mix(in oklch, var(--hb-purple) 14%, oklch(1 0 0 / 0.72));
+    color: oklch(1 0 0 / 0.88);
+    background: transparent;
     border: none;
     font-weight: 500;
     padding: 0 13px;
@@ -118,8 +118,8 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
     gap: 5px;
   }
   .hb-topbar__nav a.hb-topbar__cta:hover {
-    color: var(--hb-purple-ink);
-    background: color-mix(in oklch, var(--hb-purple) 22%, oklch(1 0 0 / 0.92));
+    color: oklch(1 0 0);
+    background: oklch(1 0 0 / 0.12);
   }
   .hb-topbar__cta-icon {
     width: 12px;
