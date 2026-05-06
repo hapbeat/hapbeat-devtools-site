@@ -92,7 +92,7 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
     padding: 0 13px;
     border-radius: 8px;
     font-size: 13px;
-    color: oklch(1 0 0 / 0.88);
+    color: var(--hb-ink-mute);
     background: transparent;
     display: inline-flex;
     align-items: center;
@@ -100,12 +100,12 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
     transition: background 0.15s, color 0.15s;
   }
   .hb-topbar__nav a:hover {
-    color: oklch(1 0 0);
-    background: oklch(1 0 0 / 0.12);
+    color: var(--hb-ink);
+    background: var(--hb-bg-soft);
   }
   .hb-topbar__nav a[aria-current='page'] {
-    color: oklch(1 0 0);
-    background: oklch(1 0 0 / 0.14);
+    color: var(--hb-ink);
+    background: var(--hb-bg-soft);
   }
   /* Studio CTA: 彩度低めの purple tint 背景。border なし。常時表示。 */
   .hb-topbar__nav a.hb-topbar__cta {
@@ -119,7 +119,7 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
   }
   .hb-topbar__nav a.hb-topbar__cta:hover {
     color: var(--hb-purple-ink);
-    background: oklch(1 0 0 / 0.12);
+    background: var(--hb-purple-soft);
   }
   .hb-topbar__cta-icon {
     width: 12px;
