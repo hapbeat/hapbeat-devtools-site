@@ -554,14 +554,16 @@ html:not([data-has-sidebar]) starlight-menu-button {
 
 .hb-hero {
   padding: 56px 0 48px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 48px;
+  align-items: center;
   border-bottom: 1px solid var(--hb-line);
   margin-bottom: 8px;
-  /* eyebrow / title / tagline / cta を縦に積む。
-     旧 2-column (右側 4-LAYER OVERVIEW) は廃止し、
-     その下に直接 ## ツール (ToolGrid) が来る構成に変更。 */
+  /* 左: text content / 右: コードスニペット (装飾 + docs らしさ) */
+}
+.hb-hero__copy {
+  min-width: 0; /* grid item のはみ出し防止 */
 }
 
 /* Eyebrow */
@@ -662,13 +664,82 @@ html:not([data-has-sidebar]) starlight-menu-button {
   border-color: var(--hb-ink-mute);
 }
 
-/* Stack diagram (.hb-diag*) は廃止。Hero は単一カラムに簡素化したため不要。 */
+/* Hero 右カラム: Unity SDK 最小コード例パネル
+ * - terminal 風タイトルバー (3 ドット + ファイル名)
+ * - 暗背景 + monospace + 簡易シンタックスハイライト */
+.hb-hero__code {
+  background: var(--hb-bg-elev);
+  border: 1px solid var(--hb-line);
+  border-radius: 11px;
+  box-shadow: var(--hb-shadow-md);
+  overflow: hidden;
+  font-family: var(--hb-font-mono);
+}
+.hb-hero__code-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--hb-bg-soft);
+  border-bottom: 1px solid var(--hb-line);
+  font-size: 11px;
+  color: var(--hb-ink-mute);
+  letter-spacing: 0.04em;
+}
+.hb-hero__code-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--hb-line-strong);
+}
+.hb-hero__code-dot[data-c='r'] { background: oklch(0.7 0.18 22); }
+.hb-hero__code-dot[data-c='y'] { background: oklch(0.82 0.16 85); }
+.hb-hero__code-dot[data-c='g'] { background: oklch(0.74 0.16 145); }
+.hb-hero__code-file {
+  margin-left: 6px;
+}
+.hb-hero__code-body {
+  margin: 0;
+  padding: 16px 18px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--hb-ink);
+  background: transparent;
+  overflow-x: auto;
+  white-space: pre;
+  /* :::starlight が markdown body に当てている <pre> 装飾を Hero では使わない */
+}
+.hb-hero__code-body code {
+  background: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  padding: 0;
+}
+/* シンタックス色 (light-mode 寄り、dark-mode で再定義) */
+.hb-tk-c { color: var(--hb-ink-faint); font-style: italic; }
+.hb-tk-k { color: oklch(0.46 0.16 320); font-weight: 500; }
+.hb-tk-t { color: oklch(0.46 0.13 220); }
+.hb-tk-f { color: oklch(0.46 0.13 145); }
+:root[data-theme='dark'] .hb-tk-c { color: var(--hb-ink-mute); }
+:root[data-theme='dark'] .hb-tk-k { color: oklch(0.84 0.13 320); }
+:root[data-theme='dark'] .hb-tk-t { color: oklch(0.78 0.12 220); }
+:root[data-theme='dark'] .hb-tk-f { color: oklch(0.82 0.13 145); }
 
-/* tablet 以下: padding を縮める */
+/* tablet 以下: 1 column に積み、padding を縮める */
 @media (max-width: 60rem) {
   .hb-hero {
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 24px;
     padding: 36px 0 32px;
+  }
+}
+/* mobile: コードパネルが幅いっぱいに */
+@media (max-width: 40rem) {
+  .hb-hero__code-body {
+    font-size: 12px;
+    padding: 14px 14px;
   }
 }
 

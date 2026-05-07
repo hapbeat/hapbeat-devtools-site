@@ -5,11 +5,14 @@
  * Starlight default の Hero (template: splash 用) を design ハンドオフの
  * .hero レイアウトに置き換える。
  *
- * 構造 (single column):
- *   eyebrow chip ("DEVELOPER PORTAL · v0.4 PREVIEW")
- *   + h1 (<em>Hapbeat</em> はグラデーション color)
- *   + lede 段落
- *   + 2 ボタン (primary=dark / ghost=outline)
+ * 構造 (2-column on desktop, stacks on mobile):
+ *   左カラム:
+ *     eyebrow chip ("DEVELOPER PORTAL · v0.4 PREVIEW")
+ *     + h1 (<em>Hapbeat</em> はグラデーション color)
+ *     + lede 段落
+ *     + 2 ボタン (primary=dark / ghost=outline)
+ *   右カラム:
+ *     Unity SDK 最小コード例 (docs サイトらしい硬派な装飾)
  *
  * frontmatter `hero` から title / tagline / actions を受け取る。
  * title / tagline は HTML を許容 (`set:html`)。
@@ -113,5 +116,24 @@ const eyebrowText = 'DEVELOPER PORTAL · v0.4 PREVIEW';
     )}
   </div>
 
+  {/* 右カラム: Unity SDK 最小コード例。装飾 + docs っぽさ。 */}
+  <div class="hb-hero__code" aria-hidden="true">
+    <div class="hb-hero__code-head">
+      <span class="hb-hero__code-dot" data-c="r" />
+      <span class="hb-hero__code-dot" data-c="y" />
+      <span class="hb-hero__code-dot" data-c="g" />
+      <span class="hb-hero__code-file">HitFx.cs</span>
+    </div>
+    <pre class="hb-hero__code-body"><code><span class="hb-tk-c">// 衝突したら触覚イベントを発火する最小例</span>
+<span class="hb-tk-k">using</span> <span class="hb-tk-t">Hapbeat</span>;
+<span class="hb-tk-k">using</span> <span class="hb-tk-t">UnityEngine</span>;
+
+<span class="hb-tk-k">public class</span> <span class="hb-tk-t">HitFx</span> : <span class="hb-tk-t">MonoBehaviour</span>
+&#123;
+    [<span class="hb-tk-t">SerializeField</span>] <span class="hb-tk-t">HapbeatUnityEventTrigger</span> trigger;
+
+    <span class="hb-tk-k">void</span> <span class="hb-tk-f">OnTriggerEnter</span>(<span class="hb-tk-t">Collider</span> _) =&gt; trigger.<span class="hb-tk-f">Fire</span>();
+&#125;</code></pre>
+  </div>
 </section>
 )}
