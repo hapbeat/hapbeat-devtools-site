@@ -179,6 +179,12 @@ async function ensureSectionIndex(dir, label) {
   const lines = [];
   lines.push('---');
   lines.push(`title: "${label}"`);
+  // sidebar からは隠す: section 見出し (group label) クリックでこの landing
+  // に遷移するため、sub-page リストにも index を出すと重複する。
+  // 各 sub-repo が docs/index.md を自前で用意した場合は同様に
+  // `sidebar: { hidden: true }` を入れることを推奨。
+  lines.push('sidebar:');
+  lines.push('  hidden: true');
   lines.push('---');
   lines.push('');
   if (pages.length === 0 && subdirs.length === 0) {
