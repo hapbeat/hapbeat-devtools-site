@@ -44,8 +44,8 @@ const SOURCES = [
   { short: 'helper',       label: 'Hapbeat Helper (CLI daemon)', repo: 'hapbeat-helper',             url: 'https://github.com/Hapbeat/hapbeat-helper.git' },
   { short: 'studio',       label: 'Hapbeat Studio',             repo: 'hapbeat-studio',              url: 'https://github.com/Hapbeat/hapbeat-studio.git' },
   { short: 'unity-sdk',    label: 'Unity SDK',                  repo: 'hapbeat-unity-sdk',           url: 'https://github.com/Hapbeat/hapbeat-unity-sdk.git' },
-  { short: 'unreal-sdk',   label: 'Unreal SDK',                 repo: 'hapbeat-unreal-sdk',          url: 'https://github.com/Hapbeat/hapbeat-unreal-sdk.git' },
-  { short: 'creative-kit', label: 'Creative Kit',               repo: 'hapbeat-creative-kit',        url: 'https://github.com/Hapbeat/hapbeat-creative-kit.git' },
+  // hapbeat-unreal-sdk / hapbeat-creative-kit は未実装。
+  // 単一の docs/coming-soon.md (devtools-site 内) にまとめてあるため fetch しない。
 ];
 
 // 集約後に portal で表示しないファイル名 (case-insensitive)。
