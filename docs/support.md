@@ -31,18 +31,15 @@ GitHub アカウントがあれば追加登録不要で投稿できます。
 
 | 対象 | リポジトリ | Issues |
 |---|---|---|
-| Web デザインツール | hapbeat-studio | <https://github.com/hapbeat/hapbeat-studio/issues> |
-| デスクトップ管理アプリ | hapbeat-manager | <https://github.com/hapbeat/hapbeat-manager/issues> |
-| デバイスファーム | hapbeat-device-firmware | <https://github.com/hapbeat/hapbeat-device-firmware/issues> |
+| Web デザインツール (Studio) | hapbeat-studio | <https://github.com/hapbeat/hapbeat-studio/issues> |
 | Unity SDK | hapbeat-unity-sdk | <https://github.com/hapbeat/hapbeat-unity-sdk/issues> |
-| Unreal SDK | hapbeat-unreal-sdk | <https://github.com/hapbeat/hapbeat-unreal-sdk/issues> |
-| 仕様 | hapbeat-contracts | <https://github.com/hapbeat/hapbeat-contracts/issues> |
-| Kit Tools (CLI) | hapbeat-kit-tools | <https://github.com/hapbeat/hapbeat-kit-tools/issues> |
 | Helper (daemon) | hapbeat-helper | <https://github.com/hapbeat/hapbeat-helper/issues> |
+| 仕様 (Contracts) | hapbeat-contracts | <https://github.com/hapbeat/hapbeat-contracts/issues> |
 | このサイト | hapbeat-devtools-site | <https://github.com/hapbeat/hapbeat-devtools-site/issues> |
 
-「どのリポジトリか分からない」場合は Discussions に書いていただければ
-こちらで適切な Issue に振り分けます。
+「どのリポジトリか分からない」場合や、上記以外（デバイスファーム / Kit Tools 等
+の内部コンポーネント）に関する質問は Discussions に書いていただければ、
+こちらで適切な Issue に振り分けるか直接回答します。
 
 ## セキュリティ問題
 

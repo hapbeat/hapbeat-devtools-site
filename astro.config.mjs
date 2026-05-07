@@ -80,16 +80,6 @@ export default defineConfig({
           autogenerate: { directory: 'docs/unity-sdk' },
         },
         {
-          label: 'Unreal SDK',
-          badge: { text: 'WIP', variant: 'caution' },
-          autogenerate: { directory: 'docs/unreal-sdk' },
-        },
-        {
-          label: 'Creative Kit',
-          badge: { text: 'WIP', variant: 'caution' },
-          autogenerate: { directory: 'docs/creative-kit' },
-        },
-        {
           label: 'Device Firmware',
           autogenerate: { directory: 'docs/firmware' },
         },
@@ -101,6 +91,8 @@ export default defineConfig({
           label: 'Contracts (仕様)',
           autogenerate: { directory: 'docs/contracts' },
         },
+        // Unreal SDK / Creative Kit は未実装のため、独立したサブツリーは持たず
+        // 「その他」配下にリンクのみ置く。
         // Downloads は docs ではなくリソース配布 (バイナリ等) のため
         // sidebar に入れず header nav 専用。
         // Showcase は将来「触覚デモを体験できる」専用ページとして再構築するため
@@ -112,6 +104,8 @@ export default defineConfig({
             { label: 'FAQ', link: '/docs/faq/' },
             { label: 'サポート / お問い合わせ', link: '/docs/support/' },
             { label: 'Changelog', link: '/docs/changelog/' },
+            { label: 'Unreal SDK (準備中)', link: '/docs/unreal-sdk/' },
+            { label: 'Creative Kit (準備中)', link: '/docs/creative-kit/' },
           ],
         },
       ],

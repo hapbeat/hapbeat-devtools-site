@@ -9,12 +9,13 @@ import Faq from '../../../components/Faq.astro';
 
 ## 接続関連
 
-<Faq question="デバイスが Manager で見つからない">
+<Faq question="Studio でデバイスが見つからない">
 
 - ファームウェアが書き込まれ、Wi-Fi 設定が済んでいるか確認
 - PC とデバイスが同じネットワークに繋がっているか
 - ファイアウォールで UDP broadcast と mDNS がブロックされていないか
-- Manager のログを確認（`View > Logs`）
+- Helper が起動しているか（Studio 上部の「Helper 接続中」インジケータ）
+- Helper のログを確認: `hapbeat-helper log`（[詳細](/docs/helper/getting-started/)）
 
 </Faq>
 
@@ -36,14 +37,15 @@ import Faq from '../../../components/Faq.astro';
 
 <Faq question="Studio でビルドした Kit が転送できない">
 
-- Manager が起動中か、WebSocket（localhost:7703）に接続できているか
-- Studio 右上の接続インジケータを確認
+- Helper が起動中か、WebSocket（`localhost:7703`）に接続できているか
+- Studio 上部の「Helper 接続中」インジケータを確認
+- 対象デバイスがオンラインで Studio から見えているか確認
 
 </Faq>
 
 <Faq question="振動が鳴らない">
 
-- Kit が転送されているか（Manager の Kit タブで一覧確認）
+- Kit が転送されているか（Studio の Kit タブで対象デバイスへの転送状態を確認）
 - Event ID が合っているか
 - デバイスの音量（Volume）が十分高いか
 

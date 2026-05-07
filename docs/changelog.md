@@ -7,17 +7,14 @@ description: 各ツール・リポジトリのリリース履歴。
 
 ## ツール・SDK
 
-- [Hapbeat Manager releases](https://github.com/Hapbeat/hapbeat-manager/releases)
 - [Hapbeat Studio releases](https://github.com/Hapbeat/hapbeat-studio/releases)
 - [Unity SDK releases](https://github.com/Hapbeat/hapbeat-unity-sdk/releases)
-- [Unreal SDK releases](https://github.com/Hapbeat/hapbeat-unreal-sdk/releases)
-- [Creative Kit releases](https://github.com/Hapbeat/hapbeat-creative-kit/releases)
+- [Helper releases](https://github.com/Hapbeat/hapbeat-helper/releases)
 
-## ファームウェア・ツール
+## 実装予定
 
-- [Device Firmware releases](https://github.com/Hapbeat/hapbeat-device-firmware/releases)
-- [Transmitter Firmware releases](https://github.com/Hapbeat/hapbeat-transmitter-firmware/releases)
-- [Kit Tools releases](https://github.com/Hapbeat/hapbeat-kit-tools/releases)
+- Unreal SDK（準備中）
+- Creative Kit (TouchDesigner / Max)（準備中）
 
 ## 仕様
 
