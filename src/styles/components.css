@@ -664,68 +664,103 @@ html:not([data-has-sidebar]) starlight-menu-button {
   border-color: var(--hb-ink-mute);
 }
 
-/* Hero 右カラム: Unity SDK 最小コード例パネル
- * - terminal 風タイトルバー (3 ドット + ファイル名)
- * - 暗背景 + monospace + 簡易シンタックスハイライト */
-.hb-hero__code {
+/* Hero 右カラム: Unity Inspector 風モック (EventMap + Trigger Component)
+ * declarative ワークフロー (Inspector で設定するだけで動作) を視覚化。 */
+.hb-hero__inspector {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--hb-font-sans);
+  font-size: 12.5px;
+}
+.hb-insp__panel {
   background: var(--hb-bg-elev);
   border: 1px solid var(--hb-line);
-  border-radius: 11px;
+  border-radius: 10px;
   box-shadow: var(--hb-shadow-md);
   overflow: hidden;
-  font-family: var(--hb-font-mono);
 }
-.hb-hero__code-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
+.hb-insp__head {
   background: var(--hb-bg-soft);
   border-bottom: 1px solid var(--hb-line);
+  padding: 8px 12px;
   font-size: 11px;
   color: var(--hb-ink-mute);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--hb-font-mono);
 }
-.hb-hero__code-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex: none;
-  background: var(--hb-line-strong);
+.hb-insp__head-icon {
+  font-size: 11px;
+  filter: grayscale(0.4);
 }
-.hb-hero__code-dot[data-c='r'] { background: oklch(0.7 0.18 22); }
-.hb-hero__code-dot[data-c='y'] { background: oklch(0.82 0.16 85); }
-.hb-hero__code-dot[data-c='g'] { background: oklch(0.74 0.16 145); }
-.hb-hero__code-file {
-  margin-left: 6px;
+.hb-insp__row {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 14px 7px 18px;
+  border-bottom: 1px solid var(--hb-line);
 }
-.hb-hero__code-body {
-  margin: 0;
-  padding: 16px 18px;
-  font-size: 13px;
-  line-height: 1.65;
+.hb-insp__row:last-child {
+  border-bottom: none;
+}
+.hb-insp__row--folder {
+  grid-template-columns: auto 1fr;
+  padding-left: 10px;
+  background: color-mix(in oklab, var(--hb-bg-soft) 50%, var(--hb-bg-elev) 50%);
+}
+.hb-insp__row--child {
+  padding-left: 32px;
+}
+.hb-insp__caret {
+  color: var(--hb-ink-mute);
+  font-size: 10px;
+}
+.hb-insp__folder-label {
+  font-weight: 600;
   color: var(--hb-ink);
-  background: transparent;
-  overflow-x: auto;
-  white-space: pre;
-  /* :::starlight が markdown body に当てている <pre> 装飾を Hero では使わない */
 }
-.hb-hero__code-body code {
-  background: transparent;
-  font-family: inherit;
-  font-size: inherit;
-  color: inherit;
-  padding: 0;
+.hb-insp__label {
+  color: var(--hb-ink-mute);
+  font-size: 12px;
 }
-/* シンタックス色 (light-mode 寄り、dark-mode で再定義) */
-.hb-tk-c { color: var(--hb-ink-faint); font-style: italic; }
-.hb-tk-k { color: oklch(0.46 0.16 320); font-weight: 500; }
-.hb-tk-t { color: oklch(0.46 0.13 220); }
-.hb-tk-f { color: oklch(0.46 0.13 145); }
-:root[data-theme='dark'] .hb-tk-c { color: var(--hb-ink-mute); }
-:root[data-theme='dark'] .hb-tk-k { color: oklch(0.84 0.13 320); }
-:root[data-theme='dark'] .hb-tk-t { color: oklch(0.78 0.12 220); }
-:root[data-theme='dark'] .hb-tk-f { color: oklch(0.82 0.13 145); }
+.hb-insp__val {
+  color: var(--hb-ink);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--hb-font-mono);
+  font-size: 11.5px;
+}
+.hb-insp__pill {
+  background: var(--hb-purple-soft);
+  color: var(--hb-purple-ink);
+  padding: 1.5px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: var(--hb-font-mono);
+  border: 1px solid var(--hb-line);
+}
+:root[data-theme='dark'] .hb-insp__pill {
+  color: var(--sl-color-accent-high);
+}
+.hb-insp__ref {
+  color: var(--hb-purple-ink);
+  font-family: var(--hb-font-mono);
+}
+:root[data-theme='dark'] .hb-insp__ref {
+  color: var(--sl-color-accent-high);
+}
+.hb-insp__arrow {
+  align-self: center;
+  color: var(--hb-ink-faint);
+  font-family: var(--hb-font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+}
 
 /* tablet 以下: 1 column に積み、padding を縮める */
 @media (max-width: 60rem) {

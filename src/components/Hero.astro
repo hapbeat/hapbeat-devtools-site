@@ -116,24 +116,57 @@ const eyebrowText = 'DEVELOPER PORTAL · v0.4 PREVIEW';
     )}
   </div>
 
-  {/* 右カラム: Unity SDK 最小コード例。装飾 + docs っぽさ。 */}
-  <div class="hb-hero__code" aria-hidden="true">
-    <div class="hb-hero__code-head">
-      <span class="hb-hero__code-dot" data-c="r" />
-      <span class="hb-hero__code-dot" data-c="y" />
-      <span class="hb-hero__code-dot" data-c="g" />
-      <span class="hb-hero__code-file">HitFx.cs</span>
+  {/* 右カラム: Unity SDK の代表的な使い方を Inspector 風モックで表現。
+      EventMap (ScriptableObject) + Trigger Component の組み合わせを 2 パネル
+      で示す。コードは書かず Inspector で設定する declarative ワークフロー。 */}
+  <div class="hb-hero__inspector" aria-hidden="true">
+    <div class="hb-insp__panel">
+      <div class="hb-insp__head">
+        <span class="hb-insp__head-icon">📋</span>
+        <span>Combat.eventmap (ScriptableObject)</span>
+      </div>
+      <div class="hb-insp__row hb-insp__row--folder">
+        <span class="hb-insp__caret">▾</span>
+        <span class="hb-insp__folder-label">Entries</span>
+      </div>
+      <div class="hb-insp__row hb-insp__row--child">
+        <span class="hb-insp__label">id</span>
+        <span class="hb-insp__val"><span class="hb-insp__pill">hit</span></span>
+      </div>
+      <div class="hb-insp__row hb-insp__row--child">
+        <span class="hb-insp__label">id</span>
+        <span class="hb-insp__val"><span class="hb-insp__pill">powerup</span></span>
+      </div>
     </div>
-    <pre class="hb-hero__code-body"><code><span class="hb-tk-c">// 衝突したら触覚イベントを発火する最小例</span>
-<span class="hb-tk-k">using</span> <span class="hb-tk-t">Hapbeat</span>;
-<span class="hb-tk-k">using</span> <span class="hb-tk-t">UnityEngine</span>;
 
-<span class="hb-tk-k">public class</span> <span class="hb-tk-t">HitFx</span> : <span class="hb-tk-t">MonoBehaviour</span>
-&#123;
-    [<span class="hb-tk-t">SerializeField</span>] <span class="hb-tk-t">HapbeatUnityEventTrigger</span> trigger;
+    <div class="hb-insp__arrow" aria-hidden="true">↓ assign</div>
 
-    <span class="hb-tk-k">void</span> <span class="hb-tk-f">OnTriggerEnter</span>(<span class="hb-tk-t">Collider</span> _) =&gt; trigger.<span class="hb-tk-f">Fire</span>();
-&#125;</code></pre>
+    <div class="hb-insp__panel">
+      <div class="hb-insp__head">
+        <span class="hb-insp__head-icon">⚙</span>
+        <span>Player ▸ Inspector</span>
+      </div>
+      <div class="hb-insp__row hb-insp__row--folder">
+        <span class="hb-insp__caret">▾</span>
+        <span class="hb-insp__folder-label">Hapbeat Collision Trigger</span>
+      </div>
+      <div class="hb-insp__row">
+        <span class="hb-insp__label">Event Map</span>
+        <span class="hb-insp__val"><span class="hb-insp__ref">▸ Combat.eventmap</span></span>
+      </div>
+      <div class="hb-insp__row">
+        <span class="hb-insp__label">Entry</span>
+        <span class="hb-insp__val"><span class="hb-insp__pill">hit</span> <span class="hb-insp__caret">▾</span></span>
+      </div>
+      <div class="hb-insp__row">
+        <span class="hb-insp__label">Trigger</span>
+        <span class="hb-insp__val">OnCollisionEnter <span class="hb-insp__caret">▾</span></span>
+      </div>
+      <div class="hb-insp__row">
+        <span class="hb-insp__label">Gain Mode</span>
+        <span class="hb-insp__val">VelocityScaled <span class="hb-insp__caret">▾</span></span>
+      </div>
+    </div>
   </div>
 </section>
 )}
