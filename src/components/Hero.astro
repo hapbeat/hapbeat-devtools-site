@@ -116,57 +116,19 @@ const eyebrowText = 'DEVELOPER PORTAL · v0.4 PREVIEW';
     )}
   </div>
 
-  {/* 右カラム: Unity SDK の代表的な使い方を Inspector 風モックで表現。
-      EventMap (ScriptableObject) + Trigger Component の組み合わせを 2 パネル
-      で示す。コードは書かず Inspector で設定する declarative ワークフロー。 */}
-  <div class="hb-hero__inspector" aria-hidden="true">
-    <div class="hb-insp__panel">
-      <div class="hb-insp__head">
-        <span class="hb-insp__head-icon">📋</span>
-        <span>Combat.eventmap (ScriptableObject)</span>
-      </div>
-      <div class="hb-insp__row hb-insp__row--folder">
-        <span class="hb-insp__caret">▾</span>
-        <span class="hb-insp__folder-label">Entries</span>
-      </div>
-      <div class="hb-insp__row hb-insp__row--child">
-        <span class="hb-insp__label">id</span>
-        <span class="hb-insp__val"><span class="hb-insp__pill">hit</span></span>
-      </div>
-      <div class="hb-insp__row hb-insp__row--child">
-        <span class="hb-insp__label">id</span>
-        <span class="hb-insp__val"><span class="hb-insp__pill">powerup</span></span>
-      </div>
-    </div>
-
-    <div class="hb-insp__arrow" aria-hidden="true">↓ assign</div>
-
-    <div class="hb-insp__panel">
-      <div class="hb-insp__head">
-        <span class="hb-insp__head-icon">⚙</span>
-        <span>Player ▸ Inspector</span>
-      </div>
-      <div class="hb-insp__row hb-insp__row--folder">
-        <span class="hb-insp__caret">▾</span>
-        <span class="hb-insp__folder-label">Hapbeat Collision Trigger</span>
-      </div>
-      <div class="hb-insp__row">
-        <span class="hb-insp__label">Event Map</span>
-        <span class="hb-insp__val"><span class="hb-insp__ref">▸ Combat.eventmap</span></span>
-      </div>
-      <div class="hb-insp__row">
-        <span class="hb-insp__label">Entry</span>
-        <span class="hb-insp__val"><span class="hb-insp__pill">hit</span> <span class="hb-insp__caret">▾</span></span>
-      </div>
-      <div class="hb-insp__row">
-        <span class="hb-insp__label">Trigger</span>
-        <span class="hb-insp__val">OnCollisionEnter <span class="hb-insp__caret">▾</span></span>
-      </div>
-      <div class="hb-insp__row">
-        <span class="hb-insp__label">Gain Mode</span>
-        <span class="hb-insp__val">VelocityScaled <span class="hb-insp__caret">▾</span></span>
-      </div>
-    </div>
-  </div>
+  {/* 右カラム: Unity SDK の Hapbeat Event Map ウィンドウのスクリーンショット。
+      実 UI を見せることで EventMap + Trigger 連携の declarative ワークフロー
+      を一目で伝える。 */}
+  <figure class="hb-hero__shot">
+    <img
+      src="/images/hapbeat-unity-event-map.png"
+      alt="Unity の Hapbeat Event Map ウィンドウ。左ペインに Event のリスト、右ペインに選択中エントリの詳細 (Mode / Clip / Gain / Targeting / Wiring) が表示されている"
+      width="780"
+      height="560"
+      loading="eager"
+      decoding="async"
+    />
+    <figcaption>Unity Editor — Hapbeat Event Map</figcaption>
+  </figure>
 </section>
 )}
