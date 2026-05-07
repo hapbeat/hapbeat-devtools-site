@@ -111,27 +111,44 @@ async function fetchFromGit(src) {
   return true;
 }
 
-// Starlight requires `title` in frontmatter. 取り込んだ .md にこれを保証する。
-//  - frontmatter があり title もあれば触らない
-//  - frontmatter があるが title なし → 先頭 H1 or ファイル名から派生して挿入
-//  - frontmatter なし → 新規生成して付与
+// Starlight required な frontmatter を取り込んだ .md に保証する。
+//  (1) title:
+//      - 既に title があれば触らない
+//      - 無ければ先頭 H1 or ファイル名から派生して挿入
+//  (2) sidebar.order:
+//      - filename が getting-started のものは sidebar.order: 1 を自動注入
+//        (各セクションで Getting Started を先頭に固定するため)
+//      - 既に sidebar が frontmatter にあれば触らない (sub-repo 側で自由に上書き可)
+//      - 任意の並び順は frontmatter に sidebar.order: <N> を書けば反映される
 async function normalizeMarkdownFrontmatter(filePath) {
   const raw = await readFile(filePath, 'utf8');
   const fmMatch = raw.match(/^---\n([\s\S]*?)\n---\n?/);
   let frontmatter = fmMatch ? fmMatch[1] : '';
-  let body = fmMatch ? raw.slice(fmMatch[0].length) : raw;
+  const body = fmMatch ? raw.slice(fmMatch[0].length) : raw;
 
-  if (/^title\s*:/m.test(frontmatter)) return; // already ok
+  const hasTitle = /^title\s*:/m.test(frontmatter);
+  const hasSidebar = /^sidebar\s*:/m.test(frontmatter);
+  const baseName = path.basename(filePath, path.extname(filePath));
+  const isGettingStarted = baseName === 'getting-started';
+  const needsOrderInjection = isGettingStarted && !hasSidebar;
 
-  const h1 = body.match(/^#\s+(.+)$/m);
-  const fallbackTitle = h1
-    ? h1[1].trim()
-    : path.basename(filePath, path.extname(filePath))
-        .replace(/[-_]+/g, ' ')
-        .replace(/\b\w/g, (c) => c.toUpperCase());
+  if (hasTitle && !needsOrderInjection) return; // nothing to do
 
-  const escaped = fallbackTitle.replace(/"/g, '\\"');
-  const newFm = frontmatter ? `${frontmatter}\ntitle: "${escaped}"` : `title: "${escaped}"`;
+  let newFm = frontmatter;
+  if (!hasTitle) {
+    const h1 = body.match(/^#\s+(.+)$/m);
+    const fallbackTitle = h1
+      ? h1[1].trim()
+      : baseName
+          .replace(/[-_]+/g, ' ')
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+    const escaped = fallbackTitle.replace(/"/g, '\\"');
+    newFm = newFm ? `${newFm}\ntitle: "${escaped}"` : `title: "${escaped}"`;
+  }
+  if (needsOrderInjection) {
+    newFm = newFm ? `${newFm}\nsidebar:\n  order: 1` : `sidebar:\n  order: 1`;
+  }
+
   await writeFile(filePath, `---\n${newFm}\n---\n${body}`);
 }
 
