@@ -201,7 +201,19 @@ import { ClientRouter } from 'astro:transitions';
       });
     }
 
-    // ---------- Group label クリック → 当該グループ open + SPA 遷移 ----------
+    // ---------- Group label クリック → セクション landing へ SPA 遷移 ----------
+    // 挙動の分担:
+    //   見出しテキスト (.group-label) クリック → セクション landing /docs/<section>/ へ遷移
+    //   右の三角 (caret) クリック         → 開閉トグルのみ (遷移しない)
+    // caret は summary 直下の SVG。listener は .group-label のみに bind しているので、
+    // caret クリック時はこの listener が発火せず summary 既定の toggle が走る。
+    function getSectionLandingFromFirstLink(href) {
+      // /docs/studio/getting-started/      → /docs/studio/
+      // /en/docs/studio/getting-started/   → /en/docs/studio/
+      // /docs/unity-sdk/tutorial/method/   → /docs/unity-sdk/
+      const m = href.match(/^(.*?\/docs\/[^/]+\/)/);
+      return m ? m[1] : null;
+    }
     function bindGroupLabelNav() {
       document
         .querySelectorAll(
@@ -213,16 +225,35 @@ import { ClientRouter } from 'astro:transitions';
           label.addEventListener('click', (e) => {
             const details = label.closest('details');
             if (!details) return;
+            const firstLink = details.querySelector('ul a[href]');
+            const sectionUrl = firstLink
+              ? getSectionLandingFromFirstLink(firstLink.getAttribute('href') || '')
+              : null;
+            if (!sectionUrl) return; // 推定失敗時は素の summary toggle に委ねる
+
             e.preventDefault();
             e.stopPropagation();
+
+            // 既に landing を開いている場合は何もしない (リロード抑止)
+            const here =
+              location.pathname.replace(/\/+$/, '/') ||
+              location.pathname;
+            if (here === sectionUrl) return;
+
             // 当該グループのみ open に。他グループの開閉状態は触らない。
             if (!details.open) {
               details.open = true;
               const idx = getDetailsIndex(details);
               if (!isNaN(idx)) setDetailsOpenInStorage(idx, true);
             }
-            const firstLink = details.querySelector('ul a[href]');
-            if (firstLink) firstLink.click();
+
+            // SPA 遷移: 一時 <a> を生成して click すると ClientRouter が拾う。
+            const a = document.createElement('a');
+            a.href = sectionUrl;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
           });
         });
     }
