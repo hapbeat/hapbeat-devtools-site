@@ -24,12 +24,14 @@ import ToolGrid from '../../../components/ToolGrid.astro';
 **English documentation is partial.** Most pages are still being translated. Untranslated pages will display the Japanese version. AI-assisted translations are planned.
 :::
 
+{/* TODO: campaign section to be inserted between hero and Tools (later) */}
+
 ## Tools
 
 <ToolGrid>
   <ToolCard
     title="Hapbeat Studio"
-    description="Browser-based design tool. Edit waveforms, LED, and display layouts; manage devices and flash firmware — all without install."
+    description="Browser-based design tool. Edit waveforms, LED, and display layouts; manage devices and flash firmware — no install."
     href="/studio/"
     icon="🎛"
     chip="Web App"
@@ -37,7 +39,7 @@ import ToolGrid from '../../../components/ToolGrid.astro';
   />
   <ToolCard
     title="Helper"
-    description="Local CLI daemon that bridges Studio and devices. One-command install via pipx, auto-start service."
+    description="Local CLI daemon that bridges Studio and devices. Install via pipx."
     href="/en/docs/helper/getting-started/"
     icon="🔌"
     chip="CLI"
@@ -45,7 +47,7 @@ import ToolGrid from '../../../components/ToolGrid.astro';
   />
   <ToolCard
     title="Unity SDK"
-    description="Unity SDK with Trigger components and EventMap for adding haptics to games and VR quickly."
+    description="Unity SDK with Trigger components and EventMap for adding haptics to games and VR."
     href="/en/docs/unity-sdk/getting-started/"
     icon="🎮"
     chip="UPM"
@@ -53,51 +55,57 @@ import ToolGrid from '../../../components/ToolGrid.astro';
   />
 </ToolGrid>
 
-> **[Planned work](/en/docs/coming-soon/)**: Unreal SDK and Creative Kit (TouchDesigner / Max) are on the roadmap.
-
-## Why Hapbeat?
+## Characteristics
 
 <CardGrid>
-  <Card title="Low-latency, direct comms" icon="rocket">
-    The SDK sends events to Hapbeat via Wi-Fi UDP broadcast — **no bridge, no cloud** — for the millisecond-class response that games and VR demand.
+  <Card title="Direct communication" icon="rocket">
+    The SDK sends events to devices over Wi-Fi UDP broadcast — no bridge, no cloud — keeping latency short.
   </Card>
-  <Card title="Cloud-free, offline-ready" icon="seti:lock">
-    No App ID, no API key, no internet required. Works reliably at exhibition booths, live venues, or on a standalone VR headset.
+  <Card title="Offline operation" icon="seti:lock">
+    No App ID, no API key, no internet required. Suitable for exhibits and standalone VR headset use.
   </Card>
-  <Card title="Operate via Kits" icon="document">
-    Haptic content (waveforms, timings) ships as a **Kit**, decoupled from app and firmware. Swap a Kit to update content — no firmware reflash, no app rebuild.
+  <Card title="Content separation via Kit" icon="document">
+    Haptic content (waveforms, timings) ships as a **Kit**. Updates can be applied without rebuilding the app or reflashing firmware.
   </Card>
-  <Card title="Multi-player ready" icon="puzzle">
-    **Group ID** routing keeps multiple Hapbeats in the same space from interfering. Drop-in support for shared exhibits and multiplayer VR.
+  <Card title="Multi-device routing" icon="puzzle">
+    Group ID routing prevents interference between multiple Hapbeats in the same space.
   </Card>
-  <Card title="Open spec & SDKs" icon="open-book">
-    The Wi-Fi UDP protocol and Kit format are documented in [Contracts](/en/docs/contracts/overview/). Build your own Unity / Unreal / TouchDesigner / Max integrations.
+  <Card title="Open spec" icon="open-book">
+    The Wi-Fi UDP protocol and Kit format are documented in [Contracts](/en/docs/contracts/overview/). You can implement your own SDK or extensions.
   </Card>
-  <Card title="Stable fixed runtime" icon="setting">
-    The on-device firmware is a fixed runtime that needs no user maintenance. Content lives in Kits, logic in your app/SDK — robust against everyday use.
+  <Card title="Fixed runtime" icon="setting">
+    The device firmware is a fixed runtime — content lives in Kits, logic in your app or SDK. The runtime itself is not customized per project.
   </Card>
 </CardGrid>
 
 ## Use cases
 
-Hapbeat fits anywhere you want to **deliver tactile feedback to the body** — games, VR, live, exhibitions, and beyond.
+Hapbeat fits any context where you want to deliver tactile feedback to the body.
 
 <CardGrid>
-  <Card title="VR / AR / MR games" icon="laptop">
-    Fire haptics directly from Quest / PC VR / mobile VR. The Unity SDK's Trigger components attach to collisions, inputs, or animation events with no boilerplate.
+  <Card title="VR / AR / MR" icon="laptop">
+    Fire haptics from Quest / PC VR / mobile VR. The Unity SDK's Trigger components attach to collisions, inputs, or animation events.
   </Card>
-  <Card title="Installations & experiential exhibits" icon="seti:image">
-    Offline operation and multi-device support make Hapbeat usable for booth-scale or venue-scale permanent installations. Swap a Kit to change the show.
+  <Card title="Installations & exhibits" icon="seti:image">
+    Offline operation and multi-device routing support booth- or venue-scale installations. Swap a Kit to change the show.
   </Card>
-  <Card title="Music / rhythm / live performance" icon="seti:audio">
-    Send vibration in sync with audio in real time via the SDK. Audience-sync effects at concerts, rhythm games, and immersive listening experiences.
+  <Card title="Music / rhythm / live" icon="seti:audio">
+    Send vibration in sync with audio in real time via the SDK. Audience-sync effects at concerts, rhythm games, and immersive listening.
   </Card>
   <Card title="Health & training" icon="heart">
-    Use haptics for breath / posture / heart-rate feedback. Wireless and wearable, suitable for use during physical activity.
+    Use haptics for breath / posture / heart-rate feedback. Wireless and wearable for use during physical activity.
   </Card>
 </CardGrid>
 
-> See [hapbeat.com](https://hapbeat.com) for product details and case studies.
+### Selected case studies
+
+- [Impact-device VR experiences](https://www.cinemaray.co.jp/development/8652/) — Cinemaray Inc.
+- [Godzilla AR experience](https://www.at-raku.com/event/tdc-godzilla-ar/) — Tokyo Dome City
+- [HADO at Metaverse Trade Show](https://hado-official.com/news/11420/)
+- [Tokyo eSports Festa rowing](https://tokyoesportsfesta.jp)
+- [Accessible fireworks for people with disabilities](https://www.nikkan.co.jp/releases/view/75883)
+
+> See [hapbeat.com/usecases](https://hapbeat.com/usecases) for the full list.
 
 ## Support
 
@@ -111,4 +119,8 @@ Get the latest Unity SDK package, firmware binaries, and Helper CLI from the [Do
 
 ## Showcase (Coming soon)
 
-A [Showcase page](/showcase/) collecting Hapbeat-powered haptic works and demos is in preparation. Browser-only experiences and a curated gallery for users with the hardware are planned.
+A [Showcase page](/showcase/) collecting Hapbeat-powered haptic works and demos is in preparation.
+
+## Planned work
+
+Unreal SDK and Creative Kit (TouchDesigner / Max) are on the roadmap. See [Planned work](/en/docs/coming-soon/) for details.
