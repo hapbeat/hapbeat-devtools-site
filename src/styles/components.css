@@ -688,19 +688,22 @@ html:not([data-has-sidebar]) starlight-menu-button {
   text-align: right;
 }
 
-/* tablet 以下: 1 column に積み、padding を縮める */
+/* tablet 以下: 1 column に積み、padding を縮める。
+   スクショは widescreen 時の高さ (~360px) を上限に保ち、
+   横幅いっぱいに巨大化しないよう抑える。 */
 @media (max-width: 60rem) {
   .hb-hero {
     grid-template-columns: 1fr;
     gap: 24px;
     padding: 36px 0 32px;
   }
-}
-/* mobile: コードパネルが幅いっぱいに */
-@media (max-width: 40rem) {
-  .hb-hero__code-body {
-    font-size: 12px;
-    padding: 14px 14px;
+  .hb-hero__shot {
+    align-items: center;
+  }
+  .hb-hero__shot img {
+    width: auto;
+    max-width: 100%;
+    max-height: 360px;
   }
 }
 
