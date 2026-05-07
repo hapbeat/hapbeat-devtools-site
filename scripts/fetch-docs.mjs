@@ -40,7 +40,7 @@ const SOURCES = [
   { short: 'contracts',    label: 'Contracts (仕様)',           repo: 'hapbeat-contracts',           url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
   { short: 'kit-tools',    label: 'Kit Tools (CLI)',            repo: 'hapbeat-pack-tools',          url: 'https://github.com/Hapbeat/hapbeat-kit-tools.git' },
   { short: 'firmware',     label: 'Device Firmware',            repo: 'hapbeat-device-firmware',     url: 'https://github.com/Hapbeat/hapbeat-device-firmware.git' },
-  { short: 'manager',      label: 'Hapbeat Manager (deprecated)', repo: 'hapbeat-manager',           url: 'https://github.com/Hapbeat/hapbeat-manager.git' },
+  // hapbeat-manager は deprecated (Studio + Helper に移行) のため docs 集約対象から除外。
   { short: 'helper',       label: 'Hapbeat Helper (CLI daemon)', repo: 'hapbeat-helper',             url: 'https://github.com/Hapbeat/hapbeat-helper.git' },
   { short: 'studio',       label: 'Hapbeat Studio',             repo: 'hapbeat-studio',              url: 'https://github.com/Hapbeat/hapbeat-studio.git' },
   { short: 'unity-sdk',    label: 'Unity SDK',                  repo: 'hapbeat-unity-sdk',           url: 'https://github.com/Hapbeat/hapbeat-unity-sdk.git' },

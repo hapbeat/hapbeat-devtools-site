@@ -32,14 +32,6 @@ import ToolGrid from '../../components/ToolGrid.astro';
     meta={["browser-only", "no install"]}
   />
   <ToolCard
-    title="Hapbeat Manager"
-    description="デバイス管理デスクトップアプリ。Serial / TCP / UDP でデバイスと通信し、ファーム書き込み・Kit 転送を行います。"
-    href="/docs/manager/installation/"
-    icon="🖥"
-    chip="Desktop"
-    meta={["Windows 10/11", ".exe installer"]}
-  />
-  <ToolCard
     title="Unity SDK"
     description="Unity 向け SDK。Trigger コンポーネントや EventMap で触覚を簡単に組み込めます。"
     href="/docs/unity-sdk/installation/"
@@ -57,7 +49,7 @@ import ToolGrid from '../../components/ToolGrid.astro';
   />
   <ToolCard
     title="Kit Tools (CLI)"
-    description="Kit のビルド・検証・転送を行う Python CLI。Studio / Manager から内部利用、上級者は単独でも操作可能。"
+    description="Kit のビルド・検証・転送を行う Python CLI。Studio から内部利用、上級者は単独でも操作可能。"
     href="/docs/kit-tools/cli-reference/"
     icon="📦"
     chip="CLI"
@@ -78,7 +70,7 @@ import ToolGrid from '../../components/ToolGrid.astro';
 
 <CardGrid>
   <Card title="Hapbeat を手に入れたばかり" icon="rocket">
-    [Getting Started](/docs/getting-started/) に従い、Manager を入れてファームを書き込み、Studio で最初の Kit を作ってみる。
+    [Getting Started](/docs/getting-started/) に従い、ファームを書き込んで Studio で最初の Kit を作ってみる。
   </Card>
   <Card title="コンテンツを作りたい" icon="pencil">
     [Hapbeat Studio](/studio/) をブラウザで開き、[Studio ガイド](/docs/studio/getting-started/) に沿って波形・LED・ディスプレイを編集して Kit を書き出す。
@@ -93,7 +85,7 @@ import ToolGrid from '../../components/ToolGrid.astro';
 
 ## ダウンロード
 
-[Downloads ページ](/downloads/) から Manager の installer、Unity SDK パッケージ、ファームウェアバイナリを入手できる。各配布物は GitHub Release 経由で常に最新が提供される。
+[Downloads ページ](/downloads/) から Unity SDK パッケージ、ファームウェアバイナリ、Helper CLI を入手できる。各配布物は GitHub Release 経由で常に最新が提供される。
 
 ## Showcase (準備中)
 

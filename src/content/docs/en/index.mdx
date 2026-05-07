@@ -36,14 +36,6 @@ import ToolGrid from '../../../components/ToolGrid.astro';
     meta={["browser-only", "no install"]}
   />
   <ToolCard
-    title="Hapbeat Manager"
-    description="Desktop app for device management. Serial / TCP / UDP communication, firmware flashing, Kit transfer."
-    href="/en/docs/manager/installation/"
-    icon="🖥"
-    chip="Desktop"
-    meta={["Windows 10/11", ".exe installer"]}
-  />
-  <ToolCard
     title="Unity SDK"
     description="Unity SDK. Add haptics easily with Trigger components and EventMap."
     href="/en/docs/unity-sdk/installation/"
@@ -61,7 +53,7 @@ import ToolGrid from '../../../components/ToolGrid.astro';
   />
   <ToolCard
     title="Kit Tools (CLI)"
-    description="Python CLI for building, validating, and transferring Kits. Used internally by Studio / Manager."
+    description="Python CLI for building, validating, and transferring Kits. Used internally by Studio."
     href="/en/docs/kit-tools/cli-reference/"
     icon="📦"
     chip="CLI"
@@ -82,7 +74,7 @@ import ToolGrid from '../../../components/ToolGrid.astro';
 
 <CardGrid>
   <Card title="Just got a Hapbeat" icon="rocket">
-    Follow [Getting Started](/en/docs/getting-started/): install Manager, flash firmware, build your first Kit in Studio.
+    Follow [Getting Started](/en/docs/getting-started/): flash firmware, then build your first Kit in Studio.
   </Card>
   <Card title="Want to create content" icon="pencil">
     Open [Hapbeat Studio](/studio/) and follow the [Studio guide](/en/docs/studio/getting-started/) to edit waveforms, LEDs, display, and export a Kit.
@@ -97,4 +89,4 @@ import ToolGrid from '../../../components/ToolGrid.astro';
 
 ## Downloads
 
-Get the latest Manager installer, Unity SDK package, and firmware binaries from the [Downloads page](/en/downloads/). All releases are distributed via GitHub Releases.
+Get the latest Unity SDK package, firmware binaries, and Helper CLI from the [Downloads page](/en/downloads/). All releases are distributed via GitHub Releases.

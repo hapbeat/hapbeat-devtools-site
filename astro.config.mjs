@@ -72,10 +72,6 @@ export default defineConfig({
           autogenerate: { directory: 'docs/helper' },
         },
         {
-          label: 'Hapbeat Manager (deprecated)',
-          autogenerate: { directory: 'docs/manager' },
-        },
-        {
           label: 'Hapbeat Studio',
           autogenerate: { directory: 'docs/studio' },
         },
