@@ -45,9 +45,9 @@
   --hb-line: oklch(0.9 0.009 50);
   --hb-line-strong: oklch(0.84 0.013 40);
   --hb-ink: oklch(0.22 0.02 255);
-  --hb-ink-soft: oklch(0.42 0.018 255);
-  --hb-ink-mute: oklch(0.58 0.012 255);
-  --hb-ink-faint: oklch(0.72 0.008 255);
+  --hb-ink-soft: oklch(0.32 0.018 255);
+  --hb-ink-mute: oklch(0.44 0.013 255);
+  --hb-ink-faint: oklch(0.58 0.008 255);
 
   /* Shadows / radius */
   --hb-shadow-sm: 0 1px 2px oklch(0.2 0.02 255 / 0.05);
@@ -78,10 +78,10 @@
   --hb-bg-code: oklch(0.26 0.014 255);
   --hb-line: oklch(0.32 0.012 255);
   --hb-line-strong: oklch(0.4 0.012 255);
-  --hb-ink: oklch(0.95 0.005 250);
-  --hb-ink-soft: oklch(0.78 0.012 250);
-  --hb-ink-mute: oklch(0.62 0.012 250);
-  --hb-ink-faint: oklch(0.48 0.012 250);
+  --hb-ink: oklch(0.96 0.005 250);
+  --hb-ink-soft: oklch(0.88 0.012 250);
+  --hb-ink-mute: oklch(0.74 0.012 250);
+  --hb-ink-faint: oklch(0.62 0.012 250);
 
   --hb-red-soft: oklch(0.32 0.08 22);
   --hb-red-ink: oklch(0.86 0.13 22);

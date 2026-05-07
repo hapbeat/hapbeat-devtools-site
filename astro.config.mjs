@@ -68,11 +68,11 @@ export default defineConfig({
         //   src/content/docs/docs/<short>/ に集約する。
         // autogenerate でそのディレクトリ配下を自動でサイドバー化する。
         {
-          label: 'Hapbeat Helper (CLI daemon)',
+          label: 'Helper (CLI daemon)',
           autogenerate: { directory: 'docs/helper' },
         },
         {
-          label: 'Hapbeat Studio',
+          label: 'Studio',
           autogenerate: { directory: 'docs/studio' },
         },
         {
