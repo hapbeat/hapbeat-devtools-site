@@ -553,13 +553,15 @@ html:not([data-has-sidebar]) starlight-menu-button {
  * ------------------------------------------------------------ */
 
 .hb-hero {
-  padding: 64px 0 56px;
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: 56px;
-  align-items: center;
+  padding: 56px 0 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   border-bottom: 1px solid var(--hb-line);
   margin-bottom: 8px;
+  /* eyebrow / title / tagline / cta を縦に積む。
+     旧 2-column (右側 4-LAYER OVERVIEW) は廃止し、
+     その下に直接 ## ツール (ToolGrid) が来る構成に変更。 */
 }
 
 /* Eyebrow */
@@ -656,109 +658,13 @@ html:not([data-has-sidebar]) starlight-menu-button {
   border-color: var(--hb-ink-mute);
 }
 
-/* Stack diagram */
-.hb-diag {
-  position: relative;
-  background: var(--hb-bg-elev);
-  border: 1px solid var(--hb-line);
-  border-radius: var(--hb-radius-lg);
-  padding: 28px 24px 24px;
-  box-shadow: var(--hb-shadow-md);
-  font-family: var(--hb-font-mono);
-  font-size: 12px;
-  display: grid;
-  gap: 12px;
-}
-.hb-diag__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 11px;
-  color: var(--hb-ink-mute);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-.hb-diag__head span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.hb-diag__row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-}
-.hb-diag__node {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  background: var(--hb-bg-soft);
-  border: 1px solid var(--hb-line);
-  border-radius: 8px;
-  font-family: var(--hb-font-sans);
-  color: var(--hb-ink);
-  font-size: 13px;
-  font-weight: 500;
-}
-.hb-diag__node strong { font-weight: 600; }
-.hb-diag__node small {
-  color: var(--hb-ink-mute);
-  font-weight: 400;
-  font-family: var(--hb-font-mono);
-  font-size: 11px;
-}
-.hb-diag__chip {
-  width: 28px;
-  height: 28px;
-  border-radius: 7px;
-  display: grid;
-  place-items: center;
-  background: var(--hb-purple-soft);
-  color: var(--hb-purple-ink);
-  font-size: 14px;
-}
-:root[data-theme='dark'] .hb-diag__chip {
-  color: var(--sl-color-accent-high);
-}
-.hb-diag__edge {
-  font-family: var(--hb-font-mono);
-}
-.hb-diag__arrow {
-  height: 16px;
-  display: flex;
-  justify-content: center;
-  color: var(--hb-ink-faint);
-  font-family: var(--hb-font-mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  position: relative;
-}
-.hb-diag__arrow::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 1px;
-  background: var(--hb-line-strong);
-  transform: translateX(-0.5px);
-}
-.hb-diag__arrow span {
-  background: var(--hb-bg-elev);
-  padding: 0 8px;
-  z-index: 1;
-  position: relative;
-}
+/* Stack diagram (.hb-diag*) は廃止。Hero は単一カラムに簡素化したため不要。 */
 
-/* tablet 以下: 1 列に積む */
+/* tablet 以下: padding を縮める */
 @media (max-width: 60rem) {
   .hb-hero {
-    grid-template-columns: 1fr;
-    gap: 32px;
-    padding: 40px 0 36px;
+    gap: 12px;
+    padding: 36px 0 32px;
   }
 }
 

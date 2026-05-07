@@ -3,14 +3,13 @@
  * Hero override.
  *
  * Starlight default の Hero (template: splash 用) を design ハンドオフの
- * .hero / .diagram レイアウトに置き換える。
+ * .hero レイアウトに置き換える。
  *
- * 構造:
- *   - 左カラム: eyebrow chip ("DEVELOPER PORTAL · v0.4 PREVIEW")
- *               + h1 (<em>Hapbeat</em> はグラデーション color)
- *               + lede 段落
- *               + 2 ボタン (primary=dark / ghost=outline)
- *   - 右カラム: 4-layer stack diagram (SDK → Manager → Kit → Hapbeat)
+ * 構造 (single column):
+ *   eyebrow chip ("DEVELOPER PORTAL · v0.4 PREVIEW")
+ *   + h1 (<em>Hapbeat</em> はグラデーション color)
+ *   + lede 段落
+ *   + 2 ボタン (primary=dark / ghost=outline)
  *
  * frontmatter `hero` から title / tagline / actions を受け取る。
  * title / tagline は HTML を許容 (`set:html`)。
@@ -28,43 +27,7 @@ const actions: Action[] = Array.isArray(hero.actions) ? hero.actions : [];
 // hero data が無いページ (404 / 通常ページ) では何も描画しない
 const shouldRender = !!(title || tagline || actions.length);
 
-// Eyebrow / diagram は landing 固有の static content。i18n 対応のため
-// Astro.currentLocale で英文に切替。
-const isEn = Astro.currentLocale === 'en';
-const eyebrowText = isEn ? 'DEVELOPER PORTAL · v0.4 PREVIEW' : 'DEVELOPER PORTAL · v0.4 PREVIEW';
-const stackLabel = isEn ? 'STACK' : 'STACK';
-const overviewLabel = isEn ? '4-LAYER OVERVIEW' : '4-LAYER OVERVIEW';
-
-const layers = [
-  {
-    chip: '🎮',
-    name: 'SDK',
-    sub: isEn ? 'Unity / Unreal / Creative' : 'Unity / Unreal / Creative',
-    edge: 'L4',
-    arrow: 'UDP / WS',
-  },
-  {
-    chip: '🖥',
-    name: 'Manager',
-    sub: 'Studio / CLI',
-    edge: 'L4',
-    arrow: '.hbkit',
-  },
-  {
-    chip: '📦',
-    name: 'Kit',
-    sub: isEn ? 'events + clips + layouts' : 'events + clips + layouts',
-    edge: 'L2',
-    arrow: 'Wi-Fi',
-  },
-  {
-    chip: '⚡',
-    name: 'Hapbeat',
-    sub: 'ESP32-S3 firmware',
-    edge: 'L1',
-    arrow: null,
-  },
-];
+const eyebrowText = 'DEVELOPER PORTAL · v0.4 PREVIEW';
 ---
 
 {shouldRender && (
@@ -139,32 +102,5 @@ const layers = [
     )}
   </div>
 
-  <div class="hb-diag" aria-hidden="true">
-    <div class="hb-diag__head">
-      <span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M3 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0" />
-        </svg>
-        {stackLabel}
-      </span>
-      <span>{overviewLabel}</span>
-    </div>
-    <div class="hb-diag__row">
-      {layers.map((l, i) => (
-        <>
-          <div class="hb-diag__node">
-            <span class="hb-diag__chip" aria-hidden="true">{l.chip}</span>
-            <span class="hb-diag__text">
-              <strong>{l.name}</strong> <small>{l.sub}</small>
-            </span>
-            <small class="hb-diag__edge">{l.edge}</small>
-          </div>
-          {l.arrow && (
-            <div class="hb-diag__arrow"><span>{l.arrow}</span></div>
-          )}
-        </>
-      ))}
-    </div>
-  </div>
 </section>
 )}
