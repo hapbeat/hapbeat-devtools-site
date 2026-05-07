@@ -34,16 +34,18 @@ const WORKSPACE_SIBLING = path.resolve(ROOT, '..'); // hapbeat-sdk-workspace/
 // short = portal URL prefix
 // repo  = ローカル sibling ディレクトリ名 (旧 hapbeat-pack-tools のまま)
 // url   = GitHub の現行 canonical URL (rename 済みの名前)
+// label: section landing 自動生成時の表示名 (astro.config.mjs sidebar の label と揃える)。
+//        sub-repo が docs/index.md を持っていればそちらが優先 (override)。
 const SOURCES = [
-  { short: 'contracts',    repo: 'hapbeat-contracts',           url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
-  { short: 'kit-tools',    repo: 'hapbeat-pack-tools',          url: 'https://github.com/Hapbeat/hapbeat-kit-tools.git' },
-  { short: 'firmware',     repo: 'hapbeat-device-firmware',     url: 'https://github.com/Hapbeat/hapbeat-device-firmware.git' },
-  { short: 'manager',      repo: 'hapbeat-manager',             url: 'https://github.com/Hapbeat/hapbeat-manager.git' },
-  { short: 'helper',       repo: 'hapbeat-helper',              url: 'https://github.com/Hapbeat/hapbeat-helper.git' },
-  { short: 'studio',       repo: 'hapbeat-studio',              url: 'https://github.com/Hapbeat/hapbeat-studio.git' },
-  { short: 'unity-sdk',    repo: 'hapbeat-unity-sdk',           url: 'https://github.com/Hapbeat/hapbeat-unity-sdk.git' },
-  { short: 'unreal-sdk',   repo: 'hapbeat-unreal-sdk',          url: 'https://github.com/Hapbeat/hapbeat-unreal-sdk.git' },
-  { short: 'creative-kit', repo: 'hapbeat-creative-kit',        url: 'https://github.com/Hapbeat/hapbeat-creative-kit.git' },
+  { short: 'contracts',    label: 'Contracts (仕様)',           repo: 'hapbeat-contracts',           url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
+  { short: 'kit-tools',    label: 'Kit Tools (CLI)',            repo: 'hapbeat-pack-tools',          url: 'https://github.com/Hapbeat/hapbeat-kit-tools.git' },
+  { short: 'firmware',     label: 'Device Firmware',            repo: 'hapbeat-device-firmware',     url: 'https://github.com/Hapbeat/hapbeat-device-firmware.git' },
+  { short: 'manager',      label: 'Hapbeat Manager (deprecated)', repo: 'hapbeat-manager',           url: 'https://github.com/Hapbeat/hapbeat-manager.git' },
+  { short: 'helper',       label: 'Hapbeat Helper (CLI daemon)', repo: 'hapbeat-helper',             url: 'https://github.com/Hapbeat/hapbeat-helper.git' },
+  { short: 'studio',       label: 'Hapbeat Studio',             repo: 'hapbeat-studio',              url: 'https://github.com/Hapbeat/hapbeat-studio.git' },
+  { short: 'unity-sdk',    label: 'Unity SDK',                  repo: 'hapbeat-unity-sdk',           url: 'https://github.com/Hapbeat/hapbeat-unity-sdk.git' },
+  { short: 'unreal-sdk',   label: 'Unreal SDK',                 repo: 'hapbeat-unreal-sdk',          url: 'https://github.com/Hapbeat/hapbeat-unreal-sdk.git' },
+  { short: 'creative-kit', label: 'Creative Kit',               repo: 'hapbeat-creative-kit',        url: 'https://github.com/Hapbeat/hapbeat-creative-kit.git' },
 ];
 
 // 集約後に portal で表示しないファイル名 (case-insensitive)。
@@ -133,6 +135,70 @@ async function normalizeMarkdownFrontmatter(filePath) {
   await writeFile(filePath, `---\n${newFm}\n---\n${body}`);
 }
 
+// frontmatter の title を抜き出す (walkAndNormalize 後なので必ず存在する想定)。
+function extractTitleFromFrontmatter(raw) {
+  const fm = raw.match(/^---\n([\s\S]*?)\n---/);
+  if (!fm) return null;
+  const m = fm[1].match(/^title\s*:\s*"?([^"\n]+)"?$/m);
+  return m ? m[1].trim().replace(/\\"/g, '"') : null;
+}
+
+// セクションの landing page (index.md) が無ければ自動生成する。
+//   - 既存の index.md / index.mdx がある場合は何もしない (sub-repo 側が override)
+//   - 自動生成版は: タイトル + getting-started への導線 + ページ一覧 (top-level のみ)
+//   - 結果として /docs/<section>/ が 200 OK で開けるようになる
+async function ensureSectionIndex(dir, label) {
+  if (existsSync(path.join(dir, 'index.md'))) return false;
+  if (existsSync(path.join(dir, 'index.mdx'))) return false;
+
+  const entries = await readdir(dir, { withFileTypes: true });
+  const pages = [];
+  const subdirs = [];
+  for (const entry of entries) {
+    if (entry.isDirectory()) {
+      subdirs.push(entry.name);
+      continue;
+    }
+    if (!entry.isFile()) continue;
+    if (!/\.(md|mdx)$/.test(entry.name)) continue;
+    const slug = entry.name.replace(/\.(md|mdx)$/, '');
+    if (slug === 'index') continue;
+    const raw = await readFile(path.join(dir, entry.name), 'utf8');
+    const title = extractTitleFromFrontmatter(raw) || slug;
+    pages.push({ slug, title });
+  }
+
+  // getting-started を先頭に、その他はタイトル昇順に。
+  pages.sort((a, b) => {
+    if (a.slug === 'getting-started') return -1;
+    if (b.slug === 'getting-started') return 1;
+    return a.title.localeCompare(b.title, 'ja');
+  });
+  subdirs.sort();
+
+  const lines = [];
+  lines.push('---');
+  lines.push(`title: "${label}"`);
+  lines.push('---');
+  lines.push('');
+  if (pages.length === 0 && subdirs.length === 0) {
+    lines.push(`${label} のドキュメントは準備中です。`);
+  } else {
+    lines.push(`${label} のドキュメント一覧です。`);
+    lines.push('');
+    for (const p of pages) {
+      lines.push(`- [${p.title}](./${p.slug}/)`);
+    }
+    for (const sub of subdirs) {
+      lines.push(`- [${sub}](./${sub}/)`);
+    }
+  }
+  lines.push('');
+
+  await writeFile(path.join(dir, 'index.md'), lines.join('\n'));
+  return true;
+}
+
 async function walkAndNormalize(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const p = path.join(dir, entry.name);
@@ -184,6 +250,9 @@ async function main() {
     }
     // Normalize frontmatter (Starlight requires title) and strip excluded files.
     await walkAndNormalize(dest);
+    // Section landing が無ければ自動生成 (sub-repo が docs/index.md を持てば override)。
+    const generated = await ensureSectionIndex(dest, src.label || src.short);
+    if (generated) console.log(`  + auto-generated index for ${src.short}/`);
   }
 
   // clean tmp
