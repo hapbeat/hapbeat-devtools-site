@@ -6,7 +6,7 @@ description: Developer portal for the Hapbeat haptic device — tools, SDKs, and
 template: splash
 hero:
   title: Developer documentation and tools for the <em>Hapbeat</em> haptic device.
-  tagline: A single place for the SDKs, design tools, firmware, CLI, and specs to integrate the ESP32-S3 wireless haptic device Hapbeat into games, VR, exhibitions, and live performance.
+  tagline: A single place for the SDKs, design tools, firmware, and specs to integrate the ESP32-S3 wireless haptic device Hapbeat into games, VR, exhibitions, and live performance.
   actions:
     - text: Getting Started
       link: /en/docs/getting-started/
@@ -16,15 +16,12 @@ hero:
       variant: secondary
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
 import ToolCard from '../../../components/ToolCard.astro';
 import ToolGrid from '../../../components/ToolGrid.astro';
 
 :::caution
 **English documentation is partial.** Most pages are still being translated. Untranslated pages will display the Japanese version. AI-assisted translations are planned.
 :::
-
-{/* TODO: campaign section to be inserted between hero and Tools (later) */}
 
 ## Tools
 
@@ -54,73 +51,3 @@ import ToolGrid from '../../../components/ToolGrid.astro';
     meta={["Unity 2022.3+", "VR / non-VR"]}
   />
 </ToolGrid>
-
-## Characteristics
-
-<CardGrid>
-  <Card title="Direct communication" icon="rocket">
-    The SDK sends events to devices over Wi-Fi UDP broadcast — no bridge, no cloud — keeping latency short.
-  </Card>
-  <Card title="Offline operation" icon="seti:lock">
-    No App ID, no API key, no internet required. Suitable for exhibits and standalone VR headset use.
-  </Card>
-  <Card title="Content separation via Kit" icon="document">
-    Haptic content (waveforms, timings) ships as a **Kit**. Updates can be applied without rebuilding the app or reflashing firmware.
-  </Card>
-  <Card title="Multi-device routing" icon="puzzle">
-    Group ID routing prevents interference between multiple Hapbeats in the same space.
-  </Card>
-  <Card title="Open spec" icon="open-book">
-    The Wi-Fi UDP protocol and Kit format are documented in [Contracts](/en/docs/contracts/overview/). You can implement your own SDK or extensions.
-  </Card>
-  <Card title="Fixed runtime" icon="setting">
-    The device firmware is a fixed runtime — content lives in Kits, logic in your app or SDK. The runtime itself is not customized per project.
-  </Card>
-</CardGrid>
-
-## Use cases
-
-Hapbeat fits any context where you want to deliver tactile feedback to the body.
-
-<CardGrid>
-  <Card title="VR / AR / MR" icon="laptop">
-    Fire haptics from Quest / PC VR / mobile VR. The Unity SDK's Trigger components attach to collisions, inputs, or animation events.
-  </Card>
-  <Card title="Installations & exhibits" icon="seti:image">
-    Offline operation and multi-device routing support booth- or venue-scale installations. Swap a Kit to change the show.
-  </Card>
-  <Card title="Music / rhythm / live" icon="seti:audio">
-    Send vibration in sync with audio in real time via the SDK. Audience-sync effects at concerts, rhythm games, and immersive listening.
-  </Card>
-  <Card title="Health & training" icon="heart">
-    Use haptics for breath / posture / heart-rate feedback. Wireless and wearable for use during physical activity.
-  </Card>
-</CardGrid>
-
-### Selected case studies
-
-- [Impact-device VR experiences](https://www.cinemaray.co.jp/development/8652/) — Cinemaray Inc.
-- [Godzilla AR experience](https://www.at-raku.com/event/tdc-godzilla-ar/) — Tokyo Dome City
-- [HADO at Metaverse Trade Show](https://hado-official.com/news/11420/)
-- [Tokyo eSports Festa rowing](https://tokyoesportsfesta.jp)
-- [Accessible fireworks for people with disabilities](https://www.nikkan.co.jp/releases/view/75883)
-
-> See [hapbeat.com/usecases](https://hapbeat.com/usecases) for the full list.
-
-## Support
-
-- **Questions, ideas, showcase**: [GitHub Discussions](/en/docs/support/)
-- **Bug reports, feature requests**: [GitHub Issues](/en/docs/support/) per repository
-- **Security**: GitHub private vulnerability reporting
-
-## Downloads
-
-Get the latest Unity SDK package, firmware binaries, and Helper CLI from the [Downloads page](/en/downloads/). All releases are distributed via GitHub Releases.
-
-## Showcase (Coming soon)
-
-A [Showcase page](/showcase/) collecting Hapbeat-powered haptic works and demos is in preparation.
-
-## Planned work
-
-Unreal SDK and Creative Kit (TouchDesigner / Max) are on the roadmap. See [Planned work](/en/docs/coming-soon/) for details.
