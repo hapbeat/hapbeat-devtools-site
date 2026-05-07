@@ -5,18 +5,24 @@ import starlight from '@astrojs/starlight';
 // scripts/fetch-docs.mjs で src/content/docs/docs/ に取り込んでから build する。
 
 // rehype plugin: markdown 内の <a href> を以下の条件で新タブ化する。
-// ルール: **同一ドメイン (devtools.hapbeat.com) なら同タブ、別ドメインなら新タブ**。
-//   - 相対 path (/foo, ./bar) / anchor (#xxx) → 必ず同一ドメイン → 同タブ
-//   - 絶対 URL (https://...) → ホスト名で判定
-//   - mailto:, tel: → メール/電話アプリへ → 新タブ扱い
+// ルール:
+//   - anchor (#xxx) → 同タブ
+//   - mailto:, tel: → 新タブ扱い
+//   - 別ドメイン → 新タブ
+//   - 同一ドメイン (devtools.hapbeat.com) → 同タブ
+//   - **例外**: /studio/ 配下 (パスが /studio で始まるもの) は別 SPA なので新タブ
 const SITE_HOSTNAME = 'devtools.hapbeat.com';
+const isStudioPath = (p) => p === '/studio' || p.startsWith('/studio/');
 function rehypeNewTabExternal() {
   const shouldNewTab = (href) => {
     if (typeof href !== 'string' || !href) return false;
-    if (href.startsWith('#') || href.startsWith('/')) return false;
+    if (href.startsWith('#')) return false;
     if (href.startsWith('mailto:') || href.startsWith('tel:')) return true;
+    if (href.startsWith('/')) return isStudioPath(href);
     try {
-      return new URL(href).hostname !== SITE_HOSTNAME;
+      const u = new URL(href);
+      if (u.hostname !== SITE_HOSTNAME) return true;
+      return isStudioPath(u.pathname);
     } catch {
       return false;
     }

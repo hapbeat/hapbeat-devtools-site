@@ -19,13 +19,17 @@ const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
 
 const SITE_HOSTNAME = 'devtools.hapbeat.com';
+const isStudioPath = (p) => p === '/studio' || p.startsWith('/studio/');
 
 function shouldNewTab(href) {
   if (!href) return false;
-  if (href.startsWith('#') || href.startsWith('/')) return false;
+  if (href.startsWith('#')) return false;
   if (href.startsWith('mailto:') || href.startsWith('tel:')) return true;
+  if (href.startsWith('/')) return isStudioPath(href);
   try {
-    return new URL(href).hostname !== SITE_HOSTNAME;
+    const u = new URL(href);
+    if (u.hostname !== SITE_HOSTNAME) return true;
+    return isStudioPath(u.pathname);
   } catch {
     return false;
   }

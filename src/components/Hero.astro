@@ -46,14 +46,21 @@ const eyebrowText = 'DEVELOPER PORTAL · v0.4 PREVIEW';
       <div class="hb-hero__cta">
         {actions.map((a) => {
           const isPrimary = a.variant === 'primary';
-          // 別ドメインのリンクのみ新タブで開く (devtools.hapbeat.com は同タブ)。
+          // 同一ドメインなら同タブ、別ドメインなら新タブ。
+          // 例外: /studio/ は別 SPA なので新タブ。
           const href = a.link || '';
           const SITE_HOSTNAME = 'devtools.hapbeat.com';
+          const isStudioPath = (p: string) => p === '/studio' || p.startsWith('/studio/');
           const isNewTab = (() => {
             if (!href) return false;
-            if (href.startsWith('#') || href.startsWith('/')) return false;
+            if (href.startsWith('#')) return false;
             if (href.startsWith('mailto:') || href.startsWith('tel:')) return true;
-            try { return new URL(href).hostname !== SITE_HOSTNAME; } catch { return false; }
+            if (href.startsWith('/')) return isStudioPath(href);
+            try {
+              const u = new URL(href);
+              if (u.hostname !== SITE_HOSTNAME) return true;
+              return isStudioPath(u.pathname);
+            } catch { return false; }
           })();
           const linkProps = isNewTab
             ? { target: '_blank', rel: 'noopener noreferrer' }
