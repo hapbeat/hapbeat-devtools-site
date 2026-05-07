@@ -83,9 +83,18 @@ const layers = [
       <div class="hb-hero__cta">
         {actions.map((a) => {
           const isPrimary = a.variant === 'primary';
+          // /docs/ 配下でない、または外部スキームのリンクは新タブで開く。
+          const href = a.link || '';
+          const isNewTab =
+            (/^[a-z][a-z0-9+.-]*:/i.test(href) && !href.startsWith('/')) ||
+            (href.startsWith('/') && !href.startsWith('/docs/') && !href.startsWith('/en/docs/'));
+          const linkProps = isNewTab
+            ? { target: '_blank', rel: 'noopener noreferrer' }
+            : {};
           return (
             <a
               href={a.link}
+              {...linkProps}
               class:list={[
                 'hb-btn',
                 isPrimary ? 'hb-btn--primary' : 'hb-btn--ghost',

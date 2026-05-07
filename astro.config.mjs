@@ -4,12 +4,41 @@ import starlight from '@astrojs/starlight';
 // 参考: docs/protocol と docs/kit 等の情報源は各 repo の docs/ を
 // scripts/fetch-docs.mjs で src/content/docs/docs/ に取り込んでから build する。
 
+// rehype plugin: markdown 内の <a href> を以下の条件で新タブ化する。
+//   - 外部スキーム (http:// https:// mailto: tel:) → 新タブ
+//   - 内部だが /docs/ 配下でないリンク (/studio/ /downloads/ 等) → 新タブ
+//   - /docs/, /en/docs/ 配下、相対 path、anchor (#xxx) → 同タブ
+function rehypeNewTabExternal() {
+  const shouldNewTab = (href) => {
+    if (typeof href !== 'string' || !href) return false;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(href) && !href.startsWith('/')) return true; // http:, mailto:, tel:, など
+    if (href.startsWith('/') && !href.startsWith('/docs/') && !href.startsWith('/en/docs/')) return true;
+    return false;
+  };
+  const walk = (node) => {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'element' && node.tagName === 'a' && node.properties) {
+      if (shouldNewTab(node.properties.href)) {
+        node.properties.target = '_blank';
+        node.properties.rel = 'noopener noreferrer';
+      }
+    }
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) walk(child);
+    }
+  };
+  return (tree) => walk(tree);
+}
+
 export default defineConfig({
   site: 'https://devtools.hapbeat.com',
   server: {
     // hapbeat-studio が Vite default の 5173 を使うため衝突を避けて 1313 に固定。
     // 1313 は Hugo docs site の慣例ポートで覚えやすい。
     port: 1313,
+  },
+  markdown: {
+    rehypePlugins: [rehypeNewTabExternal],
   },
   integrations: [
     starlight({

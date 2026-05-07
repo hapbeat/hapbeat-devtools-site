@@ -34,9 +34,20 @@ const {
   chipVariant = 'default',
   meta = [],
 } = Astro.props;
+
+// 外部スキーム or /docs/ 配下でない内部リンクは新タブで開く。
+// rehype プラグインは markdown 経由のリンクのみ処理するため、
+// Astro コンポーネントが直接出力するリンクはここで個別判定する。
+const isNewTab =
+  /^[a-z][a-z0-9+.-]*:/i.test(href) && !href.startsWith('/')
+    ? true
+    : href.startsWith('/') && !href.startsWith('/docs/') && !href.startsWith('/en/docs/');
+const linkProps = isNewTab
+  ? { target: '_blank', rel: 'noopener noreferrer' }
+  : {};
 ---
 
-<a class="hb-tool" href={href}>
+<a class="hb-tool" href={href} {...linkProps}>
   <div class="hb-tool__head">
     {icon && <div class="hb-tool__icon" aria-hidden="true">{icon}</div>}
     <h3 class="hb-tool__name">{title}</h3>
