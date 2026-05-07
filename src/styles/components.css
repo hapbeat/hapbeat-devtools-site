@@ -596,9 +596,11 @@ html:not([data-has-sidebar]) starlight-menu-button {
   font-size: clamp(36px, 5.5vw, 56px);
   font-weight: 700;
   letter-spacing: -0.025em;
-  line-height: 1.1;
+  line-height: 1.2;
   margin: 18px 0 18px;
   color: var(--hb-ink);
+  /* full-width 化したので max-width 制約は外し、
+     browser の text-wrap: balance に任せて 1-2 行に自然折り返し。 */
   text-wrap: balance;
 }
 .hb-hero__title em {
@@ -614,7 +616,9 @@ html:not([data-has-sidebar]) starlight-menu-button {
   font-size: 17px;
   color: var(--hb-ink-soft);
   line-height: 1.7;
-  max-width: 56ch;
+  /* full-width 化に合わせて読みやすい範囲で広げる。
+     英文読みやすさの目安は 65–75 字/行。日本語混じりはより詰まるので 78ch。 */
+  max-width: 78ch;
   margin: 0 0 28px;
   text-wrap: pretty;
 }
