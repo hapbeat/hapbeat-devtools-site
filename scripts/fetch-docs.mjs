@@ -17,6 +17,7 @@ import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promi
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import chokidar from 'chokidar';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -295,7 +296,88 @@ async function main() {
   console.log('[fetch-docs] done.');
 }
 
-main().catch((e) => {
-  console.error('[fetch-docs] fatal:', e);
-  process.exit(1);
-});
+// --watch モード: 各 sibling repo の docs/ と devtools-site の docs/ を監視し、
+// 変更があれば TARGET_PARENT に同期する。Astro/Vite が TARGET_PARENT を watch
+// しているので、書き込み時点で HMR が走る。
+//
+// CI ではこのモードを使わない (sibling は無い、git clone も watch 不可)。
+async function syncOneFile(srcFile, baseSrcDir, destBaseDir) {
+  const rel = path.relative(baseSrcDir, srcFile);
+  const destFile = path.join(destBaseDir, rel);
+  const lower = path.basename(destFile).toLowerCase();
+  const ext = path.extname(lower);
+
+  if (!existsSync(srcFile)) {
+    await rm(destFile, { force: true });
+    return;
+  }
+  if (EXCLUDE_FILES.has(lower) || EXCLUDE_EXTS.has(ext)) {
+    await rm(destFile, { force: true });
+    return;
+  }
+  await mkdir(path.dirname(destFile), { recursive: true });
+  await cp(srcFile, destFile);
+  if (destFile.endsWith('.md') || destFile.endsWith('.mdx')) {
+    await normalizeMarkdownFrontmatter(destFile);
+  }
+}
+
+async function startWatch() {
+  console.log('[fetch-docs] watch mode — waiting for changes (sibling docs/ / local docs/)');
+
+  for (const src of SOURCES) {
+    const watchDir = path.join(WORKSPACE_SIBLING, src.repo, 'docs');
+    if (!existsSync(watchDir)) continue;
+    const destDir = path.join(TARGET_PARENT, src.short);
+    chokidar
+      .watch(watchDir, { ignoreInitial: true, ignored: /(^|[\/\\])\.git/ })
+      .on('all', async (event, filePath) => {
+        try {
+          await syncOneFile(filePath, watchDir, destDir);
+          // add/unlink: index ページの list を再生成 (sub-repo が自前 index.md を
+          // 持つ場合は触らない — 自前があれば watch でコピー済 / なければ regen)
+          if (event === 'add' || event === 'unlink') {
+            const userIndex =
+              existsSync(path.join(watchDir, 'index.md')) ||
+              existsSync(path.join(watchDir, 'index.mdx'));
+            if (!userIndex) {
+              await rm(path.join(destDir, 'index.md'), { force: true });
+              await ensureSectionIndex(destDir, src.label || src.short);
+            }
+          }
+          console.log(`[fetch-docs] ${event}: ${path.relative(WORKSPACE_SIBLING, filePath)}`);
+        } catch (e) {
+          console.warn(`[fetch-docs] sync error: ${e.message}`);
+        }
+      });
+    console.log(`  watching: ${src.repo}/docs/`);
+  }
+
+  const localDocs = path.join(ROOT, 'docs');
+  if (existsSync(localDocs)) {
+    chokidar
+      .watch(localDocs, { ignoreInitial: true, ignored: /(^|[\/\\])\.git/ })
+      .on('all', async (event, filePath) => {
+        try {
+          await syncOneFile(filePath, localDocs, TARGET_PARENT);
+          console.log(`[fetch-docs] ${event}: ${path.relative(ROOT, filePath)}`);
+        } catch (e) {
+          console.warn(`[fetch-docs] sync error: ${e.message}`);
+        }
+      });
+    console.log('  watching: local docs/');
+  }
+}
+
+main()
+  .then(async () => {
+    if (process.argv.includes('--watch')) {
+      await startWatch();
+      // 永続実行 (concurrently 経由で astro dev と並走、Ctrl+C で両方終了)
+      await new Promise(() => {});
+    }
+  })
+  .catch((e) => {
+    console.error('[fetch-docs] fatal:', e);
+    process.exit(1);
+  });

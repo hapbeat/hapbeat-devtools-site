@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "fetch-docs": "node scripts/fetch-docs.mjs",
-    "dev": "npm run fetch-docs && astro dev",
+    "fetch-docs:watch": "node scripts/fetch-docs.mjs --watch",
+    "dev": "concurrently --kill-others --names \"fetch,astro\" --prefix-colors \"blue,green\" \"npm:fetch-docs:watch\" \"astro dev\"",
     "build": "npm run fetch-docs && astro build",
     "preview": "astro preview",
     "astro": "astro"
@@ -16,6 +17,8 @@
     "sharp": "^0.33.5"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0"
+    "@types/node": "^22.0.0",
+    "chokidar": "^5.0.0",
+    "concurrently": "^9.2.1"
   }
 }
