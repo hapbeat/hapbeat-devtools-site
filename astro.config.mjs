@@ -84,10 +84,6 @@ export default defineConfig({
           autogenerate: { directory: 'docs/firmware' },
         },
         {
-          label: 'Kit Tools (CLI)',
-          autogenerate: { directory: 'docs/kit-tools' },
-        },
-        {
           label: 'Contracts (仕様)',
           autogenerate: { directory: 'docs/contracts' },
         },

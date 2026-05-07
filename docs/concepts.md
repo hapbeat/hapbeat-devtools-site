@@ -13,7 +13,7 @@ Hapbeat は「固定ランタイム + Kit + SDK」の 3 分離を基礎に、制
 
 - **Layer 0: 共通仕様 (hapbeat-contracts)** — 全 repo が参照する仕様の起点
 - **Layer 1: 固定ランタイム (hapbeat-device-firmware)** — デバイス本体の ESP32-S3
-- **Layer 2: Kit（コンテンツ配布）(hapbeat-kit-tools)** — 触覚アセットを Kit 単位でパッケージ化
+- **Layer 2: Kit（コンテンツ配布）** — 触覚アセットを Kit 単位でパッケージ化（フォーマットは [Contracts](/docs/contracts/) を参照）
 - **Layer 3: Bridge (hapbeat-bridge, hapbeat-transmitter-firmware)** — ESP-NOW 経路の制御面（オプション）
 - **Layer 4: ツール・SDK (Studio / Helper / Unity SDK)** — ユーザー接点
 

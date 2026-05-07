@@ -38,7 +38,7 @@ const WORKSPACE_SIBLING = path.resolve(ROOT, '..'); // hapbeat-sdk-workspace/
 //        sub-repo が docs/index.md を持っていればそちらが優先 (override)。
 const SOURCES = [
   { short: 'contracts',    label: 'Contracts (仕様)',           repo: 'hapbeat-contracts',           url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
-  { short: 'kit-tools',    label: 'Kit Tools (CLI)',            repo: 'hapbeat-pack-tools',          url: 'https://github.com/Hapbeat/hapbeat-kit-tools.git' },
+  // hapbeat-kit-tools は内部ツール (Studio/Helper どちらも独自実装で呼ばない) のため docs 集約対象から除外。
   { short: 'firmware',     label: 'Device Firmware',            repo: 'hapbeat-device-firmware',     url: 'https://github.com/Hapbeat/hapbeat-device-firmware.git' },
   // hapbeat-manager は deprecated (Studio + Helper に移行) のため docs 集約対象から除外。
   { short: 'helper',       label: 'Hapbeat Helper (CLI daemon)', repo: 'hapbeat-helper',             url: 'https://github.com/Hapbeat/hapbeat-helper.git' },
