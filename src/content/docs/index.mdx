@@ -25,52 +25,85 @@ import ToolGrid from '../../components/ToolGrid.astro';
 <ToolGrid>
   <ToolCard
     title="Hapbeat Studio"
-    description="Web ベースの統合デザインツール。波形・LED・ディスプレイレイアウトの編集と Kit ビルドを行えます。"
+    description="ブラウザだけで使える統合デザインツール。波形・LED・ディスプレイの編集、デバイス管理、ファーム書込みまで完結します。"
     href="/studio/"
     icon="🎛"
     chip="Web App"
     meta={["browser-only", "no install"]}
   />
   <ToolCard
+    title="Helper"
+    description="Studio とデバイスを橋渡しするローカル CLI daemon。pipx でワンコマンド導入、自動起動。"
+    href="/docs/helper/getting-started/"
+    icon="🔌"
+    chip="CLI"
+    meta={["Mac / Win", "pipx install"]}
+  />
+  <ToolCard
     title="Unity SDK"
-    description="Unity 向け SDK。Trigger コンポーネントや EventMap で触覚を簡単に組み込めます。"
-    href="/docs/unity-sdk/installation/"
+    description="Unity 向け SDK。Trigger コンポーネントと EventMap でゲーム / VR に触覚を素早く組み込めます。"
+    href="/docs/unity-sdk/getting-started/"
     icon="🎮"
     chip="UPM"
     meta={["Unity 2022.3+", "VR / 平面 両対応"]}
-  />
-  <ToolCard
-    title="Device Firmware"
-    description="ESP32-S3 上で動く固定ランタイム。Wi-Fi 設定・OTA 更新・LED / 表示カスタマイズ。"
-    href="/docs/firmware/wifi-setup/"
-    icon="⚡"
-    chip="Firmware"
-    meta={["ESP32-S3", "OTA 対応"]}
   />
 </ToolGrid>
 
 > **[今後の実装予定](/docs/coming-soon/)**: Unreal SDK / Creative Kit (TouchDesigner / Max) などは今後対応予定です。
 
-## まず何をすればいい？
+## なぜ Hapbeat？
 
 <CardGrid>
-  <Card title="Hapbeat を手に入れたばかり" icon="rocket">
-    [Getting Started](/docs/getting-started/) に従い、ファームを書き込んで Studio で最初の Kit を作ってみる。
+  <Card title="低遅延・直結通信" icon="rocket">
+    SDK から Wi-Fi UDP broadcast で **Hapbeat に直接送信**。Bridge やクラウドを経由しないため、ゲーム / VR で重要な数 ms オーダーのレスポンスを実現。
   </Card>
-  <Card title="コンテンツを作りたい" icon="pencil">
-    [Hapbeat Studio](/studio/) をブラウザで開き、[Studio ガイド](/docs/studio/getting-started/) に沿って波形・LED・ディスプレイを編集して Kit を書き出す。
+  <Card title="クラウド非依存・オフライン動作" icon="seti:lock">
+    App ID / API キー不要、ネット接続不要で動作。展示ブースやライブ会場、VR ヘッドセット単体でも安定して使えます。
   </Card>
-  <Card title="ゲームに組み込みたい" icon="puzzle">
-    [Unity SDK](/docs/unity-sdk/installation/) を導入し、[Contracts の仕様](/docs/contracts/overview/) を参照しながら実装する。Unreal は[準備中](/docs/unreal-sdk/coming-soon/)。
+  <Card title="運用しやすい Kit 構造" icon="document">
+    触覚コンテンツ（波形・タイミング）はアプリやファームから分離された **Kit** として配布。Kit を差し替えるだけでコンテンツ更新でき、ファーム書換やアプリ再ビルド不要。
   </Card>
-  <Card title="ハードウェアを深く知りたい" icon="setting">
-    [アーキテクチャ](/docs/concepts/) と [Contracts 概要](/docs/contracts/overview/) で通信・アドレシング・メッセージ仕様を確認する。
+  <Card title="マルチプレイヤー対応" icon="puzzle">
+    **Group ID** によるルーティングで、同じ空間に複数台の Hapbeat があっても混信なし。展示の同時体験やマルチプレイヤー VR にそのまま使えます。
+  </Card>
+  <Card title="オープンな仕様と SDK" icon="open-book">
+    Wi-Fi UDP プロトコルや Kit フォーマットは [Contracts](/docs/contracts/overview/) で公開済み。Unity / Unreal / TouchDesigner / Max 等への拡張も自前で実装可能です。
+  </Card>
+  <Card title="ESP32-S3 固定ランタイム" icon="setting">
+    本体ファームウェアはユーザー操作なしで動く固定ランタイム。コンテンツは Kit、ロジックはアプリ／SDK 側に分離しているため、本体が壊れにくい設計です。
   </Card>
 </CardGrid>
 
+## ユースケース
+
+Hapbeat はゲーム、VR、ライブ・展示など **「身体に直接触覚を返したい」** あらゆる場面で使えます。
+
+<CardGrid>
+  <Card title="VR / AR / MR ゲーム" icon="laptop">
+    Quest / PC VR / モバイル VR から直接振動を発火。Unity SDK の Trigger コンポーネントで衝突 / 入力 / アニメーションに紐付けるだけ。
+  </Card>
+  <Card title="インスタレーション・体験型展示" icon="seti:image">
+    オフライン動作 + マルチデバイス対応で、ブース／会場規模の常設展示にも投入可能。Kit 差し替えで演目を即時切替。
+  </Card>
+  <Card title="音楽 / リズム体験 / ライブ演出" icon="seti:audio">
+    オーディオに同期した振動を SDK 経由でリアルタイム送信。ライブ会場での観客同期演出やリズムゲームに。
+  </Card>
+  <Card title="ヘルスケア・トレーニング" icon="heart">
+    呼吸・姿勢・心拍などのフィードバック触覚として活用可能。低遅延・無線・装着型なので運動中の使用にも適します。
+  </Card>
+</CardGrid>
+
+> 製品の詳細・実例は本家 [hapbeat.com](https://hapbeat.com) を参照してください。
+
+## サポート
+
+- **質問・相談・アイデア共有**: [GitHub Discussions](/docs/support/)
+- **バグ報告・機能要望**: 各リポジトリの [GitHub Issues](/docs/support/)
+- **セキュリティ問題**: GitHub の private vulnerability reporting
+
 ## ダウンロード
 
-[Downloads ページ](/downloads/) から Unity SDK パッケージ、ファームウェアバイナリ、Helper CLI を入手できる。各配布物は GitHub Release 経由で常に最新が提供される。
+[Downloads ページ](/downloads/) から Unity SDK パッケージ、ファームウェアバイナリ、Helper CLI を入手できます。各配布物は GitHub Release 経由で常に最新が提供されます。
 
 ## Showcase (準備中)
 
