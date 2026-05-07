@@ -35,13 +35,16 @@ const {
   meta = [],
 } = Astro.props;
 
-// 外部スキーム or /docs/ 配下でない内部リンクは新タブで開く。
+// 別ドメインのリンクのみ新タブで開く (devtools.hapbeat.com は同タブ)。
 // rehype プラグインは markdown 経由のリンクのみ処理するため、
 // Astro コンポーネントが直接出力するリンクはここで個別判定する。
-const isNewTab =
-  /^[a-z][a-z0-9+.-]*:/i.test(href) && !href.startsWith('/')
-    ? true
-    : href.startsWith('/') && !href.startsWith('/docs/') && !href.startsWith('/en/docs/');
+const SITE_HOSTNAME = 'devtools.hapbeat.com';
+const isNewTab = (() => {
+  if (!href || typeof href !== 'string') return false;
+  if (href.startsWith('#') || href.startsWith('/')) return false;
+  if (href.startsWith('mailto:') || href.startsWith('tel:')) return true;
+  try { return new URL(href).hostname !== SITE_HOSTNAME; } catch { return false; }
+})();
 const linkProps = isNewTab
   ? { target: '_blank', rel: 'noopener noreferrer' }
   : {};

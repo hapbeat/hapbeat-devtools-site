@@ -5,22 +5,33 @@ import starlight from '@astrojs/starlight';
 // scripts/fetch-docs.mjs で src/content/docs/docs/ に取り込んでから build する。
 
 // rehype plugin: markdown 内の <a href> を以下の条件で新タブ化する。
-//   - 外部スキーム (http:// https:// mailto: tel:) → 新タブ
-//   - 内部だが /docs/ 配下でないリンク (/studio/ /downloads/ 等) → 新タブ
-//   - /docs/, /en/docs/ 配下、相対 path、anchor (#xxx) → 同タブ
+// ルール: **同一ドメイン (devtools.hapbeat.com) なら同タブ、別ドメインなら新タブ**。
+//   - 相対 path (/foo, ./bar) / anchor (#xxx) → 必ず同一ドメイン → 同タブ
+//   - 絶対 URL (https://...) → ホスト名で判定
+//   - mailto:, tel: → メール/電話アプリへ → 新タブ扱い
+const SITE_HOSTNAME = 'devtools.hapbeat.com';
 function rehypeNewTabExternal() {
   const shouldNewTab = (href) => {
     if (typeof href !== 'string' || !href) return false;
-    if (/^[a-z][a-z0-9+.-]*:/i.test(href) && !href.startsWith('/')) return true; // http:, mailto:, tel:, など
-    if (href.startsWith('/') && !href.startsWith('/docs/') && !href.startsWith('/en/docs/')) return true;
-    return false;
+    if (href.startsWith('#') || href.startsWith('/')) return false;
+    if (href.startsWith('mailto:') || href.startsWith('tel:')) return true;
+    try {
+      return new URL(href).hostname !== SITE_HOSTNAME;
+    } catch {
+      return false;
+    }
   };
   const walk = (node) => {
     if (!node || typeof node !== 'object') return;
     if (node.type === 'element' && node.tagName === 'a' && node.properties) {
-      if (shouldNewTab(node.properties.href)) {
-        node.properties.target = '_blank';
-        node.properties.rel = 'noopener noreferrer';
+      const href = node.properties.href;
+      if (typeof href === 'string') {
+        if (shouldNewTab(href)) {
+          node.properties.target = '_blank';
+          node.properties.rel = 'noopener noreferrer';
+        } else if (node.properties.target === '_blank') {
+          delete node.properties.target;
+        }
       }
     }
     if (Array.isArray(node.children)) {

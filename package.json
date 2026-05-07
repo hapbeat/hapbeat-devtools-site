@@ -7,7 +7,7 @@
     "fetch-docs": "node scripts/fetch-docs.mjs",
     "fetch-docs:watch": "node scripts/fetch-docs.mjs --watch",
     "dev": "concurrently --kill-others --names \"fetch,astro\" --prefix-colors \"blue,green\" \"npm:fetch-docs:watch\" \"astro dev\"",
-    "build": "npm run fetch-docs && astro build",
+    "build": "npm run fetch-docs && astro build && node scripts/postbuild-fix-link-targets.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
