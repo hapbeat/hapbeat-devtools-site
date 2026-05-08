@@ -22,7 +22,7 @@
 - **ドキュメントは各 repo が source of truth**: このリポジトリに直接書かない。`scripts/fetch-docs.mjs` が各 repo の `docs/` を集約する
 - **ローカル dev は sibling path 優先**: `../hapbeat-*/docs/` を優先的に読む（git clone 不要で高速）
 - **CI では git clone**: `FETCH_DOCS_MODE=git` でリモートから最新を取得
-- **意匠は本家 hapbeat.com と揃える**: `src/styles/custom.css` に共通トークンを置き、将来的に React コンポーネント移植も視野
+- **意匠は本家 hapbeat.com と揃える**: `src/styles/custom.css` に共通トークンを置く
 
 ## やってはいけないこと
 
@@ -47,13 +47,3 @@
 - `src/styles/custom.css` — 共通デザイントークン
 - `scripts/fetch-docs.mjs` — docs 集約スクリプト
 - `.github/workflows/deploy.yml` — CI デプロイ
-
-## 指示書
-
-- `instructions/` — 他セッションからの未実行の指示書
-- `instructions/completed/` — 完了済みの指示書
-
-## エージェント共通メモリ
-
-- ワークスペース側 `docs/agent-memory/` を参照（相対パス `../docs/agent-memory/`）
-- インデックス: `../docs/agent-memory/INDEX.md`
