@@ -366,7 +366,7 @@ async function startWatch() {
           console.warn(`[fetch-docs] sync error: ${e.message}`);
         }
       });
-    console.log(`  watching: ${src.repo}/docs/`);
+    console.log(`  watching: ${path.relative(WORKSPACE_SIBLING, watchDir)}/`);
   }
 
   const localDocs = path.join(ROOT, 'docs');
