@@ -3,7 +3,7 @@ title: Getting Started
 description: Hapbeat を初めて使う人のための最短ガイド。Helper インストール → Studio オープン → Wi-Fi 設定 → ライブラリ再生で動作確認。
 ---
 
-このページでは、無線版 Hapbeat (Duo WL / Band WL) から **Studio + Wi-Fi UDP 経由で振動を出すまで** の流れを示します。
+このページでは、**Studio + Wi-Fi UDP 経由で、無線版 Hapbeat (Duo WL / Band WL) から振動を出すまで** の流れを示します。
 
 ## Hapbeat SDK 構成
 
@@ -11,32 +11,39 @@ Hapbeat SDK には **設定・デザインフロー**（Studio + Helper）と、
 
 ![Hapbeat の構成図。左側が設定・デザインフロー（Studio → Helper → Hapbeat デバイス、PC 経由）、右側がゲーム / アプリ実行フロー（Unity SDK / Quest / PC / スマートフォン → Wi-Fi UDP broadcast → Hapbeat デバイス、直結）](./assets/hapbeat-sdk-architecture.svg)
 
-### 設定・デザインフロー（このガイドが対象）
+### 設定・デザインフロー（このページ）
 
 - **Hapbeat Studio**（ブラウザ + ローカルファイル）: 振動波形・ディスプレイ設定・Wi-Fi 設定・ファーム書込みを行う Web アプリ
 - **hapbeat-helper**（CLI daemon）: `pipx install hapbeat-helper` で導入する PC daemon。Studio ↔ TCP / デバイス ↔ UDP / mDNS 自動検出を中継
-- **Hapbeat デバイス**（Duo WL / Band WL）: ESP32 固定ランタイム。Kit ライブラリ・触覚出力・Wi-Fi SoftAP/STA・UDP 受信
+- **Hapbeat**（Duo WL / Band WL）: ESP32 固定ランタイム。Kit ライブラリ・触覚出力・Wi-Fi SoftAP/STA・UDP 受信
 
 ### ゲーム / アプリ実行フロー
 
-- **Unity SDK**（Quest / PC / スマートフォン）等のアプリが、Wi-Fi UDP broadcast で **Hapbeat に直接** 送信
+- **Unity SDK** 等の SDKによって、Quest / PC / スマートフォン等から Wi-Fi UDP broadcast で触覚イベントをHapbeat に Wi-Fi 経由で送信
 - onClick / OnCollisionEnter などのイベントを触覚に紐づけるだけで動作
-- Studio や Helper はアプリ実行時には **不要**
+- ※Studio や Helper はアプリ実行時には **不要**
 
-## 用意するもの
+### 用意するもの
 
 - **PC** (Windows / macOS)
 - **Python 3.9 以上**（インストール済みか事前に確認してください）
+  - 無い場合は公式よりDL→ https://www.python.org/downloads/
 - **Chrome または Edge ブラウザ** (Web Serial / File System Access が必要)
 - **USB-C ケーブル** (データ通信対応 — 充電専用ケーブル不可)
-- **2.4 GHz Wi-Fi**（Hapbeat は 2.4 GHz のみ対応）
-- **Hapbeat デバイス** (Necklace / Band)
+- **2.4 GHz Wi-Fi LAN**（Hapbeat は 2.4 GHz のみ対応）
+- **Hapbeat** (Duo WL / Band WL)
 
 ---
 
 ## Step 1 — Helper をインストール
 
-ターミナル（macOS）またはコマンドプロンプト / PowerShell（Windows）を開き、以下を実行します。**実行するディレクトリはどこでも構いません。**
+コマンドプロンプト / PowerShell（Windows）またはターミナル（macOS）を開き、以下を実行します。**実行するディレクトリはどこでも構いません。**
+
+**Windows:**
+```bash
+py -m pip install --user pipx && py -m pipx ensurepath
+pipx install hapbeat-helper
+```
 
 **macOS:**
 ```bash
@@ -44,11 +51,6 @@ brew install pipx && pipx ensurepath
 pipx install hapbeat-helper
 ```
 
-**Windows:**
-```bash
-py -m pip install --user pipx && py -m pipx ensurepath
-pipx install hapbeat-helper
-```
 
 インストール後、以下のコマンドで Helper を起動します:
 
@@ -79,28 +81,30 @@ Safari や Firefox では Web Serial / File System Access API が使えないた
 
 ## Step 3 — Hapbeat の Wi-Fi 設定と UI 書込み
 
-Hapbeat デバイスを PC と同じ Wi-Fi に接続し、ディスプレイ UI を書き込みます。
+Hapbeat を PC と同じ Wi-Fi に接続し、ディスプレイ UI を書き込みます。
 
 1. **USB-C ケーブルで PC と Hapbeat を接続します。**
 
-2. **Studio の Devices タブを開き、画面の指示（オンボーディング）に従います。**
-   Studio が Hapbeat を自動検出します。指示に従って、Studio を開いている PC と同じ Wi-Fi ネットワークに Hapbeat を接続してください。
+2. **Studio の Manage タブを開き、画面の指示に従います。**
+   Studio で [USB Serial で接続] を押下し、Hapbeat とシリアル接続します。指示に従って、Studio を開いている PC と同じ Wi-Fi ネットワークに Hapbeat を接続してください。
 
 3. **UI タブを開き、デバイスを選択して「デバイスに書き込む」を押します。**
-   これでディスプレイ UI が Hapbeat に書き込まれます。
+   これでディスプレイ UI が Hapbeat に書き込まれます。※シリアル接続では書き込むことはできません。
+
+![gs-step3](./assets/gs-step3.png)
 
 :::note
-Wi-Fi 設定が完了すると USB ケーブルは不要になります。以降は Wi-Fi のみで通信します。
+以後、基本的に USB ケーブルは不要になります。SDK 各種は Wi-Fi に接続されている状態での使用を前提としており、USB ケーブルは Wi-Fi 接続のために使用します。
 :::
 
 ---
 
 ## Step 4 — ライブラリから振動を再生して動作確認
 
-Studio から Hapbeat に振動が出ることを確認します。Kit の作成や Deploy はこの段階では不要です。
+Studio から Wi-Fi UDP 経由で Hapbeat に振動が出ることを確認します。Kit の作成や Deploy はこの段階では不要です。
 
 1. **ワーキングディレクトリを選択**（初回のみ）
-   画面上部から任意のフォルダを指定します。後で Kit を作成・保存する場所になります。
+   左側パネルの [Choose Folder] を押下し、PC内の任意のフォルダを指定します。後で Kit を作成・保存する場所になります。
 
 2. **左パネルのライブラリからテンプレート波形を選択します。**
    組み込み済みのサンプル波形が一覧表示されます。
@@ -108,6 +112,8 @@ Studio から Hapbeat に振動が出ることを確認します。Kit の作成
 3. **再生して Hapbeat が振動することを確認します。**
 
 **Hapbeat が振動すれば動作確認完了です。** このまま Unity SDK に進められます。
+
+![gs-step4](./assets/gs-step4.jpg)
 
 :::note
 Studio が読み書きするのは、ここで指定したワーキングディレクトリ配下のファイルだけです。それ以外のファイル・ディレクトリは一切触りません（ブラウザの File System Access API により、許可していないパスは技術的にもアクセスできない仕組みです）。

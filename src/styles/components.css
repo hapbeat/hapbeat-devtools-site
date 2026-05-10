@@ -104,18 +104,22 @@
   max-width: 62ch;
 }
 
-/* テーブル */
+/* テーブル
+ * Starlight default: table { display:block; overflow:auto; border-spacing:0 }
+ *                   :is(th:first-child,td:first-child) { padding-inline-start:0 }
+ *                   :is(th:last-child, td:last-child)  { padding-inline-end:0   }
+ * → padding ゼロ上書きを打ち消すため padding 指定は !important で勝つ。
+ */
 .sl-markdown-content table {
   font-size: 14px;
   border: 1px solid var(--hb-line);
   border-radius: var(--hb-radius);
-  overflow: hidden;
-  border-collapse: separate;
-  border-spacing: 0;
+  /* overflow は Starlight default の overflow:auto を継承（横スクロール対応）。
+   * overflow:hidden を入れると右端がクリップされるので絶対に入れない。 */
 }
-.sl-markdown-content thead th,
-.sl-markdown-content tbody td {
-  padding: 10px 14px;
+/* Starlight が first/last セルの padding-inline を 0 にするのを上書き */
+.sl-markdown-content :is(thead th, tbody td) {
+  padding: 10px 14px !important;
   vertical-align: top;
 }
 .sl-markdown-content thead th {
@@ -498,13 +502,19 @@ html:not([data-has-sidebar]) starlight-menu-button {
     order: 2;
   }
 
-  /* .right-sidebar (position:fixed): width:100% が 100vw になる罠を回避 */
+  /* .right-sidebar: position:fixed を明示して sticky を保証。
+   * Starlight が設定するはずだが width:100%→100vw の罠回避と合わせて上書き。
+   * inset-inline-end:0 で viewport 右端に固定。 */
   .right-sidebar {
+    position: fixed !important;
+    inset-inline-end: 0 !important;
     width: var(--hb-toc-w) !important;
     top: var(--sl-nav-height) !important;
     padding-top: 0 !important;
     height: calc(100vh - var(--sl-nav-height)) !important;
+    overflow-y: auto !important;
     border-inline-start: 1px solid var(--hb-line) !important;
+    background: var(--sl-color-bg-sidebar) !important;
     overscroll-behavior: contain;
     /* scrollbar 分を常に確保 (scrollbar 重なり対策) */
     scrollbar-gutter: stable;
