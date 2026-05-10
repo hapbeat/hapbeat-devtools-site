@@ -48,3 +48,6 @@ src/content/docs/docs/_fetched/
 # 抽出済みの React/HTML プロトタイプは git 管理外。
 # 必要に応じて design-handoff.zip を別途保存してアーカイブする。
 .design-handoff/
+
+# Internal dev notes (use workspace dev-notes/<repo-name>/ instead)
+dev-notes/

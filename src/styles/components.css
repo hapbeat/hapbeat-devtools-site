@@ -113,6 +113,11 @@
   border-collapse: separate;
   border-spacing: 0;
 }
+.sl-markdown-content thead th,
+.sl-markdown-content tbody td {
+  padding: 10px 14px;
+  vertical-align: top;
+}
 .sl-markdown-content thead th {
   background: var(--hb-bg-soft);
   font-weight: 600;

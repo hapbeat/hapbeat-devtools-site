@@ -1,53 +1,65 @@
 ---
 title: Getting Started
-description: 5-minute guide for first-time Hapbeat users — install Manager, flash firmware, create your first Kit, and verify it works.
+description: Shortest path from unboxing to your first vibration — install Helper, open Studio, configure Wi-Fi, and play a waveform.
+sidebar:
+  order: 1
 ---
 
 :::caution
-This page is a placeholder. Full English content is being prepared.
+Full English translation is in progress. Please refer to the [Japanese version](/docs/getting-started/) for the complete guide.
 :::
 
 This guide walks you through getting Hapbeat producing its first vibration.
 
-1. Install Hapbeat Manager
-2. Flash firmware to the device
-3. Create your first Kit in Hapbeat Studio
-4. Transfer the Kit to the device
-5. Trigger an Event from the Unity sample or Studio's test playback
+## What you need
 
-## Prerequisites
+- **PC** (Windows or macOS)
+- **Python 3.9+**
+- **Chrome or Edge browser** (Web Serial / File System Access required)
+- **USB-C cable** (data-capable — charging-only cables won't work)
+- **2.4 GHz Wi-Fi** (Hapbeat is 2.4 GHz only)
+- **Hapbeat device** (Necklace / Band)
 
-- Windows 10 / 11 (Windows-only at the moment)
-- USB Type-C cable (with data lines)
-- 2.4 GHz Wi-Fi (Hapbeat is 2.4 GHz only)
+## Step 1 — Install Helper
 
-## Steps
+**macOS:**
+```bash
+brew install pipx && pipx ensurepath
+pipx install hapbeat-helper
+```
 
-### 1. Install Hapbeat Manager
+**Windows:**
+```bash
+py -m pip install --user pipx && py -m pipx ensurepath
+pipx install hapbeat-helper
+```
 
-Download the latest installer from the [Downloads page](/en/downloads/) or [GitHub Releases](https://github.com/Hapbeat/hapbeat-manager/releases/latest).
+Then start it:
 
-### 2. Flash firmware
+```bash
+hapbeat-helper start
+```
 
-Open the **Firmware** tab in Manager, select the device, and click flash.
+## Step 2 — Open Studio
 
-Details: [Device Firmware](/en/docs/firmware/wifi-setup/)
+Open [https://devtools.hapbeat.com/studio/](https://devtools.hapbeat.com/studio/) in your browser.
 
-### 3. Create your first Kit in Studio
+Confirm that **"Helper connected"** appears in green at the top of the page.
 
-Open [Hapbeat Studio](/studio/), load a sample waveform, and export it as a Kit.
+## Step 3 — Configure Wi-Fi and flash UI
 
-Details: [Hapbeat Studio guide](/en/docs/studio/getting-started/)
+1. Connect the Hapbeat device to your PC via USB-C.
+2. Open the **Devices** tab in Studio and follow the on-screen onboarding wizard.
+3. Open the **UI** tab, select the device, and click **Write to device**.
 
-### 4. Transfer the Kit
+## Step 4 — Play a waveform
 
-Click the Deploy button in Studio. It routes through Manager via WebSocket and transfers to the device.
-
-### 5. Try it out
-
-Use Studio's test playback or the [Unity SDK](/en/docs/unity-sdk/installation/) sample scenes to fire an Event and feel the vibration.
+1. Select a working directory (first time only).
+2. Choose a template waveform from the left panel library.
+3. Press play and feel the vibration.
 
 ## Next steps
 
+- **[Unity SDK Getting Started](/en/docs/unity-sdk/getting-started/)**
 - [Architecture & concepts](/en/docs/concepts/)
-- [Contracts overview (Event ID / Kit / Protocol)](/en/docs/contracts/overview/)
+- [FAQ](/en/faq/)

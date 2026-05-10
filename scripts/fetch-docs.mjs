@@ -122,7 +122,9 @@ async function fetchFromGit(src) {
 //      - 既に sidebar が frontmatter にあれば触らない (sub-repo 側で自由に上書き可)
 //      - 任意の並び順は frontmatter に sidebar.order: <N> を書けば反映される
 async function normalizeMarkdownFrontmatter(filePath) {
-  const raw = await readFile(filePath, 'utf8');
+  const rawFile = await readFile(filePath, 'utf8');
+  // CRLF → LF 正規化（Windows 環境でのファイルを処理するため）
+  const raw = rawFile.replace(/\r\n/g, '\n').replace(/^﻿/, '');
   const fmMatch = raw.match(/^---\n([\s\S]*?)\n---\n?/);
   let frontmatter = fmMatch ? fmMatch[1] : '';
   const body = fmMatch ? raw.slice(fmMatch[0].length) : raw;
