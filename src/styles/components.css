@@ -105,19 +105,31 @@
 }
 
 /* テーブル
- * Starlight default: table { display:block; overflow:auto; border-spacing:0 }
- *                   :is(th:first-child,td:first-child) { padding-inline-start:0 }
- *                   :is(th:last-child, td:last-child)  { padding-inline-end:0   }
- * → padding ゼロ上書きを打ち消すため padding 指定は !important で勝つ。
+ *
+ * 根本方針: display:table（ブラウザ本来の table レイアウト）に戻す。
+ *
+ * Starlight は display:block + overflow:auto を設定するが、
+ * display:block + overflow:auto + border-radius の組み合わせが
+ * 各ブラウザで scroll container の clip 境界として border-radius を使い、
+ * テーブル右端コンテンツを切り取る原因になる。
+ *
+ * display:table にすると:
+ *   - テーブルは内容に合わせた自然幅になる（空白が出ない）
+ *   - 幅が親を超える場合は .main-pane { overflow-x:auto } がスクロールを担う
+ *   - overflow:auto / border-radius の clip 問題が発生しない
+ *
+ * Starlight の padding-inline-start/end:0（first/last セル）は
+ * !important で打ち消す。
  */
 .sl-markdown-content table {
+  display: table !important;  /* Starlight の display:block を上書き */
   font-size: 14px;
   border: 1px solid var(--hb-line);
   border-radius: var(--hb-radius);
-  /* display:block の table は幅 100% に広がるため fit-content で内容量に収める。
-   * max-width:100% + overflow:auto（Starlight 継承）で狭い時は横スクロール。 */
-  width: fit-content;
-  max-width: 100%;
+  border-collapse: separate;   /* border-radius を有効にするため separate 必須 */
+  border-spacing: 0;
+  /* 幅・overflow は display:table の自然サイズに委ねる。
+   * 親 .main-pane { overflow-x:auto } が横スクロールを担当する。 */
 }
 /* Starlight が first/last セルの padding-inline を 0 にするのを上書き */
 .sl-markdown-content :is(thead th, tbody td) {
