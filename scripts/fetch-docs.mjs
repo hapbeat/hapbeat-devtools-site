@@ -73,12 +73,23 @@ function run(cmd, opts = {}) {
   execSync(cmd, { stdio: 'inherit', ...opts });
 }
 
+async function resolveSiblingDocs(repo) {
+  // Unity package repos use docs~/ to exclude from Unity's asset import.
+  // Non-Unity repos use docs/. Try docs~/ first, fall back to docs/.
+  for (const dir of ['docs~', 'docs']) {
+    const p = path.join(WORKSPACE_SIBLING, repo, dir);
+    if (await isDir(p)) return p;
+  }
+  return null;
+}
+
 async function fetchFromSibling(src) {
-  const siblingDocs = path.join(WORKSPACE_SIBLING, src.repo, 'docs');
-  if (!(await isDir(siblingDocs))) return false;
+  const siblingDocs = await resolveSiblingDocs(src.repo);
+  if (!siblingDocs) return false;
   const dest = path.join(TARGET_PARENT, src.short);
   await cp(siblingDocs, dest, { recursive: true });
-  console.log(`  ok: sibling ${src.repo}/docs → docs/${src.short}/`);
+  const dirName = path.basename(siblingDocs);
+  console.log(`  ok: sibling ${src.repo}/${dirName} → docs/${src.short}/`);
   return true;
 }
 
@@ -101,14 +112,17 @@ async function fetchFromGit(src) {
     console.warn(`  skip: clone failed for ${src.repo} (${safeMsg})`);
     return false;
   }
-  const gitDocs = path.join(tmpRepo, 'docs');
+  // Unity package repos use docs~/, others use docs/.
+  let gitDocs = path.join(tmpRepo, 'docs~');
+  if (!(await isDir(gitDocs))) gitDocs = path.join(tmpRepo, 'docs');
   if (!(await isDir(gitDocs))) {
-    console.warn(`  skip: no docs/ in ${src.repo}`);
+    console.warn(`  skip: no docs~/ or docs/ in ${src.repo}`);
     return false;
   }
   const dest = path.join(TARGET_PARENT, src.short);
   await cp(gitDocs, dest, { recursive: true });
-  console.log(`  ok: clone ${src.repo}/docs → docs/${src.short}/`);
+  const dirName = path.basename(gitDocs);
+  console.log(`  ok: clone ${src.repo}/${dirName} → docs/${src.short}/`);
   return true;
 }
 
@@ -328,8 +342,8 @@ async function startWatch() {
   console.log('[fetch-docs] watch mode — waiting for changes (sibling docs/ / local docs/)');
 
   for (const src of SOURCES) {
-    const watchDir = path.join(WORKSPACE_SIBLING, src.repo, 'docs');
-    if (!existsSync(watchDir)) continue;
+    const watchDir = await resolveSiblingDocs(src.repo);
+    if (!watchDir || !existsSync(watchDir)) continue;
     const destDir = path.join(TARGET_PARENT, src.short);
     chokidar
       .watch(watchDir, { ignoreInitial: true, ignored: /(^|[\/\\])\.git/ })
