@@ -114,8 +114,10 @@
   font-size: 14px;
   border: 1px solid var(--hb-line);
   border-radius: var(--hb-radius);
-  /* overflow は Starlight default の overflow:auto を継承（横スクロール対応）。
-   * overflow:hidden を入れると右端がクリップされるので絶対に入れない。 */
+  /* display:block の table は幅 100% に広がるため fit-content で内容量に収める。
+   * max-width:100% + overflow:auto（Starlight 継承）で狭い時は横スクロール。 */
+  width: fit-content;
+  max-width: 100%;
 }
 /* Starlight が first/last セルの padding-inline を 0 にするのを上書き */
 .sl-markdown-content :is(thead th, tbody td) {
