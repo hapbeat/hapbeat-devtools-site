@@ -1158,7 +1158,7 @@ html::-webkit-scrollbar-thumb:hover {
  * padding / margin とも 1px でほぼベタ付け。 :has() は modern browsers のみ。 */
 .sidebar-content ul.top-level details details details > ul:not(:has(> li > details)) {
   padding-inline-start: 1px !important;
-  margin-inline-start: 1px !important;
+  margin-inline-start: 0.6rem !important;
   border-inline-start: 2px solid
     color-mix(in srgb, var(--sb-color, var(--hb-line-strong)) 55%, transparent) !important;
 }
