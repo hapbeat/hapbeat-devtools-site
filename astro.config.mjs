@@ -119,8 +119,10 @@ export default defineConfig({
         {
           label: '🎯 Start Here',
           items: [
-            { label: '1. Hapbeat を初めて鳴らす', link: '/docs/getting-started/' },
-            { label: '2. Unity SDK で発火する', link: '/docs/unity-sdk/getting-started/' },
+            // 1 エントリだけに絞る方針 (Unity SDK へは getting-started 本文末尾の
+            // 「次のステップ」CTA で誘導)。これにより /docs/unity-sdk/getting-started/
+            // を開いたとき、サイドバーで正しく Unity SDK セクションがハイライトされる。
+            { label: 'Hapbeat を初めて鳴らす', link: '/docs/getting-started/' },
           ],
         },
         {
