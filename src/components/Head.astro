@@ -178,9 +178,10 @@ import { ClientRouter } from 'astro:transitions';
       } catch {}
     }
 
-    // ユーザが <summary> (caret 部) を click した時の toggle を
-    // sessionStorage に保存する (Starlight 純正 listener の代替)。
-    // .group-label クリックは bindGroupLabelNav が握るのでスキップ。
+    // ユーザが <summary> を click した時の toggle を sessionStorage に保存する
+    // (Starlight 純正 listener の代替)。
+    // umbrella クリックを navigation に流していた bindGroupLabelNav が撤去された
+    // ため、group-label クリックも通常の toggle として state を保存する。
     function bindSidebarToggleCapture() {
       const sb = document.querySelector('.sidebar-content');
       if (!sb || sb.dataset.hbToggleBound === '1') return;
@@ -188,7 +189,6 @@ import { ClientRouter } from 'astro:transitions';
       sb.addEventListener('click', (e) => {
         const t = e.target;
         if (!(t instanceof Element)) return;
-        if (t.closest('.group-label')) return;  // group-label は別ハンドラ
         const summary = t.closest('summary');
         if (!summary) return;
         const details = summary.closest('details');
@@ -201,62 +201,11 @@ import { ClientRouter } from 'astro:transitions';
       });
     }
 
-    // ---------- Group label クリック → セクション landing へ SPA 遷移 ----------
-    // 挙動の分担:
-    //   見出しテキスト (.group-label) クリック → セクション landing /docs/<section>/ へ遷移
-    //   右の三角 (caret) クリック         → 開閉トグルのみ (遷移しない)
-    // caret は summary 直下の SVG。listener は .group-label のみに bind しているので、
-    // caret クリック時はこの listener が発火せず summary 既定の toggle が走る。
-    function getSectionLandingFromFirstLink(href) {
-      // /docs/studio/getting-started/      → /docs/studio/
-      // /en/docs/studio/getting-started/   → /en/docs/studio/
-      // /docs/unity-sdk/tutorial/method/   → /docs/unity-sdk/
-      const m = href.match(/^(.*?\/docs\/[^/]+\/)/);
-      return m ? m[1] : null;
-    }
-    function bindGroupLabelNav() {
-      document
-        .querySelectorAll(
-          '.sidebar-content ul.top-level > li > details > summary > .group-label'
-        )
-        .forEach((label) => {
-          if (label.dataset.hbBound === '1') return;
-          label.dataset.hbBound = '1';
-          label.addEventListener('click', (e) => {
-            const details = label.closest('details');
-            if (!details) return;
-            const firstLink = details.querySelector('ul a[href]');
-            const sectionUrl = firstLink
-              ? getSectionLandingFromFirstLink(firstLink.getAttribute('href') || '')
-              : null;
-            if (!sectionUrl) return; // 推定失敗時は素の summary toggle に委ねる
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            // 既に landing を開いている場合は何もしない (リロード抑止)
-            const here =
-              location.pathname.replace(/\/+$/, '/') ||
-              location.pathname;
-            if (here === sectionUrl) return;
-
-            // 当該グループのみ open に。他グループの開閉状態は触らない。
-            if (!details.open) {
-              details.open = true;
-              const idx = getDetailsIndex(details);
-              if (!isNaN(idx)) setDetailsOpenInStorage(idx, true);
-            }
-
-            // SPA 遷移: 一時 <a> を生成して click すると ClientRouter が拾う。
-            const a = document.createElement('a');
-            a.href = sectionUrl;
-            a.style.display = 'none';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-          });
-        });
-    }
+    // ---------- (廃止) Group label クリック → セクション landing へ SPA 遷移 ----------
+    // 旧仕様では大見出し (.group-label) クリックで section landing へ自動遷移していたが、
+    // 「umbrella ラベルはトグル開閉のみで遷移させない」方針に変更したため、ハンドラ自体を撤去。
+    // /docs/<section>/ の landing は引き続き auto-gen され、直接 URL アクセス時の 404 を防ぐ。
+    // bindGroupLabelNav() の呼び出しも setup() から外す。
 
     // ---------- 現在ページの sidebar 項目を必ず可視に ----------
     // scroll restore で前回位置を再現するが、別ページから来た場合は
@@ -285,7 +234,7 @@ import { ClientRouter } from 'astro:transitions';
       }
       restoreSidebarFromStorage();
       bindSidebarToggleCapture();
-      bindGroupLabelNav();
+      // bindGroupLabelNav(); ← 廃止 (umbrella クリックは toggle のみ)
       ensureActiveSidebarVisible();
     }
 

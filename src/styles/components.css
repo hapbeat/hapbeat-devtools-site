@@ -1125,30 +1125,43 @@ html::-webkit-scrollbar-thumb:hover {
 /* ------------------------------------------------------------
  * Sidebar nested groups — visual hierarchy
  *
- * Starlight default では <details> がネストしてもインデント差が控えめで、
- * 3 階層 (SDK Integration → Unity SDK → tutorial) のような構造で
- * どこからどこまでが子要素か分かりにくい。
+ * 既存のトップレベル <li> はグループ色 (--sb-color) の 2px 太線で囲まれているが、
+ * 2 階層目以降 (Tools > Hapbeat Studio > items 等) は Starlight default の
+ * hairline 罫線がほぼ視認できず、子要素の所属が分からなかった。
  *
- * 入れ子の <details> に左罫線 + padding を加えてツリー的な視覚階層を作る。
- * 対象は left sidebar (nav.sidebar) のみ。右の TOC には影響させない。
+ * 対策: ネストした <li> のインデント + 罫線色を、親グループの --sb-color
+ * (cascade で継承) を 55% 透過で使う。グループとの紐付けも視覚的に取れる。
  * ------------------------------------------------------------ */
-nav.sidebar details details {
-  border-left: 2px solid var(--sl-color-gray-5);
-  margin-left: 0.55rem;
-  padding-left: 0.55rem;
+
+/* 2 階層目以降の <li>: インデント + 視認可能な罫線 */
+.sidebar-content ul.top-level ul li {
+  margin-inline-start: 0.6rem;
+  padding-inline-start: 0.85rem;
+  border-inline-start: 2px solid color-mix(in srgb, var(--sb-color, var(--hb-line-strong)) 55%, transparent);
 }
-nav.sidebar details details details {
-  /* 3 階層目 (e.g. tutorial inside Unity SDK) は更にもう一段下げる */
-  border-left-color: var(--sl-color-gray-5);
+/* hover で罫線をはっきりさせる */
+.sidebar-content ul.top-level ul li:hover {
+  border-inline-start-color: var(--sb-color, var(--hb-line-strong));
 }
 
-/* hover で罫線を強調 (現在地が辿りやすい) */
-nav.sidebar details details:hover {
-  border-left-color: var(--sl-color-gray-4);
+/* グループ summary 行 (子グループのラベル) は控えめに区別 */
+.sidebar-content ul.top-level ul li > details > summary > .group-label > .large {
+  color: color-mix(in srgb, var(--sb-color, currentColor) 75%, var(--sl-color-text));
+  font-weight: 600;
+  font-size: var(--sl-text-base);
 }
-[data-theme="dark"] nav.sidebar details details {
-  border-left-color: oklch(0.32 0.012 255);
+
+/* チェブロン (caret) は details[open] で 90° 回転して開閉を示す。
+ * Starlight default の挙動だが、視認性を補強。 */
+.sidebar-content ul.top-level summary .caret {
+  opacity: 0.55;
+  transition: transform 150ms ease, opacity 150ms ease;
 }
-[data-theme="dark"] nav.sidebar details details:hover {
-  border-left-color: oklch(0.4 0.012 255);
+.sidebar-content ul.top-level summary:hover .caret {
+  opacity: 1;
+}
+
+/* summary 全体に cursor: pointer (toggle 可能であることを示す) */
+.sidebar-content summary {
+  cursor: pointer;
 }
