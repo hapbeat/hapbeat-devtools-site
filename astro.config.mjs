@@ -142,14 +142,12 @@ export default defineConfig({
         },
         // 未実装の SDK・ツール (Unreal SDK / Creative Kit 等) は単一の
         // /docs/coming-soon/ ページに集約。
-        // Downloads は docs ではなくリソース配布 (バイナリ等) のため
-        // sidebar に入れず header nav 専用。
-        // Showcase は将来「触覚デモを体験できる」専用ページとして再構築するため
-        // sidebar から外し、現時点では header からも切り離す (URL は残す)。
+        // Downloads / Showcase は header nav から削除し sidebar の「その他」に集約。
         // FAQ / Changelog は docs 配下に移設済み (URL: /docs/faq/, /docs/changelog/)。
         {
           label: 'その他',
           items: [
+            { label: 'Downloads', link: '/downloads/' },
             { label: 'FAQ', link: '/docs/faq/' },
             { label: 'サポート / お問い合わせ', link: '/docs/support/' },
             { label: 'Changelog', link: '/docs/changelog/' },

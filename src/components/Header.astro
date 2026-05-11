@@ -31,7 +31,6 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
   <div class="hb-topbar__right">
     <nav class="hb-topbar__nav" aria-label="主要セクション">
       <a href="/docs/getting-started/" class="hb-topbar__nav--lvl1">Docs</a>
-      <a href="/downloads/" class="hb-topbar__nav--lvl2">Downloads</a>
       <a href="/docs/support/" class="hb-topbar__nav--lvl3">Support</a>
       <a href="/studio/" class="hb-topbar__cta" target="_blank" rel="noopener noreferrer">
         Studio
@@ -142,8 +141,8 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
      Docs (lvl1) は常時表示。
 
      最小幅試算 (icons 全消し時):
-       brand "Hapbeat" 96 + hamburger 92 + nav 232(Docs+DL+Support) + 余白 ≈ 446px
-     → 28rem (448px) を boundary に Support 維持
+       brand "Hapbeat" 96 + hamburger 92 + nav 160(Docs+Support) + 余白 ≈ 380px
+     → 28rem (448px) を boundary に Support を非表示
 
      ※ 基底 `.hb-topbar__nav a` (0,1,1) より specificity を上げるため
      `a.hb-topbar__nav--lvlX` 形式で書く。 */
@@ -163,15 +162,9 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
       display: none;
     }
   }
-  /* nav (中・高優先度)。実測: 500px で全部 fit、450px だと overflow するため
-     30rem (480px) を Support の boundary、26rem (416px) を Downloads の boundary に。 */
-  @media (max-width: calc(30rem - 0.01px)) {
+  /* nav: Support (lvl3) は狭い画面で非表示、Docs (lvl1) は常時表示 */
+  @media (max-width: calc(28rem - 0.01px)) {
     .hb-topbar__nav a.hb-topbar__nav--lvl3 {
-      display: none;
-    }
-  }
-  @media (max-width: calc(26rem - 0.01px)) {
-    .hb-topbar__nav a.hb-topbar__nav--lvl2 {
       display: none;
     }
   }
