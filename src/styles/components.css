@@ -1135,27 +1135,33 @@ html::-webkit-scrollbar-thumb:hover {
  * 縦線が累積するツリー視覚を作る。
  * ------------------------------------------------------------ */
 
-/* 各ネスト <ul>: padding + 左罫線 → 子要素全体が一段右へ。
- * Starlight default の `@layer starlight.core { ul { padding: 0 } }` が
- * 何らかの理由で勝ってインデントが消えるケースが観測されたため !important で固定。
- * 罫線色も視認できるよう不透明度を 60% に上げる。 */
-.sidebar-content ul.top-level ul {
-  padding-inline-start: 1.1rem !important;
-  margin-inline-start: 0.3rem !important;
-  border-inline-start: 2px solid
-    color-mix(in srgb, var(--sb-color, var(--hb-line-strong)) 60%, transparent) !important;
-}
+/* 罫線は深さ毎に引かず、leaf-only ul (子要素が全て葉リンク、サブグループなし)
+ * のみに引く。理由: サブグループ headings は色違いで識別できるため中間階層の
+ * 罫線は冗長。トップレベル li の brand 罫線 + 末端 ul の罫線で 最大 2 本に収まる。 */
 
-/* ネスト <li> の Starlight default (1px hairline + 0.5rem margin/padding) を
- * リセット (罫線は親 <ul> 側にあるので二重不要)。 */
+/* default: 全ネスト ul はインデント無し、罫線なし */
+.sidebar-content ul.top-level ul {
+  padding-inline-start: 0 !important;
+  margin-inline-start: 0 !important;
+  border-inline-start: 0 !important;
+}
 .sidebar-content ul.top-level ul li {
   margin-inline-start: 0 !important;
   padding-inline-start: 0 !important;
   border-inline-start: 0 !important;
 }
 
-/* hover で <ul> の罫線を強調 (どのグループの子か辿りやすい) */
-.sidebar-content ul.top-level ul:hover {
+/* override: leaf-only ul (直下に <details> を含まない = 葉だけの ul) には
+ * 罫線 + ごく細いインデントを付ける。罫線色は親グループの --sb-color。
+ * padding はほぼベタ付け (2px) でテキストと近接させる。
+ * :has() は Chrome 105+ / Safari 15.4+ / Firefox 121+ で対応。 */
+.sidebar-content ul.top-level ul:not(:has(> li > details)) {
+  padding-inline-start: 2px !important;
+  margin-inline-start: 0.35rem !important;
+  border-inline-start: 2px solid
+    color-mix(in srgb, var(--sb-color, var(--hb-line-strong)) 55%, transparent) !important;
+}
+.sidebar-content ul.top-level ul:not(:has(> li > details)):hover {
   border-inline-start-color: var(--sb-color, var(--hb-line-strong)) !important;
 }
 
