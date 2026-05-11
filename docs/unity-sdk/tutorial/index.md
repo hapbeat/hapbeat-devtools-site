@@ -2,6 +2,7 @@
 title: Tutorial Sample
 kind: tutorial
 sidebar:
+  label: Tutorial Sample
   order: 100
 description: キーマウスだけで Hapbeat Unity SDK の全機能を体験する 1 シーン構成のチュートリアル。
 ---
