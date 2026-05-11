@@ -91,6 +91,8 @@ Hapbeat を PC と同じ Wi-Fi に接続し、ディスプレイ UI を書き込
 2. **Studio の Manage タブを開き、画面の指示に従います。**
    Studio で [USB Serial で接続] を押下し、Hapbeat とシリアル接続します。指示に従って、Studio を開いている PC と同じ Wi-Fi ネットワークに Hapbeat を接続してください。
 
+   <small>※ シリアル接続しても応答がない場合は、先に [Hapbeat 初期セットアップ](/docs/tools/studio/initial-setup/) でファームウェアを書き込んでください。</small>
+
 3. **UI タブを開き、デバイスを選択して「デバイスに書き込む」を押します。**
    これでディスプレイ UI が Hapbeat に書き込まれます。※シリアル接続では書き込むことはできません。
 
