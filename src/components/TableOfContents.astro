@@ -1,0 +1,35 @@
+---
+/**
+ * TableOfContents override.
+ *
+ * Starlight default の右サイドバー TOC の直前に KindBadge を挿入する。
+ *
+ * 設計判断:
+ *   - h1 隣接や上部に置くと長いタイトルでレイアウトが揺れるため、右サイドバー
+ *     (幅固定) の上部に置く方が確実
+ *   - kind 未指定のページではバッジを描画しない (default のみ)
+ *   - 右サイドバーが非表示の幅 (mobile / sm) では MobileTableOfContents が
+ *     使われるためここには出ない (該当 component を別途 override すれば対応可)
+ */
+import Default from '@astrojs/starlight/components/TableOfContents.astro';
+import KindBadge from './KindBadge.astro';
+
+const entry = (Astro.locals as any)?.starlightRoute?.entry;
+const kind: string | undefined = entry?.data?.kind;
+---
+{kind && (
+  <div class="toc-kind-wrap">
+    <KindBadge kind={kind} />
+  </div>
+)}
+<Default {...Astro.props} />
+
+<style>
+  .toc-kind-wrap {
+    margin-bottom: 0.6rem;
+  }
+  /* KindBadge 自身が持つ下マージンと二重にならないよう打ち消す */
+  .toc-kind-wrap :global(.kind-badge) {
+    margin-bottom: 0;
+  }
+</style>
