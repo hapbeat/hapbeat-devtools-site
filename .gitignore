@@ -26,6 +26,7 @@ yarn-error.log*
 # portal root pages (getting-started 等) も docs/ ルートからコピーされるため除外。
 src/content/docs/docs/getting-started.md
 src/content/docs/docs/concepts.md
+src/content/docs/docs/concepts/
 src/content/docs/docs/support.md
 src/content/docs/docs/faq.mdx
 src/content/docs/docs/changelog.md

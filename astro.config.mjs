@@ -117,6 +117,13 @@ export default defineConfig({
             { label: 'Getting Started', link: '/docs/getting-started/' },
           ],
         },
+        // Concepts: 設計判断・なぜを語る Explanation 群。
+        // devtools-site/docs/concepts/ 配下を autogenerate。
+        // 詳細プラン: docs/instructions-docs-ia-restructure-202605111600.md
+        {
+          label: 'Concepts (設計と背景)',
+          autogenerate: { directory: 'docs/concepts' },
+        },
         // 各 repo の docs/ は scripts/fetch-docs.mjs が build 時に
         //   src/content/docs/docs/<short>/ に集約する。
         // autogenerate でそのディレクトリ配下を自動でサイドバー化する。
