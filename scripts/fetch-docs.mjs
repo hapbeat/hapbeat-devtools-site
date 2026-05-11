@@ -285,6 +285,48 @@ async function main() {
         if (generated) console.log(`  + auto-generated index for ${sub}/`);
       }
     }
+
+    // Umbrella section landings: サイドバーの umbrella ラベル (Tools /
+    // SDK Integration / Reference) は URL を持たないが、直接 /docs/<umbrella>/ に
+    // アクセスされた場合の 404 を防ぐため auto-gen landing を作る。
+    // sidebar.hidden: true なのでサイドバーには出ない。umbrella ラベル自体は
+    // <summary> の toggle のままで遷移しない。
+    const UMBRELLAS = {
+      tools: {
+        label: 'Tools',
+        children: [
+          { slug: 'studio', label: 'Hapbeat Studio' },
+          { slug: 'helper', label: 'Helper (CLI daemon)' },
+          { slug: 'firmware', label: 'Device Firmware' },
+        ],
+      },
+      'sdk-integration': {
+        label: 'SDK Integration',
+        children: [{ slug: 'unity-sdk', label: 'Unity SDK' }],
+      },
+      reference: {
+        label: 'Reference',
+        children: [{ slug: 'contracts', label: 'Contracts (仕様)' }],
+      },
+    };
+    for (const [slug, info] of Object.entries(UMBRELLAS)) {
+      const dir = path.join(TARGET_PARENT, slug);
+      await mkdir(dir, { recursive: true });
+      const lines = [
+        '---',
+        `title: "${info.label}"`,
+        'sidebar:',
+        '  hidden: true',
+        '---',
+        '',
+        `${info.label} のセクション一覧です。`,
+        '',
+        ...info.children.map((c) => `- [${c.label}](/docs/${c.slug}/)`),
+        '',
+      ];
+      await writeFile(path.join(dir, 'index.md'), lines.join('\n'));
+      console.log(`  + auto-generated umbrella landing for ${slug}/`);
+    }
   }
 
   const useGit = process.env.FETCH_DOCS_MODE === 'git' || !!process.env.CI;
