@@ -1151,17 +1151,18 @@ html::-webkit-scrollbar-thumb:hover {
   border-inline-start: 0 !important;
 }
 
-/* override: leaf-only ul (直下に <details> を含まない = 葉だけの ul) には
- * 罫線 + ごく細いインデントを付ける。罫線色は親グループの --sb-color。
- * padding はほぼベタ付け (2px) でテキストと近接させる。
- * :has() は Chrome 105+ / Safari 15.4+ / Firefox 121+ で対応。 */
-.sidebar-content ul.top-level ul:not(:has(> li > details)) {
+/* override: 3 階層以上ネスト (top → sub → sub-sub) かつ leaf-only ul のみ罫線。
+ * つまり SDK Integration → Unity SDK → tutorial → 子要素 のような構造の
+ * 末端 ul だけ。Tools → Studio → 子要素 (2 階層) は対象外。
+ * 理由: 2 階層では subgroup heading の色違いで親子関係が識別できるため。
+ * padding / margin とも 1px でほぼベタ付け。 :has() は modern browsers のみ。 */
+.sidebar-content ul.top-level details details details > ul:not(:has(> li > details)) {
   padding-inline-start: 1px !important;
-  margin-inline-start: 0.35rem !important;
+  margin-inline-start: 1px !important;
   border-inline-start: 2px solid
     color-mix(in srgb, var(--sb-color, var(--hb-line-strong)) 55%, transparent) !important;
 }
-.sidebar-content ul.top-level ul:not(:has(> li > details)):hover {
+.sidebar-content ul.top-level details details details > ul:not(:has(> li > details)):hover {
   border-inline-start-color: var(--sb-color, var(--hb-line-strong)) !important;
 }
 
