@@ -37,16 +37,12 @@ const WORKSPACE_SIBLING = path.resolve(ROOT, '..'); // hapbeat-sdk-workspace/
 // url   = GitHub の現行 canonical URL (rename 済みの名前)
 // label: section landing 自動生成時の表示名 (astro.config.mjs sidebar の label と揃える)。
 //        sub-repo が docs/index.md を持っていればそちらが優先 (override)。
+// 2026-05-11: docs IA 再設計により、helper / studio / firmware / unity-sdk の
+// docs は devtools-site/docs/<short>/ に物理移動し、fetch 不要となった。
+// contracts のみ「タグごとに freeze される規範的仕様」として fetch を維持する。
+// 詳細: docs/instructions-docs-ia-restructure-202605111600.md (workspace)
 const SOURCES = [
   { short: 'contracts',    label: 'Contracts (仕様)',           repo: 'hapbeat-contracts',           url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
-  // hapbeat-kit-tools は内部ツール (Studio/Helper どちらも独自実装で呼ばない) のため docs 集約対象から除外。
-  { short: 'firmware',     label: 'Device Firmware',            repo: 'hapbeat-device-firmware',     url: 'https://github.com/Hapbeat/hapbeat-device-firmware.git' },
-  // hapbeat-manager は deprecated (Studio + Helper に移行) のため docs 集約対象から除外。
-  { short: 'helper',       label: 'Hapbeat Helper (CLI daemon)', repo: 'hapbeat-helper',             url: 'https://github.com/Hapbeat/hapbeat-helper.git' },
-  { short: 'studio',       label: 'Hapbeat Studio',             repo: 'hapbeat-studio',              url: 'https://github.com/Hapbeat/hapbeat-studio.git' },
-  { short: 'unity-sdk',    label: 'Unity SDK',                  repo: 'hapbeat-unity-sdk',           url: 'https://github.com/Hapbeat/hapbeat-unity-sdk.git' },
-  // hapbeat-unreal-sdk / hapbeat-creative-kit は未実装。
-  // 単一の docs/coming-soon.md (devtools-site 内) にまとめてあるため fetch しない。
 ];
 
 // 集約後に portal で表示しないファイル名 (case-insensitive)。

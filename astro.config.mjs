@@ -110,49 +110,43 @@ export default defineConfig({
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/Hapbeat' },
       ],
+      // IA 設計プラン: docs/instructions-docs-ia-restructure-202605111600.md (workspace)
+      // Diátaxis 4 区分: Tutorial / How-to / Reference / Explanation
       sidebar: [
         {
-          label: 'はじめに',
+          label: '🎯 Start Here',
           items: [
-            { label: 'Getting Started', link: '/docs/getting-started/' },
+            { label: '1. Hapbeat を初めて鳴らす', link: '/docs/getting-started/' },
+            { label: '2. Unity SDK で発火する', link: '/docs/unity-sdk/getting-started/' },
           ],
         },
-        // Concepts: 設計判断・なぜを語る Explanation 群。
-        // devtools-site/docs/concepts/ 配下を autogenerate。
-        // 詳細プラン: docs/instructions-docs-ia-restructure-202605111600.md
         {
-          label: 'Concepts (設計と背景)',
+          label: '💡 Concepts (設計と背景)',
           autogenerate: { directory: 'docs/concepts' },
         },
-        // 各 repo の docs/ は scripts/fetch-docs.mjs が build 時に
-        //   src/content/docs/docs/<short>/ に集約する。
-        // autogenerate でそのディレクトリ配下を自動でサイドバー化する。
         {
-          label: 'Helper (CLI daemon)',
-          autogenerate: { directory: 'docs/helper' },
+          label: '🛠 Tools',
+          items: [
+            { label: 'Hapbeat Studio', autogenerate: { directory: 'docs/studio' } },
+            { label: 'Helper (CLI daemon)', autogenerate: { directory: 'docs/helper' } },
+            { label: 'Device Firmware', autogenerate: { directory: 'docs/firmware' } },
+          ],
         },
         {
-          label: 'Studio',
-          autogenerate: { directory: 'docs/studio' },
+          label: '📦 SDK Integration',
+          items: [
+            { label: 'Unity SDK', autogenerate: { directory: 'docs/unity-sdk' } },
+            { label: '今後の SDK (Unreal / Creative Kit)', link: '/docs/coming-soon/' },
+          ],
         },
         {
-          label: 'Unity SDK',
-          autogenerate: { directory: 'docs/unity-sdk' },
+          label: '📖 Reference (仕様)',
+          items: [
+            { label: 'Contracts', autogenerate: { directory: 'docs/contracts' } },
+          ],
         },
         {
-          label: 'Device Firmware',
-          autogenerate: { directory: 'docs/firmware' },
-        },
-        {
-          label: 'Contracts (仕様)',
-          autogenerate: { directory: 'docs/contracts' },
-        },
-        // 未実装の SDK・ツール (Unreal SDK / Creative Kit 等) は単一の
-        // /docs/coming-soon/ ページに集約。
-        // Downloads / Showcase は header nav から削除し sidebar の「その他」に集約。
-        // FAQ / Changelog は docs 配下に移設済み (URL: /docs/faq/, /docs/changelog/)。
-        {
-          label: 'その他',
+          label: '❓ Support',
           items: [
             { label: 'Downloads', link: '/downloads/' },
             { label: 'FAQ', link: '/docs/faq/' },

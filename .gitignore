@@ -24,6 +24,10 @@ yarn-error.log*
 # fetched docs (regenerated on build by scripts/fetch-docs.mjs)
 # 各サブ repo から build 時に集約されるディレクトリ。SOURCES の short と同名。
 # portal root pages (getting-started 等) も docs/ ルートからコピーされるため除外。
+# src/content/docs/docs/ 配下は build 時に scripts/fetch-docs.mjs が regenerate する。
+# - portal root の docs/* (getting-started, concepts, faq, etc.) は devtools-site/docs/ から flat copy
+# - sub-repo ごとの docs/<short>/ も同じ場所に存在する (現在は devtools-site/docs/ 内に物理保有)
+# - contracts のみ tag freeze 用途で外部 fetch 維持
 src/content/docs/docs/getting-started.md
 src/content/docs/docs/concepts.md
 src/content/docs/docs/concepts/
@@ -32,14 +36,10 @@ src/content/docs/docs/faq.mdx
 src/content/docs/docs/changelog.md
 src/content/docs/docs/coming-soon.md
 src/content/docs/docs/contracts/
-src/content/docs/docs/kit-tools/
 src/content/docs/docs/firmware/
-src/content/docs/docs/manager/
 src/content/docs/docs/helper/
 src/content/docs/docs/studio/
 src/content/docs/docs/unity-sdk/
-src/content/docs/docs/unreal-sdk/
-src/content/docs/docs/creative-kit/
 
 # Legacy: 旧 fetch-docs.mjs が出していた _fetched/ ディレクトリ
 # (現在は使わないが、ローカル残骸を track しないよう保持)
