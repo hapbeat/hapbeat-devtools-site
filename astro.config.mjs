@@ -115,51 +115,15 @@ export default defineConfig({
       ],
       // IA 設計プラン: docs/instructions-docs-ia-restructure-202605111600.md (workspace)
       // Diátaxis 4 区分: Tutorial / How-to / Reference / Explanation
+      // ディレクトリ構造 = サイドバー構造。ラベル＝各ページの title (frontmatter)。
+      // 物理パス: docs/<group>/[<sub>/]<page>.md   URL: /docs/<group>/[<sub>/]<page>/
       sidebar: [
-        {
-          label: '🎯 Start Here',
-          items: [
-            // 1 エントリだけに絞る方針 (Unity SDK へは getting-started 本文末尾の
-            // 「次のステップ」CTA で誘導)。これにより /docs/unity-sdk/getting-started/
-            // を開いたとき、サイドバーで正しく Unity SDK セクションがハイライトされる。
-            { label: 'Hapbeat を初めて鳴らす', link: '/docs/getting-started/' },
-          ],
-        },
-        {
-          label: '💡 Concepts',
-          autogenerate: { directory: 'docs/concepts' },
-        },
-        {
-          label: '🛠 Tools',
-          items: [
-            { label: 'Hapbeat Studio', autogenerate: { directory: 'docs/studio' } },
-            { label: 'Helper (CLI daemon)', autogenerate: { directory: 'docs/helper' } },
-            { label: 'Device Firmware', autogenerate: { directory: 'docs/firmware' } },
-          ],
-        },
-        {
-          label: '📦 SDK Integration',
-          items: [
-            { label: 'Unity SDK', autogenerate: { directory: 'docs/unity-sdk' } },
-            { label: '今後の SDK (Unreal / Creative Kit)', link: '/docs/coming-soon/' },
-          ],
-        },
-        {
-          label: '📖 Reference',
-          items: [
-            { label: 'Contracts (仕様)', autogenerate: { directory: 'docs/contracts' } },
-          ],
-        },
-        {
-          label: '❓ Support',
-          items: [
-            { label: 'Downloads', link: '/downloads/' },
-            { label: 'FAQ', link: '/docs/faq/' },
-            { label: 'サポート / お問い合わせ', link: '/docs/support/' },
-            { label: 'Changelog', link: '/docs/changelog/' },
-            { label: '今後の実装予定', link: '/docs/coming-soon/' },
-          ],
-        },
+        { label: '🎯 Start Here',     autogenerate: { directory: 'docs/start-here' } },
+        { label: '💡 Concepts',       autogenerate: { directory: 'docs/concepts' } },
+        { label: '🛠 Tools',          autogenerate: { directory: 'docs/tools' } },
+        { label: '📦 SDK Integration', autogenerate: { directory: 'docs/sdk-integration' } },
+        { label: '📖 Reference',      autogenerate: { directory: 'docs/reference' } },
+        { label: '❓ Support',        autogenerate: { directory: 'docs/support' } },
       ],
       customCss: ['./src/styles/custom.css', './src/styles/components.css'],
     }),

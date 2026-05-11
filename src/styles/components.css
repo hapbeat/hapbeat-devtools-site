@@ -95,13 +95,13 @@
   color: var(--hb-ink-faint);
 }
 
-/* description (frontmatter) を lede 風に */
+/* description (frontmatter) を lede 風に。横幅は content 全体に揃える
+ * (max-width で絞ると wide viewport で読みづらいため) */
 .sl-markdown-content > p:first-of-type:not(:has(img)) {
   font-size: 17px;
   color: var(--hb-ink-soft);
   line-height: 1.65;
   text-wrap: pretty;
-  max-width: 62ch;
 }
 
 /* テーブル
@@ -400,7 +400,7 @@ starlight-toc h2,
  * ------------------------------------------------------------ */
 
 :root {
-  --sl-sidebar-width: 17rem;   /* 左 sidebar (272px) */
+  --sl-sidebar-width: 15rem;   /* 左 sidebar (240px) */
   --hb-toc-w: 240px;           /* 右 TOC (text wrap 余裕を持たせる) */
 }
 

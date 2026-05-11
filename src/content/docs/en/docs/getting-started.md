@@ -6,7 +6,7 @@ sidebar:
 ---
 
 :::caution
-Full English translation is in progress. Please refer to the [Japanese version](/docs/getting-started/) for the complete guide.
+Full English translation is in progress. Please refer to the [Japanese version](/docs/start-here/getting-started/) for the complete guide.
 :::
 
 This guide walks you through getting Hapbeat producing its first vibration.
@@ -60,6 +60,6 @@ Confirm that **"Helper connected"** appears in green at the top of the page.
 
 ## Next steps
 
-- **[Unity SDK Getting Started](/en/docs/unity-sdk/getting-started/)**
+- **[Unity SDK Getting Started](/en/docs/sdk-integration/unity-sdk/getting-started/)**
 - [Architecture & concepts](/en/docs/concepts/)
 - [FAQ](/en/faq/)

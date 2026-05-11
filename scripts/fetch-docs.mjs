@@ -41,8 +41,9 @@ const WORKSPACE_SIBLING = path.resolve(ROOT, '..'); // hapbeat-sdk-workspace/
 // docs は devtools-site/docs/<short>/ に物理移動し、fetch 不要となった。
 // contracts のみ「タグごとに freeze される規範的仕様」として fetch を維持する。
 // 詳細: docs/instructions-docs-ia-restructure-202605111600.md (workspace)
+// short は TARGET_PARENT 配下のサブパス。新 IA では reference/contracts/ 配下に集約する。
 const SOURCES = [
-  { short: 'contracts',    label: 'Contracts (仕様)',           repo: 'hapbeat-contracts',           url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
+  { short: 'reference/contracts', label: 'Contracts (仕様)', repo: 'hapbeat-contracts', url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
 ];
 
 // 集約後に portal で表示しないファイル名 (case-insensitive)。
@@ -235,6 +236,23 @@ async function ensureSectionIndex(dir, label) {
   return true;
 }
 
+// TARGET_PARENT 配下のサブディレクトリ (任意階層) に landing index.md が
+// 無ければ自動生成する。ディレクトリ名から label を推定 (dash → space, capitalize)。
+async function autoGenLandingsRecursive(root) {
+  const entries = await readdir(root, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    if (entry.name === 'assets') continue;
+    const dir = path.join(root, entry.name);
+    const label = entry.name
+      .replace(/[-_]+/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+    const generated = await ensureSectionIndex(dir, label);
+    if (generated) console.log(`  + auto-generated index for ${path.relative(TARGET_PARENT, dir)}/`);
+    await autoGenLandingsRecursive(dir);
+  }
+}
+
 async function walkAndNormalize(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const p = path.join(dir, entry.name);
@@ -267,66 +285,10 @@ async function main() {
     await walkAndNormalize(TARGET_PARENT);
     console.log('  ok: local docs/ → docs/ (portal root pages)');
 
-    // 各 section ディレクトリに auto-gen の index を生成して /docs/<section>/ が
-    // 404 にならないようにする (ensureSectionIndex は sidebar.hidden: true で
-    // サイドバーには出さない landing)。section ラベルは sub-repo 集約と
-    // 揃えるためマップを使う。
-    const SECTION_LABELS = {
-      concepts: 'Concepts',
-      helper: 'Hapbeat Helper (CLI daemon)',
-      studio: 'Hapbeat Studio',
-      firmware: 'Device Firmware',
-      'unity-sdk': 'Unity SDK',
-    };
-    for (const [sub, label] of Object.entries(SECTION_LABELS)) {
-      const subDir = path.join(TARGET_PARENT, sub);
-      if (await isDir(subDir)) {
-        const generated = await ensureSectionIndex(subDir, label);
-        if (generated) console.log(`  + auto-generated index for ${sub}/`);
-      }
-    }
-
-    // Umbrella section landings: サイドバーの umbrella ラベル (Tools /
-    // SDK Integration / Reference) は URL を持たないが、直接 /docs/<umbrella>/ に
-    // アクセスされた場合の 404 を防ぐため auto-gen landing を作る。
-    // sidebar.hidden: true なのでサイドバーには出ない。umbrella ラベル自体は
-    // <summary> の toggle のままで遷移しない。
-    const UMBRELLAS = {
-      tools: {
-        label: 'Tools',
-        children: [
-          { slug: 'studio', label: 'Hapbeat Studio' },
-          { slug: 'helper', label: 'Helper (CLI daemon)' },
-          { slug: 'firmware', label: 'Device Firmware' },
-        ],
-      },
-      'sdk-integration': {
-        label: 'SDK Integration',
-        children: [{ slug: 'unity-sdk', label: 'Unity SDK' }],
-      },
-      reference: {
-        label: 'Reference',
-        children: [{ slug: 'contracts', label: 'Contracts (仕様)' }],
-      },
-    };
-    for (const [slug, info] of Object.entries(UMBRELLAS)) {
-      const dir = path.join(TARGET_PARENT, slug);
-      await mkdir(dir, { recursive: true });
-      const lines = [
-        '---',
-        `title: "${info.label}"`,
-        'sidebar:',
-        '  hidden: true',
-        '---',
-        '',
-        `${info.label} のセクション一覧です。`,
-        '',
-        ...info.children.map((c) => `- [${c.label}](/docs/${c.slug}/)`),
-        '',
-      ];
-      await writeFile(path.join(dir, 'index.md'), lines.join('\n'));
-      console.log(`  + auto-generated umbrella landing for ${slug}/`);
-    }
+    // ディレクトリ構造 = サイドバー構造になったため、各 group / sub-group の
+    // landing は walkDirs で再帰的に auto-gen する (sub-repo / hand-written な
+    // index.md が既にあれば override されない)。
+    await autoGenLandingsRecursive(TARGET_PARENT);
   }
 
   const useGit = process.env.FETCH_DOCS_MODE === 'git' || !!process.env.CI;

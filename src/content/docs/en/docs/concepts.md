@@ -26,7 +26,7 @@ Hapbeat is built on a 3-way separation of "fixed runtime + Kit + SDK," with an o
 
 A lightweight string ID identifying haptic content. The SDK sends Event IDs; the Hapbeat device resolves them to clips from the installed Kit.
 
-Details: [Contracts overview](/en/docs/contracts/overview/)
+Details: [Contracts overview](/en/docs/reference/contracts/overview/)
 
 ## Group ID
 
@@ -42,5 +42,5 @@ Used to logically separate devices when multiple players or exhibition booths sh
 
 ## Next steps
 
-- [Contracts overview](/en/docs/contracts/overview/) — entry point to message format, addressing, display-layout, and other references
-- [Device Firmware](/en/docs/firmware/wifi-setup/)
+- [Contracts overview](/en/docs/reference/contracts/overview/) — entry point to message format, addressing, display-layout, and other references
+- [Device Firmware](/en/docs/tools/firmware/wifi-setup/)

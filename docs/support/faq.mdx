@@ -1,0 +1,63 @@
+---
+title: FAQ / Troubleshooting
+kind: reference
+sidebar:
+  order: 2
+description: よくある質問と典型的なトラブルへの対処法。
+---
+
+import Faq from '../../../../components/Faq.astro';
+
+実運用で見つかった問題は順次追加していきます。
+
+## 接続関連
+
+<Faq question="Studio でデバイスが見つからない">
+
+- ファームウェアが書き込まれ、Wi-Fi 設定が済んでいるか確認
+- PC とデバイスが同じネットワークに繋がっているか
+- ファイアウォールで UDP broadcast と mDNS がブロックされていないか
+- Helper が起動しているか（Studio 上部の「Helper 接続中」インジケータ）
+- Helper のログを確認: `hapbeat-helper log`（[詳細](/docs/tools/helper/getting-started/)）
+
+</Faq>
+
+<Faq question="Wi-Fi 接続できない">
+
+- Hapbeat は 2.4 GHz 帯のみ対応。5 GHz 専用ルーターでは動作しない
+- Serial 経由で SSID / パスワードを再設定: [Wi-Fi 設定ガイド](/docs/tools/firmware/wifi-setup/)
+
+</Faq>
+
+<Faq question="VR HMD（Quest 等）から直接使いたい">
+
+- Wi-Fi UDP broadcast 方式なので HMD が同じネットワークにあれば動く
+- HMD が AP 機能を持たないためルーターなしでは Hapbeat を AP にする必要あり
+
+</Faq>
+
+## Kit / コンテンツ関連
+
+<Faq question="Studio でビルドした Kit が転送できない">
+
+- Helper が起動中か、WebSocket（`localhost:7703`）に接続できているか
+- Studio 上部の「Helper 接続中」インジケータを確認
+- 対象デバイスがオンラインで Studio から見えているか確認
+
+</Faq>
+
+<Faq question="振動が鳴らない">
+
+- Kit が転送されているか（Studio の Kit タブで対象デバイスへの転送状態を確認）
+- Event ID が合っているか
+- デバイスの音量（Volume）が十分高いか
+
+</Faq>
+
+## その他
+
+<Faq question="複数台同時に別々の振動を出したい">
+
+**Group ID** 機能で分離する。[アーキテクチャと主要概念](/docs/concepts/) 参照。
+
+</Faq>
