@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import rehypeMermaid from 'rehype-mermaid';
 
 // 参考: docs/protocol と docs/kit 等の情報源は各 repo の docs/ を
 // scripts/fetch-docs.mjs で src/content/docs/docs/ に取り込んでから build する。
@@ -55,7 +56,7 @@ export default defineConfig({
     port: 1313,
   },
   markdown: {
-    rehypePlugins: [rehypeNewTabExternal],
+    rehypePlugins: [rehypeNewTabExternal, [rehypeMermaid, { strategy: 'inline-svg' }]],
   },
   integrations: [
     starlight({
