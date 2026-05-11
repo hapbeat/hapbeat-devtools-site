@@ -926,7 +926,7 @@ starlight-lang-select label {
 .sidebar-content ul.top-level > li {
   --sb-color: var(--hb-line-strong);
   border-left: 2px solid var(--sb-color);
-  padding-left: 12px;
+  padding-left: 1px;
   margin-bottom: 18px;
 }
 
@@ -1156,7 +1156,7 @@ html::-webkit-scrollbar-thumb:hover {
  * padding はほぼベタ付け (2px) でテキストと近接させる。
  * :has() は Chrome 105+ / Safari 15.4+ / Firefox 121+ で対応。 */
 .sidebar-content ul.top-level ul:not(:has(> li > details)) {
-  padding-inline-start: 2px !important;
+  padding-inline-start: 1px !important;
   margin-inline-start: 0.35rem !important;
   border-inline-start: 2px solid
     color-mix(in srgb, var(--sb-color, var(--hb-line-strong)) 55%, transparent) !important;
