@@ -121,7 +121,7 @@ export default defineConfig({
           ],
         },
         {
-          label: '💡 Concepts (設計と背景)',
+          label: '💡 Concepts',
           autogenerate: { directory: 'docs/concepts' },
         },
         {
@@ -140,9 +140,9 @@ export default defineConfig({
           ],
         },
         {
-          label: '📖 Reference (仕様)',
+          label: '📖 Reference',
           items: [
-            { label: 'Contracts', autogenerate: { directory: 'docs/contracts' } },
+            { label: 'Contracts (仕様)', autogenerate: { directory: 'docs/contracts' } },
           ],
         },
         {
