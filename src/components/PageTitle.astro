@@ -3,12 +3,13 @@
  * PageTitle override.
  *
  * Starlight default の <h1>{title}</h1> に加え、frontmatter `kind:` が
- * 設定されているページでは KindBadge を h1 の直前に挿入する。
+ * 設定されているページでは KindBadge を h1 の右に並べる。
  *
- * kind: tutorial | howto | reference | explanation
+ * レイアウト: flexbox で h1 (伸縮) + badge (固定幅) を同一行に。
+ * タイトルが長すぎる場合は badge が次の行に折り返す。
  *
- * 設計判断: KindBadge はサイドバーには出さず、ページを開いた読者にだけ
- * Diátaxis 区分を伝える方針 (詳細プラン参照)。
+ * 設計判断: バッジを h1 の上 (block 配置) にするとタイトルが 1 行押し下げられて
+ * 既存ページの可読性を損なうため、同一行右寄せにする。
  */
 import KindBadge from './KindBadge.astro';
 
@@ -16,5 +17,30 @@ const entry = (Astro.locals as any)?.starlightRoute?.entry;
 const title: string = entry?.data?.title ?? '';
 const kind: string | undefined = entry?.data?.kind;
 ---
-{kind && <KindBadge kind={kind} />}
-<h1 id="_top">{title}</h1>
+{kind ? (
+  <div class="page-title-row">
+    <h1 id="_top">{title}</h1>
+    <KindBadge kind={kind} />
+  </div>
+) : (
+  <h1 id="_top">{title}</h1>
+)}
+
+<style>
+  .page-title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .page-title-row h1 {
+    flex: 1 1 auto;
+    margin: 0;
+  }
+  /* KindBadge 内側の margin-bottom はインライン配置時は不要 */
+  .page-title-row :global(.kind-badge) {
+    margin-bottom: 0;
+    flex: 0 0 auto;
+  }
+</style>
