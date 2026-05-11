@@ -1082,3 +1082,42 @@ html::-webkit-scrollbar-thumb {
 html::-webkit-scrollbar-thumb:hover {
   background: var(--hb-ink-faint);
 }
+
+/* ------------------------------------------------------------
+ * Mermaid SVG — dark mode オーバーライド
+ * rehype-mermaid は build 時に light テーマのカラーをハードコードした
+ * SVG を出力するため、[data-theme="dark"] で色を上書きする。
+ * ------------------------------------------------------------ */
+[data-theme="dark"] svg.flowchart .node rect,
+[data-theme="dark"] svg.flowchart .node circle,
+[data-theme="dark"] svg.flowchart .node ellipse,
+[data-theme="dark"] svg.flowchart .node polygon,
+[data-theme="dark"] svg.flowchart .node path {
+  fill: #1e2133 !important;
+  stroke: #7c5cbf !important;
+}
+[data-theme="dark"] svg.flowchart text,
+[data-theme="dark"] svg.flowchart .label,
+[data-theme="dark"] svg.flowchart .label text,
+[data-theme="dark"] svg.flowchart .cluster-label text,
+[data-theme="dark"] svg.flowchart .cluster-label span {
+  fill: #d4d8e8 !important;
+  color: #d4d8e8 !important;
+}
+[data-theme="dark"] svg.flowchart .marker,
+[data-theme="dark"] svg.flowchart .arrowheadPath {
+  fill: #7c8a9e !important;
+  stroke: #7c8a9e !important;
+}
+[data-theme="dark"] svg.flowchart .edgePath .path,
+[data-theme="dark"] svg.flowchart .flowchart-link {
+  stroke: #7c8a9e !important;
+}
+[data-theme="dark"] svg.flowchart .edgeLabel,
+[data-theme="dark"] svg.flowchart .edgeLabel p {
+  background-color: rgba(20, 22, 34, 0.85) !important;
+  color: #d4d8e8 !important;
+}
+[data-theme="dark"] svg.flowchart .edgeLabel rect {
+  fill: rgba(20, 22, 34, 0.85) !important;
+}
