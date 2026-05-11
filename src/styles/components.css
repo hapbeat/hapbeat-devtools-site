@@ -1125,34 +1125,48 @@ html::-webkit-scrollbar-thumb:hover {
 /* ------------------------------------------------------------
  * Sidebar nested groups — visual hierarchy
  *
- * 既存のトップレベル <li> はグループ色 (--sb-color) の 2px 太線で囲まれているが、
- * 2 階層目以降 (Tools > Hapbeat Studio > items 等) は Starlight default の
- * hairline 罫線がほぼ視認できず、子要素の所属が分からなかった。
+ * 旧実装は <li> に padding/margin を当てていたが、Starlight default の
+ * `ul ul li { padding/margin/border }` と二重になって視覚効果が出にくく、
+ * ユーザーから「インデントに差がない」と再指摘された。
  *
- * 対策: ネストした <li> のインデント + 罫線色を、親グループの --sb-color
- * (cascade で継承) を 55% 透過で使う。グループとの紐付けも視覚的に取れる。
+ * 新方針: ネスト 1 段ごとに、その <ul> 自身に padding-inline-start を当てて
+ * 子要素全体を確実に右へずらす。<li> 側は Starlight default をリセットして
+ * 罫線が二重に出ないようにする。罫線は <ul> ごとに 1 本引き、深さに応じて
+ * 縦線が累積するツリー視覚を作る。
  * ------------------------------------------------------------ */
 
-/* 2 階層目以降の <li>: インデント + 視認可能な罫線 */
-.sidebar-content ul.top-level ul li {
-  margin-inline-start: 0.6rem;
-  padding-inline-start: 0.85rem;
-  border-inline-start: 2px solid color-mix(in srgb, var(--sb-color, var(--hb-line-strong)) 55%, transparent);
+/* 各ネスト <ul>: padding + 左罫線 → 子要素全体が一段右へ */
+.sidebar-content ul.top-level ul {
+  padding-inline-start: 1rem;
+  margin-inline-start: 0.25rem;
+  border-inline-start: 2px solid color-mix(
+    in srgb,
+    var(--sb-color, var(--hb-line-strong)) 35%,
+    transparent
+  );
 }
-/* hover で罫線をはっきりさせる */
-.sidebar-content ul.top-level ul li:hover {
+
+/* ネスト <li> の Starlight default (1px hairline + 0.5rem margin/padding) を
+ * リセット (罫線は親 <ul> 側にあるので二重不要)。 */
+.sidebar-content ul.top-level ul li {
+  margin-inline-start: 0;
+  padding-inline-start: 0;
+  border-inline-start: 0;
+}
+
+/* hover で <ul> の罫線を強調 (どのグループの子か辿りやすい) */
+.sidebar-content ul.top-level ul:hover {
   border-inline-start-color: var(--sb-color, var(--hb-line-strong));
 }
 
-/* グループ summary 行 (子グループのラベル) は控えめに区別 */
+/* ネスト summary 行 (sub-group ラベル) は親色を控えめに反映 */
 .sidebar-content ul.top-level ul li > details > summary > .group-label > .large {
   color: color-mix(in srgb, var(--sb-color, currentColor) 75%, var(--sl-color-text));
   font-weight: 600;
   font-size: var(--sl-text-base);
 }
 
-/* チェブロン (caret) は details[open] で 90° 回転して開閉を示す。
- * Starlight default の挙動だが、視認性を補強。 */
+/* caret SVG: details[open] で 90° 回転 (Starlight default) + opacity transition */
 .sidebar-content ul.top-level summary .caret {
   opacity: 0.55;
   transition: transform 150ms ease, opacity 150ms ease;
@@ -1161,7 +1175,15 @@ html::-webkit-scrollbar-thumb:hover {
   opacity: 1;
 }
 
-/* summary 全体に cursor: pointer (toggle 可能であることを示す) */
+/* summary 全体に cursor: pointer (toggle 可能なことを示す) */
 .sidebar-content summary {
   cursor: pointer;
+}
+
+/* ------------------------------------------------------------
+ * トップレベル見出し: 絵文字アイコン (🎯 💡 🛠 📦 📖 ❓) と
+ * 旧仕様の □ ドットが両方表示されていたため、□ を撤去して絵文字一本化。
+ * ------------------------------------------------------------ */
+.sidebar-content ul.top-level > li > details > summary > .group-label::before {
+  content: none;
 }
