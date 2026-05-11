@@ -114,7 +114,6 @@ export default defineConfig({
           label: 'はじめに',
           items: [
             { label: 'Getting Started', link: '/docs/getting-started/' },
-            { label: 'アーキテクチャと主要概念', link: '/docs/concepts/' },
           ],
         },
         // 各 repo の docs/ は scripts/fetch-docs.mjs が build 時に
