@@ -1,6 +1,8 @@
 ---
 title: Fire と Clip の比較
 kind: explanation
+sidebar:
+  order: 400
 description: Hapbeat SDK の 2 つの再生モード（Fire / Command と Clip / Stream）の違いと使い分け。
 ---
 

@@ -1,6 +1,8 @@
 ---
 title: EventMap ウィンドウ
 kind: reference
+sidebar:
+  order: 300
 description: Event ID と Trigger / Kit の対応を GUI で一元管理する EventMap の使い方。
 ---
 

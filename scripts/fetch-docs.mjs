@@ -254,7 +254,9 @@ async function walkAndNormalize(dir) {
 
 async function main() {
   console.log('[fetch-docs] aggregating docs from sibling repos…');
-  await mkdir(TARGET_PARENT, { recursive: true });
+  // TARGET_PARENT を完全リセット (cp recursive は既存ファイルを削除しないため、
+  // 旧 SOURCES 由来の stale な index.md 等が残留する事故を防ぐ)。
+  await resetDir(TARGET_PARENT);
   await mkdir(TMP_DIR, { recursive: true });
 
   // devtools-site 自身の docs/ をまず TARGET_PARENT へフラットにコピーする。
@@ -264,6 +266,25 @@ async function main() {
     await cp(localDocs, TARGET_PARENT, { recursive: true });
     await walkAndNormalize(TARGET_PARENT);
     console.log('  ok: local docs/ → docs/ (portal root pages)');
+
+    // 各 section ディレクトリに auto-gen の index を生成して /docs/<section>/ が
+    // 404 にならないようにする (ensureSectionIndex は sidebar.hidden: true で
+    // サイドバーには出さない landing)。section ラベルは sub-repo 集約と
+    // 揃えるためマップを使う。
+    const SECTION_LABELS = {
+      concepts: 'Concepts',
+      helper: 'Hapbeat Helper (CLI daemon)',
+      studio: 'Hapbeat Studio',
+      firmware: 'Device Firmware',
+      'unity-sdk': 'Unity SDK',
+    };
+    for (const [sub, label] of Object.entries(SECTION_LABELS)) {
+      const subDir = path.join(TARGET_PARENT, sub);
+      if (await isDir(subDir)) {
+        const generated = await ensureSectionIndex(subDir, label);
+        if (generated) console.log(`  + auto-generated index for ${sub}/`);
+      }
+    }
   }
 
   const useGit = process.env.FETCH_DOCS_MODE === 'git' || !!process.env.CI;

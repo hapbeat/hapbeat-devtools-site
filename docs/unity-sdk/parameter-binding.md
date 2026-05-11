@@ -1,6 +1,8 @@
 ---
 title: Parameter Binding
 kind: reference
+sidebar:
+  order: 300
 description: HapbeatParameterBinding でゲーム状態 (移動量・速度・距離) を StreamGain / StreamPan に動的にマッピングする方法。
 ---
 

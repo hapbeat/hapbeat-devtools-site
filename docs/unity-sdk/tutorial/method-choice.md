@@ -1,6 +1,8 @@
 ---
 title: BatchSetup vs スクリプトの使い分け
 kind: explanation
+sidebar:
+  order: 400
 description: Hapbeat Unity SDK の触覚配線をどちらの方式で書くべきか — Tutorial サンプルでの使い分け基準。
 ---
 

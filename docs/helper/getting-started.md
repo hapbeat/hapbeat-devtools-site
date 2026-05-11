@@ -1,6 +1,8 @@
 ---
 title: hapbeat-helper のインストール
 kind: tutorial
+sidebar:
+  order: 99
 description: Hapbeat Studio とデバイスを橋渡しする CLI daemon `hapbeat-helper` の OS 別インストール手順。macOS / Windows 共通。
 ---
 

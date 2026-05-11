@@ -1,6 +1,8 @@
 ---
 title: キーボードショートカット
 kind: reference
+sidebar:
+  order: 300
 description: Studio の Kit Manager で使えるキーボードショートカット一覧。
 ---
 

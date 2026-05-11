@@ -1,6 +1,8 @@
 ---
 title: AI コーディング支援を使った Hapbeat 組み込み
 kind: howto
+sidebar:
+  order: 200
 description: Claude Code などの AI コーディング支援ツールを使って、既存の Unity シーンに Hapbeat 触覚フィードバックを後付けする実践フロー。コピペ用プロンプト集つき。
 ---
 

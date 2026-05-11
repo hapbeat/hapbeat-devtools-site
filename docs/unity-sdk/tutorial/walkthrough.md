@@ -1,6 +1,8 @@
 ---
 title: Tutorial Walkthrough
 kind: tutorial
+sidebar:
+  order: 100
 description: 触覚なし版 (Tutorial_Plain.unity) を起点に、ゾーンごとに Hapbeat コンポーネントを追加していく完全手順。
 ---
 

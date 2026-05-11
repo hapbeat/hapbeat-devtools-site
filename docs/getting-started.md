@@ -1,6 +1,8 @@
 ---
 title: Getting Started 
 kind: tutorial
+sidebar:
+  order: 99
 description: Hapbeat を初めて使う人のための最短ガイド。Helper インストール → Studio オープン → Wi-Fi 設定 → ライブラリ再生で動作確認。
 ---
 
