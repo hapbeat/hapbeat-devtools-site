@@ -95,6 +95,13 @@
   color: var(--hb-ink-faint);
 }
 
+/* インライン画像の高さリミット。SVG は viewport 幅で巨大化しがちなので
+ * max-height で抑える。Starlight default は max-width:100% のみ。 */
+.sl-markdown-content img {
+  max-height: 420px;
+  object-fit: contain;
+}
+
 /* description (frontmatter) を lede 風に。横幅は content 全体に揃える
  * (max-width で絞ると wide viewport で読みづらいため) */
 .sl-markdown-content > p:first-of-type:not(:has(img)) {

@@ -30,6 +30,13 @@ jobs:
       - name: Install deps (ci)
         run: npm ci
 
+      # rehype-mermaid (strategy: inline-svg) は Playwright で chromium を起動して
+      # mermaid を SVG に SSR する。CI runner には未インストールなので明示的に入れる。
+      # これが無いと initial-setup.md など mermaid を含むページが空ボディで生成されて
+      # FTP に上がってしまう (build 自体はエラーにならない)。
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium-headless-shell
+
       - name: Build (fetch-docs + astro build)
         run: npm run build
         env:
