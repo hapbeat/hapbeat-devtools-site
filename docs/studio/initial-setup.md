@@ -1,5 +1,6 @@
 ---
 title: Hapbeat 初期セットアップ
+kind: howto
 description: Hapbeat 入手後に 1 回だけ行う初期設定 — シリアル接続 → (必要なら) ファーム書き込み → Wi-Fi 設定までの一本道。
 sidebar:
   order: 1

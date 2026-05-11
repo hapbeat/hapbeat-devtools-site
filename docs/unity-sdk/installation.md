@@ -1,5 +1,6 @@
 ---
 title: インストール
+kind: reference
 description: Hapbeat Unity SDK を Unity プロジェクトに導入する手順 (UPM 経由)。
 ---
 

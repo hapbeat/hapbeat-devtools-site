@@ -1,5 +1,6 @@
 ---
 title: トラブルシューティング
+kind: howto
 description: Hapbeat デバイスが起動しない・Wi-Fi に繋がらない・振動が出ない・電池がすぐ切れる、などの対処法。
 ---
 

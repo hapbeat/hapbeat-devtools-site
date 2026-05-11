@@ -1,4 +1,7 @@
-# CLI リファレンス
+---
+title: CLI リファレンス
+kind: reference
+---
 
 `hapbeat-helper` コマンドの一覧と用例。バージョン 0.1.1 時点。
 

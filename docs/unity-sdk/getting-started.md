@@ -1,5 +1,6 @@
 ---
 title: Getting Started
+kind: tutorial
 description: 新規 Unity プロジェクトに SDK をインストールして BasicExample で Hapbeat を鳴らすまでの最短手順。
 sidebar:
   order: 1

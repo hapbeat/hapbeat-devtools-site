@@ -1,5 +1,6 @@
 ---
 title: セキュリティと動作の影響
+kind: explanation
 description: hapbeat-helper を常駐させた時の PC 作業への影響と、Hapbeat / Helper / Studio が抱えるセキュリティリスクの全体像。公共 Wi-Fi 利用ガイド付き。
 ---
 

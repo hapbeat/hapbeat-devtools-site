@@ -98,6 +98,8 @@ export default defineConfig({
         SocialIcons: './src/components/SocialIcons.astro',
         Hero: './src/components/Hero.astro',
         Footer: './src/components/Footer.astro',
+        // PageTitle: frontmatter `kind:` を読んで Diátaxis 区分バッジを h1 直前に表示
+        PageTitle: './src/components/PageTitle.astro',
       },
       // i18n: 日本語を root (URL prefix なし) として配信し、英語を /en/ 配下に。
       // Starlight の慣例で「default = root」「alternate = /<lang>/」のパターン。

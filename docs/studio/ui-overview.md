@@ -1,5 +1,6 @@
 ---
 title: 画面構成
+kind: reference
 description: Studio の Kit / UI / Manage 各タブとパネル構成。
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: XRI HandDemo に触覚を追加する
+kind: tutorial
 description: Unity 公式の XR Hand Demo シーンに、ボタン1クリックで Hapbeat の触覚イベントを組み込む手順。
 ---
 

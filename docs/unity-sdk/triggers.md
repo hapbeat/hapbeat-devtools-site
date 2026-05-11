@@ -1,5 +1,6 @@
 ---
 title: Trigger コンポーネント
+kind: reference
 description: Animator / Collision / Sequence など、Event 発火用 Trigger コンポーネントの種類と使い分け。
 ---
 

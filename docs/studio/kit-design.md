@@ -1,5 +1,6 @@
 ---
 title: Kit デザインガイド
+kind: howto
 description: Hapbeat Studio で Kit を設計する方法と、manifest の gain が SDK 全体の基準強度になる仕組み。
 ---
 

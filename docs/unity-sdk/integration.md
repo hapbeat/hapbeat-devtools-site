@@ -1,5 +1,6 @@
 ---
 title: プロジェクトへの組み込み
+kind: tutorial
 description: 既存 Unity シーンに Hapbeat SDK を追加する手順。EventMap + Trigger パターンの基本。
 sidebar:
   order: 2

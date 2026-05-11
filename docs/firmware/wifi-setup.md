@@ -1,5 +1,6 @@
 ---
 title: Wi-Fi 設定
+kind: howto
 description: Hapbeat デバイスを家庭・展示・モバイルホットスポット環境の Wi-Fi に接続する手順。
 ---
 

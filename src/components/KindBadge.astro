@@ -1,0 +1,68 @@
+---
+/**
+ * KindBadge.astro
+ *
+ * Diátaxis 4 区分 (Tutorial / How-to / Reference / Explanation) を
+ * ページ上部に小さな pill として表示する。frontmatter の `kind:` に対応。
+ *
+ * 設計判断:
+ *   - サイドバーには出さない (ノイズ低減)
+ *   - ページを開いた瞬間に「これは何用のページか」が分かるように h1 直前に置く
+ *   - 4 種別ごとに色分け (brand カラーに統一感あり)
+ *   - kind 未指定のページでは何も描画しない (後方互換)
+ *
+ * 詳細プラン: workspace docs/instructions-docs-ia-restructure-202605111600.md
+ */
+type Kind = 'tutorial' | 'howto' | 'reference' | 'explanation';
+
+const { kind } = Astro.props as { kind?: string };
+
+const META: Record<Kind, { label: string; emoji: string; color: string; bg: string; hint: string }> = {
+  tutorial:    { label: 'Tutorial',    emoji: '🎯', color: '#0e7c3a', bg: 'rgba(14, 124, 58, 0.12)',  hint: '学ぶ — 手を動かして体験する' },
+  howto:       { label: 'How-to',      emoji: '🛠', color: '#0954a5', bg: 'rgba(9, 84, 165, 0.12)',   hint: 'やる — 特定タスクの手順' },
+  reference:   { label: 'Reference',   emoji: '📖', color: '#8b3a00', bg: 'rgba(139, 58, 0, 0.12)',   hint: '調べる — 仕様・API 照会' },
+  explanation: { label: 'Explanation', emoji: '💡', color: '#7a2d8a', bg: 'rgba(122, 45, 138, 0.12)', hint: 'わかる — 設計判断の背景' },
+};
+
+const meta = kind && (kind in META) ? META[kind as Kind] : null;
+---
+{meta && (
+  <span class="kind-badge" data-kind={kind} title={meta.hint} aria-label={`Page kind: ${meta.label}`}>
+    <span class="kind-badge__emoji" aria-hidden="true">{meta.emoji}</span>
+    <span class="kind-badge__label">{meta.label}</span>
+  </span>
+)}
+
+<style>
+  .kind-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    padding: 0.2em 0.65em;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+    margin-bottom: 0.6rem;
+    user-select: none;
+    background: var(--kind-bg);
+    color: var(--kind-color);
+    border: 1px solid color-mix(in srgb, var(--kind-color) 25%, transparent);
+  }
+  .kind-badge[data-kind='tutorial']    { --kind-color: #0e7c3a; --kind-bg: rgba(14, 124, 58, 0.12); }
+  .kind-badge[data-kind='howto']       { --kind-color: #0954a5; --kind-bg: rgba(9, 84, 165, 0.12); }
+  .kind-badge[data-kind='reference']   { --kind-color: #8b3a00; --kind-bg: rgba(139, 58, 0, 0.12); }
+  .kind-badge[data-kind='explanation'] { --kind-color: #7a2d8a; --kind-bg: rgba(122, 45, 138, 0.12); }
+
+  /* Dark mode: 同じ色相で明度を上げる */
+  :global([data-theme='dark']) .kind-badge[data-kind='tutorial']    { --kind-color: #4ade80; --kind-bg: rgba(74, 222, 128, 0.14); }
+  :global([data-theme='dark']) .kind-badge[data-kind='howto']       { --kind-color: #60a5fa; --kind-bg: rgba(96, 165, 250, 0.14); }
+  :global([data-theme='dark']) .kind-badge[data-kind='reference']   { --kind-color: #fb923c; --kind-bg: rgba(251, 146, 60, 0.14); }
+  :global([data-theme='dark']) .kind-badge[data-kind='explanation'] { --kind-color: #c084fc; --kind-bg: rgba(192, 132, 252, 0.14); }
+
+  .kind-badge__emoji {
+    font-size: 0.85em;
+    line-height: 1;
+  }
+</style>

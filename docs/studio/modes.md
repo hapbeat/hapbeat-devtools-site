@@ -1,5 +1,6 @@
 ---
 title: Mode の使い分け（FIRE / CLIP）
+kind: explanation
 description: Hapbeat の触覚再生 2 モード (command / stream_clip) の違いと選び方。
 ---
 

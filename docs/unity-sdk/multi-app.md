@@ -1,5 +1,6 @@
 ---
 title: 複数アプリの共存
+kind: howto
 description: 1 台の Hapbeat デバイスに対して複数の Unity アプリ (またはアプリ + Hapbeat Studio など) を同時稼働させる場合の運用指針と回避策。
 ---
 

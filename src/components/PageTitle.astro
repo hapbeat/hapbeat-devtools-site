@@ -1,0 +1,20 @@
+---
+/**
+ * PageTitle override.
+ *
+ * Starlight default の <h1>{title}</h1> に加え、frontmatter `kind:` が
+ * 設定されているページでは KindBadge を h1 の直前に挿入する。
+ *
+ * kind: tutorial | howto | reference | explanation
+ *
+ * 設計判断: KindBadge はサイドバーには出さず、ページを開いた読者にだけ
+ * Diátaxis 区分を伝える方針 (詳細プラン参照)。
+ */
+import KindBadge from './KindBadge.astro';
+
+const entry = (Astro.locals as any)?.starlightRoute?.entry;
+const title: string = entry?.data?.title ?? '';
+const kind: string | undefined = entry?.data?.kind;
+---
+{kind && <KindBadge kind={kind} />}
+<h1 id="_top">{title}</h1>

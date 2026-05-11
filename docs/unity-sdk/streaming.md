@@ -1,5 +1,6 @@
 ---
 title: Streaming buffer (StreamClip 用)
+kind: howto
 description: StreamClip モードの送信バッファ (streamSendAheadSeconds) の意味、トレードオフ、設定指針。
 ---
 

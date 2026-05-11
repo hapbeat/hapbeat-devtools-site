@@ -1,5 +1,6 @@
 ---
 title: 最初の Kit を作る
+kind: tutorial
 description: Hapbeat Studio を初めて開いてから、最初の Kit をデバイスに転送するまで。
 sidebar:
   order: 2

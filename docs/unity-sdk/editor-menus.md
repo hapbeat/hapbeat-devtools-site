@@ -1,5 +1,6 @@
 ---
 title: Editor メニューリファレンス
+kind: reference
 description: Unity Editor 上の Hapbeat メニュー項目の使い方リファレンス。Window 系・シーン操作・サンプル生成・Debug の各カテゴリを説明。
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: キーボードショートカット
+kind: reference
 description: Studio の Kit Manager で使えるキーボードショートカット一覧。
 ---
 
