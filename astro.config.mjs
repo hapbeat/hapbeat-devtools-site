@@ -58,6 +58,12 @@ export default defineConfig({
   markdown: {
     rehypePlugins: [rehypeNewTabExternal, [rehypeMermaid, { strategy: 'inline-svg' }]],
   },
+  // 旧 IA (2026-05-12 再編前) の URL は外部リンクや SNS で参照されている可能性が
+  // あるためリダイレクトで温存する。新規追加は控えめに。
+  redirects: {
+    '/docs/getting-started': '/docs/start-here/getting-started/',
+    '/docs/unity-sdk/getting-started': '/docs/sdk-integration/unity-sdk/getting-started/',
+  },
   integrations: [
     starlight({
       title: 'Hapbeat devtools',
