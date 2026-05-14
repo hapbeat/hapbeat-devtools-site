@@ -1,5 +1,6 @@
 ---
 title: 今後の実装予定
+kind: reference
 description: Hapbeat SDK・ツール群のうち、現在未実装で今後対応を予定しているもの。
 sidebar:
   order: 100

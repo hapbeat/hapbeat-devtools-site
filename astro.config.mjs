@@ -121,14 +121,34 @@ export default defineConfig({
       ],
       // IA 設計プラン: docs/instructions-docs-ia-restructure-202605111600.md (workspace)
       // Diátaxis 4 区分: Tutorial / How-to / Reference / Explanation
-      // ディレクトリ構造 = サイドバー構造。ラベル＝各ページの title (frontmatter)。
+      // ディレクトリ構造 = サイドバー構造。ページラベルは各 .md の title (frontmatter)。
+      // サブグループだけは autogenerate がディレクトリ名をそのまま label に使うため、
+      // friendly な表示名 (Hapbeat Studio 等) を items で明示する。
       // 物理パス: docs/<group>/[<sub>/]<page>.md   URL: /docs/<group>/[<sub>/]<page>/
       sidebar: [
         { label: '🎯 Start Here',     autogenerate: { directory: 'docs/start-here' } },
         { label: '💡 Concepts',       autogenerate: { directory: 'docs/concepts' } },
-        { label: '🛠 Tools',          autogenerate: { directory: 'docs/tools' } },
-        { label: '📦 SDK Integration', autogenerate: { directory: 'docs/sdk-integration' } },
-        { label: '📖 Reference',      autogenerate: { directory: 'docs/reference' } },
+        {
+          label: '🛠 Tools',
+          items: [
+            { label: 'Hapbeat Studio',     autogenerate: { directory: 'docs/tools/studio' } },
+            { label: 'Helper (CLI daemon)', autogenerate: { directory: 'docs/tools/helper' } },
+            { label: 'Device Firmware',    autogenerate: { directory: 'docs/tools/firmware' } },
+          ],
+        },
+        {
+          label: '📦 SDK Integration',
+          items: [
+            { label: 'Unity SDK', autogenerate: { directory: 'docs/sdk-integration/unity-sdk' } },
+          ],
+        },
+        {
+          label: '📖 Reference',
+          items: [
+            { label: 'Reference (索引)',   slug: 'docs/reference' },
+            { label: 'Contracts (仕様)',   autogenerate: { directory: 'docs/reference/contracts' } },
+          ],
+        },
         { label: '❓ Support',        autogenerate: { directory: 'docs/support' } },
       ],
       customCss: ['./src/styles/custom.css', './src/styles/components.css'],

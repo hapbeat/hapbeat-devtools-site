@@ -1,5 +1,6 @@
 ---
 title: Changelog
+kind: reference
 description: 各ツール・リポジトリのリリース履歴。
 sidebar:
   order: 200
