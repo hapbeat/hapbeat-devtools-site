@@ -25,7 +25,10 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
   </div>
 
   <div class="hb-topbar__center">
-    <Search {...Astro.props} />
+    {/* transition:persist で SPA 遷移 (ClientRouter) を跨いで <site-search> を維持。
+        Starlight default の Search は DOMContentLoaded 時に PagefindUI を一度だけ
+        初期化するので、persist しないと SPA 遷移後にダイアログ中身が空になる。 */}
+    <Search transition:persist="topbar-search" {...Astro.props} />
   </div>
 
   <div class="hb-topbar__right">

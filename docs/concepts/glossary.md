@@ -6,37 +6,89 @@ sidebar:
   order: 99
 ---
 
-:::caution[執筆中]
-このページは Phase B で執筆予定です。現状は要点メモのみ。
-:::
+各ドキュメントで使われる用語を 1〜2 行で定義します。**正式な仕様は [Contracts](/docs/reference/contracts/overview/) を参照** してください。
 
-## 整理対象の用語 (予定)
+## コアコンセプト
 
-各用語に **1〜2 行の定義 + 関連ページへのリンク** を付ける形で整備します。
+**Hapbeat**
+: 触覚デバイス本体。現行モデルは **Duo WL** (首掛けワイヤレス) と **Band WL** (リスト / アンクル装着) の 2 種類。ESP32 を内蔵し、Wi-Fi UDP で触覚イベントを受信して再生する。
 
-### コアコンセプト
-- **Hapbeat** — 触覚デバイス本体 (Duo WL / Band WL)
-- **Kit** — 触覚資産 (WAV + manifest.json) のフォルダ
-- **Event ID** — `<kit-name>.<clip-name>` 形式の触覚イベント識別子
-- **Address** — `/player/<n>/<part>[/group_<N>]` 形式のデバイス宛先
-- **Player** / **Group** — マルチプレイヤー時の addressing 単位
+**Kit**
+: 触覚資産のフォルダ単位。`manifest.json` + WAV 群で構成。Studio で作成し、Helper 経由で Hapbeat デバイスに転送する。詳細: [Event ID と Kit の構造](./event-id-and-kit/)
 
-### 強度・モード
-- **intensity** — Kit 設計時の基準強度 (manifest.json)
-- **gain** — SDK 実行時の動的強度倍率
-- **Fire (command)** — Event ID 単発送信モード
-- **Clip (stream_clip)** — PCM ストリーミング送信モード
+**Event ID**
+: 触覚イベントを識別する文字列。基本形式 `<category>.<name>`、拡張形式 `<category>.<subcategory>.<name>`、名前空間付き `<namespace>/<category>.<name>` をサポート。
 
-### ツール
-- **Hapbeat Studio** — Web ベース Kit デザイン + デバイス管理ツール
-- **hapbeat-helper** — Studio とデバイスを橋渡しする CLI daemon
-- **Contracts** — 各 repo 間の規範的プロトコル仕様
+**address**
+: パケットの宛先文字列。形式は `[prefix/] player_{N} / {position} [/group_{M}]`。詳細: [Group と Player の addressing](./group-player-addressing/)
 
-### ネットワーク
-- **UDP broadcast** — 標準通信経路 (Wi-Fi)
-- **ESP-NOW** — 上位オプション (Bridge + Transmitter)
+**Player 番号**
+: 同じプレイヤーに属する複数デバイスをまとめる単位。1..99。
+
+**Group ID**
+: プレイヤー / ブース同士を分離する単位。同じ Wi-Fi 上で混信させないために使う。1..99 (省略時は全グループ受信)。
+
+## 強度・モード
+
+**intensity**
+: Kit 設計時の基準振動強度。`manifest.json` の `events[<id>].parameters.intensity` に 0.0〜1.0 で記録する。SDK 側 `gain` の **基準値 (× 1.0 の基準)** として働く。
+
+**gain**
+: SDK 実行時の動的強度倍率。Unity SDK 等で EventMap や ParameterBinding 経由で与える。`gain = 1.0` で「Kit 設計者が決めた標準の強さ」を意味する。
+
+**Fire (command)**
+: 触覚送信モード `mode: command` の通称。Event ID を送信するだけで、デバイス側にプリインストールされた波形を再生する。低遅延・安定で本番向き。詳細: [Fire と Clip](./fire-vs-clip/)
+
+**Clip (stream_clip)**
+: 触覚送信モード `mode: stream_clip` の通称。PCM 音声データを `STREAM_BEGIN`/`STREAM_DATA`/`STREAM_END` でストリーミングする。プロトタイピング・長尺・動的変調に向く。
+
+**stream_source**
+: 触覚送信モードの一つ。live AudioSource をキャプチャしてストリーミングするモード。既存音響を直接触覚化する用途。
+
+## ツール
+
+**Hapbeat Studio**
+: Web ベースの Kit デザイン + デバイス管理ツール。`devtools.hapbeat.com/studio/` で動作する SPA。
+
+**hapbeat-helper**
+: Studio と Hapbeat デバイスを橋渡しする CLI daemon。`pipx install hapbeat-helper` で導入。`localhost:7703` の WebSocket と mDNS / UDP / TCP / Serial を中継する。アプリ実行時は不要。
+
+**Contracts (hapbeat-contracts)**
+: 各 repo 間の規範的プロトコル仕様を集めた repo。Kit format / message protocol / display layout / device addressing 等の "単一情報源"。
+
+**device firmware**
+: Hapbeat 本体に焼かれた ESP32 固定ランタイム。ユーザーは書き換え不要 (OTA で更新)。
+
+## ネットワーク
+
+**Wi-Fi UDP broadcast**
+: 標準通信経路。SDK が UDP broadcast で送信し、各 Hapbeat が address で自己フィルタする。中継サーバ不要。
+
+**ESP-NOW**
+: 上位オプション通信経路。Bridge + Transmitter ファームウェア経由で AP 不要の独立網を構成する。大規模パフォーマンス / Wi-Fi 不在環境向け。
+
+**SoftAP / STA**
+: Hapbeat が **AP 機能を持つ場合 (SoftAP)** とルーターに **STA として接続する場合**。VR HMD などルーターなし環境では Hapbeat 自身が SoftAP になる。
+
+**targetTime**
+: 「N ms 後に発火」という将来時刻指定。ネットワーク揺らぎを吸収して発火タイミングを安定させる。
+
+## Kit と manifest
+
+**install-clips/**
+: `command` モード用 WAV を入れる Kit 内サブディレクトリ。デバイスに **install されて常駐** する意味。
+
+**stream-clips/**
+: `stream_clip` / `stream_source` モード用 WAV を入れる Kit 内サブディレクトリ。実行時に **stream として都度送る**。デバイスにはデプロイされない。
+
+**target_device**
+: manifest.json のフィールド。Kit が対象とする基板 (例: `duo_wl_v3` / `neck_wl_v2`) と最低ファームウェアバージョンを記録する。
+
+**device_wiper**
+: Hapbeat デバイスの MCP4018 デジタルポテンショメータの wiper 値 (0..127)。Kit / Event 調整時の音量設定を **再現性のための参照情報** として manifest に記録する。
 
 ## 関連リンク
 
-- [アーキテクチャ全体像](/docs/concepts/architecture/)
-- [Contracts 概要](/docs/reference/contracts/overview/)
+- [アーキテクチャ全体像](./architecture/) — 各コンポーネントの役割と境界
+- [Contracts 概要](/docs/reference/contracts/overview/) — 仕様の正式定義
+- [Reference (索引)](/docs/reference/) — API / コマンドのリファレンス
