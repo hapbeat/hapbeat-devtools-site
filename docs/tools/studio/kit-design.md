@@ -3,79 +3,75 @@ title: Kit デザインガイド
 kind: howto
 sidebar:
   order: 200
-description: Hapbeat Studio で Kit を設計する方法と、manifest の gain が SDK 全体の基準強度になる仕組み。
+description: Hapbeat Studio で Kit を作成・編集してデバイスにデプロイするまでの手順。
 ---
 
-Hapbeat の触覚コンテンツは **Kit** という単位でまとめられます。Kit は触覚クリップ（WAV）と設定をまとめた `manifest.json` で構成されており、Studio で設計してデバイスにデプロイします。
+このページは **Studio UI 上で Kit を組み立てる作業手順** に絞ります。Kit の構造や Event ID 命名規則・manifest の意味は [Event ID と Kit の構造](/docs/concepts/event-id-and-kit/)、gain の乗算は [gain の乗算構造](/docs/concepts/gain-architecture/) を参照してください。
 
-## Kit の構成
+## 前提
 
-```
-my-kit/
-  manifest.json          ← イベント定義・基準 gain
-  install-clips/         ← Fire (Command) モード用 WAV
-  stream-clips/          ← Clip (Stream) モード用 WAV
-```
+- Hapbeat Studio が `devtools.hapbeat.com/studio/` で開けること
+- `hapbeat-helper` が起動していて、Studio と接続済みであること (デプロイに必要)
+- Hapbeat デバイスが同じ Wi-Fi に接続済みで Studio から見えていること
 
-## manifest の gain が「基準強度」になる
+## 1. ワーキングディレクトリを開く
 
-Kit をデザインする際の重要な概念として、**manifest に記録した gain が振動強度の基準（= 1.0 倍）** になります。
+Studio → **Kit タブ** → フォルダ選択で、Kit ファイルを置くディレクトリを指定します。
 
-```
-デバイスの実際の振動強度 = manifest の intensity × EventMap の gain × SDK の gain
-```
+- **Unity プロジェクトと連携** したいときは `<Project>/Assets/HapbeatSDK/Kits/` を選ぶと、Unity SDK 側で Kit を first-class asset として扱えます (推奨)
+- スタンドアロンで使うときは任意のフォルダで構いません
 
-### なぜこの構造か
+## 2. 新規 Kit を作成
 
-- **アーティスト（Kit 設計者）** が Studio で適切な振動強度を決めて manifest に書く
-- **開発者（SDK 利用者）** は EventMap や コード上の gain で、そこからの相対的な強弱だけを指定する
-- `gain = 1.0` は「Kit 設計者が決めた標準の強さ」を意味し、`0.5` なら半分、`2.0` なら 2 倍になる
-- Kit 側の調整と実装側の調整が独立しているため、どちらかを変更しても影響範囲が明確
+Kit 一覧の **+ New Kit** → Kit 名を入力 (例: `my-game-kit`)。
 
-### 具体例
+Kit 名は **フォルダ名 + manifest.name + Event ID の prefix の 3 か所** で同じ文字列が使われます (DEC-028)。命名規則は `^[a-z][a-z0-9-]*$` (英小文字始まり / 英数字とハイフン)。
 
-Studio で `intensity: 0.8` に設定した Kit をデプロイしたとき:
+## 3. クリップを追加
 
-| EventMap の gain | 実際の強度 |
-|---|---|
-| 1.0（デフォルト） | 0.8 |
-| 0.5 | 0.4 |
-| 1.25 | 1.0（最大付近） |
-
-## Studio での Kit 設計手順
-
-### 1. ワーキングディレクトリを開く
-
-Studio → **Kit タブ** → フォルダ選択で、Kit ファイルを置くディレクトリを指定します。Unity プロジェクトの場合は `Assets/HapbeatSDK/Kits/` を推奨。
-
-### 2. 新規 Kit を作成する
-
-Kit 一覧の **+ New Kit** → Kit 名を入力（例: `my-game-kit`）。Kit 名は Event ID の prefix になります（`my-game-kit.footstep` など）。
-
-### 3. クリップを追加する
-
-Kit を選択 → **+ Add Clip** で WAV ファイルを追加。クリップ名が Event ID の suffix になります。
-
-クリップごとに以下を設定します:
+Kit を選択 → **+ Add Clip** で WAV ファイルを追加。クリップごとに次を設定します。
 
 | 設定 | 説明 |
 |---|---|
-| **intensity** | 基準振動強度（0.0〜1.0）。SDK 側 gain の基準値 |
-| **mode** | `command`（Fire 用）/ `stream_clip`（Clip 用） |
+| **intensity** | 基準振動強度 (0.0〜1.0)。Kit 設計時の "標準の強さ" として記録される ([gain の乗算構造](/docs/concepts/gain-architecture/) の基準値) |
+| **mode** | `command` (Fire) / `stream_clip` (Clip) のいずれか。詳細: [Mode の切り替え方](./modes/) |
 
-### 4. デバイスにデプロイする
+クリップ名はそのまま Event ID の後半になります (`<kit-name>.<clip-name>`)。
+
+## 4. デバイスにデプロイ
 
 **Manage タブ** → デバイスを選択 → **Kit サブタブ** → **Deploy**。
 
-Fire (Command) モードは `install-clips/` の WAV がデバイスに転送されます。Clip (Stream) モードの WAV はデプロイ不要です。
+- `command` (Fire) モードのクリップは `install-clips/` の WAV がデバイスに転送される
+- `stream_clip` (Clip) モードの WAV は実行時にストリーミングするのでデプロイ対象外
 
-## intensity の決め方
+## 5. Test Play で確認
 
-- 実際にデバイスを装着してデプロイ後に Test Play で確認しながら調整する
-- 全イベントを同じ intensity にしておき、SDK 側 gain で相対調整するのがシンプル
-- 衝撃音など「最大付近で鳴らしたい」クリップは `0.8〜1.0`、環境音などは `0.3〜0.5` が目安
+Studio の Library で Event を選択し、▶ ボタンで再生テスト。デバイスが装着されている状態で intensity を実機確認しながら微調整します。
 
-## 関連
+## intensity の決め方 (Tips)
 
-- [Fire と Clip の比較](/docs/sdk-integration/unity-sdk/fire-vs-clip/) — モード選択の考え方
-- [Kit フォーマット仕様](https://github.com/Hapbeat/hapbeat-contracts/blob/master/specs/kit-format.md) — manifest.json の完全なスキーマ定義
+- 全イベントを **同じ intensity** から始めて、SDK 側 gain で相対調整するのがシンプル
+- 衝撃音など「最大付近で鳴らしたい」クリップは `0.8〜1.0` を目安
+- 環境音・通知系などは `0.3〜0.5` を目安
+- 実機に装着して感覚で詰める (PC スピーカーやノートで判断しない)
+
+詳細な乗算チェーンは [gain の乗算構造](/docs/concepts/gain-architecture/) を参照。
+
+## ファイル形式について
+
+Kit ビルド時に Studio が自動でリサンプル & ダウンミックスします:
+
+- ステレオ素材は L/R をミックスダウンして mono 化
+- 16 kHz 以外のサンプルレートは 16 kHz にリサンプル
+- 浮動小数点や 24/32 bit PCM は PCM16 に変換
+
+つまり **入力 WAV のフォーマットは気にせず** 任意の WAV を放り込めます。
+
+## 関連リンク
+
+- [Event ID と Kit の構造](/docs/concepts/event-id-and-kit/) — Kit / manifest / Event ID の概念
+- [Mode の切り替え方 (Studio)](./modes/) — FIRE / CLIP の Studio 上の操作
+- [Fire と Clip — どちらで送るか](/docs/concepts/fire-vs-clip/) — mode 選択の判断材料
+- [gain の乗算構造](/docs/concepts/gain-architecture/) — intensity が乗算チェーンのどこに入るか
+- [Kit format 仕様](https://github.com/Hapbeat/hapbeat-contracts/blob/master/specs/kit-format.md) — manifest.json の完全スキーマ

@@ -1,53 +1,58 @@
 ---
-title: Mode の使い分け（FIRE / CLIP）
-kind: explanation
+title: Mode の切り替え方（FIRE / CLIP）
+kind: howto
 sidebar:
   order: 400
-description: Hapbeat の触覚再生 2 モード (command / stream_clip) の違いと選び方。
+description: Studio で各 Event の再生 mode を切り替える手順と、Studio 固有の制約。
 ---
 
-Studio では各 Event に 2 つの再生 mode があります。用途に応じて選択してください。
+Studio では各 Event の再生 mode (`command` / `stream_clip` / `stream_source`) を Library パネルから切り替えられます。このページは **Studio UI 上での操作と Studio 固有の制約** を扱います。Mode の本質的な違いとどちらを選ぶべきかは [Fire と Clip — どちらで送るか](/docs/concepts/fire-vs-clip/) を参照してください。
 
-## 一覧
+## Studio 上の表示
 
-| Mode | 内部名 | 表示 | 配置先 | 適性 |
-|------|-------|------|--------|------|
-| **FIRE** | command | ▶ | デバイスローカル（Kit 内に WAV 同梱） | 短い one-shot 効果音、最低遅延 |
-| **CLIP** | stream_clip | ♪ | Helper が PCM ストリーミング | 長めの効果音、動的に gain / pan 制御 |
+Library パネルの各 Event は以下のラベルで mode を示します。
 
-## FIRE（推奨デフォルト）
+| Studio 表示 | manifest 内部値 | 通称 |
+|---|---|---|
+| `▶ FIRE` | `command` | Fire |
+| `♪ CLIP` | `stream_clip` | Clip |
 
-**Kit に WAV を同梱**し、デバイス側でローカル再生します。
+## 切り替え手順
 
-- **遅延**: 数 ms。SDK の Event 送信からほぼ即時
-- **長さ**: 数百 ms 〜 数秒（Kit パーティション容量との相談）
-- **動的制御**: 強度（intensity）のみ
-- **典型用途**: 銃撃音、爆発、衝撃、ボタンプレス感
+1. Studio の Library パネルで対象 Event を選択
+2. Mode ドロップダウンから希望の mode を選択
+3. Library 全体の保存 (デバウンス自動保存) でファイルに反映
 
-ゲームやアプリで頻繁に発火する短い触覚はすべて FIRE で構わない。
+mode を切り替えると **WAV の置き場所も自動的に切り替わる** ことに注意してください。
 
-## CLIP（長めの素材 + 動的パラメータ）
+- `command` (FIRE) → `install-clips/<filename>.wav`
+- `stream_clip` (CLIP) → `stream-clips/<filename>.wav`
 
-**Helper が PCM (16 kHz, MTU ≤ 1024 B chunk) をストリーミング**します。
+Studio がワーキングディレクトリ上で適切な場所に移動します。
 
-- **遅延**: 数十 ms（chunk 単位の buffering + 送信）
-- **長さ**: 任意（数十秒、ループ可）
-- **動的制御**: 強度・gain・pan を再生中に変更可能
-- **典型用途**: BGM 的な持続触覚、長めの環境振動、Unity ParameterBinding と組み合わせた距離減衰など
+## Studio 固有の制約
 
-CLIP は hapbeat-helper と Wi-Fi が必要です。Helper が起動していないと再生できません。
+### WAV は 16 kHz PCM16 mono に正規化される
 
-## どれを選ぶか — 判断フロー
+Kit ビルド時に Studio が自動でリサンプル & ダウンミックスします (FIRE / CLIP 共通)。
 
-```
-触覚は短い (< 数秒) ?
-├─ Yes → FIRE（一番シンプル、デバイス自走）
-└─ No  → CLIP（長尺ループ・動的 gain）
-```
+- ステレオ素材は L/R をミックスダウンして mono 化
+- 16 kHz 以外のサンプルレートは 16 kHz にリサンプル
+- 浮動小数点や 24/32 bit PCM は 16 bit signed PCM (PCM16) に変換
 
-## 制約と注意
+### FIRE は Kit パーティション容量に依存
 
-- **CLIP は Wi-Fi 経由のストリーミング**なので、ネットワーク不安定時は途切れる
-- **FIRE は Kit パーティション容量** が制約（数 MB）。長尺は分割するか CLIP に変える
-- **WAV は 16 kHz PCM16 mono に正規化**される（FIRE / CLIP 共通、ビルド時自動）
-- ステレオ素材は L/R をミックスダウンして mono に
+`install-clips/` 配下の WAV はデバイスのストレージに焼き込まれるため、容量に上限があります (数 MB 程度)。長尺ファイルは:
+
+- 分割して短いクリップにする
+- または mode を CLIP に切り替えてストリーミングにする
+
+### CLIP は Wi-Fi 接続中のみ再生可能
+
+Studio から CLIP を再生テストするときは、Helper 接続 + デバイスの Wi-Fi 接続が前提です。Helper を経由せずに SDK から直接ストリーミングする場合は [Fire と Clip](/docs/concepts/fire-vs-clip/) を参照。
+
+## 関連リンク
+
+- [Fire と Clip — どちらで送るか](/docs/concepts/fire-vs-clip/) — mode 選択の判断材料 (概念)
+- [Kit デザインガイド](./kit-design/) — Studio で Kit を組み立てる手順
+- [Event ID と Kit の構造](/docs/concepts/event-id-and-kit/) — `events` 辞書と mode フィールドの spec

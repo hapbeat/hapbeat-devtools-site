@@ -139,7 +139,34 @@ export default defineConfig({
         {
           label: '📦 SDK Integration',
           items: [
-            { label: 'Unity SDK', autogenerate: { directory: 'docs/sdk-integration/unity-sdk' } },
+            {
+              // Unity SDK: autogenerate だと内側の tutorial/ が小文字グループになるため
+              // explicit items で並べる。順序は各ページ frontmatter の sidebar.order と
+              // 同じになるよう手で揃える。
+              label: 'Unity SDK',
+              items: [
+                { slug: 'docs/sdk-integration/unity-sdk/getting-started' },
+                { slug: 'docs/sdk-integration/unity-sdk/integration' },
+                {
+                  label: 'Tutorial',
+                  items: [
+                    { slug: 'docs/sdk-integration/unity-sdk/tutorial' },
+                    { slug: 'docs/sdk-integration/unity-sdk/tutorial/walkthrough' },
+                    { slug: 'docs/sdk-integration/unity-sdk/tutorial/method-choice' },
+                  ],
+                },
+                { slug: 'docs/sdk-integration/unity-sdk/xri-handdemo-quickstart' },
+                { slug: 'docs/sdk-integration/unity-sdk/ai-assisted-workflow' },
+                { slug: 'docs/sdk-integration/unity-sdk/multi-app' },
+                { slug: 'docs/sdk-integration/unity-sdk/streaming' },
+                { slug: 'docs/sdk-integration/unity-sdk/editor-menus' },
+                { slug: 'docs/sdk-integration/unity-sdk/event-map' },
+                { slug: 'docs/sdk-integration/unity-sdk/installation' },
+                { slug: 'docs/sdk-integration/unity-sdk/parameter-binding' },
+                { slug: 'docs/sdk-integration/unity-sdk/triggers' },
+                { slug: 'docs/sdk-integration/unity-sdk/fire-vs-clip' },
+              ],
+            },
           ],
         },
         {

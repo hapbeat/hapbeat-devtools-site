@@ -1,66 +1,104 @@
 ---
-title: Fire と Clip の比較
-kind: explanation
+title: Fire と Clip の比較 (Unity SDK)
+kind: howto
 sidebar:
   order: 400
-description: Hapbeat SDK の 2 つの再生モード（Fire / Command と Clip / Stream）の違いと使い分け。
+description: Unity SDK で Fire (command) と Clip (stream_clip) を使い分けるためのコード例と EventMap 設定手順。
 ---
 
-Hapbeat SDK には触覚を鳴らす方法が 2 種類あります。EventMap のエントリごとに mode を選択します。
+このページは Unity SDK で Fire / Clip を **どう書くか** に絞ります。両者の本質的な違い・選び方の判断材料は [Fire と Clip — どちらで送るか](/docs/concepts/fire-vs-clip/) を参照してください。
 
-## 概要
+## EventMap での mode 切り替え
 
-| | Fire (Command) | Clip (StreamClip) |
+Unity の EventMap ウィンドウで各 Event の Mode ドロップダウンから切り替えます。
+
+| EventMap 表示 | manifest 値 | Unity SDK API |
 |---|---|---|
-| **デバイスへのデプロイ** | 必要 | 不要 |
-| **無線で送るもの** | コマンド（数バイト） | PCM 音声データ（ストリーミング） |
-| **遅延** | 低い・安定 | 環境依存 |
-| **停止の即時性** | 即時 | 若干の遅れあり |
-| **対応する音声の長さ** | Kit に収まるサイズ | 制限なし（ストリーミング） |
-| **本番での推奨度** | ◎ 効果音向き | △ 長尺・試作向き |
+| `▶ FIRE` | `command` | `HapbeatManager.Play(eventId, gain)` |
+| `♪ CLIP` | `stream_clip` | `HapbeatManager.StreamAudioClip(clip, gain)` |
 
-## Fire (Command) モード
+Trigger コンポーネント (`HapbeatTriggerBase` 派生) は mode を意識せず Event を発火し、内部で適切な API を呼び分けます。
 
-デバイス側にあらかじめ Kit（WAV + manifest）をデプロイしておき、SDK はイベント発火時に短いコマンドだけを送信します。デバイスは受け取ったコマンドをもとに、内蔵ストレージから音声を再生します。
+## コード例
 
-**メリット**
-- 無線帯域を消費しない（コマンドは数バイト）
-- 遅延が小さく再現性が高い
-- 停止コマンドも即時に反映される
+### Fire (command)
 
-**デメリット**
-- Studio でのデプロイ作業が必要
-- Kit サイズはデバイスのストレージ容量に依存
+事前にデプロイ済みの Kit に対して Event ID で発火します。
 
-**向いている用途**: ゲーム中の効果音、XR インタラクション、本番環境での一般的な触覚フィードバック
-
-## Clip (StreamClip) モード
-
-SDK 側に置いた AudioClip（WAV）を PCM データとしてリアルタイムにデバイスへストリーミングします。デバイスへのデプロイは不要です。
-
-**メリット
-**
-- デプロイなしで即座に試せる（プロトタイピング向き）
-- 長い音声や動的に生成した波形も送れる
-
-**デメリット**
-- 音声データを常時ストリーミングするため、Wi-Fi 環境が悪いと途切れや遅延が発生する
-- ループ停止などに若干の遅れが出る場合がある
-
-**向いている用途**: 開発中の素早い確認、数秒以上の長い触覚パターン、動的波形生成
-
-## どちらを選ぶか
-
-```
-プロトタイプ・確認作業  →  Clip（デプロイ不要で手軽）
-本番・効果音           →  Fire（低遅延・安定）
-長尺パターン           →  Clip（ストリーミングのみ対応）
+```csharp
+HapbeatManager.Instance.Play("my-game.sword-hit", gain: 0.8f);
 ```
 
-実装が固まったら Clip で試作 → Fire に移行するワークフローが典型的です。EventMap の mode を切り替えるだけで移行できます。
+任意で target を指定 (Group / Player address):
 
-## 関連
+```csharp
+HapbeatManager.Instance.Play(
+    eventId: "my-game.sword-hit",
+    gain: 0.8f,
+    target: "player_1/chest"
+);
+```
 
-- [EventMap ウィンドウ](/docs/sdk-integration/unity-sdk/event-map/) — mode の設定場所
-- [Kit デザインガイド](/docs/tools/studio/kit-design/) — Fire 用 Kit の設計と gain 設計
-- [Streaming buffer](/docs/sdk-integration/unity-sdk/streaming/) — Clip モードの遅延調整
+### Clip (stream_clip)
+
+Unity の `AudioClip` を直接ストリーミングします (事前デプロイ不要)。
+
+```csharp
+public AudioClip footstepClip;  // Inspector でアサイン
+
+void OnFootstep() {
+    var playback = HapbeatManager.Instance.StreamAudioClip(
+        clip: footstepClip,
+        gain: 0.7f
+    );
+    // playback ハンドルで停止や gain 変更が可能
+}
+```
+
+ループ + 動的 gain は次のように:
+
+```csharp
+var playback = HapbeatManager.Instance.StreamAudioClip(
+    clip: ambientClip,
+    baselineGain: 0.5f,
+    initialGain: 0.5f,
+    target: "player_1/chest",
+    loop: true
+);
+
+// 再生中に gain を変更
+playback.SetGain(0.2f);
+
+// 停止
+playback.Stop();
+```
+
+## 移行ワークフロー (Clip → Fire)
+
+開発初期は Clip でクイック試作 → 形が決まったら Fire に移すのが典型です:
+
+1. **Clip でプロトタイプ** — `AudioClip` を Inspector に直接アサインして即座に試行錯誤
+2. **波形を Kit に取り込む** — Studio に WAV をインポートして `install-clips/` 配下に配置
+3. **EventMap で mode を切り替え** — `stream_clip` → `command`
+4. **Kit をデプロイ** — Studio から対象デバイスへ
+5. **動作確認** — Trigger 経由で発火、低遅延・安定再生に切り替わる
+
+Trigger 側のコードは変更不要 (mode 切替は EventMap 側だけで完結) です。
+
+## よくある質問
+
+**Q. Fire と Clip をミックスできるか？**
+A. はい。EventMap 内で Event ごとに mode を選べるので、効果音は Fire / 環境音は Clip など使い分けて構いません。
+
+**Q. Helper が止まると Fire も止まるか？**
+A. いいえ。Fire は SDK が直接 UDP broadcast を送るため Helper 不要です。Clip も SDK 直送で動作しますが、Studio から再生テストするときは Helper 経由になります。
+
+**Q. Clip で長尺ループの先頭が欠ける**
+A. [Streaming buffer](./streaming/) で先読みバッファのサイズを調整してください。
+
+## 関連リンク
+
+- [Fire と Clip — どちらで送るか](/docs/concepts/fire-vs-clip/) — 概念と判断フロー
+- [EventMap ウィンドウ](./event-map/) — mode の編集場所
+- [Streaming buffer](./streaming/) — Clip モードのバッファ調整
+- [Kit デザインガイド](/docs/tools/studio/kit-design/) — Fire 用 Kit の設計
