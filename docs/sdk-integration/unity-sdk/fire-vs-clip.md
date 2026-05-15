@@ -2,7 +2,7 @@
 title: Fire と Clip を実装する
 kind: howto
 sidebar:
-  order: 400
+  order: 200
 description: Unity SDK で Fire (command) と Clip (stream_clip) を使い分けるためのコード例と EventMap 設定手順。
 ---
 
