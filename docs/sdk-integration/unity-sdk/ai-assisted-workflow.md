@@ -1,5 +1,5 @@
 ---
-title: AI コーディング支援を使った Hapbeat 組み込み
+title: AI 支援で組み込む
 kind: howto
 sidebar:
   order: 200

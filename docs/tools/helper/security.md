@@ -1,12 +1,12 @@
 ---
-title: セキュリティと動作の影響
+title: セキュリティと挙動
 kind: explanation
 sidebar:
   order: 400
 description: hapbeat-helper を常駐させた時の PC 作業への影響と、Hapbeat / Helper / Studio が抱えるセキュリティリスクの全体像。公共 Wi-Fi 利用ガイド付き。
 ---
 
-このページは `hapbeat-helper` を **常駐させた時に PC とネットワークに何が起きるか**、また **Hapbeat と組み合わせた場合のセキュリティ上の注意点** をまとめています。導入手順は [hapbeat-helper のインストール](../getting-started/) を参照してください。
+このページは `hapbeat-helper` を **常駐させた時に PC とネットワークに何が起きるか**、また **Hapbeat と組み合わせた場合のセキュリティ上の注意点** をまとめています。導入手順は [Helper をインストール](../getting-started/) を参照してください。
 
 ## PC 作業への影響
 

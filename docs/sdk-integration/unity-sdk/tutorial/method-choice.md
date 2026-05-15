@@ -1,5 +1,5 @@
 ---
-title: BatchSetup vs スクリプトの使い分け
+title: BatchSetup vs スクリプト
 kind: explanation
 sidebar:
   order: 400

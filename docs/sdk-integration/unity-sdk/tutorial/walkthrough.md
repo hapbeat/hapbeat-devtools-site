@@ -1,5 +1,5 @@
 ---
-title: Tutorial Walkthrough
+title: Walkthrough
 kind: tutorial
 sidebar:
   order: 100

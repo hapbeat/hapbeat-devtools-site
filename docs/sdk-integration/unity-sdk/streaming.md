@@ -1,5 +1,5 @@
 ---
-title: Streaming buffer (StreamClip 用)
+title: Streaming buffer を調整する
 kind: howto
 sidebar:
   order: 200

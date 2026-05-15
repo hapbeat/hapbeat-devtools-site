@@ -1,5 +1,5 @@
 ---
-title: Group と Player の addressing
+title: Address の仕組み
 kind: explanation
 description: 複数 Hapbeat を 1 つのネットワークで同時に動かすための address 設計と、Group / Player の役割。
 sidebar:

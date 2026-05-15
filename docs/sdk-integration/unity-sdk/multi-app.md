@@ -1,5 +1,5 @@
 ---
-title: 複数アプリの共存
+title: 複数アプリを共存させる
 kind: howto
 sidebar:
   order: 200

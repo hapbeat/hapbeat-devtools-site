@@ -1,5 +1,5 @@
 ---
-title: キーボードショートカット
+title: ショートカット一覧
 kind: reference
 sidebar:
   order: 300

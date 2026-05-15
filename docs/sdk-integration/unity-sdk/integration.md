@@ -1,5 +1,5 @@
 ---
-title: プロジェクトへの組み込み
+title: プロジェクトに組み込む
 kind: tutorial
 description: 既存 Unity シーンに Hapbeat SDK を追加する手順。EventMap + Trigger パターンの基本。
 sidebar:
@@ -101,5 +101,5 @@ Hapbeat Studio → Kit タブ → フォルダ選択 → Manage タブ → Deplo
 - [EventMap ウィンドウ](/docs/sdk-integration/unity-sdk/event-map/) — Wiring の可視化・一括管理
 - [Parameter Binding](/docs/sdk-integration/unity-sdk/parameter-binding/) — ゲーム状態を gain / pan に動的マッピング
 - [AI 支援ワークフロー](/docs/sdk-integration/unity-sdk/ai-assisted-workflow/) — 既存シーンへの触覚後付け実践フロー
-- [Editor メニューリファレンス](/docs/sdk-integration/unity-sdk/editor-menus/) — Hapbeat メニュー全項目の使い方逆引き
-- [複数アプリの共存](/docs/sdk-integration/unity-sdk/multi-app/) — LAN 分離 / group ID 切り分け
+- [Editor メニュー一覧](/docs/sdk-integration/unity-sdk/editor-menus/) — Hapbeat メニュー全項目の使い方逆引き
+- [複数アプリを共存させる](/docs/sdk-integration/unity-sdk/multi-app/) — LAN 分離 / group ID 切り分け

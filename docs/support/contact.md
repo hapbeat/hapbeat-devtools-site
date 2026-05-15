@@ -1,6 +1,6 @@
 ---
-title: サポート / お問い合わせ
-kind: howto
+title: お問い合わせ
+kind: reference
 description: バグ報告・質問・フィードバックの送り先。GitHub Issues と Discussions。
 sidebar:
   order: 1

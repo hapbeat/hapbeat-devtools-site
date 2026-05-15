@@ -1,12 +1,12 @@
 ---
-title: Mode の切り替え方（FIRE / CLIP）
+title: Mode を切り替える
 kind: howto
 sidebar:
   order: 400
 description: Studio で各 Event の再生 mode を切り替える手順と、Studio 固有の制約。
 ---
 
-Studio では各 Event の再生 mode (`command` / `stream_clip` / `stream_source`) を Library パネルから切り替えられます。このページは **Studio UI 上での操作と Studio 固有の制約** を扱います。Mode の本質的な違いとどちらを選ぶべきかは [Fire と Clip — どちらで送るか](/docs/concepts/fire-vs-clip/) を参照してください。
+Studio では各 Event の再生 mode (`command` / `stream_clip` / `stream_source`) を Library パネルから切り替えられます。このページは **Studio UI 上での操作と Studio 固有の制約** を扱います。Mode の本質的な違いとどちらを選ぶべきかは [Fire と Clip の違い](/docs/concepts/fire-vs-clip/) を参照してください。
 
 ## Studio 上の表示
 
@@ -53,6 +53,6 @@ Studio から CLIP を再生テストするときは、Helper 接続 + デバイ
 
 ## 関連リンク
 
-- [Fire と Clip — どちらで送るか](/docs/concepts/fire-vs-clip/) — mode 選択の判断材料 (概念)
-- [Kit デザインガイド](./kit-design/) — Studio で Kit を組み立てる手順
-- [Event ID と Kit の構造](/docs/concepts/event-id-and-kit/) — `events` 辞書と mode フィールドの spec
+- [Fire と Clip の違い](/docs/concepts/fire-vs-clip/) — mode 選択の判断材料 (概念)
+- [Kit を作って配布する](./kit-design/) — Studio で Kit を組み立てる手順
+- [Event ID と Kit](/docs/concepts/event-id-and-kit/) — `events` 辞書と mode フィールドの spec

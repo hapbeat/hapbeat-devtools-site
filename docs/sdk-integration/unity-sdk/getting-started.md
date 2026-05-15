@@ -8,7 +8,7 @@ sidebar:
 
 このガイドでは、**新規 Unity プロジェクト** に SDK をインストールし、Basic Example サンプルを通して Hapbeat デバイスから振動が出るまでを最短で体験します。
 
-既存プロジェクトへの組み込み方については [プロジェクトへの組み込み](/docs/sdk-integration/unity-sdk/integration/) を参照してください。
+既存プロジェクトへの組み込み方については [プロジェクトに組み込む](/docs/sdk-integration/unity-sdk/integration/) を参照してください。
 
 ## 前提
 
@@ -46,7 +46,7 @@ https://github.com/Hapbeat/hapbeat-unity-sdk.git
 
 インポート完了後、**`Hapbeat`** メニューがメニューバーに現れます。
 
-バージョン固定・更新・トラブルシューティングの詳細は [インストール](/docs/sdk-integration/unity-sdk/installation/) を参照。
+バージョン固定・更新・トラブルシューティングの詳細は [インストール要件](/docs/sdk-integration/unity-sdk/installation/) を参照。
 
 ## 2. Build Setup でシーン・Kit・EventMap を生成
 
@@ -127,14 +127,14 @@ Command モード（F キー）を動かすには、デバイスに `basic-exam-
 
 **Fire** はデプロイが必要ですが、デバイスは本体に保存した音声を再生するだけで、無線では短いコマンドを受け取るのみです。遅延が少なく安定しているため、即時性が求められる効果音では本番環境での使用を推奨します。
 
-詳しい使い分けは [Fire と Clip の比較](/docs/sdk-integration/unity-sdk/fire-vs-clip/) を参照してください。
+詳しい使い分けは [Fire と Clip の違い](/docs/sdk-integration/unity-sdk/fire-vs-clip/) を参照してください。
 
-また、Hapbeat SDK の **gain は乗算構造**になっています。Studio で Kit を設計する際に manifest に記録した基準 gain が「1.0 倍時の振動強度」となり、SDK 側の gain や EventMap の gain はそれに対する倍率として機能します。Kit の設計方法と gain の考え方は [Kit デザインガイド](/docs/tools/studio/kit-design/) で解説しています。
+また、Hapbeat SDK の **gain は乗算構造**になっています。Studio で Kit を設計する際に manifest に記録した基準 gain が「1.0 倍時の振動強度」となり、SDK 側の gain や EventMap の gain はそれに対する倍率として機能します。Kit の設計方法と gain の考え方は [Kit を作って配布する](/docs/tools/studio/kit-design/) で解説しています。
 :::
 
 ## 次のステップ
 
-- [プロジェクトへの組み込み](/docs/sdk-integration/unity-sdk/integration/) — 自分のシーンへの追加手順と Tutorial サンプル紹介
+- [プロジェクトに組み込む](/docs/sdk-integration/unity-sdk/integration/) — 自分のシーンへの追加手順と Tutorial サンプル紹介
 - [Trigger コンポーネント](/docs/sdk-integration/unity-sdk/triggers/) — Animator / Collision / Sequence 等
 - [EventMap ウィンドウ](/docs/sdk-integration/unity-sdk/event-map/) — Event ID と波形の対応を GUI 管理
 - [Parameter Binding](/docs/sdk-integration/unity-sdk/parameter-binding/) — ゲーム状態を gain / pan に動的マッピング

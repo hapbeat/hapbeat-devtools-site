@@ -172,8 +172,8 @@ export default defineConfig({
         {
           label: '📖 Reference',
           items: [
-            { label: 'Reference (索引)',   slug: 'docs/reference' },
-            { label: 'Contracts (仕様)',   autogenerate: { directory: 'docs/reference/contracts' } },
+            { label: 'Reference 索引',    slug: 'docs/reference' },
+            { label: 'Contracts 仕様',     autogenerate: { directory: 'docs/reference/contracts' } },
           ],
         },
         { label: '❓ Support',        autogenerate: { directory: 'docs/support' } },

@@ -1,5 +1,5 @@
 ---
-title: XRI HandDemo に触覚を追加する
+title: XRI HandDemo に触覚を足す
 kind: tutorial
 sidebar:
   order: 100

@@ -14,13 +14,13 @@ sidebar:
 : 触覚デバイス本体。現行モデルは **Duo WL** (首掛けワイヤレス) と **Band WL** (リスト / アンクル装着) の 2 種類。ESP32 を内蔵し、Wi-Fi UDP で触覚イベントを受信して再生する。
 
 **Kit**
-: 触覚資産のフォルダ単位。`manifest.json` + WAV 群で構成。Studio で作成し、Helper 経由で Hapbeat デバイスに転送する。詳細: [Event ID と Kit の構造](./event-id-and-kit/)
+: 触覚資産のフォルダ単位。`manifest.json` + WAV 群で構成。Studio で作成し、Helper 経由で Hapbeat デバイスに転送する。詳細: [Event ID と Kit](./event-id-and-kit/)
 
 **Event ID**
 : 触覚イベントを識別する文字列。基本形式 `<category>.<name>`、拡張形式 `<category>.<subcategory>.<name>`、名前空間付き `<namespace>/<category>.<name>` をサポート。
 
 **address**
-: パケットの宛先文字列。形式は `[prefix/] player_{N} / {position} [/group_{M}]`。詳細: [Group と Player の addressing](./group-player-addressing/)
+: パケットの宛先文字列。形式は `[prefix/] player_{N} / {position} [/group_{M}]`。詳細: [Address の仕組み](./group-player-addressing/)
 
 **Player 番号**
 : 同じプレイヤーに属する複数デバイスをまとめる単位。1..99。

@@ -1,5 +1,5 @@
 ---
-title: Fire と Clip — どちらで送るか
+title: Fire と Clip の違い
 kind: explanation
 description: 触覚イベントの送信モード「Fire (command)」と「Clip (stream)」の本質的な違いと、どちらをどのケースで選ぶか。
 sidebar:
@@ -107,7 +107,7 @@ SDK 側に置いた AudioClip 等を PCM データに変換し、`STREAM_BEGIN` 
 
 ## 関連リンク
 
-- [Mode の使い分け (Studio 視点)](/docs/tools/studio/modes/) — Studio で Mode を切り替える手順 (howto)
-- [Fire と Clip の比較 (Unity SDK 視点)](/docs/sdk-integration/unity-sdk/fire-vs-clip/) — Unity 実装でのコード例
-- [Streaming buffer](/docs/sdk-integration/unity-sdk/streaming/) — Clip モードの buffering / 遅延チューニング
+- [Mode を切り替える](/docs/tools/studio/modes/) — Studio で Mode を切り替える手順 (howto)
+- [Fire と Clip を実装する](/docs/sdk-integration/unity-sdk/fire-vs-clip/) — Unity 実装でのコード例
+- [Streaming buffer を調整する](/docs/sdk-integration/unity-sdk/streaming/) — Clip モードの buffering / 遅延チューニング
 - [gain の乗算構造](./gain-architecture/) — gain がどの段で乗算されるか

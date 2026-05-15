@@ -1,5 +1,5 @@
 ---
-title: Wi-Fi 設定
+title: Wi-Fi を設定する
 kind: howto
 sidebar:
   order: 200
@@ -93,5 +93,5 @@ wifi help
 
 ## 次のステップ
 
-- [トラブルシューティング](/docs/tools/firmware/troubleshooting/)
-- [Hapbeat 初期セットアップ](/docs/tools/studio/initial-setup/)
+- [トラブルを解決する](/docs/tools/firmware/troubleshooting/)
+- [Hapbeat を初期設定する](/docs/tools/studio/initial-setup/)

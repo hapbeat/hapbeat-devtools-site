@@ -1,5 +1,5 @@
 ---
-title: Editor メニューリファレンス
+title: Editor メニュー一覧
 kind: reference
 sidebar:
   order: 300
