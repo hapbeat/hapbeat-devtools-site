@@ -132,7 +132,7 @@ export default defineConfig({
           label: '🛠 Tools',
           items: [
             { label: 'Hapbeat Studio',     autogenerate: { directory: 'docs/tools/studio' } },
-            { label: 'Helper (CLI daemon)', autogenerate: { directory: 'docs/tools/helper' } },
+            { label: 'Helper', autogenerate: { directory: 'docs/tools/helper' } },
             { label: 'Device Firmware',    autogenerate: { directory: 'docs/tools/firmware' } },
           ],
         },
