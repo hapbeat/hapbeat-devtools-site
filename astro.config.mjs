@@ -131,7 +131,7 @@ export default defineConfig({
         {
           label: '🛠 Tools',
           items: [
-            { label: 'Hapbeat Studio', autogenerate: { directory: 'docs/tools/studio' } },
+            { label: 'Studio', autogenerate: { directory: 'docs/tools/studio' } },
             { label: 'Helper',         autogenerate: { directory: 'docs/tools/helper' } },
           ],
         },
