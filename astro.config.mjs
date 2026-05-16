@@ -63,9 +63,6 @@ export default defineConfig({
   redirects: {
     '/docs/getting-started': '/docs/start-here/getting-started/',
     '/docs/unity-sdk/getting-started': '/docs/sdk-integration/unity-sdk/getting-started/',
-    // 2026-05-15: tools/firmware/ → device/ (Hapbeat 本体セクションに分離)
-    '/docs/tools/firmware/troubleshooting': '/docs/device/troubleshooting/',
-    '/docs/tools/firmware/wifi-setup': '/docs/device/wifi-setup/',
   },
   integrations: [
     starlight({
@@ -138,7 +135,7 @@ export default defineConfig({
             { label: 'Helper',         autogenerate: { directory: 'docs/tools/helper' } },
           ],
         },
-        { label: '🔧 Hapbeat 本体',   autogenerate: { directory: 'docs/device' } },
+        { label: '🔧 Hardware',       autogenerate: { directory: 'docs/hardware' } },
         {
           label: '📦 SDK Integration',
           items: [

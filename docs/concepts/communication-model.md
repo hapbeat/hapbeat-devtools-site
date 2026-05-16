@@ -51,7 +51,7 @@ UDP には ACK / 再送がありません。これは意図的な選択です:
 | **D. Hapbeat SoftAP** | Hapbeat 1 台が AP、HMD + 他 Hapbeat が STA | ルーターなし環境（Quest 等） |
 | **E. 展示ブース隔離** | ブースごとに独立 AP、B と同等 | イベント・展示会 |
 
-詳細: [Hapbeat を初期設定する](/docs/tools/studio/initial-setup/) / [Wi-Fi を設定する](/docs/device/wifi-setup/)
+詳細: [Hapbeat を初期設定する](/docs/tools/studio/initial-setup/) / [Wi-Fi を設定する](/docs/hardware/wifi-setup/)
 
 ## 上位オプション: ESP-NOW 経路
 

@@ -137,14 +137,14 @@ Pin 6 個に同じ設定が一括で貼られます。
 
 ### 手順
 
-1. **Studio で Kit を作る**
-   - Hapbeat Studio を開いて新規 Kit を作成
-   - 各 entry 名に対応する clip を登録 (例: `physics.pin_hit` → drum 系の clip)
-   - 同じ event id を使うのが楽: Studio の Kit にも `physics.pin_hit` で登録
+1. **Studio で Kit を作る (または同梱の tutorial-kit を流用)**
+   - Hapbeat Studio で `tutorial-kit` を開く (Sample Import 後に `Assets/HapbeatSDK/Kits/tutorial-kit/` に展開済み)
+   - `install-clips/` に Command 用 WAV (例: `pin_hit.wav`) を追加
+   - もしくは新規 Kit を作って同じ event id (`tutorial-kit.pin_hit` 等) で clip 登録
 2. **Kit をデバイスに deploy** (Studio の Save → Deploy)
 3. **EventMap で mode を Command に切替**
    - `pin_hit` entry を開いて Mode を `Command` に
-   - Category = `physics`, Event Name = `pin_hit` を入力 (Event ID = `physics.pin_hit` が自動算出)
+   - Category = `tutorial-kit`, Event Name = `pin_hit` (Event ID = `tutorial-kit.pin_hit`)
    - streamClip フィールドはそのまま (Command モードでは無視される)
 4. **試したい entry を順次 Command 化**
    - 全部 Command にする必要はなく、低遅延を効かせたい衝撃系だけ Command、ambient/drag 系は StreamClip という混在運用が実用的
