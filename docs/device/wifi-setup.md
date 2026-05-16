@@ -93,5 +93,5 @@ wifi help
 
 ## 次のステップ
 
-- [トラブルを解決する](/docs/tools/firmware/troubleshooting/)
+- [トラブルを解決する](/docs/device/troubleshooting/)
 - [Hapbeat を初期設定する](/docs/tools/studio/initial-setup/)
