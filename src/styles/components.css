@@ -95,11 +95,63 @@
   color: var(--hb-ink-faint);
 }
 
-/* インライン画像の高さリミット。SVG は viewport 幅で巨大化しがちなので
- * max-height で抑える。Starlight default は max-width:100% のみ。 */
+/* インライン画像の額縁 — "Resonance" スタイル
+ *
+ * 方針:
+ *   - 全画像に薄い額縁 (bg-elev + line) + ブランドカラーで色付いた多層影。
+ *     左に magenta、右に blue、下に purple をうっすら撒いて
+ *     触覚デバイスらしい "響き / 余韻" を縁に滲ませる
+ *   - light / dark で影の alpha を切り替えて両モードで効果が残るように
+ *   - SVG は viewport 幅で巨大化しがちなので max-height で抑える
+ *   - 額縁が不要な画像 (装飾アイコン / 透過 SVG 図表) は `class="bare"` で opt-out
+ *
+ * markdown 画像構文 `![alt](path)` には class を付けられないため、
+ * 例外指定したい場合は HTML で <img class="bare" ...> と書く。 */
 .sl-markdown-content img {
+  display: block;
+  /* Astro image optimizer が出す width/height 属性で固定アスペクト比を
+   * 維持しつつ、max-width / max-height のクランプ時に両軸を比例縮小させる。
+   * object-fit:contain を入れると box が画像より大きくなりレターボックスが
+   * 発生するので使わない。 */
+  width: auto;
+  height: auto;
+  max-width: 100%;
   max-height: 420px;
-  object-fit: contain;
+  margin-inline: auto;          /* 図は中央揃えを基本に */
+  box-sizing: border-box;
+
+  padding: 4px;
+  background: var(--hb-bg-elev);
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius);
+
+  box-shadow:
+    /* base lift — neutral depth */
+    0 1px 2px   oklch(0.2 0.05 280 / .06),
+    0 12px 28px oklch(0.2 0.05 280 / .10),
+    /* brand resonance — magenta L, blue R, purple beneath */
+    -8px 12px 36px oklch(0.62 0.25 350 / .12),
+     8px 12px 36px oklch(0.58 0.20 230 / .12),
+     0  20px 60px oklch(0.52 0.25 300 / .08);
+}
+
+[data-theme="dark"] .sl-markdown-content img {
+  box-shadow:
+    0 1px 2px   oklch(0 0 0 / .40),
+    0 12px 28px oklch(0 0 0 / .50),
+    /* dark mode: bump alpha so the colors survive the dark canvas */
+    -10px 12px 44px oklch(0.65 0.25 350 / .22),
+     10px 12px 44px oklch(0.62 0.22 230 / .22),
+     0   24px 70px oklch(0.55 0.25 300 / .18);
+}
+
+/* opt-out — diagrams, logos, anything that shouldn't be framed */
+.sl-markdown-content img.bare {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
 }
 
 /* description (frontmatter) を lede 風に。横幅は content 全体に揃える
