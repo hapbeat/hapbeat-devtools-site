@@ -21,6 +21,7 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "chokidar": "^5.0.0",
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "image-size": "^2.0.2"
   }
 }

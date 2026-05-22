@@ -1,6 +1,12 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import rehypeMermaid from 'rehype-mermaid';
+import { imageSize } from 'image-size';
+import { existsSync, readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // 参考: docs/protocol と docs/kit 等の情報源は各 repo の docs/ を
 // scripts/fetch-docs.mjs で src/content/docs/docs/ に取り込んでから build する。
@@ -14,6 +20,76 @@ import rehypeMermaid from 'rehype-mermaid';
 //   - **例外**: /studio/ 配下 (パスが /studio で始まるもの) は別 SPA なので新タブ
 const SITE_HOSTNAME = 'devtools.hapbeat.com';
 const isStudioPath = (p) => p === '/studio' || p.startsWith('/studio/');
+// markdown 内の画像 (`![]()` 由来) を build 時に最大幅で自動リサイズする
+// remark プラグイン。
+//
+// なぜ remark (MDAST) で実装するか:
+//   - Astro の markdown image 処理は MDAST → HAST 変換時点で src を
+//     `/_astro/<hash>.webp` の最適化済 URL に書き換える
+//   - rehype (HAST) 段階では既にローカルファイルパスが失われている
+//   - MDAST の `image` ノードは `node.url` に元パスを保持しているので
+//     その段階で intrinsic 寸法を読み、`data.hProperties.width` で
+//     Astro の image service にリサイズ指示を渡す
+//
+// MAX_WIDTH は Retina 2x を想定した上限。表示幅 ~ 800px のサイトで
+// 1600px ソースを許容する設定。
+const MAX_IMAGE_WIDTH = 1600;
+const IMAGE_SOURCE_ROOTS = [
+  path.join(__dirname, 'src', 'content', 'docs', 'docs'),  // fetch-docs 後の場所
+  path.join(__dirname, 'docs'),                            // ソース docs/
+  path.join(__dirname, 'public'),
+];
+function resolveLocalImage(src, mdFilePath) {
+  // src 例: "../assets/foo.png" / "./assets/foo.png" / "/assets/foo.png"
+  if (typeof src !== 'string') return null;
+  if (/^https?:\/\//.test(src) || src.startsWith('data:')) return null;
+  // 1) 処理中の .md ファイルからの相対解決を最優先
+  if (mdFilePath) {
+    const rel = path.resolve(path.dirname(mdFilePath), src);
+    if (existsSync(rel)) return rel;
+  }
+  // 2) IMAGE_SOURCE_ROOTS から探す (../ や / は剥がす)
+  const cleaned = src.replace(/^(\.\.?\/)+/, '').replace(/^\//, '');
+  for (const root of IMAGE_SOURCE_ROOTS) {
+    const candidate = path.join(root, cleaned);
+    if (existsSync(candidate)) return candidate;
+    const fallback = path.join(root, 'assets', path.basename(cleaned));
+    if (existsSync(fallback)) return fallback;
+  }
+  return null;
+}
+function getIntrinsicSize(absPath) {
+  try {
+    const buf = readFileSync(absPath);
+    return imageSize(buf);
+  } catch {
+    return null;
+  }
+}
+function remarkImageMaxWidth() {
+  return (tree, file) => {
+    const mdPath = file?.path;
+    const walk = (node) => {
+      if (!node || typeof node !== 'object') return;
+      if (node.type === 'image' && typeof node.url === 'string') {
+        node.data = node.data || {};
+        node.data.hProperties = node.data.hProperties || {};
+        if (node.data.hProperties.width == null) {
+          const abs = resolveLocalImage(node.url, mdPath);
+          const dim = abs ? getIntrinsicSize(abs) : null;
+          if (dim && dim.width) {
+            node.data.hProperties.width = Math.min(MAX_IMAGE_WIDTH, dim.width);
+          }
+        }
+      }
+      if (Array.isArray(node.children)) {
+        for (const child of node.children) walk(child);
+      }
+    };
+    walk(tree);
+  };
+}
+
 function rehypeNewTabExternal() {
   const shouldNewTab = (href) => {
     if (typeof href !== 'string' || !href) return false;
@@ -56,7 +132,13 @@ export default defineConfig({
     port: 1313,
   },
   markdown: {
-    rehypePlugins: [rehypeNewTabExternal, [rehypeMermaid, { strategy: 'inline-svg' }]],
+    remarkPlugins: [
+      remarkImageMaxWidth,  // build 時に markdown 画像を最大 MAX_IMAGE_WIDTH へリサイズ
+    ],
+    rehypePlugins: [
+      rehypeNewTabExternal,
+      [rehypeMermaid, { strategy: 'inline-svg' }],
+    ],
   },
   // 旧 IA (2026-05-12 再編前) の URL は外部リンクや SNS で参照されている可能性が
   // あるためリダイレクトで温存する。新規追加は控えめに。

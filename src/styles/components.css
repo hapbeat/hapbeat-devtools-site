@@ -95,64 +95,64 @@
   color: var(--hb-ink-faint);
 }
 
-/* インライン画像の額縁 — "Resonance" スタイル
- *
- * 方針:
- *   - 全画像に薄い額縁 (bg-elev + line) + ブランドカラーで色付いた多層影。
- *     左に magenta、右に blue、下に purple をうっすら撒いて
- *     触覚デバイスらしい "響き / 余韻" を縁に滲ませる
- *   - light / dark で影の alpha を切り替えて両モードで効果が残るように
- *   - SVG は viewport 幅で巨大化しがちなので max-height で抑える
- *   - 額縁が不要な画像 (装飾アイコン / 透過 SVG 図表) は `class="bare"` で opt-out
- *
- * markdown 画像構文 `![alt](path)` には class を付けられないため、
- * 例外指定したい場合は HTML で <img class="bare" ...> と書く。 */
+/* インライン画像 — 共通 sizing。
+ * max-height で wide viewport の巨大化を抑える。横長画像はこの clamp で
+ * width が縮み、margin-inline:auto と組み合わさって frame の左右に余白が
+ * 出ることがあるが、画像の物量を抑える方針として許容する。 */
 .sl-markdown-content img {
   display: block;
-  /* Astro image optimizer が出す width/height 属性で固定アスペクト比を
-   * 維持しつつ、max-width / max-height のクランプ時に両軸を比例縮小させる。
-   * object-fit:contain を入れると box が画像より大きくなりレターボックスが
-   * 発生するので使わない。 */
   width: auto;
   height: auto;
   max-width: 100%;
   max-height: 420px;
   margin-inline: auto;          /* 図は中央揃えを基本に */
   box-sizing: border-box;
+}
 
-  padding: 4px;
-  background: var(--hb-bg-elev);
-  border: 1px solid var(--hb-line);
-  border-radius: var(--hb-radius);
+/* "Resonance" 額縁 — ラスター画像 (PNG/JPG/WebP 等) にのみ適用
+ *
+ * 方針:
+ *   - 薄い border + ブランドカラーで色付いた多層影。左に magenta、右に blue、
+ *     下に purple をうっすら撒いて触覚デバイスらしい "響き / 余韻" を出す
+ *   - light / dark で影の alpha を切り替えて両モードで効果が残るように
+ *   - padding なしで画像と border を edge-to-edge に密着
+ *
+ * SVG は除外: テーマ対応 (currentColor / data-theme スコープ) を SVG 内で
+ * 完結できるため、frame で囲う必要が薄い。アイコン的に使うことも多く、
+ * Resonance 影が邪魔になるケースが多い。
+ *
+ * `class="bare"` を付けると PNG でも額縁を外せる (opt-out)。markdown 画像構文
+ * `![alt](path)` には class を付けられないため、明示的に opt-out したい場合は
+ * HTML で <img class="bare" ...> と書く。 */
+.sl-markdown-content img:not([src*=".svg"]):not(.bare) {
+  padding: 0;
+  border: 2px solid var(--hb-line);
+  border-radius: 0;
+  /* 透明 margin を持つ PNG が dark mode で黒帯に見える問題への保険として
+   * 白背景を敷く (写真の白下地と整合)。透明 PNG が想定外の場合は
+   * `class="bare"` で opt-out するか、PNG を flatten して再エクスポートする。 */
+  background: #fff;
 
   box-shadow:
     /* base lift — neutral depth */
     0 1px 2px   oklch(0.2 0.05 280 / .06),
-    0 12px 28px oklch(0.2 0.05 280 / .10),
+    0 6px 14px  oklch(0.2 0.05 280 / .10),
     /* brand resonance — magenta L, blue R, purple beneath */
-    -8px 12px 36px oklch(0.62 0.25 350 / .12),
-     8px 12px 36px oklch(0.58 0.20 230 / .12),
-     0  20px 60px oklch(0.52 0.25 300 / .08);
+    -4px 6px 18px oklch(0.62 0.25 350 / .12),
+     4px 6px 18px oklch(0.58 0.20 230 / .12),
+     0  10px 30px oklch(0.52 0.25 300 / .08);
 }
 
-[data-theme="dark"] .sl-markdown-content img {
+[data-theme="dark"] .sl-markdown-content img:not([src*=".svg"]):not(.bare) {
   box-shadow:
     0 1px 2px   oklch(0 0 0 / .40),
-    0 12px 28px oklch(0 0 0 / .50),
+    0 6px 14px  oklch(0 0 0 / .50),
     /* dark mode: bump alpha so the colors survive the dark canvas */
-    -10px 12px 44px oklch(0.65 0.25 350 / .22),
-     10px 12px 44px oklch(0.62 0.22 230 / .22),
-     0   24px 70px oklch(0.55 0.25 300 / .18);
+    -5px 6px 22px oklch(0.65 0.25 350 / .22),
+     5px 6px 22px oklch(0.62 0.22 230 / .22),
+     0   12px 35px oklch(0.55 0.25 300 / .18);
 }
 
-/* opt-out — diagrams, logos, anything that shouldn't be framed */
-.sl-markdown-content img.bare {
-  padding: 0;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  border-radius: 0;
-}
 
 /* description (frontmatter) を lede 風に。横幅は content 全体に揃える
  * (max-width で絞ると wide viewport で読みづらいため) */
@@ -184,8 +184,8 @@
   display: table !important;  /* Starlight の display:block を上書き */
   font-size: 14px;
   border: 1px solid var(--hb-line);
-  border-radius: var(--hb-radius);
-  border-collapse: separate;   /* border-radius を有効にするため separate 必須 */
+  border-radius: 0;
+  border-collapse: separate;   /* セル境界の制御のため separate */
   border-spacing: 0;
   /* 幅・overflow は display:table の自然サイズに委ねる。
    * 親 .main-pane { overflow-x:auto } が横スクロールを担当する。 */

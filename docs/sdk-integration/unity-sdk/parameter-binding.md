@@ -73,13 +73,23 @@ Tutorial では Linked preset を使います。理由:
 - Play 中に preset を編集すると live で反映 (チューニングが速い)
 - 同じ entry に紐づく複数 GameObject が同じ binding を共有できる
 
-## スクリプトから動かしたい場合
+## スクリプトから動かしたい場合 (imperative pattern)
 
-ParameterBinding を使わず、スクリプトで直接 `ActivePlayback.Gain` を書き換えることもできます (Tutorial Z4 Stream Console がこの方式)。
+ParameterBinding を使わず、スクリプトで直接 `HapbeatTriggerBase.GainMultiplier` (または `ActivePlayback.Gain`) を書き換えることもできます。
+
+Tutorial の対応例:
+- **Z4 Stream Console**: ParameterBinding (Slider → StreamGain / StreamPan) — declarative。EventMap window で wiring 完結
+- **Z5 Charge Shooter**: script から `_sequenceTrigger.GainMultiplier = curve(chargeT)` を毎フレーム書込み — imperative。custom 計算ロジック (`AnimationCurve` 評価) や mid-flow ロジック (閾値超え検知) と相性が良い
 
 判断基準:
-- ゲーム状態の取得が単純 (Transform / Rigidbody) → ParameterBinding
-- 複数の game state を組み合わせる (HP × distance × inventory など) → スクリプト
+- ゲーム状態の取得が単純 (Transform / Rigidbody / Slider) → ParameterBinding
+- 複数の game state を組み合わせる / curve や閾値ロジックを script で書きたい → スクリプト
+
+### Gain の連続変化を滑らかにする仕組み
+
+どちらの方式でも、SDK 側の mixer thread が **per-sample で gain を線形補間** するので、急な slider 操作でも 16ms (= 1 chunk) 単位の階段状にならず連続変化として device に届きます。これがないと chunk 境界で gain が急にジャンプし、ADPCM 予測器が乱れて warble / 暴れに繋がります。
+
+つまり: ParameterBinding でも script からの GainMultiplier 書込みでも、**device 側の体感はほぼ同じ滑らかさ**。選択基準は Inspector wiring 派か script 派か、で決めて良い。
 
 ## 参考
 
