@@ -11,6 +11,31 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // 参考: docs/protocol と docs/kit 等の情報源は各 repo の docs/ を
 // scripts/fetch-docs.mjs で src/content/docs/docs/ に取り込んでから build する。
 
+// sidebar の explicit slug item を「ソースが draft / 不在のとき自動除外」する helper。
+// 使い方: items 配列で `{ slug: '...' }` の代わりに `pub('...')` を呼ぶと、
+//   - ソース docs/ にファイルがある + draft でない → そのまま `{ slug }` を返す
+//   - draft: true または ファイル不在 → null を返す
+// 親側で `.filter(Boolean)` すれば missing slug の Starlight build エラーを回避できる。
+// 検査対象は src/ 配下ではなく **docs/ 配下のソース** (fetch-docs 経由で同期される)。
+function pub(slug) {
+  // slug "docs/sdk-integration/unity-sdk/xri-handdemo-quickstart" → docs/sdk-integration/...
+  const rel = slug.replace(/^docs\//, '');
+  for (const ext of ['.md', '.mdx']) {
+    const file = path.join(__dirname, 'docs', rel + ext);
+    if (!existsSync(file)) continue;
+    try {
+      const raw = readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+      const fm = raw.match(/^---\n([\s\S]*?)\n---/);
+      if (fm && /^draft\s*:\s*true\s*$/m.test(fm[1])) return null;
+      return { slug };
+    } catch {
+      return null;
+    }
+  }
+  // ファイル不在 → サイドバーから自動除外
+  return null;
+}
+
 // rehype plugin: markdown 内の <a href> を以下の条件で新タブ化する。
 // ルール:
 //   - anchor (#xxx) → 同タブ
@@ -145,6 +170,11 @@ export default defineConfig({
   redirects: {
     '/docs/getting-started': '/docs/start-here/getting-started/',
     '/docs/unity-sdk/getting-started': '/docs/sdk-integration/unity-sdk/getting-started/',
+    // Tutorial → Showcase rename (2026-05-24). 旧 URL は外部から参照されている
+    // 可能性があるためリダイレクトで温存。
+    '/docs/sdk-integration/unity-sdk/tutorial': '/docs/sdk-integration/unity-sdk/showcase/',
+    '/docs/sdk-integration/unity-sdk/tutorial/walkthrough': '/docs/sdk-integration/unity-sdk/showcase/walkthrough/',
+    '/docs/sdk-integration/unity-sdk/tutorial/method-choice': '/docs/sdk-integration/unity-sdk/showcase/method-choice/',
   },
   integrations: [
     starlight({
@@ -222,34 +252,38 @@ export default defineConfig({
           label: '📦 SDK Integration',
           items: [
             {
-              // Unity SDK: autogenerate だと内側の tutorial/ が小文字グループになるため
+              // Unity SDK: autogenerate だと内側の showcase/ が小文字グループになるため
               // explicit items で並べる。順序は各ページ frontmatter の sidebar.order と
               // 同じになるよう手で揃える。
+              // 各 slug は pub() でラップしてあり、ソース docs/ にファイルが無いか
+              // `draft: true` のときは自動的に null になる。`.filter(Boolean)` で
+              // 取り除かれるため、ファイル退避 / draft 化のたびに config 編集は不要。
               label: 'Unity SDK',
               items: [
-                { slug: 'docs/sdk-integration/unity-sdk/getting-started' },
-                { slug: 'docs/sdk-integration/unity-sdk/integration' },
+                pub('docs/sdk-integration/unity-sdk/getting-started'),
+                pub('docs/sdk-integration/unity-sdk/integration'),
                 {
-                  label: 'Tutorial',
+                  label: 'Showcase',
                   items: [
-                    { slug: 'docs/sdk-integration/unity-sdk/tutorial' },
-                    { slug: 'docs/sdk-integration/unity-sdk/tutorial/walkthrough' },
-                    { slug: 'docs/sdk-integration/unity-sdk/tutorial/method-choice' },
-                  ],
+                    pub('docs/sdk-integration/unity-sdk/showcase'),
+                    pub('docs/sdk-integration/unity-sdk/showcase/walkthrough'),
+                    pub('docs/sdk-integration/unity-sdk/showcase/wiring'),
+                    pub('docs/sdk-integration/unity-sdk/showcase/method-choice'),
+                  ].filter(Boolean),
                 },
-                { slug: 'docs/sdk-integration/unity-sdk/xri-handdemo-quickstart' },
                 // howto (mode 判断・実装 → 拡張用途 → ワークフロー支援)
-                { slug: 'docs/sdk-integration/unity-sdk/fire-vs-clip' },
-                { slug: 'docs/sdk-integration/unity-sdk/streaming' },
-                { slug: 'docs/sdk-integration/unity-sdk/multi-app' },
-                { slug: 'docs/sdk-integration/unity-sdk/ai-assisted-workflow' },
+                pub('docs/sdk-integration/unity-sdk/xri-handdemo-quickstart'),
+                pub('docs/sdk-integration/unity-sdk/fire-vs-clip'),
+                pub('docs/sdk-integration/unity-sdk/streaming'),
+                pub('docs/sdk-integration/unity-sdk/multi-app'),
+                pub('docs/sdk-integration/unity-sdk/ai-assisted-workflow'),
                 // reference
-                { slug: 'docs/sdk-integration/unity-sdk/triggers' },
-                { slug: 'docs/sdk-integration/unity-sdk/event-map' },
-                { slug: 'docs/sdk-integration/unity-sdk/parameter-binding' },
-                { slug: 'docs/sdk-integration/unity-sdk/editor-menus' },
-                { slug: 'docs/sdk-integration/unity-sdk/installation' },
-              ],
+                pub('docs/sdk-integration/unity-sdk/triggers'),
+                pub('docs/sdk-integration/unity-sdk/event-map'),
+                pub('docs/sdk-integration/unity-sdk/parameter-binding'),
+                pub('docs/sdk-integration/unity-sdk/editor-menus'),
+                pub('docs/sdk-integration/unity-sdk/installation'),
+              ].filter(Boolean),
             },
           ],
         },

@@ -58,19 +58,10 @@ Package Manager で Hapbeat SDK を選択 → 右パネル **Samples** タブか
 | サンプル | 内容 | 動作要件 |
 |---|---|---|
 | **Basic Example** | Trigger × 3 + Helper + Dispatcher + StatusOverlay の最小組合せ。Space/R/F/S/C キーで動作確認 | デバイス + Studio または Helper 起動 |
-| **Tutorial** | 5 ゾーン × Without/With の SDK 全機能ツアー (Bowling / Door / Pickup / Stream Console / Target Range)。キーマウスで完結、XR 不要 | 同上 |
+| **Showcase** | 5 ゾーン構成の SDK 全機能ショーケース (Bowling / Door / Fishing / Stream Console / Target Range)。キーマウスで完結、XR 不要 | 同上 |
 | **XR Helpers** | XR Interaction Toolkit 連携フィルター (XRGrabFilter / XRSocketFilter) | XRI パッケージが入っているプロジェクトのみ |
 
-Sample は `Assets/Samples/Hapbeat SDK/<version>/<sample>/` に展開されます。
-
-### Build メニューで Scene / EventMap / Kit を生成
-
-Basic Example / Tutorial の **シーンは Sample import 直後にはまだ存在しません**。Editor メニューから自動生成します:
-
-- **Hapbeat → Build Samples → 1. Basic Example** — `Assets/HapbeatSDK/{Kits, Scenes, EventMaps}/` 一式を生成
-- **Hapbeat → Build Samples → 2. Tutorial (full scene)** — Tutorial シーンと EventMap を生成
-
-実行後、`Assets/HapbeatSDK/Scenes/` 配下に `.unity` が現れるので、それを開いて Play。
+Sample は `Assets/Samples/Hapbeat SDK/<version>/<sample>/` に展開されます。Import 直後にシーン (`Scenes/*.unity`) を開いて Play すれば動作確認できます — 追加のビルド手順は不要です。
 
 ## 動作確認
 

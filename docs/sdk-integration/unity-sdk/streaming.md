@@ -64,6 +64,67 @@ HapbeatConfig
 
 `HapbeatActionHelper.StopEverything()` は両方に対して停止指示を送るので、Command の音は瞬時に止まり、Stream の音だけ ~sendAhead 秒の残響があります。
 
+## :warning: clip フォーマットの統一が必要 (StreamClip 同時再生)
+
+Hapbeat の stream session は **単一フォーマットで固定** されます。つまり 1 つの session 中で **sample rate / channel count が同一の clip しか同時 stream できません**。フォーマットが違う 2 つ目以降の clip は SDK で reject されます:
+
+```
+[Hapbeat] StreamAudioClip: rate/channel mismatch with active session
+(session=16000Hz/2ch, new=16000Hz/1ch). Rejecting new source.
+```
+
+### 推奨フォーマット: **16 kHz / 2ch (stereo) PCM16**
+
+- 全 StreamClip 用 WAV を **`16 kHz / stereo / PCM 16-bit signed LE`** に揃えてください
+- mono ソースは stereo に up-mix (L=R duplicate) する
+- 異なる sample rate / channel count の clip を混ぜると同時再生不可
+
+### Studio 経由なら自動 normalize (2026-05-24 以降)
+
+- **Live streaming** (Studio Devices タブの再生): 送信時に **2ch / 16 kHz / PCM16 に auto-resample + up-mix**
+- **Kit deploy** (Helper の `pack_normalize`): `ffmpeg -ar 16000 -ac 2 -acodec pcm_s16le` で同じく統一
+
+つまり **Studio を経由している限りユーザは何もしなくて良い**。ソース WAV が mono / 22.05 kHz でも勝手に統一フォーマットに揃って配信される。
+
+### Studio を経由しない場合は注意
+
+以下のケースは Studio の auto-normalize を通らないので、**自分で WAV を 16 kHz / 2ch / PCM16 に揃える必要があります**:
+
+- Unity AssetDatabase で直接 import した AudioClip を `HapbeatManager.StreamAudioClip` に渡す
+- 外部ツールで生成した WAV を Kit に直接コピー (Studio 経由でなく)
+- 自前 deploy スクリプト / CI で WAV を扱う
+
+統一方法は 3 通り:
+
+### 方法 1: SDK Editor メニュー (Unity 内で完結、推奨)
+
+メニューバー → **`Hapbeat → Normalize Audio Folder (16kHz · 2ch · PCM16)`** を選択:
+
+1. フォルダピッカーが開く → Assets 配下の WAV 群が入ったフォルダを選ぶ (例: `Assets/HapbeatSDK/Kits/.../clips/`)
+2. 「**16kHz / 2ch / PCM16 に変換します。上書きされます**」と確認ダイアログ
+3. 実行で再帰的に全 WAV を normalize、進捗バー表示
+4. 既に統一済の WAV は skip、変換失敗は warning ログ + 完了 dialog でリスト表示
+
+→ ffmpeg / Audacity 不要、Unity 内で完結。mono → stereo (L=R duplicate)、線形補間 resample、PCM16 で上書き。
+
+### 方法 2: ffmpeg
+
+```bash
+ffmpeg -i input.wav -ar 16000 -ac 2 -acodec pcm_s16le output.wav
+```
+
+CI / シェルスクリプトで一括変換したい場合に。
+
+### 方法 3: Audacity (GUI)
+
+1. ファイル → 書き出し → WAV (Microsoft, 16-bit PCM)
+2. 「サンプリング周波数」を 16000 Hz に
+3. mono の場合: 「トラック → ステレオに変換」を先に実行
+
+### 単一 clip のみ stream する用途なら format 不問
+
+session 中に **1 つの stream しか動かさない** 場合 (例: BGM 的に 1 つの clip だけループ) は format 統一は不要。session の最初の clip がそのまま format を決めるので。複数 clip の **同時再生 / 短時間 sequential 再生** で初めて問題になります。
+
 ## 関連
 
 - [Getting Started](/docs/sdk-integration/unity-sdk/getting-started/) — `Manager.StreamAudioClip` の基本

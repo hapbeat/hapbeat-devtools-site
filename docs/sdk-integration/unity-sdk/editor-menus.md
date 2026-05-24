@@ -20,7 +20,7 @@ Hapbeat/
 │   └── Create HapbeatSDK Folder    ← Assets/HapbeatSDK/ の標準レイアウトを生成
 ├── Build Samples/
 │   ├── 1. Basic Example            ← Basic サンプル一式 (Kit + EventMap + Scene)
-│   └── 2. Tutorial (full scene)    ← Tutorial サンプル一式 (With + Without 2 シーン)
+│   └── 2. Showcase (full scene)    ← Showcase サンプル一式 (SDK 開発者向け)
 │
 └── Debug/
     ├── Attach Event Logger to Selected           ← 選択 GO の UnityEvent をログに流す配線を追加
@@ -123,16 +123,13 @@ Basic Example サンプル一式 (Kit / EventMap / Scene) を `Assets/HapbeatSDK
 
 生成後は `Assets/HapbeatSDK/Scenes/BasicExample.unity` を開いて Play。
 
-### 2. Tutorial (full scene)
+### 2. Showcase (full scene)
 
-Tutorial サンプルの 2 つのシーンを同時生成します:
+Showcase サンプルの Scene / EventMap / Kit を `Assets/HapbeatSDK/SDK_Samples/Showcase/` にスキャフォールドします (Local / Embedded install 限定の SDK 開発者向けメニュー)。
 
-- **`Tutorial.unity`** — 触覚適用済み (With) 版。すぐに動作確認できる完成形
-- **`Tutorial_Plain.unity`** — 触覚なし (Without) 版。完成形と並行して開きながら、`docs/tutorial/walkthrough.md` の手順で自分で組み立て直す学習用
+エンドユーザーは Package Manager の Sample Import で直接 Scene を開けるため、このメニューは通常不要です。
 
-EventMap.asset と Audio/ 内 WAV へのリンクも自動生成されます。
-
-詳細: [Tutorial サンプル](./tutorial/index.md)
+詳細: [Showcase サンプル](./showcase/index.md)
 
 ---
 

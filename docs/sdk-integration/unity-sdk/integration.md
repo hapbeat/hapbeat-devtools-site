@@ -6,15 +6,12 @@ sidebar:
   order: 2
 ---
 
-[Basic Example で動作を確認](/docs/sdk-integration/unity-sdk/getting-started/)したら、自分のプロジェクトに組み込む準備ができています。
+[Basic Example で動作を確認](/docs/sdk-integration/unity-sdk/getting-started/)できたら、自分のプロジェクトに組み込む準備ができています。
 
-## Tutorial サンプル（開発中）
+## Showcase サンプル
 
-SDK の全機能を体験できる **Tutorial サンプル**を準備中です。
-
-5 ゾーン構成（Bowling / Door / Pickup / Stream Console / Target Range）で、キーボード・マウスだけで XR なしに主要機能を一通り確認できます。
-
-> **現在のステータス**: 開発中です。Package Manager の Samples タブに **Tutorial** が表示されたら `Hapbeat → Build Samples → 2. Tutorial` で試せます。
+SDK の触覚フィードバック適用パターンを一覧できる **Showcase サンプル** を
+> Package Manager の Samples タブから **Showcase** を Import → `Showcase.unity` を開いて Play。詳細は [Showcase Sample](/docs/sdk-integration/unity-sdk/showcase/) を参照。
 
 ---
 

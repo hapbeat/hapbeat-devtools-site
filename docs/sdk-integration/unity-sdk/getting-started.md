@@ -134,7 +134,7 @@ Command モード（F キー）を動かすには、デバイスに `basic-exam-
 
 ## 次のステップ
 
-- [プロジェクトに組み込む](/docs/sdk-integration/unity-sdk/integration/) — 自分のシーンへの追加手順と Tutorial サンプル紹介
+- [プロジェクトに組み込む](/docs/sdk-integration/unity-sdk/integration/) — 自分のシーンへの追加手順と Showcase サンプル紹介
 - [Trigger コンポーネント](/docs/sdk-integration/unity-sdk/triggers/) — Animator / Collision / Sequence 等
 - [EventMap ウィンドウ](/docs/sdk-integration/unity-sdk/event-map/) — Event ID と波形の対応を GUI 管理
 - [Parameter Binding](/docs/sdk-integration/unity-sdk/parameter-binding/) — ゲーム状態を gain / pan に動的マッピング

@@ -126,12 +126,12 @@
  * HTML で <img class="bare" ...> と書く。 */
 .sl-markdown-content img:not([src*=".svg"]):not(.bare) {
   padding: 0;
-  border: 2px solid var(--hb-line);
-  border-radius: 0;
+  border: 4px solid var(--hb-line);
+  border-radius: 8px;
   /* 透明 margin を持つ PNG が dark mode で黒帯に見える問題への保険として
    * 白背景を敷く (写真の白下地と整合)。透明 PNG が想定外の場合は
    * `class="bare"` で opt-out するか、PNG を flatten して再エクスポートする。 */
-  background: #fff;
+  /*background: #fff;*/
 
   box-shadow:
     /* base lift — neutral depth */
@@ -1082,11 +1082,17 @@ starlight-lang-select label {
   flex: 1 1 auto;
 }
 
-/* active 子リンク (aria-current="page") を sb-color に染める */
-.sidebar-content ul.top-level a[aria-current='page'] {
+/* active 子リンク (aria-current="page") を sb-color に染める。
+ * font-weight は明示的に normal に戻す — Starlight 純正の
+ * `[aria-current='page'] { font-weight: 600 }` がそのままだと bold になり、
+ * 文字幅が変わって長文ラベルが 2 行に折り返してしまう。
+ * 視認性は背景 + 色のコントラストで十分確保。 */
+.sidebar-content ul.top-level a[aria-current='page'],
+.sidebar-content ul.top-level a[aria-current='page']:hover,
+.sidebar-content ul.top-level a[aria-current='page']:focus {
   color: var(--sb-color, var(--sl-color-accent)) !important;
   background: color-mix(in oklab, var(--sb-color, var(--sl-color-accent)) 14%, transparent) !important;
-  font-weight: 600;
+  font-weight: 400 !important;
 }
 :root[data-theme='dark'] .sidebar-content ul.top-level a[aria-current='page'] {
   background: color-mix(in oklab, var(--sb-color, var(--sl-color-accent)) 24%, transparent) !important;
@@ -1211,7 +1217,7 @@ html::-webkit-scrollbar-thumb:hover {
 }
 
 /* override: 3 階層以上ネスト (top → sub → sub-sub) かつ leaf-only ul のみ罫線。
- * つまり SDK Integration → Unity SDK → tutorial → 子要素 のような構造の
+ * つまり SDK Integration → Unity SDK → showcase → 子要素 のような構造の
  * 末端 ul だけ。Tools → Studio → 子要素 (2 階層) は対象外。
  * 理由: 2 階層では subgroup heading の色違いで親子関係が識別できるため。
  * padding / margin とも 1px でほぼベタ付け。 :has() は modern browsers のみ。 */

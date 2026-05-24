@@ -13,7 +13,7 @@
 // Starlight の sidebar で参照する際は `/docs/_fetched/<repo-short>/<page>` で固定。
 
 import { execSync } from 'node:child_process';
-import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -123,18 +123,66 @@ async function fetchFromGit(src) {
   return true;
 }
 
+// ファイル名の数字 prefix (`01-`, `02-` …) を sidebar.order に変換しつつ
+// dest 上の filename からは prefix を剥がす。これにより:
+//   - IDE でアルファベット順 = 表示順になる (`01-architecture.md` 等)
+//   - URL は prefix なしの綺麗なまま (`/docs/concepts/architecture/`)
+//   - frontmatter に sidebar.order を手で書く必要なし
+// 既に sidebar.order が frontmatter で明示されていればそちらを優先 (上書きしない)。
+// 対応パターン: `^(\d+)[-_](.+)\.mdx?$` (例: `01-foo.md` / `005_bar.mdx`)
+// rename 後の dest path を返す。
+async function stripOrderPrefix(filePath) {
+  const dir = path.dirname(filePath);
+  const base = path.basename(filePath);
+  const m = base.match(/^(\d+)[-_](.+\.(?:md|mdx))$/);
+  if (!m) return { finalPath: filePath, orderFromPrefix: null };
+  const orderFromPrefix = parseInt(m[1], 10);
+  const newPath = path.join(dir, m[2]);
+  // 衝突 (prefix なし同名ファイルが既存) があれば prefix 付きを優先 (上書き)
+  if (existsSync(newPath) && newPath !== filePath) {
+    await rm(newPath, { force: true });
+  }
+  await rename(filePath, newPath);
+  return { finalPath: newPath, orderFromPrefix };
+}
+
+// frontmatter 文字列内の sidebar.order を set / inject する。既存の sidebar:
+// ブロックがあれば order だけ書き換え、他のサブキー (label / hidden 等) は温存。
+function setSidebarOrder(frontmatter, order) {
+  const lines = frontmatter.split('\n');
+  const sidebarIdx = lines.findIndex((l) => /^sidebar\s*:/.test(l));
+  if (sidebarIdx === -1) {
+    // sidebar ブロックがない → 末尾に新規追加
+    const block = `sidebar:\n  order: ${order}`;
+    return frontmatter ? `${frontmatter}\n${block}` : block;
+  }
+  // sidebar ブロックの範囲を特定 (次の非インデント行 or 終端まで)
+  let endIdx = sidebarIdx + 1;
+  while (endIdx < lines.length && /^  \S|^\s*$/.test(lines[endIdx])) endIdx++;
+  // ブロック内に order: 行があるか探す
+  let orderIdx = -1;
+  for (let i = sidebarIdx + 1; i < endIdx; i++) {
+    if (/^  order\s*:/.test(lines[i])) { orderIdx = i; break; }
+  }
+  if (orderIdx >= 0) {
+    lines[orderIdx] = `  order: ${order}`;
+  } else {
+    lines.splice(sidebarIdx + 1, 0, `  order: ${order}`);
+  }
+  return lines.join('\n');
+}
+
 // Starlight required な frontmatter を取り込んだ .md に保証する。
 //  (1) title:
 //      - 既に title があれば触らない
 //      - 無ければ先頭 H1 or ファイル名から派生して挿入
 //  (2) sidebar.order:
-//      - filename が getting-started のものは sidebar.order: 1 を自動注入
-//        (各セクションで Getting Started を先頭に固定するため)
-//      - 既に sidebar が frontmatter にあれば触らない (sub-repo 側で自由に上書き可)
-//      - 任意の並び順は frontmatter に sidebar.order: <N> を書けば反映される
-async function normalizeMarkdownFrontmatter(filePath) {
+//      - orderFromPrefix が与えられた場合 (filename が `01-` 等の prefix 付き)、
+//        **既存 frontmatter の order を上書き** する (prefix が常に勝つ)
+//      - prefix がなく filename が getting-started の場合は sidebar.order: 1 を補完
+//      - それ以外は frontmatter の sidebar.order をそのまま尊重
+async function normalizeMarkdownFrontmatter(filePath, { orderFromPrefix = null } = {}) {
   const rawFile = await readFile(filePath, 'utf8');
-  // CRLF → LF 正規化（Windows 環境でのファイルを処理するため）
   const raw = rawFile.replace(/\r\n/g, '\n').replace(/^﻿/, '');
   const fmMatch = raw.match(/^---\n([\s\S]*?)\n---\n?/);
   let frontmatter = fmMatch ? fmMatch[1] : '';
@@ -144,11 +192,11 @@ async function normalizeMarkdownFrontmatter(filePath) {
   const hasSidebar = /^sidebar\s*:/m.test(frontmatter);
   const baseName = path.basename(filePath, path.extname(filePath));
   const isGettingStarted = baseName === 'getting-started';
-  const needsOrderInjection = isGettingStarted && !hasSidebar;
 
-  if (hasTitle && !needsOrderInjection) return; // nothing to do
-
+  let changed = false;
   let newFm = frontmatter;
+
+  // (1) title
   if (!hasTitle) {
     const h1 = body.match(/^#\s+(.+)$/m);
     const fallbackTitle = h1
@@ -158,11 +206,19 @@ async function normalizeMarkdownFrontmatter(filePath) {
           .replace(/\b\w/g, (c) => c.toUpperCase());
     const escaped = fallbackTitle.replace(/"/g, '\\"');
     newFm = newFm ? `${newFm}\ntitle: "${escaped}"` : `title: "${escaped}"`;
-  }
-  if (needsOrderInjection) {
-    newFm = newFm ? `${newFm}\nsidebar:\n  order: 1` : `sidebar:\n  order: 1`;
+    changed = true;
   }
 
+  // (2) sidebar.order — prefix が常に勝つ
+  if (orderFromPrefix !== null) {
+    newFm = setSidebarOrder(newFm, orderFromPrefix);
+    changed = true;
+  } else if (isGettingStarted && !hasSidebar) {
+    newFm = setSidebarOrder(newFm, 1);
+    changed = true;
+  }
+
+  if (!changed) return;
   await writeFile(filePath, `---\n${newFm}\n---\n${body}`);
 }
 
@@ -253,6 +309,20 @@ async function autoGenLandingsRecursive(root) {
   }
 }
 
+// frontmatter から `draft: true` を検出する。dev / build 両方で隠したいページに
+// 付ける運用。検出されたファイルは TARGET_PARENT から削除されるため、Astro の
+// content loader からも完全に見えなくなる (= 「push 後と同じ見た目で local 確認」)。
+async function isDraftMarkdown(filePath) {
+  try {
+    const raw = await readFile(filePath, 'utf8');
+    const fm = raw.replace(/\r\n/g, '\n').match(/^---\n([\s\S]*?)\n---/);
+    if (!fm) return false;
+    return /^draft\s*:\s*true\s*$/m.test(fm[1]);
+  } catch {
+    return false;
+  }
+}
+
 async function walkAndNormalize(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const p = path.join(dir, entry.name);
@@ -265,7 +335,15 @@ async function walkAndNormalize(dir) {
     }
     if (entry.isDirectory()) await walkAndNormalize(p);
     else if (entry.isFile() && (p.endsWith('.md') || p.endsWith('.mdx'))) {
-      await normalizeMarkdownFrontmatter(p);
+      // 数字 prefix (`01-foo.md` 等) があれば剥がして sidebar.order に変換
+      const { finalPath, orderFromPrefix } = await stripOrderPrefix(p);
+      // draft: true は dev / build どちらでも非公開扱い → 削除して loader から隠す
+      if (await isDraftMarkdown(finalPath)) {
+        await rm(finalPath, { force: true });
+        console.log(`  skip (draft): ${path.relative(TARGET_PARENT, finalPath)}`);
+        continue;
+      }
+      await normalizeMarkdownFrontmatter(finalPath, { orderFromPrefix });
     }
   }
 }
@@ -355,7 +433,16 @@ async function syncOneFile(srcFile, baseSrcDir, destBaseDir) {
   await mkdir(path.dirname(destFile), { recursive: true });
   await cp(srcFile, destFile);
   if (destFile.endsWith('.md') || destFile.endsWith('.mdx')) {
-    await normalizeMarkdownFrontmatter(destFile);
+    // 数字 prefix を剥がして sidebar.order に変換
+    const { finalPath, orderFromPrefix } = await stripOrderPrefix(destFile);
+    // draft: true なら HMR でも消す。frontmatter から draft 行を消すと再 sync で
+    // 復活する (cp で再コピー → ここで draft 判定が false → normalize 経由で残る)
+    if (await isDraftMarkdown(finalPath)) {
+      await rm(finalPath, { force: true });
+      console.log(`  skip (draft): ${path.relative(TARGET_PARENT, finalPath)}`);
+      return;
+    }
+    await normalizeMarkdownFrontmatter(finalPath, { orderFromPrefix });
   }
 }
 

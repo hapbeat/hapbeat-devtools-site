@@ -40,9 +40,9 @@ ParameterBinding は `HapbeatTriggerBase` の **ActivePlayback** (StreamClip 再
 | Output Min / Max | 出力範囲 |
 | Debug Log | true で Console に input/output を周期出力 (動作確認に便利) |
 
-## Tutorial Z3 での実例
+## Showcase Z3 での実例
 
-[Tutorial サンプル](/docs/sdk-integration/unity-sdk/tutorial/) の Pickup Box (Z3) は、箱を持ち上げて動かしている間、loop の gain を **箱の移動速度** に追従させます。
+[Showcase サンプル](/docs/sdk-integration/unity-sdk/showcase/) の Pickup Box (Z3) は、箱を持ち上げて動かしている間、loop の gain を **箱の移動速度** に追従させます。
 
 設定:
 
@@ -59,25 +59,87 @@ ParameterBinding は `HapbeatTriggerBase` の **ActivePlayback** (StreamClip 再
 - 箱を **静止** させていると `PositionDeltaMagnitude = 0` → 正規化 0 → curve 0 → output 0.2 (静かな loop)
 - 箱を **激しく動かす** と `PositionDeltaMagnitude > 0.5` → 正規化 1 → output 1.5 (強い loop)
 
-実装は `Samples~/Tutorial/Scripts/PickupBoxController.cs` でマウス入力に応じて Sequence.Fire / Stop を呼ぶだけ。binding は EventMap entry に preset として登録されているので、BatchSetup や Apply Binding ボタン経由で自動的に PickupBox に `HapbeatParameterBinding` が貼られます。
+実装は `Samples~/Showcase/Scripts/PickupBoxController.cs` でマウス入力に応じて Sequence.Fire / Stop を呼ぶだけ。binding は EventMap entry に preset として登録されているので、BatchSetup や Apply Binding ボタン経由で自動的に PickupBox に `HapbeatParameterBinding` が貼られます。
 
 ## EventMap preset と standalone の違い
 
 ParameterBinding には 2 つの設定モードがあります:
 
-1. **Linked preset** (推奨): EventMap entry の `bindings[]` に preset を登録 → BatchSetup で対象 GameObject に component が自動生成 + preset id で link。preset を編集すると runtime に反映される (live tuning 可能)
+1. **Linked preset** (EventMap 管理): EventMap entry の `bindings[]` に preset を登録 → BatchSetup で対象 GameObject に component が自動生成 + preset id で link。preset を編集すると runtime に反映される (live tuning 可能)
 2. **Standalone**: GameObject に直接コンポーネント追加して全フィールドをローカル設定。preset との link なし
 
-Tutorial では Linked preset を使います。理由:
-- EventMap window から一元管理できる
-- Play 中に preset を編集すると live で反映 (チューニングが速い)
-- 同じ entry に紐づく複数 GameObject が同じ binding を共有できる
+| | Linked preset | Standalone |
+|---|---|---|
+| 設定箇所 | EventMap window の Binding section | scene の GameObject に AddComponent |
+| 保存先 | ScriptableObject (asset) | scene |
+| source 参照方法 | 文字列パス (Trigger からの相対) | 直接 component ref (Transform/Slider) |
+| Hierarchy 制約 | **あり** (Trigger の子孫のみ) | **なし** (scene 内自由) |
+| prefab portability | ◎ (prefab 内で完結) | △ (scene 直 ref は prefab override が要) |
+| 複数 Trigger 共有 | ✓ 同 entry を引く Trigger 全てに自動 attach | ✗ 1 binding = 1 Trigger |
+
+### Linked preset の Hierarchy 制約について
+
+EventMap preset は ScriptableObject (asset) なので Unity の原則で **scene GameObject への direct ref を保存できません**。代わりに **trigger GameObject からの相対パス文字列** で source を表します:
+
+```
+Trigger GO
+├─ ChildA   ← path = "ChildA" で reachable
+│   └─ Grandchild  ← path = "ChildA/Grandchild"
+└─ ChildB   ← path = "ChildB"
+```
+
+Trigger の **子孫しか source に出来ない** ため、設計上の注意:
+
+#### 推奨パターン: 触覚関連を root に集約
+
+```
+Zone_Root (← ★ Trigger をここに attach)
+├─ Visual / Mesh
+├─ Physics / Rigidbody
+└─ SourceObject (← binding source path "SourceObject" で reachable)
+```
+
+Zone の root に Trigger を置けば、配下の全 GO を binding source として preset で参照できる (Hierarchy 制約に当たらない)。これが **EventMap 管理を最大化するパターン**。
+
+→ Showcase Z3 (`Z3_Fishing` root に SequenceTrigger 配置 + 子の FishingObject を source) はこの形。
+
+#### この制約が嫌なら: script 駆動 (Z5 Charge 参照)
+
+binding source を **Trigger の子孫にできない** ケース (例: UI canvas 上の Slider が Blaster Trigger の子孫でない、別 hierarchy の管理オブジェクトを参照したい、など) は、**EventMap preset は使わず script から直接 modulate** する方式に切替えます:
+
+```csharp
+// Z5 ChargeShooter 抜粋
+private void Update() {
+    if (_charging) {
+        float t = ...;
+        _sequenceTrigger.GainMultiplier = _gainCurve.Evaluate(t);
+        // ↑ setter が ApplyGainModulation を呼ぶ → playback.Gain modulate
+    }
+}
+```
+
+- ParameterBinding を attach しない / 使わない
+- `Trigger.GainMultiplier = v` を毎フレーム書く (内部で `playback.ApplyGainModulation(v)` が走り、ParameterBinding と同じ entry point で gain が書き換わる)
+- ゲーム状態の取得が複雑な場合 (時間累積 / 閾値検知 / 複数 state 合成等) も script なら自由
+
+→ Showcase Z5 ChargeShooter (`Samples~/Showcase/Scripts/ChargeShooter.cs`) がこの実装の参考例。Blaster の Trigger と chargeBar Slider (UI canvas 配下) が別 hierarchy なため、preset 経由は不可 → script 駆動を採用。
+
+### どちらを選ぶか — 早見表
+
+| 状況 | 推奨 |
+|---|---|
+| Trigger と source が同じ prefab / 同じ root 配下に置ける | **Linked preset** (EventMap 管理) |
+| source が UI canvas / 別 hierarchy など Trigger 子孫に置けない | **script 駆動** (Z5 参照) or **Standalone PB + 直接 ref** |
+| 複数の Trigger で同じ binding を共有したい | **Linked preset** (auto-attach 機能) |
+| Game state を組み合わせて modulator を計算したい (閾値、複数値合成等) | **script 駆動** |
+
+Showcase では **Z3 が Linked preset の典型例、Z5 が script 駆動の典型例**。両方の参照先として読み比べると使い分けの感覚がつかみやすい。
 
 ## スクリプトから動かしたい場合 (imperative pattern)
 
 ParameterBinding を使わず、スクリプトで直接 `HapbeatTriggerBase.GainMultiplier` (または `ActivePlayback.Gain`) を書き換えることもできます。
 
-Tutorial の対応例:
+Showcase の対応例:
 - **Z4 Stream Console**: ParameterBinding (Slider → StreamGain / StreamPan) — declarative。EventMap window で wiring 完結
 - **Z5 Charge Shooter**: script から `_sequenceTrigger.GainMultiplier = curve(chargeT)` を毎フレーム書込み — imperative。custom 計算ロジック (`AnimationCurve` 評価) や mid-flow ロジック (閾値超え検知) と相性が良い
 
@@ -93,6 +155,6 @@ Tutorial の対応例:
 
 ## 参考
 
-- [Walkthrough](/docs/sdk-integration/unity-sdk/tutorial/walkthrough/#5-z3-pickup-box--sequence--binding-手動) — Z3 の組み立て手順
-- [Method choice](/docs/sdk-integration/unity-sdk/tutorial/method-choice/) — コンポーネント vs スクリプトの使い分け
+- [Wiring Reference](/docs/sdk-integration/unity-sdk/showcase/wiring/#z3-fishing-rod) — Z3 の wire 詳細
+- [Method choice](/docs/sdk-integration/unity-sdk/showcase/method-choice/) — コンポーネント vs スクリプトの使い分け
 - [Triggers](/docs/sdk-integration/unity-sdk/triggers/) — `HapbeatSequenceTrigger` の詳細

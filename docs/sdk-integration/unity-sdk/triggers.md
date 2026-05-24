@@ -92,5 +92,5 @@ Slider / ScrollRect などの連続値の変化量に応じて、スナップア
 
 - [EventMap で Event ID を一元管理](/docs/sdk-integration/unity-sdk/event-map/)
 - [Streaming buffer の調整](/docs/sdk-integration/unity-sdk/streaming/) — StreamClip モードの停止遅延・途切れ耐性のトレードオフ
-- [Tutorial サンプル](/docs/sdk-integration/unity-sdk/tutorial/) — 各 Trigger の実例 (Z1 Collision / Z2 Animator / Z3 Sequence + Binding / Z4 TickEmitter / Z5 UnityEvent + スクリプト)
-- [BatchSetup vs スクリプト](/docs/sdk-integration/unity-sdk/tutorial/method-choice/)
+- [Showcase サンプル](/docs/sdk-integration/unity-sdk/showcase/) — 各 Trigger の実例 (Z1 Collision / Z2 Animator / Z3 Sequence + Binding / Z4 TickEmitter / Z5 UnityEvent + スクリプト)
+- [BatchSetup vs スクリプト](/docs/sdk-integration/unity-sdk/showcase/method-choice/)
