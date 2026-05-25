@@ -10,36 +10,38 @@ Hapbeat SDK は Unity Editor のトップレベルメニュー **`Hapbeat`** に
 
 ```
 Hapbeat/
-  Event Map                                ← Event ID 一覧と Wiring の管理 (メイン編集画面)
+  Event Map                                ← Window (Event ID + Wiring 管理メイン画面)
+  Settings                                 ← Window (接続設定 / Group / Bridge UI)
+  Batch Setup                              ← Window (複数 GO に Trigger を一括設定)
   ─────────────────────────────
-  Initial Scene Setup                      ← Router + EventMap を一括作成 (新規シーンの推奨入口)
+  Initial Scene Setup                      ← Router + EventMap を一括作成 (推奨)
   Create Event Router                      ← シーンに [Hapbeat Event Router] を配置
   Create Event Map                         ← EventMap .asset だけを作成
-  Batch Setup                              ← 複数 GameObject に Trigger を一括設定
-  ─────────────────────────────
   Create HapbeatSDK Folder                 ← Assets/HapbeatSDK/ の標準レイアウトを生成
-  Normalize Audio Folder (16kHz · 2ch ...) ← フォルダ内 WAV を 16kHz / stereo / PCM16 に揃える
   ─────────────────────────────
   Export Event Map (Selected)              ← 選択中 EventMap を Markdown summary に書き出し
   Export Event Map (All in Project)        ← project 内全 EventMap を一括 Markdown 化
-  ─────────────────────────────
-  Settings                                 ← 接続設定 / Group / Bridge UI
-  ─────────────────────────────
+  Normalize Audio Folder (16kHz · 2ch ...) ← フォルダ内 WAV を 16kHz / stereo / PCM16 に揃える
   Attach Event Logger to Selected          ← 選択 GO の UnityEvent をログに流す配線を追加
   Remove Event Logger Wiring from Selected ← 上記の解除
-  ─────────────────────────────
   Logs/Start Recording                     ← Hapbeat 系ログのファイル記録を開始
   Logs/Stop Recording                      ← 記録を停止して保存
   Logs/Reveal Current File                 ← 記録中ログを Explorer/Finder で表示
   Logs/Open Logs Folder                    ← ログ保存先フォルダを開く
   Logs/Dump Last Recording to Console      ← 直近のログを Console に流す
-  ─────────────────────────────
   Close Edit-mode Transport                ← Edit-mode の UDP 接続を強制クローズ
   ─────────────────────────────
   Developer/Build Basic Example            ← Basic サンプル一式の scaffold (Local/Embedded install のみ)
   Developer/Sync HapbeatSDK → Samples~ (Showcase)
   Developer/Sync HapbeatSDK → Samples~ (BasicExample)
 ```
+
+セクションの分け方:
+
+1. **Window 系** (top): ウィンドウを開く操作。Event Map / Settings / Batch Setup。
+2. **Create 系**: シーン GameObject / asset を新規作成する操作。Initial Scene Setup は (1) + (2) + フォルダレイアウトの一括コマンド。
+3. **Tools** (同じ区切りの中): export / 変換 / 診断 / ログ。粒度に応じて Logs だけサブメニュー化。
+4. **Developer**: SDK 開発者専用。UPM Git URL / registry installs では `HapbeatDevModeMenuGate` により非表示。
 
 加えて以下のメニュー位置にも Hapbeat エントリがあります:
 
