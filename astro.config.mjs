@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import rehypeMermaid from 'rehype-mermaid';
 import { imageSize } from 'image-size';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,23 +17,40 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 //   - draft: true または ファイル不在 → null を返す
 // 親側で `.filter(Boolean)` すれば missing slug の Starlight build エラーを回避できる。
 // 検査対象は src/ 配下ではなく **docs/ 配下のソース** (fetch-docs 経由で同期される)。
-function pub(slug) {
-  // slug "docs/sdk-integration/unity-sdk/xri-handdemo-quickstart" → docs/sdk-integration/...
+// slug に対応するソース .md/.mdx ファイルの絶対パスを返す。
+// fetch-docs の数字 prefix (`001-foo.md` 等) が付いていても解決できるよう、
+// 直接マッチ → 同一ディレクトリ内で prefix 付きを探す、の 2 段階。
+function resolveSourceFile(slug) {
   const rel = slug.replace(/^docs\//, '');
+  // 1) prefix なし直接マッチ
   for (const ext of ['.md', '.mdx']) {
-    const file = path.join(__dirname, 'docs', rel + ext);
-    if (!existsSync(file)) continue;
-    try {
-      const raw = readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
-      const fm = raw.match(/^---\n([\s\S]*?)\n---/);
-      if (fm && /^draft\s*:\s*true\s*$/m.test(fm[1])) return null;
-      return { slug };
-    } catch {
-      return null;
-    }
+    const direct = path.join(__dirname, 'docs', rel + ext);
+    if (existsSync(direct)) return direct;
   }
-  // ファイル不在 → サイドバーから自動除外
+  // 2) 同ディレクトリ内で `^\d+[-_]<basename>\.(md|mdx)$` を探す
+  const dir = path.join(__dirname, 'docs', path.dirname(rel));
+  const basename = path.basename(rel);
+  if (!existsSync(dir)) return null;
+  try {
+    for (const e of readdirSync(dir)) {
+      const m = e.match(/^\d+[-_](.+)\.(md|mdx)$/);
+      if (m && m[1] === basename) return path.join(dir, e);
+    }
+  } catch {}
   return null;
+}
+
+function pub(slug) {
+  const file = resolveSourceFile(slug);
+  if (!file) return null;
+  try {
+    const raw = readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+    const fm = raw.match(/^---\n([\s\S]*?)\n---/);
+    if (fm && /^draft\s*:\s*true\s*$/m.test(fm[1])) return null;
+    return { slug };
+  } catch {
+    return null;
+  }
 }
 
 // rehype plugin: markdown 内の <a href> を以下の条件で新タブ化する。
@@ -99,6 +116,31 @@ function remarkImageMaxWidth() {
       if (node.type === 'image' && typeof node.url === 'string') {
         node.data = node.data || {};
         node.data.hProperties = node.data.hProperties || {};
+
+        // alt 末尾の `{.class1 .class2}` を抽出して className に変換。
+        // markdown `![]()` 構文では class を直接付けられないので、alt 内に
+        // `![説明 {.bg-white}](path)` のように書いてもらう運用。
+        // 抽出後の alt はディレクティブを除いたクリーンなテキストになる。
+        if (typeof node.alt === 'string') {
+          const m = node.alt.match(/^(.*?)\s*\{((?:\s*\.[\w-]+)+)\s*\}\s*$/);
+          if (m) {
+            node.alt = m[1].trim();
+            const classes = m[2]
+              .trim()
+              .split(/\s+/)
+              .map((s) => s.replace(/^\./, ''))
+              .filter(Boolean);
+            if (classes.length) {
+              const existing = node.data.hProperties.className;
+              node.data.hProperties.className = Array.isArray(existing)
+                ? [...existing, ...classes]
+                : existing
+                ? [existing, ...classes]
+                : classes;
+            }
+          }
+        }
+
         if (node.data.hProperties.width == null) {
           const abs = resolveLocalImage(node.url, mdPath);
           const dim = abs ? getIntrinsicSize(abs) : null;

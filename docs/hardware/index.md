@@ -17,7 +17,7 @@ Hapbeat は装着して使う **ワイヤレス触覚デバイス** です。ESP
 
 ## Duo WL
 
-![Duo WL の外観と各部名称](../assets/device-duo-wl-feature.png)
+![Duo WL の外観と各部名称 {.bg-white}](../assets/device-duo-wl-feature.png)
 
 ### 特徴
 
