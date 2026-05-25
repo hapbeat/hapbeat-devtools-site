@@ -10,9 +10,9 @@ Hapbeat SDK は Unity Editor のトップレベルメニュー **`Hapbeat`** に
 
 ```
 Hapbeat/
-  Event Map                                ← Window (Event ID + Wiring 管理メイン画面)
-  Settings                                 ← Window (接続設定 / Group / Bridge UI)
-  Batch Setup                              ← Window (複数 GO に Trigger を一括設定)
+  Open Event Map                           ← Window (Event ID + Wiring 管理メイン画面)
+  Open Batch Setup                         ← Window (複数 GO に Trigger を一括設定)
+  Open Settings                            ← Window (接続設定 / Group / Bridge UI)
   ─────────────────────────────
   Initial Scene Setup                      ← Router + EventMap を一括作成 (推奨)
   Create Event Router                      ← シーンに [Hapbeat Event Router] を配置
@@ -30,6 +30,7 @@ Hapbeat/
   Logs/Open Logs Folder                    ← ログ保存先フォルダを開く
   Logs/Dump Last Recording to Console      ← 直近のログを Console に流す
   Close Edit-mode Transport                ← Edit-mode の UDP 接続を強制クローズ
+  Disable Verbose Log on All Hapbeat Components ← _verboseLog / _debugLog 一括 off
   ─────────────────────────────
   Developer/Build Basic Example            ← Basic サンプル一式の scaffold (Local/Embedded install のみ)
   Developer/Sync HapbeatSDK → Samples~ (Showcase)
