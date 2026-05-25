@@ -6,34 +6,39 @@ sidebar:
 description: Unity Editor 上の Hapbeat メニュー項目の使い方リファレンス。Window 系・シーン操作・サンプル生成・Debug の各カテゴリを説明。
 ---
 
-Hapbeat SDK は Unity Editor のトップレベルメニュー **`Hapbeat`** にすべての操作を集約しています。このページは各項目の用途を逆引きで参照する一覧です。
+Hapbeat SDK は Unity Editor のトップレベルメニュー **`Hapbeat`** にすべての操作を集約しています。役割ごとに区切り線で分かれた flat 構成で、SDK 開発者向けの項目だけが最下部の `Developer/` サブメニューに分離されています（end-user の install では非表示）。
 
 ```
 Hapbeat/
-├── Settings                 ← 接続設定 / Group / Bridge UI
-├── Event Map                ← Event ID 一覧と Wiring の管理 (メイン編集画面)
-├── Batch Setup              ← 複数 GameObject に Trigger を一括設定
-│
-├── Create Event Router      ← シーンに [Hapbeat Event Router] を配置
-│
-├── Setup/
-│   └── Create HapbeatSDK Folder    ← Assets/HapbeatSDK/ の標準レイアウトを生成
-├── Build Samples/
-│   ├── 1. Basic Example            ← Basic サンプル一式 (Kit + EventMap + Scene)
-│   └── 2. Showcase (full scene)    ← Showcase サンプル一式 (SDK 開発者向け)
-│
-└── Debug/
-    ├── Attach Event Logger to Selected           ← 選択 GO の UnityEvent をログに流す配線を追加
-    ├── Remove Event Logger Wiring from Selected  ← 上記の解除
-    │
-    ├── Logs/
-    │   ├── Start Recording                       ← Hapbeat 系ログのファイル記録を開始
-    │   ├── Stop Recording                        ← 記録を停止して保存
-    │   ├── Reveal Current File                   ← 記録中ログを Explorer/Finder で表示
-    │   ├── Open Logs Folder                      ← ログ保存先フォルダを開く
-    │   └── Dump Last Recording to Console        ← 直近のログを Console に流す
-    │
-    └── Close Edit-mode Transport                 ← Edit-mode の UDP 接続を強制クローズ
+  Event Map                                ← Event ID 一覧と Wiring の管理 (メイン編集画面)
+  ─────────────────────────────
+  Initial Scene Setup                      ← Router + EventMap を一括作成 (新規シーンの推奨入口)
+  Create Event Router                      ← シーンに [Hapbeat Event Router] を配置
+  Create Event Map                         ← EventMap .asset だけを作成
+  Batch Setup                              ← 複数 GameObject に Trigger を一括設定
+  ─────────────────────────────
+  Create HapbeatSDK Folder                 ← Assets/HapbeatSDK/ の標準レイアウトを生成
+  Normalize Audio Folder (16kHz · 2ch ...) ← フォルダ内 WAV を 16kHz / stereo / PCM16 に揃える
+  ─────────────────────────────
+  Export Event Map (Selected)              ← 選択中 EventMap を Markdown summary に書き出し
+  Export Event Map (All in Project)        ← project 内全 EventMap を一括 Markdown 化
+  ─────────────────────────────
+  Settings                                 ← 接続設定 / Group / Bridge UI
+  ─────────────────────────────
+  Attach Event Logger to Selected          ← 選択 GO の UnityEvent をログに流す配線を追加
+  Remove Event Logger Wiring from Selected ← 上記の解除
+  ─────────────────────────────
+  Logs/Start Recording                     ← Hapbeat 系ログのファイル記録を開始
+  Logs/Stop Recording                      ← 記録を停止して保存
+  Logs/Reveal Current File                 ← 記録中ログを Explorer/Finder で表示
+  Logs/Open Logs Folder                    ← ログ保存先フォルダを開く
+  Logs/Dump Last Recording to Console      ← 直近のログを Console に流す
+  ─────────────────────────────
+  Close Edit-mode Transport                ← Edit-mode の UDP 接続を強制クローズ
+  ─────────────────────────────
+  Developer/Build Basic Example            ← Basic サンプル一式の scaffold (Local/Embedded install のみ)
+  Developer/Sync HapbeatSDK → Samples~ (Showcase)
+  Developer/Sync HapbeatSDK → Samples~ (BasicExample)
 ```
 
 加えて以下のメニュー位置にも Hapbeat エントリがあります:
@@ -86,17 +91,32 @@ Hapbeat/
 
 ## シーン操作
 
+### Initial Scene Setup
+
+新規シーンへの推奨入口。次を 1 コマンドで揃えます:
+
+- `Assets/HapbeatSDK/` フォルダレイアウト (Kits / Scenes / EventMaps)
+- `[Hapbeat Event Router]` GameObject (内部に `HapbeatManager` singleton)
+- `Assets/HapbeatSDK/EventMaps/<scene-name>-EventMap.asset`
+- Event Map ウィンドウを開いて新規 asset を選択状態にする
+
+再実行は idempotent — 既存の Router / EventMap があれば再利用するだけで、複製や上書きはしません。
+
 ### Create Event Router
 
-現在のシーンに `[Hapbeat Event Router]` GameObject を配置します。中身は `HapbeatManager` (singleton) + `HapbeatActionHelper`。Hapbeat を使うシーンでは必ず 1 つだけ必要です。
-
-すでにシーンに存在する場合はスキップして既存を選択状態にします。
+`[Hapbeat Event Router]` GameObject だけを配置します。中身は `HapbeatManager` (singleton)。EventMap は触らないので、すでに EventMap を持っていてシーンに Router だけ追加したい場合に使います。
 
 > Hierarchy 右クリック → `Hapbeat → Event Router` でも同じことができます。
 
+### Create Event Map
+
+`Assets/HapbeatSDK/EventMaps/...asset` だけを生成します。シーンに Router は追加しません。複数の EventMap を持ちたい advanced ケース用 (例: シーンごとに別の EventMap を持つ)。
+
+> `Assets → Create → Hapbeat → Event Map` でも同じ asset を作れますが、こちらは保存先フォルダを尋ねます (HapbeatSDK 標準パスは尊重されない)。
+
 ---
 
-## Setup
+## Setup / Asset 準備
 
 ### Create HapbeatSDK Folder
 
@@ -105,37 +125,34 @@ Hapbeat/
 ```
 Assets/HapbeatSDK/
 ├── Kits/        ← 触覚波形 (Studio から deploy / 自前 Kit を置く場所)
-├── Scenes/      ← Build Samples で生成されるシーン
+├── Scenes/      ← 生成サンプルシーン
 └── EventMaps/   ← EventMap.asset
 ```
 
-サンプルの Build メニューを使う場合は内部で自動的にこのレイアウトが作られるため、明示的に呼ぶ必要はありません。「最初に手動で枠だけ作っておきたい」時の補助。
+`Initial Scene Setup` も内部で呼ぶので、明示的に叩く必要はありません。「最初に手動で枠だけ作っておきたい」時の補助。
+
+### Normalize Audio Folder (16kHz · 2ch · PCM16)
+
+指定フォルダ配下の WAV を Hapbeat 標準形式 (16kHz / stereo / PCM16) に揃えます。Tutorial 用音声を一括コンバートする時など、StreamClip mode で送信予定の素材整形に使います。
 
 ---
 
-## Build Samples
+## Export
 
-### 1. Basic Example
+### Export Event Map (Selected) / (All in Project)
 
-Basic Example サンプル一式 (Kit / EventMap / Scene) を `Assets/HapbeatSDK/` に生成します。
+`HapbeatEventMap.asset` の内容を Markdown summary として書き出します。AI 支援で wiring を相談する時や、デザインドキュメントへ貼る用途を想定。
 
-実行前に Package Manager で **Hapbeat SDK → Samples → Basic Example → Import** を済ませておく必要があります (Sample アセットの実体が `Assets/Samples/Hapbeat SDK/<version>/Basic Example/` にコピーされます)。
+- `Selected` — Project ビューで選択中の EventMap だけ
+- `All in Project` — `t:HapbeatEventMap` で project 全体を一括書き出し
 
-生成後は `Assets/HapbeatSDK/Scenes/BasicExample.unity` を開いて Play。
-
-### 2. Showcase (full scene)
-
-Showcase サンプルの Scene / EventMap / Kit を `Assets/HapbeatSDK/SDK_Samples/Showcase/` にスキャフォールドします (Local / Embedded install 限定の SDK 開発者向けメニュー)。
-
-エンドユーザーは Package Manager の Sample Import で直接 Scene を開けるため、このメニューは通常不要です。
-
-詳細: [Showcase サンプル](./showcase/index.md)
+詳細: [AI 支援ワークフロー](./ai-assisted-workflow.md)
 
 ---
 
-## Debug
+## 診断 / Debug
 
-ユーザーが触ってよい範囲のデバッグ用ユーティリティ。バグ報告時に **Logs/** 配下を活用してログを添付してもらうのが推奨フローです。
+ユーザーが触ってよい範囲の診断ユーティリティ。バグ報告時に Logs を添付してもらうのが推奨フローです。
 
 ### Attach Event Logger to Selected / Remove Event Logger Wiring from Selected
 
@@ -157,15 +174,31 @@ Hapbeat 系のログ (Console 出力 + 実行イベント) をファイルに記
 
 **バグ報告のおすすめフロー:**
 
-1. `Start Recording` を実行
+1. `Logs/Start Recording` を実行
 2. 再現手順を実行 (Play → 問題発生 → Stop)
-3. `Stop Recording` で保存 → ファイルを Issue / DM に添付
+3. `Logs/Stop Recording` で保存 → ファイルを Issue / DM に添付
 
 ### Close Edit-mode Transport
 
 Edit-mode で開いている UDP / mDNS transport を強制クローズします。「Play モードに入る前から接続テストしたい」「ポートが掴まれっぱなしで Play できない」などのレアケース用。
 
 通常は触る必要はありません。
+
+---
+
+## Developer (Local / Embedded install only)
+
+SDK 開発者向け。end-user の UPM Git URL / registry / tarball install では `HapbeatDevModeMenuGate` により非表示になり、メニュー自体が現れません。
+
+### Build Basic Example
+
+Basic Example サンプル一式 (Kit / EventMap / Scene) を `Assets/HapbeatSDK/SDK_Samples/BasicExample/` に scaffold します。Package Manager で Basic Example を Import 済みであることが前提。
+
+End user は Package Manager の Sample Import で直接 Scene を開けるため、このメニューは通常不要です。
+
+### Sync HapbeatSDK → Samples~ (Showcase) / (BasicExample)
+
+`Assets/HapbeatSDK/SDK_Samples/<sample>/` で編集した Scene / EventMap / Animation を package の `Samples~/<sample>/` に書き戻します。SDK 自体を編集している人向けの maintainer 専用コマンド。
 
 ---
 
@@ -188,7 +221,6 @@ GameObject の Inspector → Add Component → 検索欄に `Hapbeat`:
 
 | コンポーネント | 用途 |
 |---|---|
-| Hapbeat Animator Trigger | Animator パラメータ変化で発火 |
 | Hapbeat Collision Trigger | 物理衝突 / Trigger Enter / Exit で発火 |
 | Hapbeat Sequence Trigger | grab / hold / release を 1 component で扱う |
 | Hapbeat Tick Emitter | 連続値 (Slider 等) の変化量に応じてスナップ触覚 |
@@ -198,5 +230,7 @@ GameObject の Inspector → Add Component → 検索欄に `Hapbeat`:
 | Hapbeat Event Logger | UnityEvent 発火を Console に流す (Debug 用) |
 | Hapbeat Key Dispatcher | キー押下を UnityEvent にマップ (sample / proto 用) |
 | Hapbeat Status Overlay | 接続状態と Log を Canvas に表示 |
+
+> Animator state からの発火は **`HapbeatStateBehaviour`** を使います。これは StateMachineBehaviour なので、GameObject の Add Component ではなく **Animator window で state を選択 → Inspector → Add Behaviour** から追加します。詳細: [Trigger コンポーネント](./triggers.md#hapbeatstatebehaviour)。
 
 詳細: [Trigger コンポーネント](./triggers.md) / [Parameter Binding](./parameter-binding.md)
