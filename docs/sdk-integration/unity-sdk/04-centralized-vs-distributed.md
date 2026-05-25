@@ -77,6 +77,7 @@ GameHapticRouter.Instance.OnEnemyHit();
 ### Cons
 - Inspector では何が呼ばれているか見えない（script 読まないと分からない）
 - EventMap との連動が手動（runtime に存在チェックは出るが、Inspector で未使用 entry の検知ができない）
+- **Latency 補正の対象外**: `HapbeatConfig.hapticDelaySeconds` (audio 遅延補正) は Trigger / Bridge / Event / StateBehaviour 経由でのみ自動適用される。`Manager.Instance.Play()` を直叩きする経路は EventMap entry を経由しないので、必要なら呼び出し側で `Invoke` / `StartCoroutine` で同等の delay を入れる必要がある — 集約パターンを採用する場合は注意。
 
 ## 使い分けの目安
 
