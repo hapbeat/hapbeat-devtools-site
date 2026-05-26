@@ -14,15 +14,17 @@ Hapbeat/
   Open Batch Setup                         ← Window (複数 GO に Trigger を一括設定)
   Open Settings                            ← Window (接続設定 / Group / Bridge UI)
   ─────────────────────────────
-  Initial Scene Setup                      ← Router + EventMap を一括作成 (推奨)
   Create Event Router                      ← シーンに [Hapbeat Event Router] を配置
   Create Event Map                         ← EventMap .asset だけを作成
+  ─────────────────────────────
+  Initial Scene Setup                      ← Router + EventMap を一括作成 (新規シーン用)
   Create HapbeatSDK Folder                 ← Assets/HapbeatSDK/ の標準レイアウトを生成
   Deploy Imported Sample                   ← Samples/Hapbeat SDK/ から HapbeatSDK/ へコピー (Showcase 等)
   ─────────────────────────────
   Export Event Map (Selected)              ← 選択中 EventMap を Markdown summary に書き出し
   Export Event Map (All in Project)        ← project 内全 EventMap を一括 Markdown 化
   Normalize Audio Folder (16kHz · 2ch ...) ← フォルダ内 WAV を 16kHz / stereo / PCM16 に揃える
+  ─────────────────────────────
   Attach Event Logger to Selected          ← 選択 GO の UnityEvent をログに流す配線を追加
   Remove Event Logger Wiring from Selected ← 上記の解除
   Logs/Start Recording                     ← Hapbeat 系ログのファイル記録を開始
@@ -40,10 +42,12 @@ Hapbeat/
 
 セクションの分け方:
 
-1. **Window 系** (top): ウィンドウを開く操作。Event Map / Settings / Batch Setup。
-2. **Create 系**: シーン GameObject / asset を新規作成する操作。Initial Scene Setup は (1) + (2) + フォルダレイアウトの一括コマンド。
-3. **Tools** (同じ区切りの中): export / 変換 / 診断 / ログ。粒度に応じて Logs だけサブメニュー化。
-4. **Developer**: SDK 開発者専用。UPM Git URL / registry installs では `HapbeatDevModeMenuGate` により非表示。
+1. **Window 系** (top): ウィンドウを開く操作。よく使うので最上段に配置。
+2. **Create 系**: 日常的な author 操作。Event Router / Event Map を個別に作成。
+3. **Initial / 1 回限り**: 初期セットアップや特殊ケースで実行するもの。Initial Scene Setup は (Router + EventMap + フォルダ) の一括コマンド、Deploy Imported Sample は Samples フォルダから HapbeatSDK/ への展開。
+4. **Authoring tools**: EventMap export / Audio フォーマット変換 (アセット成果物の加工)。
+5. **Diagnostics**: 配線テスト・ログ記録・transport 緊急クローズ・冗長ログ一括 OFF。デバッグ目的。
+6. **Developer** (gate hidden in UPM consumer installs): SDK 開発者専用。`HapbeatDevModeMenuGate` で UPM Git URL / registry installs では非表示。
 
 加えて以下のメニュー位置にも Hapbeat エントリがあります:
 
