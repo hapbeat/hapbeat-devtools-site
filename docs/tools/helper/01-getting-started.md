@@ -181,7 +181,7 @@ hapbeat-helper version    # 入っているバージョン
 自動起動中の helper を更新する手順:
 
 ```bash
-# 1. 現在の helper を止める
+# 1. 現在の helper を止める  ← 必須（後述「stop を忘れた場合」参照）
 hapbeat-helper stop
 
 # 2. 新バージョンに更新
@@ -200,6 +200,61 @@ hapbeat-helper start
 > **macOS の注意**: `hapbeat-helper stop` は `KeepAlive=true` のため SIGTERM 送信後に launchd が即 respawn する（実質「再起動」）。アップデート前に完全停止したい場合は `hapbeat-helper uninstall-service` → upgrade → `hapbeat-helper install-service` の順で行います。
 
 > Studio の log drawer に `ERROR: unknown type: <message>` が出る場合、Helper が古い Studio との不整合です。上記の手順でアップデートしてください。
+
+### `hapbeat-helper stop` を忘れて upgrade / uninstall した場合
+
+helper が自動起動で常駐したまま `pipx upgrade` / `pipx uninstall` を実行すると、OS によって失敗のしかたが違います。リカバリ手順も別なので OS ごとに切り分けてください。
+
+#### Windows: `PermissionError: アクセスが拒否されました` で失敗する
+
+site-packages 内の `.pyd` (例: `websockets/speedups.cp312-win_amd64.pyd`) が helper プロセスにロックされているため、`pipx` の uninstall (内部で trash へ rename) が失敗します。pipx の状態が「半分 uninstall されかけ + プロセスは生存」という中途半端な形になります。
+
+**リカバリ（PowerShell で実行）:**
+
+```powershell
+# 1. Task Scheduler の helper タスクを終了させる
+schtasks /End /TN HapbeatHelper
+
+# 2. それでも残っているプロセスを名前で kill
+Get-CimInstance Win32_Process |
+  Where-Object { $_.CommandLine -match 'hapbeat[-_]helper' } |
+  ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+
+# 3. pipx の trash に残った半端なディレクトリを掃除
+Remove-Item -Recurse -Force C:\pipx\home\.trash -ErrorAction SilentlyContinue
+
+# 4. pipx の状態確認 → 半端に残っていれば uninstall を再実行（もう .pyd ロックは無い）
+pipx list
+pipx uninstall hapbeat-helper      # 残っていれば
+
+# 5. install
+pipx install hapbeat-helper        # or `pipx upgrade hapbeat-helper`
+
+# 6. 自動起動を新版の venv path に貼り直す
+hapbeat-helper install-service
+```
+
+> Stop-Process でまれに `プロセス識別子 <PID> のプロセスが見つかりません` というエラーが出ますが、これは `schtasks /End` でタスクが既に死んだ後に Stop-Process が PID を探したというだけの race condition で、実害はありません。
+
+#### macOS: pipx 自体は成功するが古い daemon が動き続ける
+
+Unix では実行中ファイルを削除できる（プロセスが close するまで inode が生き残る）ので、`pipx uninstall` / `pipx upgrade` は **エラー無しで完走** します。ただし古いコードを掴んだ launchd ジョブが生き続けるので、Studio から見ると **「version が更新されたのに挙動が古いまま」** という状態になります。
+
+**リカバリ:**
+
+```bash
+# 1. launchd ジョブを unload (= プロセスも止まる)
+launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.hapbeat.helper.plist
+
+# 2. それでも残っている foreground プロセスがあれば
+pkill -f 'hapbeat[-_]helper'
+
+# 3. 必要なら pipx install / upgrade を再実行
+pipx install hapbeat-helper        # 完全に消えていた場合
+
+# 4. 自動起動を再登録
+hapbeat-helper install-service
+```
 
 ## ログの確認
 
@@ -236,6 +291,7 @@ pipx uninstall hapbeat-helper
 | デバイスがサイドバーに出てこない | Helper と Hapbeat が同一 Wi-Fi LAN か確認 / hotspot/AP モードによっては UDP broadcast / mDNS が遮断される |
 | ポート 7700 または 7703 が既に使われている | Helper が二重起動していないか確認。`hapbeat-helper service-status` で動作中なら `hapbeat-helper stop` してから再起動。それ以外のプロセスが占有している場合は macOS: `lsof -i :7703` / Windows: `netstat -ano \| findstr :7703` で PID を特定し、そのアプリを終了してください |
 | **Windows: ログイン後に Helper が自動起動しない** | Windows 11 24H2+ では VBScript がデフォルト無効のため、古い VBS shim はスタートアップフォルダに存在しても実行されません。`hapbeat-helper uninstall-service` → `hapbeat-helper install-service` を実行し直すと Task Scheduler 方式に切り替わります |
+| **Windows: `pipx uninstall` / `pipx upgrade` が `PermissionError` で失敗する** | 自動起動で常駐している helper プロセスが `.pyd` を握っているのが原因。アップデート前に必ず `hapbeat-helper stop` を実行してください。stop を忘れた後のリカバリは「[アップデート → stop を忘れて upgrade / uninstall した場合](#hapbeat-helper-stop-を忘れて-upgrade--uninstall-した場合)」を参照 |
 | **macOS 14 (Sonoma) 以上で Wi-Fi scan が空** | `airport -s` が deprecated 化されたため、Helper の SSID 自動取得が動かないことがあります。Studio の Wi-Fi 設定で SSID を**手入力**で追加してください（パスワードは正常に設定できます） |
 | Mac で USB Serial 書き込みが動かない | デバイス名が `/dev/cu.usbmodem*` 系で出ているか確認 (`ls /dev/cu.*`)。出ない場合はデータ通信対応の USB-C ケーブルか確認 (充電専用ケーブルは不可) |
 | macOS で `Ctrl+C` が効かない | `install-service` で登録した Helper はバックグラウンドで動いており、ターミナルにフォアグラウンドプロセスが存在しません。`hapbeat-helper stop` で停止してください |
