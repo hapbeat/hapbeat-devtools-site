@@ -43,4 +43,4 @@ Used to logically separate devices when multiple players or exhibition booths sh
 ## Next steps
 
 - [Contracts overview](/en/docs/reference/contracts/overview/) — entry point to message format, addressing, display-layout, and other references
-- [Device Firmware](/en/docs/hardware/wifi-setup/)
+- [Hardware overview](/en/docs/hardware/overview/)

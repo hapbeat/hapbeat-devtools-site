@@ -41,9 +41,10 @@ const WORKSPACE_SIBLING = path.resolve(ROOT, '..'); // hapbeat-sdk-workspace/
 // docs は devtools-site/docs/<short>/ に物理移動し、fetch 不要となった。
 // contracts のみ「タグごとに freeze される規範的仕様」として fetch を維持する。
 // 詳細: docs/instructions-docs-ia-restructure-202605111600.md (workspace)
-// short は TARGET_PARENT 配下のサブパス。新 IA では reference/contracts/ 配下に集約する。
+// short は TARGET_PARENT 配下のサブパス。Contracts (仕様) は Concepts セクションに
+// 取り込む方針 (Reference トップレベルを廃止)。
 const SOURCES = [
-  { short: 'reference/contracts', label: 'Contracts (仕様)', repo: 'hapbeat-contracts', url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
+  { short: 'concepts/contracts', label: 'Contracts (仕様)', repo: 'hapbeat-contracts', url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
 ];
 
 // 集約後に portal で表示しないファイル名 (case-insensitive)。
@@ -363,10 +364,11 @@ async function main() {
     await walkAndNormalize(TARGET_PARENT);
     console.log('  ok: local docs/ → docs/ (portal root pages)');
 
-    // ディレクトリ構造 = サイドバー構造になったため、各 group / sub-group の
-    // landing は walkDirs で再帰的に auto-gen する (sub-repo / hand-written な
-    // index.md が既にあれば override されない)。
-    await autoGenLandingsRecursive(TARGET_PARENT);
+    // 方針 (2026-05-24 改定): セクション URL の auto-gen index.md は生成しない。
+    //   - manual な index.md は別ファイル名 (`01-overview.md` 等) に置き換える運用
+    //   - /docs/<section>/ URL は 404 になるが、サイドバーのグループラベルは
+    //     toggle のみで navigation しないので UX 上の問題は無い
+    // (旧: autoGenLandingsRecursive で hidden index を物理ファイルとして出力していた)
   }
 
   const useGit = process.env.FETCH_DOCS_MODE === 'git' || !!process.env.CI;
@@ -389,9 +391,7 @@ async function main() {
     }
     // Normalize frontmatter (Starlight requires title) and strip excluded files.
     await walkAndNormalize(dest);
-    // Section landing が無ければ自動生成 (sub-repo が docs/index.md を持てば override)。
-    const generated = await ensureSectionIndex(dest, src.label || src.short);
-    if (generated) console.log(`  + auto-generated index for ${src.short}/`);
+    // (auto-gen index.md は無効化。/docs/<section>/ は 404 で OK の方針)
   }
 
   // clean tmp
@@ -458,17 +458,6 @@ async function startWatch() {
       .on('all', async (event, filePath) => {
         try {
           await syncOneFile(filePath, watchDir, destDir);
-          // add/unlink: index ページの list を再生成 (sub-repo が自前 index.md を
-          // 持つ場合は触らない — 自前があれば watch でコピー済 / なければ regen)
-          if (event === 'add' || event === 'unlink') {
-            const userIndex =
-              existsSync(path.join(watchDir, 'index.md')) ||
-              existsSync(path.join(watchDir, 'index.mdx'));
-            if (!userIndex) {
-              await rm(path.join(destDir, 'index.md'), { force: true });
-              await ensureSectionIndex(destDir, src.label || src.short);
-            }
-          }
           console.log(`[fetch-docs] ${event}: ${path.relative(WORKSPACE_SIBLING, filePath)}`);
         } catch (e) {
           console.warn(`[fetch-docs] sync error: ${e.message}`);

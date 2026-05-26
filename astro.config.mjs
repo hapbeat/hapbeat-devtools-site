@@ -217,6 +217,14 @@ export default defineConfig({
     '/docs/sdk-integration/unity-sdk/tutorial': '/docs/sdk-integration/unity-sdk/showcase/',
     '/docs/sdk-integration/unity-sdk/tutorial/walkthrough': '/docs/sdk-integration/unity-sdk/showcase/walkthrough/',
     '/docs/sdk-integration/unity-sdk/tutorial/method-choice': '/docs/sdk-integration/unity-sdk/showcase/method-choice/',
+    // Reference トップレベル廃止 (2026-05-24): Contracts を Concepts 配下に移動
+    '/docs/reference': '/docs/concepts/',
+    '/docs/reference/contracts': '/docs/concepts/contracts/',
+    '/docs/reference/contracts/overview': '/docs/concepts/contracts/overview/',
+    // showcase index → overview (2026-05-24)
+    '/docs/sdk-integration/unity-sdk/showcase': '/docs/sdk-integration/unity-sdk/showcase/overview/',
+    // wifi-setup を Studio onboarding に統合 (2026-05-26)
+    '/docs/hardware/wifi-setup': '/docs/tools/studio/initial-setup/',
   },
   integrations: [
     starlight({
@@ -307,7 +315,7 @@ export default defineConfig({
                 {
                   label: 'Showcase',
                   items: [
-                    pub('docs/sdk-integration/unity-sdk/showcase'),
+                    pub('docs/sdk-integration/unity-sdk/showcase/overview'),
                     pub('docs/sdk-integration/unity-sdk/showcase/walkthrough'),
                     pub('docs/sdk-integration/unity-sdk/showcase/wiring'),
                     pub('docs/sdk-integration/unity-sdk/showcase/method-choice'),
@@ -327,13 +335,6 @@ export default defineConfig({
                 pub('docs/sdk-integration/unity-sdk/installation'),
               ].filter(Boolean),
             },
-          ],
-        },
-        {
-          label: '📖 Reference',
-          items: [
-            { label: 'Reference 索引',    slug: 'docs/reference' },
-            { label: 'Contracts 仕様',     autogenerate: { directory: 'docs/reference/contracts' } },
           ],
         },
         { label: '❓ Support',        autogenerate: { directory: 'docs/support' } },

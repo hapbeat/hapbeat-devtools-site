@@ -6,74 +6,79 @@ sidebar:
   order: 2
 ---
 
-Hapbeat Studio はブラウザ完全クライアントサイドで動作する触覚コンテンツのデザインツールです。波形・UI（OLED/LED）・Kit ビルドを行います。
+Hapbeat Studio はブラウザ完全クライアントサイドで動作する触覚コンテンツのデザインツールです。波形 (Kit) と UI (OLED / LED) のデザインから、デバイス管理までを 1 つの SPA で扱います。
 
 **起動**: [Hapbeat Studio を開く](https://devtools.hapbeat.com/studio/)
 
 ## 前提
 
-- 推奨ブラウザ: Chrome / Edge（Web Audio API + WebSocket + IndexedDB を使うため）
+- 推奨ブラウザ: Chrome / Edge（Web Audio API + WebSocket + IndexedDB + File System Access API を使うため）
 - Kit をデバイスに転送する場合は `hapbeat-helper` がインストール・起動されていること（[初期セットアップ](/docs/tools/studio/initial-setup/)）
 - ファームウェアが書き込まれた Hapbeat デバイスが Wi-Fi 接続されていること
 
 ## 1. Library フォルダを開く
 
-初回起動時に「Library フォルダを選択してください」と表示されます。これは波形素材（WAV ファイル）の置き場です。任意のフォルダを選択してください。File System Access API を使うため Chrome / Edge 推奨です。
+初回起動時に「Library フォルダを選択してください」と表示されます。Library は **WAV 素材（クリップ）の置き場** です。任意のフォルダを選択してください。
 
-サンプル素材が欲しい場合は、空フォルダを選んでから後でドラッグ＆ドロップで WAV を追加できます。
+サンプル素材は内蔵されており、空フォルダを選ぶと自動でコピーされます。後からドラッグ＆ドロップで WAV を追加することもできます。
+
+> 💡 必要に応じて **Kit フォルダ** も別途設定できます (Kit パネル右上の `+ Kit` チップ)。例えば Unity プロジェクトの `<Project>/Assets/HapbeatSDK/Kits/` を指定すると、Studio が作る Kit が Unity SDK 側で直接読まれます。指定しない場合は Library フォルダ直下に Kit フォルダが作られます。
 
 ## 2. Kit を新規作成
 
-Library パネル下部の「+ Kit」をクリックして Kit に名前を付けます（例: `my-kit`）。
+Kit パネル上部の入力欄に Kit 名を入力 → **Create** ボタン (または Enter)。
 
-## 3. Event を追加
+Kit 名は `^[a-z][a-z0-9-]*$` (英小文字始まり / 英数字とハイフン) のみ。違反文字は入力時点で自動的に弾かれます。
 
-Kit 画面で「+ Event」を押し、Event ID を入力します（例: `my-kit.gunshot`）。
+## 3. クリップを Kit に追加
 
-> Event ID は `<kit-name>.<clip-name>` 形式が推奨です。
+Library のクリップカードを **`+ Kit` ボタン** で追加するか、ドラッグして Kit パネルにドロップします。キーボードでは Library 内のクリップを選択して **Enter** でアクティブ Kit に追加できます。
+
+追加された Kit Event の Event ID は `<kit-name>.<clip-name>` 形式で自動合成されます。
 
 ## 4. Mode を選択
 
-Event の mode 列で再生方式を選びます。
+Kit Event 行の Mode セレクタで再生方式を選びます。
 
 | Mode | 表示 | 用途 |
 |------|------|-----|
-| **FIRE** (command) | ▶ | 短い one-shot。command を送信、デバイス側で Kit 内クリップを再生 |
-| **CLIP** (stream_clip) | ♪ | やや長めのクリップ。Helper が PCM をストリーミング配信 |
-| **LIVE** (stream_source) | ~ | リアルタイム音源（マイク入力等）を直接ストリーミング |
+| **FIRE** (command) | `> FIRE` | 短い one-shot。Event ID と強度だけを送り、デバイス内蔵 WAV を再生 |
+| **CLIP** (stream_clip) | `♪ CLIP` | やや長め / 動的変調。Helper または SDK が PCM をストリーミング送信 |
+| **BOTH** (command + stream_clip) | `>♪ BOTH` | 開発中に FIRE と CLIP の両方を試したいときに 1 event で両 entry を出力 |
 
-最初は **FIRE** から始めるのが簡単です。
+最初は **FIRE** から始めるのが簡単です。Kit ヘッダーの **「モード説明」** ボタンで詳細ヘルプを開けます。詳細は [Mode を切り替える](./modes/)。
 
-## 5. クリップを割り当て
+## 5. 強度（Intensity）を調整
 
-Library から WAV をドラッグして Event 行にドロップするか、Event 行の「Edit」を押してクリップを選択します。
+各 Kit Event カードの Amp スライダーで基準振動強度 (0–100%) を設定します。キーボードでは選択中の Event で **← / →** で ±5% 調整できます。
 
-- WAV はビルド時に **16 kHz PCM16 mono** に自動正規化されます
-- 元ファイルは Library 側のみで保持、Kit 内には正規化版が入ります
+## 6. キーボードで試聴
 
-## 6. 強度（Intensity）を調整
+Kit Event を選択して **Space** で再生 / 停止。**↑ / ↓** で前後の Event に移動できます。
 
-各 Event 行の Intensity スライダーで再生強度（0-100%）を設定します。
+- Helper + デバイスが接続済 → デバイスから振動を確認
+- 未接続 → ブラウザ音声で波形を確認
 
-## 7. キーボードで試聴
+## 7. Save Folder と Deploy
 
-Event 行を選択して `Space` で再生、`↑/↓` で行間移動、`←/→` で Intensity ±5% の調整ができます。プレビュー中はブラウザ音声で確認できます。
+Kit の編集はメタデータ (kits-meta.json) として自動保存されますが、**Kit フォルダへの WAV / manifest.json の書き出しは明示操作** に変わりました (2026-05-25)。Kit パネル下部にボタンが 2 つ並びます。
 
-## 8. Deploy
+| ボタン | 動作 |
+|---|---|
+| **Save Folder** | ローカルの Kit フォルダに `manifest.json` + WAV を書き出す。Helper / デバイス不要 |
+| **Deploy** | Save Folder と同じビルドを実行し、その zip を Helper 経由でデバイスに転送 |
 
-Kit は編集内容が自動保存されます。
+Save Folder はローカル保存だけ、Deploy はデバイスにも送るという関係です。Amp / intensity / device_wiper のみ変更したときは WAV の再エンコードがキャッシュで skip されるため高速です。
 
-選択中デバイスへのデプロイは右上の **Deploy** ボタンを押します:
+## 8. 実機で Event を発火
 
-1. Helper 経由でデバイスへ転送
-2. 完了すると Studio の Manage タブ → Kit 一覧に反映されます
-
-## 9. 実機で Event を発火
-
-Studio の Kit タブで Event 行の ▶ ボタンを押して再生、または Unity SDK 等の SDK から Event ID を送信してデバイスから振動を確認します。
+- Studio: Kit Event を選択して Space (FIRE / CLIP どちらでも)
+- SDK: Event ID を送信
+- Manage タブ → Kit サブタブからインストール済 Kit の Event を発火テスト
 
 ## 次のステップ
 
-- [画面構成](/docs/tools/studio/ui-overview/) — 各パネルの役割
-- [Mode を切り替える](/docs/tools/studio/modes/) — FIRE / CLIP をいつ使うか
+- [画面構成](/docs/tools/studio/ui-overview/) — 各パネル・タブの役割
+- [Kit を作って配布する](/docs/tools/studio/kit-design/) — Kit ビルドと配布の詳しい手順
+- [Mode を切り替える](/docs/tools/studio/modes/) — FIRE / CLIP / BOTH の使い分け
 - [ショートカット一覧](/docs/tools/studio/shortcuts/)

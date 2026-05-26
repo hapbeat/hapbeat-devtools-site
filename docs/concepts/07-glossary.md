@@ -14,7 +14,7 @@ sidebar:
 : 触覚デバイス本体。現行モデルは **Duo WL** (首掛けワイヤレス) と **Band WL** (リスト / アンクル装着) の 2 種類。ESP32 を内蔵し、Wi-Fi UDP で触覚イベントを受信して再生する。
 
 **Kit**
-: 触覚資産のフォルダ単位。`manifest.json` + WAV 群で構成。Studio で作成し、Helper 経由で Hapbeat デバイスに転送する。詳細: [Event ID と Kit](./event-id-and-kit/)
+: 触覚資産のフォルダ単位。`<kit-name>-manifest.json` + WAV 群で構成。Studio で作成し、Helper 経由で Hapbeat デバイスに転送する。詳細: [Event ID と Kit](./event-id-and-kit/)
 
 **Event ID**
 : 触覚イベントを識別する文字列。基本形式 `<category>.<name>`、拡張形式 `<category>.<subcategory>.<name>`、名前空間付き `<namespace>/<category>.<name>` をサポート。
@@ -31,19 +31,22 @@ sidebar:
 ## 強度・モード
 
 **intensity**
-: Kit 設計時の基準振動強度。`manifest.json` の `events[<id>].parameters.intensity` に 0.0〜1.0 で記録する。SDK 側 `gain` の **基準値 (× 1.0 の基準)** として働く。
+: Kit 設計時の基準振動強度。manifest の `events[<id>].parameters.intensity` / `stream_events[<id>].parameters.intensity` に 0.0〜1.0 で記録する。SDK 側 `gain` の **基準値 (× 1.0 の基準)** として働く。
 
 **gain**
 : SDK 実行時の動的強度倍率。Unity SDK 等で EventMap や ParameterBinding 経由で与える。`gain = 1.0` で「Kit 設計者が決めた標準の強さ」を意味する。
 
-**Fire (command)**
-: 触覚送信モード `mode: command` の通称。Event ID を送信するだけで、デバイス側にプリインストールされた波形を再生する。低遅延・安定で本番向き。詳細: [Fire と Clip](./fire-vs-clip/)
+**Fire**
+: 触覚送信方式の通称。manifest の `events` bucket に格納された Event を Event ID 指定で発火し、デバイス側にプリインストールされた波形を再生する。低遅延・安定で本番向き。詳細: [Fire と Clip](./fire-vs-clip/)
 
-**Clip (stream_clip)**
-: 触覚送信モード `mode: stream_clip` の通称。PCM 音声データを `STREAM_BEGIN`/`STREAM_DATA`/`STREAM_END` でストリーミングする。プロトタイピング・長尺・動的変調に向く。
+**Clip**
+: 触覚送信方式の通称。manifest の `stream_events` bucket に格納された Event を SDK が PCM データに変換し、`STREAM_BEGIN`/`STREAM_DATA`/`STREAM_END` でストリーミングする。プロトタイピング・長尺・動的変調に向く。
 
-**stream_source**
-: 触覚送信モードの一つ。live AudioSource をキャプチャしてストリーミングするモード。既存音響を直接触覚化する用途。
+**BOTH モード**
+: 同一の Event ID を `events` と `stream_events` の両 bucket に置く構成。発火時に Fire / Clip を使い分けできる。Studio EventMap の `▶♪ BOTH` ラジオで設定する。
+
+**bucket (manifest)**
+: schema 2.0.0 ([DEC-031](https://github.com/Hapbeat/hapbeat-sdk-workspace/blob/master/docs/decision-log.md#DEC-031)) で導入された manifest 上の Event 格納区分。`events` (Fire 用 / device baked) と `stream_events` (Clip 用 / host streaming) の 2 種。Event が **どちらの bucket に入っているかで送信方式が決まる** (旧来の `mode` フィールドは廃止)。
 
 ## ツール
 
@@ -76,10 +79,10 @@ sidebar:
 ## Kit と manifest
 
 **install-clips/**
-: `command` モード用 WAV を入れる Kit 内サブディレクトリ。デバイスに **install されて常駐** する意味。
+: Fire (`events` bucket) 用 WAV を入れる Kit 内サブディレクトリ。デバイスに **install されて常駐** する意味。
 
 **stream-clips/**
-: `stream_clip` / `stream_source` モード用 WAV を入れる Kit 内サブディレクトリ。実行時に **stream として都度送る**。デバイスにはデプロイされない。
+: Clip (`stream_events` bucket) 用 WAV を入れる Kit 内サブディレクトリ。実行時に **stream として都度送る**。デバイスにはデプロイされない。
 
 **target_device**
 : manifest.json のフィールド。Kit が対象とする基板 (例: `duo_wl_v3` / `neck_wl_v2`) と最低ファームウェアバージョンを記録する。

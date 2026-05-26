@@ -6,23 +6,24 @@ sidebar:
   order: 6
 ---
 
-Hapbeat の触覚は、Event ごとに送信 mode を選択します。同じ触覚体験を実現する道筋が複数あるので、**遅延・帯域・柔軟性のトレードオフ** を踏まえて選ぶことになります。このページは「どちらを選ぶか」の判断材料を 1 か所にまとめます。
+Hapbeat の触覚は、Event ごとに **Fire** か **Clip** のどちらで送るかを選択します。同じ触覚体験を実現する道筋が複数あるので、**遅延・帯域・柔軟性のトレードオフ** を踏まえて選ぶことになります。このページは「どちらを選ぶか」の判断材料を 1 か所にまとめます。
 
-## 3 つの mode
+## 2 つの送信方式
 
-contracts 仕様では以下の 3 モードが定義されています:
+manifest 上では Event が **どちらの bucket に入っているか** で送信方式が決まります ([DEC-031](https://github.com/Hapbeat/hapbeat-sdk-workspace/blob/master/docs/decision-log.md#DEC-031))。
 
-| mode | 通称 | 送信内容 | 主な用途 |
-|---|---|---|---|
-| `command` | **Fire** | コマンド (数バイト) | 短い one-shot 効果音 |
-| `stream_clip` | **Clip** | AudioClip 由来の PCM ストリーミング | 長尺・動的変調・プロトタイピング |
-| `stream_source` | (live) | live AudioSource をキャプチャしてストリーミング | 既存音響を直接触覚化 |
+| 通称 | manifest bucket | wire 上 | 送信内容 | 主な用途 |
+|---|---|---|---|---|
+| **Fire** | `events` (command) | PLAY/STOP packet に Event ID | コマンド (数バイト) | 短い one-shot 効果音 |
+| **Clip** | `stream_events` (stream) | STREAM_BEGIN / STREAM_DATA / STREAM_END | AudioClip 由来の PCM ストリーミング | 長尺・動的変調・プロトタイピング |
 
-実運用では **Fire (`command`) と Clip (`stream_clip`) の二択** が中心です。`stream_source` は既存ゲームの AudioSource を流用するワークフロー向け。本ページは Fire と Clip の比較を中心に扱います。
+同じ Event ID を **両 bucket に置く** ことで「Fire / Clip どちらでも再生できる (= BOTH モード)」を表現できます。Studio の EventMap UI では FIRE / CLIP / BOTH のラジオで切り替えます。
 
-## Fire (command) と Clip (stream_clip) の比較
+> schema 1.x までは entry に `mode: "command" | "stream_clip" | "stream_source"` フィールドがありましたが、schema 2.0.0 で bucket 分離に置き換わり、`mode` フィールドと `stream_source` mode は廃止されました。
 
-| | **Fire (command)** | **Clip (stream_clip)** |
+## Fire (command) と Clip (stream) の比較
+
+| | **Fire** (`events` bucket) | **Clip** (`stream_events` bucket) |
 |---|---|---|
 | 事前デプロイ | 必要 (Kit を install-clips に焼く) | 不要 |
 | wire 上を流れるもの | Event ID + パラメータの **数バイト** | PCM chunk (`STREAM_BEGIN` / `STREAM_DATA` / `STREAM_END`) |
@@ -32,7 +33,7 @@ contracts 仕様では以下の 3 モードが定義されています:
 | 停止の即時性 | 即時 | 既送 buffer 分は再生されきる |
 | 無線帯域消費 | ごく小 | 連続消費 |
 
-## Fire (command) モード
+## Fire モード
 
 Kit の WAV をデバイスに **事前デプロイ** しておき、SDK は Event ID と少しのパラメータだけを送ります。デバイス側は受信したコマンドに対応する WAV を自分のストレージから再生します。
 
@@ -50,9 +51,9 @@ Kit の WAV をデバイスに **事前デプロイ** しておき、SDK は Eve
 - ボタン押下感、銃撃音、衝撃音、足音などの **短い one-shot 効果音**
 - ゲーム本番、XR インタラクション、量産展示など **安定再現が必須** な場面
 
-## Clip (stream_clip) モード
+## Clip モード
 
-SDK 側に置いた AudioClip 等を PCM データに変換し、`STREAM_BEGIN` → `STREAM_DATA` × N → `STREAM_END` の UDP メッセージ列としてデバイスに送ります。事前デプロイ不要。
+SDK 側に置いた AudioClip 等を PCM データに変換し、`STREAM_BEGIN` → `STREAM_DATA` × N → `STREAM_END` の UDP メッセージ列としてデバイスに送ります。事前デプロイ不要。device は eventId を認識せず、stream session 単位で受信します。
 
 ### 強み
 - **デプロイ不要で即試せる** — 波形を入れ替えながら試行錯誤できる (プロトタイピング向き)
@@ -75,13 +76,13 @@ SDK 側に置いた AudioClip 等を PCM データに変換し、`STREAM_BEGIN` 
 触覚は数秒以内に収まる ?
 ├─ Yes
 │  └─ 本番運用 / Wi-Fi が混雑する環境 ?
-│     ├─ Yes → Fire (command)          ← 標準デフォルト
-│     └─ No  (プロトタイピング段階) → Clip (stream_clip)
+│     ├─ Yes → Fire        ← 標準デフォルト
+│     └─ No  (プロトタイピング段階) → Clip
 └─ No (長尺 / ループ / 動的変調が必要)
-   └─ Clip (stream_clip)
+   └─ Clip
 ```
 
-**典型ワークフロー**: プロトタイピングは Clip で試行錯誤 → 形が決まったら Fire に切り替えて Kit にコミット。Studio EventMap の mode を切り替えるだけで移行できます。
+**典型ワークフロー**: プロトタイピングは Clip で試行錯誤 → 形が決まったら Fire に切り替えて Kit にコミット。Studio EventMap の FIRE / CLIP / BOTH ラジオで切り替えるだけで移行できます (BOTH のままにすれば Kit 配布後も両モードで再生可能)。
 
 ## gain の扱いの違い
 
@@ -96,14 +97,15 @@ SDK 側に置いた AudioClip 等を PCM データに変換し、`STREAM_BEGIN` 
 
 ## Studio UI と SDK API の対応
 
-| | Studio 表示 | manifest 内部値 | Unity SDK API |
+| | Studio 表示 | manifest 上の格納先 | Unity SDK API |
 |---|---|---|---|
-| Fire | `▶ FIRE` | `mode: command` | `HapbeatManager.Play(eventId, gain)` |
-| Clip | `♪ CLIP` | `mode: stream_clip` | `HapbeatManager.StreamAudioClip(clip, gain)` |
+| Fire | `▶ FIRE` | `events.<id>` | `HapbeatManager.Play(eventId, gain)` |
+| Clip | `♪ CLIP` | `stream_events.<id>` | `HapbeatManager.StreamAudioClip(clip, gain)` |
+| BOTH | `▶♪ BOTH` | 両 bucket に同一 id | 上記両方 (用途に応じて使い分け) |
 
 ## Helper の役割 (補足)
 
-`stream_clip` のストリーミング自体は **SDK が直接デバイスに UDP を送信** すれば成立します。Helper は必須ではなく、Studio の再生テストや SDK 開発時のホスト側中継として使う **任意のツール** です。実行時の最小構成は SDK + Hapbeat デバイスだけです。
+Clip のストリーミング自体は **SDK が直接デバイスに UDP を送信** すれば成立します。Helper は必須ではなく、Studio の再生テストや SDK 開発時のホスト側中継として使う **任意のツール** です。実行時の最小構成は SDK + Hapbeat デバイスだけです。
 
 ## 関連リンク
 

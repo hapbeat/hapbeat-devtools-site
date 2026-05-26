@@ -36,7 +36,6 @@ EventMap は **Event ID と Trigger / Kit の対応関係を一括管理する E
 
 - **▶** FIRE (command)
 - **♪** CLIP (stream_clip)
-- **~** LIVE (stream_source)
 
 ### BatchSetup
 

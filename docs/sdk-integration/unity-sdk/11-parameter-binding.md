@@ -33,7 +33,7 @@ ParameterBinding は `HapbeatTriggerBase` の **ActivePlayback** (StreamClip 再
 | フィールド | 役割 |
 |---|---|
 | Source Transform Path | source として読む Transform。空 = この GameObject 自身 |
-| Source Property | `LocalPositionY` / `VelocityMagnitude` / `PositionDeltaMagnitude` / `AngularVelocityMagnitude` / `LocalRotationY` 等から選択 |
+| Source Property | `LocalPositionX` / `LocalPositionY` / `VelocityMagnitude` / `AngularVelocityMagnitude` / `PositionDeltaMagnitude` / `LocalRotationY` / `SliderValue` (UI Slider 連動) / `External` (スクリプト `binding.SetValue()` で外部入力) 等から選択 |
 | Input Min / Max | source 値をどの範囲で 0..1 に正規化するか |
 | Curve Type | `Linear` / `EaseIn` / `EaseOut` / `EaseInOut` / `Custom` |
 | Output Parameter | `StreamGain` (0..2) または `StreamPan` (-1..+1) |
@@ -42,13 +42,13 @@ ParameterBinding は `HapbeatTriggerBase` の **ActivePlayback** (StreamClip 再
 
 ## Showcase Z3 での実例
 
-[Showcase サンプル](/docs/sdk-integration/unity-sdk/showcase/) の Pickup Box (Z3) は、箱を持ち上げて動かしている間、loop の gain を **箱の移動速度** に追従させます。
+[Showcase サンプル](/docs/sdk-integration/unity-sdk/showcase/) の Fishing Rod (Z3) は、釣り糸に attach した物体を振り回している間、loop の gain を **物体の移動速度** に追従させます。
 
-設定:
+設定 (`Z3_Fishing` root の `HapbeatParameterBinding`):
 
 | 項目 | 値 |
 |---|---|
-| Source Transform Path | (空 = PickupBox 自身) |
+| Source Transform Path | `FishingObject` (root からの相対) |
 | Source Property | `PositionDeltaMagnitude` |
 | Input Min / Max | 0 / 0.5 |
 | Curve Type | `EaseInOut` |
@@ -56,10 +56,10 @@ ParameterBinding は `HapbeatTriggerBase` の **ActivePlayback** (StreamClip 再
 | Output Min / Max | 0.2 / 1.5 |
 
 挙動:
-- 箱を **静止** させていると `PositionDeltaMagnitude = 0` → 正規化 0 → curve 0 → output 0.2 (静かな loop)
-- 箱を **激しく動かす** と `PositionDeltaMagnitude > 0.5` → 正規化 1 → output 1.5 (強い loop)
+- `FishingObject` を **静止** させていると `PositionDeltaMagnitude = 0` → 正規化 0 → curve 0 → output 0.2 (静かな loop)
+- **激しく振り回す** と `PositionDeltaMagnitude > 0.5` → 正規化 1 → output 1.5 (強い loop)
 
-実装は `Samples~/Showcase/Scripts/PickupBoxController.cs` でマウス入力に応じて Sequence.Fire / Stop を呼ぶだけ。binding は EventMap entry に preset として登録されているので、BatchSetup や Apply Binding ボタン経由で自動的に PickupBox に `HapbeatParameterBinding` が貼られます。
+`FishingController` (script) はマウス入力に応じて `Sequence.Fire() / Stop()` を呼ぶだけ。binding は EventMap entry (`grab_loop`) に preset として登録されているので、BatchSetup や Apply Binding ボタン経由で自動的に `Z3_Fishing` に `HapbeatParameterBinding` が貼られます。
 
 ## EventMap preset と standalone の違い
 
@@ -101,7 +101,7 @@ Zone_Root (← ★ Trigger をここに attach)
 
 Zone の root に Trigger を置けば、配下の全 GO を binding source として preset で参照できる (Hierarchy 制約に当たらない)。これが **EventMap 管理を最大化するパターン**。
 
-→ Showcase Z3 (`Z3_Fishing` root に SequenceTrigger 配置 + 子の FishingObject を source) はこの形。
+→ Showcase Z3 (`Z3_Fishing` root に SequenceTrigger 配置 + 子の `FishingObject` を source) はこの形。
 
 #### この制約が嫌なら: script 駆動 (Z5 Charge 参照)
 

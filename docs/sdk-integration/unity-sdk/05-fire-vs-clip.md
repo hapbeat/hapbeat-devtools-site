@@ -80,10 +80,19 @@ playback.Stop();
 1. **Clip でプロトタイプ** — `AudioClip` を Inspector に直接アサインして即座に試行錯誤
 2. **波形を Kit に取り込む** — Studio に WAV をインポートして `install-clips/` 配下に配置
 3. **EventMap で mode を切り替え** — `stream_clip` → `command`
-4. **Kit をデプロイ** — Studio から対象デバイスへ
+4. **Kit をデプロイ** — Hapbeat Studio で対象デバイスへ送る
 5. **動作確認** — Trigger 経由で発火、低遅延・安定再生に切り替わる
 
 Trigger 側のコードは変更不要 (mode 切替は EventMap 側だけで完結) です。
+
+### Kit をデバイスへ deploy する手順
+
+1. **Hapbeat Studio** を開く（`https://devtools.hapbeat.com/studio/`、初回起動は [初期セットアップ](/docs/tools/studio/initial-setup/) を参照）
+2. **Kit タブ（右側）** → 「フォルダを開く」で Unity の `Assets/HapbeatSDK/Kits/` を指定
+3. 対象 Kit を選択（Studio 上で一覧表示されます）
+4. 接続中のデバイスが選択されていることを確認 → **Deploy** を実行
+
+deploy が完了すると、Command モードに切り替えた EventMap entry がデバイス内蔵 clip を低遅延で再生するようになります。EventMap entry の `Event ID` と Kit 内の clip 名（`<kit-name>.<clip-name>`）が一致している必要があります。
 
 ## よくある質問
 

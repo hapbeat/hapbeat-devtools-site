@@ -9,7 +9,7 @@ description: SDK の触覚配線パターンを 1 シーン × 5 ゾーンで一
 
 Showcase は「Hapbeat SDK でこういう書き方ができる」という **実装例の集合** です。手取り足取りの step-by-step ではなく、**動く構造体・実装意図・利用ケース** の 3 点を 1 シーンに詰め込んでいます。読むだけでなく **触る・真似する・改造する起点** として使ってください。
 
-XR デバイス不要・キーマウスだけで完結します (XRI HandDemo 連携は [別サンプル](/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/) を参照)。
+XR デバイス不要・キーマウスだけで完結します。
 
 > **設計方針**: Hapbeat SDK の王道は「**Trigger 系コンポーネントを Inspector で wire**」する宣言的スタイル。Showcase も各 Zone で直接 Trigger を使う構成にしています。Script は **Trigger の `Fire() / Stop()` を呼ぶか、`GainMultiplier` を書くだけ** に留まり、触覚計算は SDK 側に任せます。
 
