@@ -19,7 +19,6 @@ Hapbeat/
   ─────────────────────────────
   Initial Scene Setup                      ← Router + EventMap を一括作成 (新規シーン用)
   Create HapbeatSDK Folder                 ← Assets/HapbeatSDK/ の標準レイアウトを生成
-  Deploy Imported Sample                   ← Samples/Hapbeat SDK/ から HapbeatSDK/ へコピー (Showcase 等)
   ─────────────────────────────
   Export Event Map (Selected)              ← 選択中 EventMap を Markdown summary に書き出し
   Export Event Map (All in Project)        ← project 内全 EventMap を一括 Markdown 化
