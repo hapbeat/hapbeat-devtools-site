@@ -6,7 +6,7 @@ sidebar:
 description: Studio で各 Event の再生 mode を切り替える手順と、Studio 固有の制約。
 ---
 
-Studio では各 Kit Event の再生 mode (`command` / `stream_clip` / 両方) を選べます。このページは **Studio UI 上での操作と Studio 固有の制約** を扱います。Mode の本質的な違いとどちらを選ぶべきかは [Fire と Clip の違い](/docs/concepts/fire-vs-clip/) を参照してください。
+Studio では各 Kit Event の再生 mode (`command` / `stream_clip` / 両方) を選べます。このページは **Studio UI 上での操作と Studio 固有の制約** を扱います。Mode の本質的な違いとどちらを選ぶべきかは [](/docs/concepts/fire-vs-clip/) を参照してください。
 
 ## Studio 上の表示
 
@@ -67,10 +67,10 @@ Save Folder / Deploy 時に Studio が以下のフォーマットに変換しま
 
 ### CLIP は Wi-Fi 経由のストリーミング
 
-Studio から CLIP を再生テストするときは、Helper 接続 + デバイスの Wi-Fi 接続が前提です。Helper を経由せずに SDK から直接ストリーミングする場合は [Fire と Clip](/docs/concepts/fire-vs-clip/) を参照。
+Studio から CLIP を再生テストするときは、Helper 接続 + デバイスの Wi-Fi 接続が前提です。Helper を経由せずに SDK から直接ストリーミングする場合は [](/docs/concepts/fire-vs-clip/) を参照。
 
 ## 関連リンク
 
-- [Fire と Clip の違い](/docs/concepts/fire-vs-clip/) — mode 選択の判断材料 (概念)
+- [](/docs/concepts/fire-vs-clip/) — mode 選択の判断材料 (概念)
 - [Kit を作って配布する](./kit-design/) — Studio で Kit を組み立てる手順
-- [Event ID と Kit](/docs/concepts/event-id-and-kit/) — `events` / `stream_events` 辞書と mode フィールドの spec
+- [](/docs/concepts/event-id-and-kit/) — `events` / `stream_events` 辞書と mode フィールドの spec

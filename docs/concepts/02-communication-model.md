@@ -51,7 +51,7 @@ UDP には ACK / 再送がありません。これは意図的な選択です:
 | **D. Hapbeat SoftAP** | Hapbeat 1 台が AP、HMD + 他 Hapbeat が STA | ルーターなし環境（Quest 等） |
 | **E. 展示ブース隔離** | ブースごとに独立 AP、B と同等 | イベント・展示会 |
 
-詳細: [Hapbeat を初期設定する](/docs/tools/studio/initial-setup/) / [Hapbeat 概要 - SoftAP モードの切替](/docs/hardware/overview/#softap-モードの切替)
+詳細: [](/docs/tools/studio/initial-setup/) / [](/docs/hardware/overview/#softap-モードの切替)
 
 ## 上位オプション: ESP-NOW 経路
 
@@ -88,10 +88,10 @@ Hapbeat デバイス（複数台一斉）
 
 Hapbeat は遅延を吸収するために **targetTime（将来の発火時刻）** を指定できます。SDK は「今すぐ」ではなく「100ms 後に発火」と送り、デバイスは時刻同期した自分の時計でその時点に再生します。
 
-これにより、ネットワーク揺らぎがあっても発火タイミングは安定します。詳細は [Message Protocol 仕様](/docs/reference/contracts/) を参照。
+これにより、ネットワーク揺らぎがあっても発火タイミングは安定します。詳細は [](/docs/concepts/contracts/overview/) を参照。
 
 ## 関連
 
 - [アーキテクチャ全体像](./architecture/)
 - [Address の仕組み](./group-player-addressing/)（予定）
-- [Hapbeat を初期設定する](/docs/tools/studio/initial-setup/)
+- [](/docs/tools/studio/initial-setup/)

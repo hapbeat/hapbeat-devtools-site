@@ -60,7 +60,7 @@ XRI の HandDemo シーンは Unity 公式の配布物で、Hapbeat 側からそ
 1. Package Manager の **+ → Install package from git URL...** を選択
 2. Hapbeat Unity SDK の Git URL を貼り付けて **Install**
 
-> SDK の詳しい導入手順は [Installation](/docs/sdk-integration/unity-sdk/installation/) を参照してください。
+> SDK の詳しい導入手順は [](/docs/sdk-integration/unity-sdk/installation/) を参照してください。
 
 ### 3. メニュー1つで触覚を組み込む
 
@@ -106,4 +106,4 @@ XRI の HandDemo シーンは Unity 公式の配布物で、Hapbeat 側からそ
 ## 自分のシーンで触覚を使いたくなったら
 
 このサンプルで「どのコンポーネントが何をしているか」を確認したら、次は自分のシーンで同じ仕組みを組み立ててみましょう。
-[Getting Started](/docs/sdk-integration/unity-sdk/getting-started/) と [Triggers](/docs/sdk-integration/unity-sdk/triggers/) で、HapbeatBridge / EventMap / 各種 Trigger の役割を解説しています。
+[](/docs/sdk-integration/unity-sdk/getting-started/) と [](/docs/sdk-integration/unity-sdk/triggers/) で、HapbeatBridge / EventMap / 各種 Trigger の役割を解説しています。

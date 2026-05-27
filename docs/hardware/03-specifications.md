@@ -70,4 +70,4 @@ Hapbeat は固定内蔵のリチウムイオン電池を採用しています。
 - [Hapbeat 概要](./overview/) — 製品ラインナップとボタン操作
 - [運用ガイド](./care/) — 充電・取扱注意・廃棄
 - [トラブルを解決する](./troubleshooting/) — 既知問題と改善方針
-- [通信モデル](/docs/concepts/communication-model/) — Wi-Fi UDP / ESP-NOW の設計判断
+- [](/docs/concepts/communication-model/) — Wi-Fi UDP / ESP-NOW の設計判断

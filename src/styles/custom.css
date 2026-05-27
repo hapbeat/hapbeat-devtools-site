@@ -142,6 +142,38 @@
   --sl-font-mono: var(--hb-font-mono);
   --sl-line-height: 1.75;
   --sl-line-height-headings: 1.2;
+
+  /* -------- Design-handoff aliases --------
+   * .design-handoff/ から受け取ったコンポーネント (campaign 等) が参照する
+   * `--brand-*` / `--bg` / `--line` / `--ink` 系の var 名を、既存の `--hb-*`
+   * トークンへエイリアス。design-handoff 側を verbatim に保つための層。 */
+  --brand-red:     var(--hb-red);
+  --brand-magenta: var(--hb-magenta);
+  --brand-purple:  var(--hb-purple);
+  --brand-indigo:  var(--hb-indigo);
+  --brand-blue:    var(--hb-blue);
+  --brand-teal:    var(--hb-teal);
+
+  --bg:          var(--hb-bg);
+  --bg-elev:     var(--hb-bg-elev);
+  --bg-soft:     var(--hb-bg-soft);
+  --line:        var(--hb-line);
+  --line-strong: var(--hb-line-strong);
+  --ink:         var(--hb-ink);
+  --ink-soft:    var(--hb-ink-soft);
+  --ink-mute:    var(--hb-ink-mute);
+  --ink-faint:   var(--hb-ink-faint);
+
+  --accent:        var(--hb-purple);
+  --accent-soft:   var(--hb-purple-soft);
+  --accent-ink:    var(--hb-purple-ink);
+  --accent-strong: var(--hb-purple);
+
+  --radius:    var(--hb-radius);
+  --radius-lg: var(--hb-radius-lg);
+  --shadow-md: var(--hb-shadow-md);
+  --font-sans: var(--hb-font-sans);
+  --font-mono: var(--hb-font-mono);
 }
 
 :root[data-theme="dark"] {

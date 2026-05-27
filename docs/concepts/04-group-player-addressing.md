@@ -74,4 +74,4 @@ OLED 表示 (`Gr:01..99` / `P:01..99`) と整合させるため、Player / Group
 
 - [アーキテクチャ全体像](./architecture/)
 - [通信モデル](./communication-model/)
-- [Contracts 概要](/docs/reference/contracts/overview/) / [device-addressing 仕様](https://github.com/Hapbeat/hapbeat-contracts/blob/master/specs/device-addressing.md)
+- [](/docs/concepts/contracts/overview/) / [device-addressing 仕様](https://github.com/Hapbeat/hapbeat-contracts/blob/master/specs/device-addressing.md)

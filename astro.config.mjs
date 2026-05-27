@@ -81,6 +81,24 @@ const IMAGE_SOURCE_ROOTS = [
   path.join(__dirname, 'docs'),                            // ソース docs/
   path.join(__dirname, 'public'),
 ];
+
+// 画像パスエイリアス。markdown `![]()` で `@assets/foo.png` のように書くと
+// 起点ファイルとの相対パスに自動変換される (ファイル毎に `../assets/` の階数を
+// 気にしなくて済む)。追加したい場合はこの辞書に書く。
+const IMAGE_PATH_ALIASES = {
+  '@assets/': path.join(__dirname, 'docs', 'assets'),
+};
+function resolveImageAlias(src, mdFilePath) {
+  if (typeof src !== 'string' || !mdFilePath) return src;
+  for (const [prefix, absRoot] of Object.entries(IMAGE_PATH_ALIASES)) {
+    if (!src.startsWith(prefix)) continue;
+    const tail = src.slice(prefix.length);
+    const absTarget = path.join(absRoot, tail);
+    const rel = path.relative(path.dirname(mdFilePath), absTarget);
+    return rel.split(path.sep).join('/');  // Windows path → POSIX
+  }
+  return src;
+}
 function resolveLocalImage(src, mdFilePath) {
   // src 例: "../assets/foo.png" / "./assets/foo.png" / "/assets/foo.png"
   if (typeof src !== 'string') return null;
@@ -108,6 +126,68 @@ function getIntrinsicSize(absPath) {
     return null;
   }
 }
+// 内部リンクの自動タイトル注入。
+//
+// 書き方:
+//   [](/docs/sdk-integration/unity-sdk/fire-vs-clip/)
+//   → ビルド時に [Fire と Clip を実装する](/docs/.../fire-vs-clip/) に置換
+//
+// 仕組み:
+//   - 空テキスト `[]()` で内部 `/docs/...` URL を指す link ノードを検出
+//   - URL からコレクション内ファイルパスを引いて frontmatter `title` を読む
+//   - link.children を title テキストに置換
+//
+// テキスト付き `[hand-written](path)` は触らない (明示指定が常に優先)。
+// 外部 URL や anchor (#…) のみのリンクも対象外。
+function resolveTitleFromContentSlug(url) {
+  if (typeof url !== 'string') return null;
+  if (/^https?:\/\//.test(url) || url.startsWith('mailto:') || url.startsWith('#')) return null;
+  // /docs/concepts/architecture/ → "docs/concepts/architecture"
+  const slug = url.replace(/^\//, '').replace(/#.*$/, '').replace(/\?.*$/, '').replace(/\/$/, '');
+  if (!slug) return null;
+  const base = path.join(__dirname, 'src', 'content', 'docs', slug);
+  for (const ext of ['.md', '.mdx']) {
+    const file = base + ext;
+    if (!existsSync(file)) continue;
+    try {
+      const raw = readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+      const fm = raw.match(/^---\n([\s\S]*?)\n---/);
+      if (!fm) return null;
+      const tm = fm[1].match(/^title\s*:\s*"?([^"\n]+?)"?\s*$/m);
+      return tm ? tm[1].trim() : null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+function remarkAutoLinkTitle() {
+  return (tree) => {
+    const walk = (node) => {
+      if (!node || typeof node !== 'object') return;
+      if (node.type === 'link' && typeof node.url === 'string') {
+        // empty link text 判定: children なし or 単一の空 text ノード
+        const isEmpty =
+          !Array.isArray(node.children) ||
+          node.children.length === 0 ||
+          (node.children.length === 1 &&
+            node.children[0].type === 'text' &&
+            (node.children[0].value || '').trim() === '');
+        if (isEmpty && node.url.startsWith('/docs/')) {
+          const title = resolveTitleFromContentSlug(node.url);
+          if (title) {
+            node.children = [{ type: 'text', value: title }];
+          }
+        }
+      }
+      if (Array.isArray(node.children)) {
+        for (const child of node.children) walk(child);
+      }
+    };
+    walk(tree);
+  };
+}
+
 function remarkImageMaxWidth() {
   return (tree, file) => {
     const mdPath = file?.path;
@@ -116,6 +196,11 @@ function remarkImageMaxWidth() {
       if (node.type === 'image' && typeof node.url === 'string') {
         node.data = node.data || {};
         node.data.hProperties = node.data.hProperties || {};
+
+        // パスエイリアス (`@assets/foo.png`) を MD ファイルからの相対パスに変換。
+        // Astro の image service は相対パスを期待するので、自前で resolve してから
+        // 元の URL を上書きする。これで以後の処理 (resize / WebP 化等) も普通に動く。
+        node.url = resolveImageAlias(node.url, mdPath);
 
         // alt 末尾の `{.class1 .class2}` を抽出して className に変換。
         // markdown `![]()` 構文では class を直接付けられないので、alt 内に
@@ -201,6 +286,7 @@ export default defineConfig({
   markdown: {
     remarkPlugins: [
       remarkImageMaxWidth,  // build 時に markdown 画像を最大 MAX_IMAGE_WIDTH へリサイズ
+      remarkAutoLinkTitle,  // [](path) 形式の内部リンクに target の title を自動注入
     ],
     rehypePlugins: [
       rehypeNewTabExternal,
@@ -339,7 +425,11 @@ export default defineConfig({
         },
         { label: '❓ Support',        autogenerate: { directory: 'docs/support' } },
       ],
-      customCss: ['./src/styles/custom.css', './src/styles/components.css'],
+      customCss: [
+        './src/styles/custom.css',
+        './src/styles/components.css',
+        './src/styles/campaign.css',
+      ],
     }),
   ],
 });

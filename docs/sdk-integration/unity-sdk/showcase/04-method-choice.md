@@ -49,7 +49,7 @@ Z3 Fishing は典型的な組み合わせ例です:
 
 ## まとめ
 
-- まず [BatchSetup](/docs/sdk-integration/unity-sdk/event-map/#batch-setup) で書けないか考える
+- まず [](/docs/sdk-integration/unity-sdk/event-map/#batch-setup) で書けないか考える
 - 書けないなら自前 Bridge 派生 + スクリプト
 - 同じシーンで両方を混在させて OK (Showcase サンプルがそうしている)
 - 具体的な実装例は [Walkthrough](./walkthrough/) の「Zone 別の wiring 詳細」を参照

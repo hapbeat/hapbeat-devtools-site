@@ -42,7 +42,7 @@ ParameterBinding は `HapbeatTriggerBase` の **ActivePlayback** (StreamClip 再
 
 ## Showcase Z3 での実例
 
-[Showcase サンプル](/docs/sdk-integration/unity-sdk/showcase/) の Fishing Rod (Z3) は、釣り糸に attach した物体を振り回している間、loop の gain を **物体の移動速度** に追従させます。
+[](/docs/sdk-integration/unity-sdk/showcase/overview/) の Fishing Rod (Z3) は、釣り糸に attach した物体を振り回している間、loop の gain を **物体の移動速度** に追従させます。
 
 設定 (`Z3_Fishing` root の `HapbeatParameterBinding`):
 
@@ -155,6 +155,6 @@ Showcase の対応例:
 
 ## 参考
 
-- [Wiring Reference](/docs/sdk-integration/unity-sdk/showcase/wiring/#z3-fishing-rod) — Z3 の wire 詳細
-- [Method choice](/docs/sdk-integration/unity-sdk/showcase/method-choice/) — コンポーネント vs スクリプトの使い分け
-- [Triggers](/docs/sdk-integration/unity-sdk/triggers/) — `HapbeatSequenceTrigger` の詳細
+- [](/docs/sdk-integration/unity-sdk/showcase/wiring/#z3-fishing-rod) — Z3 の wire 詳細
+- [](/docs/sdk-integration/unity-sdk/showcase/method-choice/) — コンポーネント vs スクリプトの使い分け
+- [](/docs/sdk-integration/unity-sdk/triggers/) — `HapbeatSequenceTrigger` の詳細

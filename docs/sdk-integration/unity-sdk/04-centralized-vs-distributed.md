@@ -92,6 +92,6 @@ GameHapticRouter.Instance.OnEnemyHit();
 
 ## 参考
 
-- [Trigger コンポーネント一覧](/docs/sdk-integration/unity-sdk/triggers/) — Trigger-first で使える各種 Trigger
-- [EventMap ウィンドウ](/docs/sdk-integration/unity-sdk/event-map/) — entry 管理
-- [プロジェクトに組み込む](/docs/sdk-integration/unity-sdk/integration/) — 初期セットアップ
+- [](/docs/sdk-integration/unity-sdk/triggers/) — Trigger-first で使える各種 Trigger
+- [](/docs/sdk-integration/unity-sdk/event-map/) — entry 管理
+- [](/docs/sdk-integration/unity-sdk/integration/) — 初期セットアップ

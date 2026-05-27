@@ -42,7 +42,7 @@ wifi set <SSID> <PASSWORD>
 reboot
 ```
 
-詳細: [Hapbeat を初期設定する](/docs/tools/studio/initial-setup/)
+詳細: [](/docs/tools/studio/initial-setup/)
 
 ### 信号が弱い
 
@@ -165,4 +165,4 @@ battery recover
 - [Hapbeat 概要](./overview/) — ボタン操作・OLED 表示・SoftAP 切替
 - [運用ガイド](./care/) — 充電・お手入れ・取扱注意
 - [仕様と認証](./specifications/) — ハードウェア仕様一覧
-- [Hapbeat を初期設定する](/docs/tools/studio/initial-setup/) — 初期セットアップ
+- [](/docs/tools/studio/initial-setup/) — 初期セットアップ

@@ -36,7 +36,7 @@ DAW では「この曲では 64 sample で攻める / マスタリングでは 1
 
 ## 設定方法
 
-[HapbeatConfig](/docs/sdk-integration/unity-sdk/installation/) の `streamSendAheadSeconds` で変更できます:
+[](/docs/sdk-integration/unity-sdk/installation/) の `streamSendAheadSeconds` で変更できます:
 
 ```
 HapbeatConfig
@@ -127,6 +127,6 @@ session 中に **1 つの stream しか動かさない** 場合 (例: BGM 的に
 
 ## 関連
 
-- [Getting Started](/docs/sdk-integration/unity-sdk/getting-started/) — `Manager.StreamAudioClip` の基本
-- [Triggers](/docs/sdk-integration/unity-sdk/triggers/) — StreamClip / Command の違い
-- [Event Map](/docs/sdk-integration/unity-sdk/event-map/) — entry の mode 設定
+- [](/docs/sdk-integration/unity-sdk/getting-started/) — `Manager.StreamAudioClip` の基本
+- [](/docs/sdk-integration/unity-sdk/triggers/) — StreamClip / Command の違い
+- [](/docs/sdk-integration/unity-sdk/event-map/) — entry の mode 設定

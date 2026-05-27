@@ -85,7 +85,7 @@ Slider / ScrollRect などの連続値の変化量に応じて、スナップア
 
 例: 距離が近いほど触覚を強くする、移動速度が上がるほど振動が強まる。
 
-詳細は [ParameterBinding](/docs/sdk-integration/unity-sdk/parameter-binding/)
+詳細は [](/docs/sdk-integration/unity-sdk/parameter-binding/)
 
 ## デバッグ
 
@@ -95,7 +95,7 @@ Slider / ScrollRect などの連続値の変化量に応じて、スナップア
 
 ## 次のステップ
 
-- [EventMap で Event ID を一元管理](/docs/sdk-integration/unity-sdk/event-map/)
-- [Streaming buffer の調整](/docs/sdk-integration/unity-sdk/streaming/) — StreamClip モードの停止遅延・途切れ耐性のトレードオフ
-- [Showcase サンプル](/docs/sdk-integration/unity-sdk/showcase/) — 各 Trigger の実例 (Z1 Collision / Z2 Animator / Z3 Sequence + Binding / Z4 TickEmitter / Z5 UnityEvent + スクリプト)
-- [BatchSetup vs スクリプト](/docs/sdk-integration/unity-sdk/showcase/method-choice/)
+- [](/docs/sdk-integration/unity-sdk/event-map/)
+- [](/docs/sdk-integration/unity-sdk/streaming/) — StreamClip モードの停止遅延・途切れ耐性のトレードオフ
+- [](/docs/sdk-integration/unity-sdk/showcase/overview/) — 各 Trigger の実例 (Z1 Collision / Z2 Animator / Z3 Sequence + Binding / Z4 TickEmitter / Z5 UnityEvent + スクリプト)
+- [](/docs/sdk-integration/unity-sdk/showcase/method-choice/)

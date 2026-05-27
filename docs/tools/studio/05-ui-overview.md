@@ -145,4 +145,4 @@ WAV / Live Audio (システム音、マイク) のストリーミングテスト
 
 ## キーボードショートカット
 
-詳細は [ショートカット一覧](/docs/tools/studio/shortcuts/) を参照。
+詳細は [](/docs/tools/studio/shortcuts/) を参照。

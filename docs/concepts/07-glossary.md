@@ -6,7 +6,7 @@ sidebar:
   order: 99
 ---
 
-各ドキュメントで使われる用語を 1〜2 行で定義します。**正式な仕様は [Contracts](/docs/reference/contracts/overview/) を参照** してください。
+各ドキュメントで使われる用語を 1〜2 行で定義します。**正式な仕様は [](/docs/concepts/contracts/overview/) を参照** してください。
 
 ## コアコンセプト
 
@@ -93,5 +93,5 @@ sidebar:
 ## 関連リンク
 
 - [アーキテクチャ全体像](./architecture/) — 各コンポーネントの役割と境界
-- [Contracts 概要](/docs/reference/contracts/overview/) — 仕様の正式定義
-- [Reference (索引)](/docs/reference/) — API / コマンドのリファレンス
+- [](/docs/concepts/contracts/overview/) — 仕様の正式定義
+- [](/docs/concepts/contracts/overview/) — API / コマンドのリファレンス
