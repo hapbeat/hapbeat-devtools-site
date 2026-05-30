@@ -28,9 +28,9 @@
   --hb-teal-soft: oklch(0.93 0.045 220);
   --hb-teal-ink: oklch(0.42 0.11 220);
 
-  /* Brand gradient (utility) */
+  /* Brand gradient (utility) — ロゴ / favicon と揃えて左→右 (90deg) */
   --hb-gradient: linear-gradient(
-    135deg,
+    90deg,
     var(--hb-red) 0%,
     var(--hb-purple) 50%,
     var(--hb-teal) 100%

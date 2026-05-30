@@ -3,21 +3,29 @@
  * SiteTitle override.
  *
  * Starlight default の SiteTitle を、Hapbeat ブランドマーク
- * (グラデ四角 + 同心円) + "Hapbeat / devtools" テキストロックアップに差替。
+ * (グラデ四角 + ターミナルプロンプト `>_`) + "Hapbeat / devtools" ロックアップに差替。
+ * グリフは devtools であることを示す意図。背景の水平グラデ (favicon と共通) でブランドを担保する。
  *
  * 表示優先度:
  *   - ロゴマーク + "Hapbeat" は常時表示
  *   - "devtools" サブタイトルは ≥80rem のみ (ヘッダーが詰まる時は省略)
  *   - version chip は廃止 (UI 上の優先度が低い)
  *
- * design 出典: .design-handoff/docs.css の .brand / .brand__mark
+ * design 出典: public/favicon.svg と同一グリフ
  */
 
 const homeUrl = import.meta.env.BASE_URL || '/';
 ---
 
 <a class="hb-brand" href={homeUrl} aria-label="Hapbeat devtools — ホーム">
-  <span class="hb-brand__mark" aria-hidden="true"></span>
+  <span class="hb-brand__mark" aria-hidden="true">
+    <svg viewBox="0 0 32 32" width="26" height="26">
+      <g fill="none" stroke="rgba(255,255,255,0.96)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 11 L15 16 L10 21"></path>
+        <path d="M17 21 L23 21"></path>
+      </g>
+    </svg>
+  </span>
   <span class="hb-brand__name">
     <span class="hb-brand__primary">Hapbeat</span>
     <span class="hb-brand__sub">devtools</span>
@@ -48,23 +56,10 @@ const homeUrl = import.meta.env.BASE_URL || '/';
     position: relative;
     flex: none;
   }
-  .hb-brand__mark::before,
-  .hb-brand__mark::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    border: 1.4px solid oklch(1 0 0 / 0.85);
-    pointer-events: none;
-  }
-  .hb-brand__mark::before {
-    width: 9px;
-    height: 9px;
-    opacity: 0.95;
-  }
-  .hb-brand__mark::after {
-    width: 17px;
-    height: 17px;
-    opacity: 0.5;
+  .hb-brand__mark svg {
+    width: 26px;
+    height: 26px;
+    display: block;
   }
   .hb-brand__name {
     display: inline-flex;

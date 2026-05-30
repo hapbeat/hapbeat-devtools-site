@@ -5,7 +5,7 @@ sidebar:
   order: 300
 description: HapbeatEventMap asset / EventMap ウィンドウの全フィールド・全 UI・全自動機能を網羅した SDK 内部リファレンス。
 ---
-![unity-eventmap](@assets/unity-eventmap.jpg)
+![unity-eventmap](@assets/unity/unity-eventmap.jpg)
 
 EventMap は **Event ID と触覚エントリの対応関係を一括管理する ScriptableObject + 専用 Editor ウィンドウ**です。Trigger / StateBehaviour / スクリプトはすべて EventMap entry を参照し、エントリ側で mode・gain・target・bindings 等を一元定義します。
 

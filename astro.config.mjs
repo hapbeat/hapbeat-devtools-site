@@ -336,6 +336,13 @@ export default defineConfig({
             href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap',
           },
         },
+        // OGP / Twitter Card — 全ページ共通の社会的共有画像 (1200×630)。
+        // og:image は絶対 URL 必須。site (devtools.hapbeat.com) 配下に配置。
+        { tag: 'meta', attrs: { property: 'og:image', content: 'https://devtools.hapbeat.com/og-image.png' } },
+        { tag: 'meta', attrs: { property: 'og:image:width', content: '1200' } },
+        { tag: 'meta', attrs: { property: 'og:image:height', content: '630' } },
+        { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
+        { tag: 'meta', attrs: { name: 'twitter:image', content: 'https://devtools.hapbeat.com/og-image.png' } },
       ],
       // Component overrides:
       //   - Header: design の topbar layout (brand / search / nav / lang / theme / github)
@@ -432,4 +439,15 @@ export default defineConfig({
       ],
     }),
   ],
+  vite: {
+    resolve: {
+      alias: {
+        // コンポーネント (.astro) からも markdown と同じ `@assets/<topic>/foo.jpg`
+        // で docs/assets を import できるようにする。これで画像の置き場所を
+        // docs/assets に一本化し、public/images との重複を解消する。
+        // (OGP / favicon のみ固定 URL 必須のため public/ に残す)
+        '@assets': path.join(__dirname, 'docs', 'assets'),
+      },
+    },
+  },
 });

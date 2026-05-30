@@ -38,7 +38,7 @@ sidebar:
 再実行しても既存の Router / EventMap がそのまま再利用される（重複生成されない）ので、セットアップ済みシーンで再度実行しても安全です。「Router だけ追加」「EventMap だけ追加」など個別操作が必要な場合は [](/docs/sdk-integration/unity-sdk/editor-menus/) を参照してください。
 
 ### 1-2. EventMap でエントリを定義する
-![unity-eventmap](@assets/unity-eventmap.jpg)
+![unity-eventmap](@assets/unity/unity-eventmap.jpg)
 
 `Hapbeat → Open Event Map` ウィンドウを開き、**+ Add Event** からエントリを追加します（ウィンドウを開くだけでは asset は作られません — 1-1 で作成済みの前提）。
 

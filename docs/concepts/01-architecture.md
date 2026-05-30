@@ -10,7 +10,7 @@ sidebar:
 
 ## 全体図
 
-![Hapbeat の構成図。左側が設定・デザインフロー（Studio → Helper → Hapbeat デバイス、PC 経由）、右側がゲーム / アプリ実行フロー（Unity SDK / Quest / PC / スマートフォン → Wi-Fi UDP broadcast → Hapbeat デバイス、直結）](../assets/hapbeat-sdk-architecture.svg)
+![Hapbeat の構成図。左側が設定・デザインフロー（Studio → Helper → Hapbeat デバイス、PC 経由）、右側がゲーム / アプリ実行フロー（Unity SDK / Quest / PC / スマートフォン → Wi-Fi UDP broadcast → Hapbeat デバイス、直結）](@assets/architecture/hapbeat-sdk-architecture.svg)
 
 Hapbeat には **2 つの独立したフロー** があります:
 

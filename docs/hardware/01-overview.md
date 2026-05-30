@@ -19,7 +19,7 @@ Hapbeat は装着して使う **ワイヤレス触覚デバイス** です。ESP
 
 ## Duo WL
 
-![Duo WL の外観と各部名称 {.bg-white}](@assets/device-duo-wl-feature.png)
+![Duo WL の外観と各部名称 {.bg-white}](@assets/devices/device-duo-wl-feature.png)
 
 ### 特徴
 
@@ -38,7 +38,7 @@ Hapbeat は装着して使う **ワイヤレス触覚デバイス** です。ESP
 ## Band WL
 
 <!-- TODO: device-band-wl-feature.png 追加後に画像とテキストを差し替える -->
-![Band WL の外観と各部名称 {.bg-white}](@assets/device-band-wl-feature.png)
+![Band WL の外観と各部名称 {.bg-white}](@assets/devices/device-band-wl-feature.png)
 
 リスト / アンクル装着の単チャネル版。スマートフォン / 軽量アプリと組み合わせて使う想定。
 

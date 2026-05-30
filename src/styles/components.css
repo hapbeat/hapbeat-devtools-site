@@ -703,7 +703,7 @@ html:not([data-has-sidebar]) starlight-menu-button {
 }
 .hb-hero__title em {
   font-style: normal;
-  background: linear-gradient(135deg, var(--hb-red) 0%, var(--hb-purple) 50%, var(--hb-teal) 100%);
+  background: linear-gradient(90deg, var(--hb-red) 0%, var(--hb-purple) 50%, var(--hb-teal) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
