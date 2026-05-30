@@ -17,6 +17,12 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
 // メニュートグル (mobile) は Starlight 標準を PageFrame.astro が描画する。
 // ここでは描画せず、CSS で position を上書きしてヘッダー左に再配置する
 // (Starlight default は position:fixed で右端に固定)。
+
+// 現在のロケールを維持する: EN ページではナビリンクを /en/ 配下に向ける。
+// これをしないと EN ページからヘッダーの Docs / Support を押すと JA に戻ってしまう。
+// (言語切替は LanguageSelect ボタンのみが担う)
+const isEn = Astro.url.pathname === '/en' || Astro.url.pathname.startsWith('/en/');
+const lp = isEn ? '/en' : '';  // locale prefix for /docs/ links
 ---
 
 <div class="hb-topbar">
@@ -33,8 +39,8 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
 
   <div class="hb-topbar__right">
     <nav class="hb-topbar__nav" aria-label="主要セクション">
-      <a href="/docs/start-here/getting-started/" class="hb-topbar__nav--lvl1">Docs</a>
-      <a href="/docs/support/contact/" class="hb-topbar__nav--lvl3">Support</a>
+      <a href={`${lp}/docs/start-here/getting-started/`} class="hb-topbar__nav--lvl1">Docs</a>
+      <a href={`${lp}/docs/support/contact/`} class="hb-topbar__nav--lvl3">Support</a>
       <a href="/studio/" class="hb-topbar__cta" target="_blank" rel="noopener noreferrer">
         Studio
         <svg class="hb-topbar__cta-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

@@ -10,6 +10,9 @@
 import Default from '@astrojs/starlight/components/Footer.astro';
 
 const year = new Date().getFullYear();
+// 現在のロケールを維持する: EN ページではフッターの内部リンクを /en/ 配下に向ける。
+const isEn = Astro.url.pathname === '/en' || Astro.url.pathname.startsWith('/en/');
+const lp = isEn ? '/en' : '';
 ---
 
 <Default {...Astro.props}><slot /></Default>
@@ -23,8 +26,8 @@ const year = new Date().getFullYear();
     <ul class="hb-footer__links">
       <li><a href="https://hapbeat.com" target="_blank" rel="noopener noreferrer">hapbeat.com</a></li>
       <li><a href="https://github.com/hapbeat" target="_blank" rel="noopener">GitHub</a></li>
-      <li><a href="/docs/support/contact/">Support</a></li>
-      <li><a href="/docs/support/changelog/">Changelog</a></li>
+      <li><a href={`${lp}/docs/support/contact/`}>Support</a></li>
+      <li><a href={`${lp}/docs/support/changelog/`}>Changelog</a></li>
     </ul>
   </div>
 </footer>

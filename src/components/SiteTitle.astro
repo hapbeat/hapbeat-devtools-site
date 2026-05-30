@@ -14,7 +14,11 @@
  * design 出典: public/favicon.svg と同一グリフ
  */
 
-const homeUrl = import.meta.env.BASE_URL || '/';
+// 現在のロケールを URL から判定し、ロゴのリンク先を維持する。
+// EN ページなら /en/ ホーム、JA(root) なら / ホームへ。
+// (これをしないと EN ページでロゴを押すと JA トップに飛んでしまう)
+const isEn = Astro.url.pathname === '/en' || Astro.url.pathname.startsWith('/en/');
+const homeUrl = isEn ? '/en/' : (import.meta.env.BASE_URL || '/');
 ---
 
 <a class="hb-brand" href={homeUrl} aria-label="Hapbeat devtools — ホーム">
