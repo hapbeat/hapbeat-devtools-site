@@ -22,8 +22,10 @@ yarn-error.log*
 .DS_Store
 
 # fetched docs (regenerated on build by scripts/fetch-docs.mjs)
-# docs/<group>/ が真の編集場所。build 時に src/content/docs/docs/ へ flat copy + contracts は外部 fetch。
+# docs/ja/ が真の編集場所 (JA root) → src/content/docs/docs/ へ flat copy。
+# docs/en/ (EN) → src/content/docs/en/docs/ へ flat copy。contracts は外部 fetch。
 src/content/docs/docs/
+src/content/docs/en/docs/
 
 # Design handoff (reference material from Claude Design)
 # 抽出済みの React/HTML プロトタイプは git 管理外。

@@ -22,13 +22,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // 直接マッチ → 同一ディレクトリ内で prefix 付きを探す、の 2 段階。
 function resolveSourceFile(slug) {
   const rel = slug.replace(/^docs\//, '');
+  // pub() の source-of-truth は JA (root locale)。docs/ja/ 配下を見る。
+  // EN は未訳でも fallback されるので、JA の存在 = 「公開ページ」の判定基準。
   // 1) prefix なし直接マッチ
   for (const ext of ['.md', '.mdx']) {
-    const direct = path.join(__dirname, 'docs', rel + ext);
+    const direct = path.join(__dirname, 'docs', 'ja', rel + ext);
     if (existsSync(direct)) return direct;
   }
   // 2) 同ディレクトリ内で `^\d+[-_]<basename>\.(md|mdx)$` を探す
-  const dir = path.join(__dirname, 'docs', path.dirname(rel));
+  const dir = path.join(__dirname, 'docs', 'ja', path.dirname(rel));
   const basename = path.basename(rel);
   if (!existsSync(dir)) return null;
   try {
@@ -77,8 +79,9 @@ const isStudioPath = (p) => p === '/studio' || p.startsWith('/studio/');
 // 1600px ソースを許容する設定。
 const MAX_IMAGE_WIDTH = 1600;
 const IMAGE_SOURCE_ROOTS = [
-  path.join(__dirname, 'src', 'content', 'docs', 'docs'),  // fetch-docs 後の場所
-  path.join(__dirname, 'docs'),                            // ソース docs/
+  path.join(__dirname, 'src', 'content', 'docs', 'docs'),       // fetch-docs 後 (JA root)
+  path.join(__dirname, 'src', 'content', 'docs', 'en', 'docs'), // fetch-docs 後 (EN)
+  path.join(__dirname, 'docs'),                                 // ソース docs/ (assets 共有)
   path.join(__dirname, 'public'),
 ];
 

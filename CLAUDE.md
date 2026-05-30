@@ -39,11 +39,18 @@
 
 ## ディレクトリ
 
-- `src/content/docs/` — Starlight コンテンツ
-  - `index.mdx` — Landing
-  - `docs/*.md` — ツール・SDK・仕様ドキュメント
-  - `docs/_fetched/<repo>/` — fetch-docs が生成（.gitignore 対象）
-  - `downloads.md` / `showcase.md` / `faq.md` / `changelog.md`
+### docs ソース（真の編集場所）— i18n はロケールフォルダ分割
+- `docs/ja/<section>/*.md` — **日本語（root locale, source of truth）**
+- `docs/en/<section>/*.md` — **英語**（ja をミラー。未訳ファイルは置かなくてよい → JA に自動フォールバック）
+- `docs/assets/<topic>/` — 画像（**ロケール中立で共有**。markdown は `@assets/<topic>/foo.jpg` で参照）
+- 運用詳細・用語集・翻訳手順: workspace `dev-notes/devtools-site/i18n-strategy.md`
+
+### Starlight コンテンツ（生成 + 手書き）
+- `src/content/docs/` — Starlight コンテンツ root
+  - `index.mdx` / `downloads.mdx` / `showcase.md` — JA top-level（MDX のため手書き、fetch 対象外）
+  - `en/index.mdx` 等 — EN top-level（手書き）
+  - `docs/**` — `docs/ja/` から生成（.gitignore 対象）
+  - `en/docs/**` — `docs/en/` から生成（.gitignore 対象）
 - `src/styles/custom.css` — 共通デザイントークン
-- `scripts/fetch-docs.mjs` — docs 集約スクリプト
+- `scripts/fetch-docs.mjs` — docs 集約（ja→root / en→en、contracts は外部 fetch）
 - `.github/workflows/deploy.yml` — CI デプロイ

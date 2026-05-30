@@ -1,0 +1,56 @@
+---
+title: Downloads
+description: Where to get the Unity SDK package and firmware binaries.
+---
+
+import DownloadItem from '../../../components/DownloadItem.astro';
+
+Every distributable is provided through GitHub Releases. The links below always point to the **latest release** (GitHub automatically redirects `/releases/latest` to the newest version).
+
+## Unity SDK
+
+Installable via the Unity Package Manager (UPM).
+
+<DownloadItem
+  name="Hapbeat Unity SDK (UPM tarball)"
+  description="Unity 2022.3 LTS or later / supports both VR and flat-screen"
+  href="https://github.com/Hapbeat/hapbeat-unity-sdk/releases/latest"
+  icon="🎮"
+  btnLabel="GitHub Release"
+/>
+
+UPM registration URL: `https://github.com/Hapbeat/hapbeat-unity-sdk.git` (pinning a tag is recommended)
+
+Setup guide: [Unity SDK Installation](/en/docs/sdk-integration/unity-sdk/installation/)
+
+## Device Firmware
+
+Firmware for the Hapbeat device itself (ESP32-S3). It is normally bundled with the tooling, so downloading it separately is for advanced users.
+
+<DownloadItem
+  name="Hapbeat Device Firmware (.bin)"
+  description="For ESP32-S3; OTA update via Studio is the standard path"
+  href="https://github.com/Hapbeat/hapbeat-device-firmware/releases/latest"
+  icon="⚡"
+  btnLabel="GitHub Release"
+/>
+
+## Transmitter Firmware
+
+ESP-NOW transmitter firmware (for large-scale setups).
+
+<DownloadItem
+  name="Hapbeat Transmitter Firmware (.bin)"
+  description="Transmitter-only firmware for sending to dozens of devices at once, or for Wi-Fi-unavailable environments"
+  href="https://github.com/Hapbeat/hapbeat-transmitter-firmware/releases/latest"
+  icon="📡"
+  btnLabel="GitHub Release"
+/>
+
+## Source Code
+
+Each repository will be published under the [Hapbeat GitHub org](https://github.com/Hapbeat).
+
+:::note
+Release builds are generated automatically by each repo's GitHub Actions on tag push. You can review the version history on the GitHub Releases page.
+:::

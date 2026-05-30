@@ -26,6 +26,9 @@ const ROOT = path.resolve(__dirname, '..');
 // hand-written な docs/getting-started.md / docs/concepts.md と棲み分けるため、
 // repo の追加ごとに per-short のサブディレクトリを reset する設計にしている。
 const TARGET_PARENT = path.join(ROOT, 'src', 'content', 'docs', 'docs');
+// EN ロケール: docs/en/ → src/content/docs/en/docs/ (Starlight の locale folder 規約)。
+// JA (root) は docs/ja/ → TARGET_PARENT。assets は docs/assets/ にロケール中立で共有。
+const EN_TARGET = path.join(ROOT, 'src', 'content', 'docs', 'en', 'docs');
 const TMP_DIR = path.join(ROOT, '.astro', '_fetch-tmp');
 const WORKSPACE_SIBLING = path.resolve(ROOT, '..'); // hapbeat-sdk-workspace/
 
@@ -356,19 +359,27 @@ async function main() {
   await resetDir(TARGET_PARENT);
   await mkdir(TMP_DIR, { recursive: true });
 
-  // devtools-site 自身の docs/ をまず TARGET_PARENT へフラットにコピーする。
-  // 各サブ repo と同じく "ルート直下の docs/ が編集場所" に統一するための仕組み。
-  const localDocs = path.join(ROOT, 'docs');
-  if (await isDir(localDocs)) {
-    await cp(localDocs, TARGET_PARENT, { recursive: true });
+  // devtools-site 自身の docs/ を locale ごとに content collection へ取り込む。
+  //   docs/ja/ → src/content/docs/docs/        (root locale = 日本語, URL /docs/...)
+  //   docs/en/ → src/content/docs/en/docs/     (en locale, URL /en/docs/...)
+  //   docs/assets/ は locale 中立で共有 (markdown は @assets/ alias で参照、複製しない)
+  // 未訳ページは Starlight の locale fallback で root (JA) コンテンツが表示される。
+  const jaDocs = path.join(ROOT, 'docs', 'ja');
+  if (await isDir(jaDocs)) {
+    await cp(jaDocs, TARGET_PARENT, { recursive: true });
     await walkAndNormalize(TARGET_PARENT);
-    console.log('  ok: local docs/ → docs/ (portal root pages)');
-
+    console.log('  ok: docs/ja/ → docs/ (root locale, JA)');
     // 方針 (2026-05-24 改定): セクション URL の auto-gen index.md は生成しない。
-    //   - manual な index.md は別ファイル名 (`01-overview.md` 等) に置き換える運用
-    //   - /docs/<section>/ URL は 404 になるが、サイドバーのグループラベルは
-    //     toggle のみで navigation しないので UX 上の問題は無い
-    // (旧: autoGenLandingsRecursive で hidden index を物理ファイルとして出力していた)
+    //   /docs/<section>/ URL は 404 になるが、サイドバーのグループラベルは
+    //   toggle のみで navigation しないので UX 上の問題は無い。
+  }
+
+  const enDocs = path.join(ROOT, 'docs', 'en');
+  if (await isDir(enDocs)) {
+    await resetDir(EN_TARGET);  // en/docs/ のみ wipe (en/index.mdx 等の手書き top-level は温存)
+    await cp(enDocs, EN_TARGET, { recursive: true });
+    await walkAndNormalize(EN_TARGET);
+    console.log('  ok: docs/en/ → en/docs/ (EN locale)');
   }
 
   const useGit = process.env.FETCH_DOCS_MODE === 'git' || !!process.env.CI;
@@ -466,19 +477,24 @@ async function startWatch() {
     console.log(`  watching: ${path.relative(WORKSPACE_SIBLING, watchDir)}/`);
   }
 
-  const localDocs = path.join(ROOT, 'docs');
-  if (existsSync(localDocs)) {
+  // locale ごとに監視: docs/ja/ → TARGET_PARENT, docs/en/ → EN_TARGET
+  for (const [srcRel, destBase, label] of [
+    ['docs/ja', TARGET_PARENT, 'docs/ja/ (JA)'],
+    ['docs/en', EN_TARGET, 'docs/en/ (EN)'],
+  ]) {
+    const srcDir = path.join(ROOT, srcRel);
+    if (!existsSync(srcDir)) continue;
     chokidar
-      .watch(localDocs, { ignoreInitial: true, ignored: /(^|[\/\\])\.git/ })
+      .watch(srcDir, { ignoreInitial: true, ignored: /(^|[\/\\])\.git/ })
       .on('all', async (event, filePath) => {
         try {
-          await syncOneFile(filePath, localDocs, TARGET_PARENT);
+          await syncOneFile(filePath, srcDir, destBase);
           console.log(`[fetch-docs] ${event}: ${path.relative(ROOT, filePath)}`);
         } catch (e) {
           console.warn(`[fetch-docs] sync error: ${e.message}`);
         }
       });
-    console.log('  watching: local docs/');
+    console.log(`  watching: ${label}`);
   }
 }
 
