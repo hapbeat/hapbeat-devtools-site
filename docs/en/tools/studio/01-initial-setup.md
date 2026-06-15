@@ -41,30 +41,34 @@ flowchart TD
    - A red **"Helper disconnected"** badge opens an installation instructions modal when clicked.
 3. Click the **Manage tab**. If no devices are listed in the sidebar, the onboarding wizard will appear on the right.
 
-## Step 1: Try USB Serial Connection
+## Step 1: Connect via USB Serial
+
+Connections are made from the **"USB Serial" section in the left sidebar** (there is no connect button in the wizard itself).
 
 1. Connect Hapbeat to your PC with a **USB cable**.
-2. Click the **"🔌 Connect via USB Serial"** button in the wizard.
-3. Your browser will open a COM port selection dialog. Select the Hapbeat port and click "Connect."
+2. Press the **＋ button** in the left sidebar's "USB Serial" section and select the Hapbeat port in the COM port dialog.
    - An approved COM port will be reused automatically in subsequent sessions.
-   - If you have multiple Hapbeat devices connected simultaneously, use the `Re-select COM port` button to switch between them.
+   - Multiple Hapbeat devices each appear as a separate card (`#1`, `#2`, …).
+3. **Check the ✔ checkbox** on the card to connect.
 
-### Two Possible Outcomes
+### Two Possible Outcomes (Automatic)
 
-- ✅ **"Connection successful — proceeding to settings"** → the wizard automatically advances to **Step 3**.
-- ⚠️ **"No response from device"** → firmware is not installed. Click **"Flash firmware first →"** on the same wizard screen to proceed to **Step 2**.
+Once connected, the wizard automatically advances based on the device's response.
+
+- ✅ **Firmware present** → advances to **Step 3 (Wi-Fi setup)**.
+- ⚠️ **No response** (new device / empty bootloader) → advances to **Step 2 (firmware flash)**.
 
 ## Step 2: Flash Firmware (Only If No Response)
 
 > Devices that already have firmware from the factory **do not need this step** — the response check in Step 1 will skip it.
 
-1. In the wizard, select **NECKLACE** or **BAND** under "Firmware type" to match your device.
+1. In the wizard, select **Hapbeat** under "Node type" and pick your variant (Necklace / Band).
 2. Click **"Serial flash"**.
 3. Select your device in the browser's COM port selection dialog.
 4. Wait for the progress bar to complete (approximately 30 seconds to 1 minute).
    - Leave the "Use compression" checkbox **OFF** for stability (there is a known issue where 921600 baud + compression can fail with `status 201`).
-5. **Once flashing is complete**, power Hapbeat OFF and then ON. Return to Step 1 in the wizard and retry the USB connection.
-   - If Step 1 succeeds and advances to Step 3, you are done.
+5. **Once flashing is complete**, power Hapbeat OFF and then ON. Then **re-check the USB Serial card's checkbox** in the left sidebar to reconnect.
+   - If it advances to Step 3, you are done.
 
 ### Troubleshooting Step 2
 
@@ -88,6 +92,7 @@ The wizard opens the Wi-Fi settings panel.
 
 - Select your Hapbeat in the Manage tab's left sidebar to **install Kits**, **update firmware (OTA)**, **configure LED and volume settings**, and **add or remove Wi-Fi profiles**.
 - Traveling to a location with a different Wi-Fi network: simply add another SSID under Studio → Manage → Settings → Wi-Fi (up to 5 profiles can be saved).
+- To build a **sensor → broker → Hapbeat MQTT alert** setup, continue to [Set Up MQTT Alerts](/en/docs/tools/studio/mqtt-alerts/).
 
 ## Troubleshooting
 

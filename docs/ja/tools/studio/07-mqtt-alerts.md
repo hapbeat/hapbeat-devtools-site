@@ -14,7 +14,7 @@ sidebar:
 flowchart LR
     S["🎨 センサー<br/>(M5 ATOM Lite)"] -->|publish<br/>default-topic/play| B["📡 ブローカー<br/>(M5 AtomS3)"]
     B -->|subscribe<br/>default-topic/play| R["📳 Hapbeat 受信機<br/>(Band / Necklace)"]
-    R -.->|ボタン長押しで停止 (ack)| R
+    R -.->|ボタン長押しで停止 = ack| R
 ```
 
 | 役割 | ハードウェア | ファーム種別（Studio） | 仕事 |
