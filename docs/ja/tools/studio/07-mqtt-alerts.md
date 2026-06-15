@@ -4,6 +4,7 @@ kind: tutorial
 description: センサー → ブローカー → Hapbeat（受信機）の 3 ノードを MQTT でつなぎ、「色を検知したら必ず気付かせる」施設アラートを最短で構築する。
 sidebar:
   order: 7
+  label: MQTT アラート設定
 ---
 
 センサーが色（状態）を検知したら、MQTT 経由で Hapbeat（装着デバイス）を鳴動させ、**ボタンで止めるまでループ**させる — 病院・施設などの「必ず気付かせたい」用途向けの構成を、最短手順で組みます。
@@ -107,9 +108,9 @@ flowchart LR
 
 すぐ試せる雛形を配布しています。ダウンロードして編集し、Studio から読み込んでください。
 
-- **センサーマッピング**: [`sensor-mapping.json`](/samples/mqtt-alert/sensor-mapping.json)（`red`=urgent/critical、`blue`=calm の 2 色例）
+- **センサーマッピング**: <a href="/samples/mqtt-alert/sensor-mapping.json" download><code>sensor-mapping.json</code></a>（`red`=urgent/critical、`blue`=calm の 2 色例。クリックでダウンロード）
   → センサー タブの **JSON 読込** で取り込み、ライブ値を見て RGB しきい値を微調整。`event_id` は受信機の Kit に合わせて変更。
-- **受信機の表示レイアウト**: [`ui-config.json`](/samples/mqtt-alert/ui-config.json)（名前・接続状態・電池・制限モード表示の例）
+- **受信機の表示レイアウト**: <a href="/samples/mqtt-alert/ui-config.json" download><code>ui-config.json</code></a>（名前・接続状態・電池・制限モード表示の例。クリックでダウンロード）
   → 設定タブ → **UI Config → 参照 → 書込**。本格的に作る場合は Display エディタで編集 → Export を推奨。
 
 > ⚠️ サンプルは現行 Studio 版（v0.2.0 系）の形式です。`event_id` は配布物に依存しないので、ご自分の Kit のイベント名に置き換えてください。

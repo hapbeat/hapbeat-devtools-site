@@ -107,9 +107,9 @@ For each node, you "connect over USB, configure, then move it onto Wi-Fi and unp
 
 Ready-to-try templates are distributed. Download, edit, and load them in Studio.
 
-- **Sensor mapping**: [`sensor-mapping.json`](/samples/mqtt-alert/sensor-mapping.json) (two-color example: `red`=urgent/critical, `blue`=calm)
+- **Sensor mapping**: <a href="/samples/mqtt-alert/sensor-mapping.json" download><code>sensor-mapping.json</code></a> (two-color example: `red`=urgent/critical, `blue`=calm; click to download)
   → Import via **Import JSON** in the Sensor tab, then fine-tune RGB thresholds while watching live values. Change `event_id` to match your receiver's Kit.
-- **Receiver display layout**: [`ui-config.json`](/samples/mqtt-alert/ui-config.json) (example showing name, connection state, battery, restricted-mode indicator)
+- **Receiver display layout**: <a href="/samples/mqtt-alert/ui-config.json" download><code>ui-config.json</code></a> (example showing name, connection state, battery, restricted-mode indicator; click to download)
   → Settings tab → **UI Config → Browse → Write**. For serious work, edit in the Display editor and Export.
 
 > ⚠️ Samples target the current Studio version (v0.2.0 series). `event_id` is not tied to the distribution — replace it with your own Kit's event names.

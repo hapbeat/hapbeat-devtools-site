@@ -54,3 +54,38 @@
 - `src/styles/custom.css` — 共通デザイントークン
 - `scripts/fetch-docs.mjs` — docs 集約（ja→root / en→en、contracts は外部 fetch）
 - `.github/workflows/deploy.yml` — CI デプロイ
+
+## ドキュメント執筆ルール
+
+### サイドバー表記は 1 行に収める（タイトル最大長）
+
+サイドバー幅は固定なので、長いタイトルは折り返して 2 行になり見づらい。
+**サイドバーに出る表記（`sidebar.label` 未指定なら `title`）の表示幅を 24 以下**
+に保つ。
+
+- **表示幅** = 全角（日本語・全角記号・かな・漢字）を **2**、半角（ASCII・数字・
+  記号・スペース）を **1** として合計した値。≈ 全角のみで **12 文字**、半角のみで
+  **24 文字**。
+- 校正の根拠: `Hapbeat を初期設定する`（表示幅 22）は 1 行に収まり、
+  `MQTT アラートを初期設定する`（27）は折り返す。安全側に 24 を上限とする。
+- **超える場合**: 説明的な `title` はそのまま残し、`sidebar:` に短い `label` を
+  指定する（`title` は H1 / ブラウザタブ用、`label` はサイドバー用に分離）。
+
+```yaml
+---
+title: MQTT アラートを初期設定する   # H1・タブ用（長くてよい）
+sidebar:
+  order: 7
+  label: MQTT アラート設定            # サイドバー用（表示幅 ≤ 24）
+---
+```
+
+### ダウンロードさせるサンプルファイルは `download` 属性付きの `<a>` で貼る
+
+`public/` のサンプル（.json 等）はリンクすると**ブラウザ内で開いてしまう**ので、
+クリックで保存が走るよう markdown 内に生 HTML で `download` を付ける（同一
+オリジン配信なので `download` が効く）。
+
+```html
+<a href="/samples/mqtt-alert/sensor-mapping.json" download><code>sensor-mapping.json</code></a>
+```
