@@ -112,6 +112,8 @@ flowchart LR
   → センサー タブの **JSON 読込** で取り込み、ライブ値を見て RGB しきい値を微調整。`event_id` は受信機の Kit に合わせて変更。
 - **受信機の表示レイアウト**: <a href="/samples/mqtt-alert/ui-config.json" download><code>ui-config.json</code></a>（名前・接続状態・電池・制限モード表示の例。クリックでダウンロード）
   → 設定タブ → **UI Config → 参照 → 書込**。本格的に作る場合は Display エディタで編集 → Export を推奨。
+- **Band WL の例（MQTT 状態表示つき）**: <a href="/samples/mqtt-alert/ui-config-band-v2.json" download><code>ui-config-band-v2.json</code></a>（Band WL 向け。音量・電池バー・制限モード + **MQTT 接続状態 `[OK]`/`[NG]`** 表示の例。クリックでダウンロード）
+  → 設定タブ → **UI Config → 参照 → 書込**。`mqtt_status` 要素はブローカーに正常接続している時だけ `[OK]` を表示します。
 
 > ⚠️ サンプルは現行 Studio 版（v0.2.0 系）の形式です。`event_id` は配布物に依存しないので、ご自分の Kit のイベント名に置き換えてください。
 

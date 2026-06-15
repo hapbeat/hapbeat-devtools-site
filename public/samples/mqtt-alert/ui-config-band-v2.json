@@ -1,0 +1,45 @@
+{
+  "display": {
+    "grid": [16, 2],
+    "pages": [
+      {
+        "id": "page_0",
+        "name": "main",
+        "elements": [
+          { "type": "volume", "position": [10, 1], "size": [6, 1] },
+          { "type": "battery", "position": [0, 1], "size": [8, 1], "variant": "bar" },
+          { "type": "alert_limit_mode", "position": [0, 0], "size": [10, 1] },
+          { "type": "mqtt_status", "position": [12, 0], "size": [4, 1] }
+        ]
+      }
+    ],
+    "button_actions": {
+      "btn_l": { "short_press": "display_toggle", "long_press": "none", "hold": "display_toggle", "hold_mode": "momentary" },
+      "btn_c": { "short_press": "none", "long_press": "none", "hold": "none", "hold_mode": "latch" },
+      "btn_r": { "short_press": "limit_toggle", "long_press": "none", "hold": "led_toggle", "hold_mode": "latch" }
+    },
+    "orientation": "flipped",
+    "device_model": "band_wl",
+    "show_page_indicator": false
+  },
+  "led": {
+    "global_brightness": 5,
+    "rules": [
+      { "id": "battery_critical", "condition": "battery_critical", "enabled": true, "color": [128, 0, 0], "blink_sec": 0.5, "fade": true, "priority": 1 },
+      { "id": "battery_low", "condition": "battery_low", "enabled": true, "color": [255, 120, 0], "blink_sec": 2, "fade": true, "priority": 2 },
+      { "id": "wifi_disconnected", "condition": "wifi_disconnected", "enabled": true, "color": [255, 200, 0], "blink_sec": 1, "fade": false, "priority": 3 },
+      { "id": "volume_mute", "condition": "volume_mute", "enabled": true, "color": [180, 0, 255], "blink_sec": 0, "fade": false, "priority": 4 },
+      { "id": "app_connected", "condition": "app_connected", "enabled": true, "color": [0, 42, 255], "blink_sec": 0, "fade": false, "priority": 6 },
+      { "id": "idle_wifi", "condition": "idle_wifi", "enabled": true, "color": [0, 255, 0], "blink_sec": 0, "fade": false, "priority": 7 }
+    ]
+  },
+  "volume": { "steps": 10, "direction": "ascending", "default_level": 5 },
+  "ui": {
+    "oled_brightness": 1,
+    "hold_ms": 300,
+    "hold_feedback_start_ms": 150,
+    "hold_feedback_color": [255, 136, 0],
+    "hold_feedback_brightness": 35,
+    "hold_show_oled_indicator": false
+  }
+}

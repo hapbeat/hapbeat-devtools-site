@@ -111,6 +111,8 @@ Ready-to-try templates are distributed. Download, edit, and load them in Studio.
   → Import via **Import JSON** in the Sensor tab, then fine-tune RGB thresholds while watching live values. Change `event_id` to match your receiver's Kit.
 - **Receiver display layout**: <a href="/samples/mqtt-alert/ui-config.json" download><code>ui-config.json</code></a> (example showing name, connection state, battery, restricted-mode indicator; click to download)
   → Settings tab → **UI Config → Browse → Write**. For serious work, edit in the Display editor and Export.
+- **Band WL example (with MQTT status)**: <a href="/samples/mqtt-alert/ui-config-band-v2.json" download><code>ui-config-band-v2.json</code></a> (for Band WL: volume, battery bar, restricted-mode, plus **MQTT broker status `[OK]`/`[NG]`**; click to download)
+  → Settings tab → **UI Config → Browse → Write**. The `mqtt_status` element shows `[OK]` only while properly connected to the broker.
 
 > ⚠️ Samples target the current Studio version (v0.2.0 series). `event_id` is not tied to the distribution — replace it with your own Kit's event names.
 
