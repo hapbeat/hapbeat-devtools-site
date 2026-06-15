@@ -1,0 +1,29 @@
+{
+  "kind": "hapbeat-sensor-mapping",
+  "version": 1,
+  "sensor_type": "tcs34725",
+  "mappings": [
+    {
+      "key": "red",
+      "match": { "r_min": 140, "r_max": 255, "g_min": 0, "g_max": 70, "b_min": 0, "b_max": 70 },
+      "event_id": "alert-kit.urgent",
+      "target": "",
+      "gain": 1.0,
+      "debounce_ms": 4000,
+      "oled": "<red> alert \n occured",
+      "critical": true,
+      "topics": ["default-topic"]
+    },
+    {
+      "key": "blue",
+      "match": { "r_min": 0, "r_max": 70, "g_min": 0, "g_max": 90, "b_min": 120, "b_max": 255 },
+      "event_id": "alert-kit.calm",
+      "target": "",
+      "gain": 0.7,
+      "debounce_ms": 4000,
+      "oled": "<blue> normal",
+      "critical": false,
+      "topics": ["default-topic"]
+    }
+  ]
+}

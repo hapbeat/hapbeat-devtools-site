@@ -1,0 +1,41 @@
+{
+  "display": {
+    "grid": [16, 2],
+    "device_model": "band_wl",
+    "orientation": "normal",
+    "show_page_indicator": false,
+    "pages": [
+      {
+        "id": "page_0",
+        "name": "Alert",
+        "elements": [
+          { "type": "device_name", "position": [0, 0], "size": [8, 1] },
+          { "type": "connection_status", "position": [8, 0], "size": [4, 1] },
+          { "type": "battery", "position": [12, 0], "size": [4, 1], "variant": "percent" },
+          { "type": "alert_limit_mode", "position": [0, 1], "size": [10, 1] },
+          { "type": "group_id", "position": [11, 1], "size": [5, 1] }
+        ]
+      }
+    ],
+    "button_actions": {
+      "btn_l": { "short_press": "volume_up", "long_press": "limit_toggle", "hold": "none", "hold_mode": "momentary" },
+      "btn_r": { "short_press": "volume_down", "long_press": "none", "hold": "none", "hold_mode": "momentary" }
+    }
+  },
+  "led": {
+    "global_brightness": 255,
+    "rules": [
+      { "id": "wifi-down", "condition": "wifi_disconnected", "enabled": true, "color": [255, 90, 0], "blink_sec": 1, "fade": true, "priority": 10 },
+      { "id": "battery-low", "condition": "battery_low", "enabled": true, "color": [255, 40, 0], "blink_sec": 2, "fade": true, "priority": 20 }
+    ]
+  },
+  "volume": { "steps": 24, "direction": "ascending", "default_level": 12 },
+  "ui": {
+    "oled_brightness": 2,
+    "hold_ms": 1000,
+    "hold_feedback_start_ms": 200,
+    "hold_feedback_color": [0, 120, 255],
+    "hold_feedback_brightness": 180,
+    "hold_show_oled_indicator": true
+  }
+}
