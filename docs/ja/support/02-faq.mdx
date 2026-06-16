@@ -36,6 +36,38 @@ import Faq from '../../../../components/Faq.astro';
 
 </Faq>
 
+<Faq question="PC に Wi-Fi と有線 LAN を同時接続するとデバイスがオフラインになる">
+
+別途センサーなどを有線 LAN（イーサネット）で繋ぎ、Hapbeat を Wi-Fi で使う構成で起こります。
+
+**原因**: Hapbeat の通信は UDP broadcast を使います。PC を Wi-Fi と有線 LAN の **2 つの別ネットワーク**に同時接続すると、Windows は通常**有線を優先**するため、broadcast が有線側（センサーのネットワーク）にのみ送出され、Wi-Fi 上の Hapbeat に届きません。Studio がオフライン表示になるだけでなく、同じ PC からの触覚再生にも影響します。
+
+**対処**: Wi-Fi アダプターの**インターフェイスメトリック**を有線より小さく（優先度を高く）します。センサーへの通信は宛先指定（unicast）のため、変更後も問題なく動作します。
+
+管理者権限の PowerShell:
+
+```powershell
+# 変更前の値を控える
+Get-NetIPInterface -AddressFamily IPv4 | ft InterfaceAlias,InterfaceMetric
+
+# Wi-Fi を優先に（エイリアス名は環境に合わせる）
+Set-NetIPInterface -InterfaceAlias "Wi-Fi" -InterfaceMetric 10
+Set-NetIPInterface -InterfaceAlias "イーサネット" -InterfaceMetric 60
+```
+
+元に戻す場合:
+
+```powershell
+Set-NetIPInterface -InterfaceAlias "Wi-Fi" -AutomaticMetric Enabled
+Set-NetIPInterface -InterfaceAlias "イーサネット" -AutomaticMetric Enabled
+```
+
+GUI の場合: アダプター設定 → Wi-Fi の IPv4 プロパティ → 詳細設定 → 「自動メトリック」のチェックを外し、Wi-Fi に小さい値を設定（戻すときはチェックを戻す）。
+
+> 有線（センサー）と Wi-Fi（Hapbeat）は別サブネットになるようご設定ください。将来的には Studio / Helper / SDK 側で送信インターフェイスを選べるよう改善予定です。
+
+</Faq>
+
 ## Kit / コンテンツ関連
 
 <Faq question="Studio でビルドした Kit が転送できない">
