@@ -131,6 +131,19 @@ Streaming tests for WAV / Live Audio (system audio, microphone).
 
 ---
 
+## Versions & Rollback
+
+Each Studio release is preserved at a **permanent URL**, so if a new version has an issue you can switch back to an older one and keep working.
+
+| URL | Contents |
+|---|---|
+| `https://devtools.hapbeat.com/studio/` | Latest (always updated) |
+| `https://devtools.hapbeat.com/studio/v0.2.0/` etc. | **Immutable snapshot** of each release (frozen, kept permanently) |
+
+The version label next to the title in the header (`v0.2.0 ▾`) is a **dropdown** — pick a version to jump to its permanent URL. Opening the URL directly works too.
+
+---
+
 ## Data Persistence
 
 | Data | Location |
