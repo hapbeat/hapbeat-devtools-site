@@ -6,6 +6,12 @@ sidebar:
   order: 1
 ---
 
+:::tip[AI コーディングエージェントを使う方へ]
+Unity SDK の仕様・使い方を AI（Claude / Cursor / Copilot 等）に把握させるには、次の一文をエージェントに渡してください。
+
+> Hapbeat Unity SDK を使います。`https://devtools.hapbeat.com/_llms-txt/unity-sdk.txt` を読んで、仕様とベストプラクティスに従ってください。
+:::
+
 このガイドでは、**新規 Unity プロジェクト** に SDK をインストールし、Basic Example サンプルを通して Hapbeat デバイスから振動が出るまでを最短で体験します。
 
 既存プロジェクトへの組み込み方については [](/docs/sdk-integration/unity-sdk/integration/) を参照してください。

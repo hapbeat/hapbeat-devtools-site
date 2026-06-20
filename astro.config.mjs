@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import starlightLlmsTxt from 'starlight-llms-txt';
 import rehypeMermaid from 'rehype-mermaid';
 import { imageSize } from 'image-size';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -320,6 +321,41 @@ export default defineConfig({
       title: 'Hapbeat devtools',
       description: '触覚デバイス Hapbeat のクリエイター・開発者向けツールとドキュメント',
       favicon: '/favicon.svg',
+      // starlight-llms-txt: docs から llms.txt 系を自動生成する。
+      // 全体 (/llms.txt / /llms-full.txt / /llms-small.txt) に加えて、
+      // SDK/ツール単位の部分集合を /llms-<label>.txt として追加生成。
+      // ユーザーがエージェントに "https://devtools.hapbeat.com/llms-python-sdk.txt を読め"
+      // と渡すだけでその SDK の仕様・使い方を把握させられる。
+      plugins: [
+        starlightLlmsTxt({
+          projectName: 'Hapbeat Developer Tools',
+          description: '触覚デバイス Hapbeat の SDK・ツールの開発者向けドキュメント。Unity SDK / Python SDK / Studio / Helper の使い方・仕様・サンプルを収録。',
+          customSets: [
+            {
+              label: 'python-sdk',
+              description: 'Hapbeat Python SDK の使い方・仕様・サンプル。',
+              paths: ['docs/sdk-integration/python-sdk/**', 'docs/concepts/**'],
+            },
+            {
+              label: 'unity-sdk',
+              description: 'Hapbeat Unity SDK の使い方・仕様・サンプル。',
+              paths: ['docs/sdk-integration/unity-sdk/**', 'docs/concepts/**'],
+            },
+            {
+              label: 'studio',
+              description: 'Hapbeat Studio（Web デザインツール）の使い方・初期設定。',
+              paths: ['docs/tools/studio/**', 'docs/concepts/**'],
+            },
+            {
+              label: 'helper',
+              description: 'hapbeat-helper（CLI daemon）のインストール・設定・使い方。',
+              paths: ['docs/tools/helper/**', 'docs/concepts/**'],
+            },
+            // 将来: web-sdk / godot-sdk / vrchat / touchdesigner / unreal-sdk の
+            // docs が sdk-integration 配下に追加されたら同形で 1 行ずつ足す。
+          ],
+        }),
+      ],
       // Expressive Code: macOS ターミナル風 / ファイルタブ風のフレームを無効化。
       // コピー機能だけ残してシンプルなコードブロックにする。
       expressiveCode: {

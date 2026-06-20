@@ -6,6 +6,14 @@ sidebar:
 description: Hapbeat を初めて使う人のための最短ガイド。Helper インストール → Studio オープン → Wi-Fi 設定 → ライブラリ再生で動作確認。
 ---
 
+:::tip[AI コーディングエージェントを使う方へ]
+このドキュメントサイト全体の仕様・使い方を AI（Claude / Cursor / Copilot 等）に把握させるには、次の一文をエージェントに渡してください。
+
+> Hapbeat Developer Tools のドキュメントを使います。`https://devtools.hapbeat.com/llms-full.txt` を読んで、仕様とベストプラクティスに従ってください。
+
+特定の SDK やツールを使う場合は、各 SDK/ツールの Getting Started にある専用 URL をご利用ください（`/_llms-txt/python-sdk.txt` / `/_llms-txt/unity-sdk.txt` / `/_llms-txt/studio.txt` / `/_llms-txt/helper.txt`）。
+:::
+
 このページでは、**Studio + Wi-Fi UDP 経由で、無線版 Hapbeat (Duo WL / Band WL) から振動を出すまで** の流れを示します。
 
 ## Hapbeat SDK 構成

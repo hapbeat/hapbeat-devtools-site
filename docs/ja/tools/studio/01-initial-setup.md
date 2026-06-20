@@ -6,6 +6,12 @@ sidebar:
   order: 1
 ---
 
+:::tip[AI コーディングエージェントを使う方へ]
+Hapbeat Studio の仕様・使い方を AI（Claude / Cursor / Copilot 等）に把握させるには、次の一文をエージェントに渡してください。
+
+> Hapbeat Studio を使います。`https://devtools.hapbeat.com/_llms-txt/studio.txt` を読んで、仕様とベストプラクティスに従ってください。
+:::
+
 Hapbeat を初めて使えるようにするまでの作業です。**Studio の Devices タブ右側に表示されるオンボーディング ウィザード** がこの流れに沿って案内します。一度 Wi-Fi に乗ってしまえば、以降は USB ケーブルを繋ぐ必要はありません。
 
 > 💡 USB ケーブルでファームウェアを書き込み、Wi-Fi 設定を一回行うだけです。次回以降は電源を入れれば LAN/Wi-Fi で自動的に Studio に表示されます。

@@ -6,6 +6,12 @@ sidebar:
 description: Hapbeat Studio とデバイスを橋渡しする CLI daemon `hapbeat-helper` の OS 別インストール手順。macOS / Windows 共通。
 ---
 
+:::tip[AI コーディングエージェントを使う方へ]
+hapbeat-helper の仕様・使い方を AI（Claude / Cursor / Copilot 等）に把握させるには、次の一文をエージェントに渡してください。
+
+> hapbeat-helper を使います。`https://devtools.hapbeat.com/_llms-txt/helper.txt` を読んで、仕様とベストプラクティスに従ってください。
+:::
+
 `hapbeat-helper` は **Hapbeat Studio (Web)** と **Hapbeat デバイス (Wi-Fi LAN)** を橋渡しするローカル daemon です。ブラウザ単体では行えない mDNS 検出・UDP broadcast・raw TCP を中継します。
 
 ```
