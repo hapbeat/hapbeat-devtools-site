@@ -1,70 +1,80 @@
 ---
-title: プロジェクト構成（kit 同梱）
+title: プロジェクト構成（kit + 触覚ファイル）
 kind: explanation
-description: Unity SDK と同じく kit をプロジェクト内に置き、コードは event id を呼ぶだけ。触覚の詳細は触覚ファイル(manifest)に、音声実体は stream-clips/ に。
+description: kit(Studio 生成の内容) と 触覚ファイル(target 等を足す overlay) を分離。コードは event id を呼ぶだけ。Unity SDK の EventMap と同型。
 sidebar:
   order: 3
   label: プロジェクト構成
 ---
 
-推奨するプロジェクトの組み方は Unity SDK と同型です。**kit（触覚ファイル =
-manifest ＋ 音声）をプロジェクト内に置き、コードは event id を呼ぶだけ**にします。
-各イベントの詳細（強度・loop・command/clip・どの WAV か）は**触覚ファイル側**で
-設定し、発火コードには持ち込みません。
+推奨するプロジェクトの組み方は Unity SDK と同型です。**コードは event id を呼ぶだけ**で、
+各イベントの詳細は 2 つのレイヤーに分かれます。
+
+## 2 つのレイヤー
+
+| | 何を持つ | 誰が作る |
+|---|---|---|
+| **kit manifest**（`<kit>-manifest.json`） | kit の内容: intensity / clip / command か clip か | **Hapbeat Studio が自動生成** |
+| **触覚ファイル**（`haptics.json`, EventMap overlay） | アプリ側の指定: **target（どの端末/部位）** / gain 上書き | **開発者が書く（kit を参照）** |
+
+manifest は「kit のコンテンツ記述」で、**targeting は持ちません**（どの端末に出すかは
+アプリ/運用の都合なので kit に入れない）。それを足すのが**触覚ファイル**で、Unity SDK の
+EventMap アセットに相当します。
 
 ## レイアウト
 
 ```
 my-app/
   app.py                          ← 呼ぶ側（event id を play するだけ）
+  haptics.json                    ← 触覚ファイル（kit を参照し target 等を足す）
   kits/
     my-kit/
-      my-kit-manifest.json        ← 触覚ファイル（→ EventMap の素）
+      my-kit-manifest.json        ← kit の内容（Studio 生成）
       install-clips/              ← command clip（Studio でデバイスに書込）
       stream-clips/
         rain.wav                  ← clip モードで SDK がストリームする WAV
 ```
 
-- **manifest**（`<kit>-manifest.json`, schema 2.0.0）が「触覚ファイル」。event id →
-  intensity / loop / mode（command or clip）/ どの WAV、を持ちます。
-- **install-clips/** は command モードのクリップ。SDK は読みません。Studio で
-  デバイスに書き込まれ、デバイスが再生します。
-- **stream-clips/** は clip モードの WAV。SDK が読んでストリームします。
-
-この kit フォルダは **Hapbeat Studio が編集する成果物**で、それをそのまま
-プロジェクトに同梱します。
+```json
+// haptics.json
+{
+  "kit": "kits/my-kit",
+  "events": {
+    "impact.hit": { "target": "player_1/chest", "gain": 0.8 },
+    "rain.loop":  { "target": "*/back" }
+  }
+}
+```
 
 ## コードは event id を呼ぶだけ
 
 ```python
 import hapbeat
 
-hb = hapbeat.connect(app_name="MyApp", kit="kits/my-kit")
-hb.play("impact.hit")     # 詳細は kit が知っている（強度・mode・WAV）
-hb.play("rain.loop")
+hb = hapbeat.connect(app_name="MyApp", haptics="haptics.json")
+hb.play("impact.hit")     # player_1/chest に gain 0.8 で（触覚ファイルが決める）
+hb.play("rain.loop")      # */back に clip ストリーム
 ```
 
-`connect(kit=...)` は kit フォルダから EventMap を読み込み（`EventMap.from_kit`）、
-clip WAV のパスも `<kit>/stream-clips/` から解決します。**「いつ鳴らすか」だけが
-コード、「何を・どれくらい」は kit** という分担です。
+`connect(haptics=...)` は触覚ファイルを読み、その中の `kit` から manifest（intensity/clip）
+を取り込み、overlay の target/gain を上乗せします。**「いつ鳴らすか」だけがコード、
+「何を・どこへ・どれくらい」は触覚ファイル**という分担です。
 
-明示的に組み立てることもできます:
+targeting が要らない（全台ブロードキャストでよい）なら kit だけでも可:
 
 ```python
-em = hapbeat.EventMap.from_kit("kits/my-kit")
-hb = hapbeat.connect(event_map=em)
-# clip WAV の置き場を変えたいとき:
-hb = hapbeat.connect(event_map=em, clip_base="assets/haptics/")
+hb = hapbeat.connect(app_name="MyApp", kit="kits/my-kit")   # target は play(id, target=) で都度指定
 ```
 
 ## オーサリングのフロー
 
-1. [Hapbeat Studio](https://devtools.hapbeat.com) で kit を編集（クリップ追加・
-   強度調整・command/clip 指定）。
-2. kit フォルダをプロジェクトの `kits/` に置く（Studio の保存先をそこにする）。
-3. コードは `play("event.id")` を呼ぶだけ。強度や差し替えは Studio 側で行い、
-   コードは触らない。
+1. [Hapbeat Studio](https://devtools.hapbeat.com) で kit を編集（クリップ・強度・command/clip）。
+2. kit フォルダをプロジェクトの `kits/` に置く。
+3. `haptics.json` に各イベントの **target**（と必要なら gain）を書く。
+4. コードは `play("event.id")` を呼ぶだけ。
 
-完全に動く例は GitHub の
+完全に動く例: GitHub の
 [`examples/clip_project/`](https://github.com/hapbeat/hapbeat-python-sdk/tree/master/examples/clip_project)
-にあります。
+（kit）と
+[`examples/osc_remote/`](https://github.com/hapbeat/hapbeat-python-sdk/tree/master/examples/osc_remote)
+（触覚ファイル + OSC）。

@@ -438,6 +438,7 @@ export default defineConfig({
                 pub('docs/sdk-integration/python-sdk/command-vs-clip'),
                 pub('docs/sdk-integration/python-sdk/project-structure'),
                 pub('docs/sdk-integration/python-sdk/streaming'),
+                pub('docs/sdk-integration/python-sdk/osc'),
                 pub('docs/sdk-integration/python-sdk/event-map'),
               ].filter(Boolean),
             },
