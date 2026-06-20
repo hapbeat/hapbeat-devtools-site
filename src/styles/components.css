@@ -1267,3 +1267,18 @@ html::-webkit-scrollbar-thumb:hover {
 .sidebar-content ul.top-level > li > details > summary > .group-label::before {
   content: none;
 }
+
+/* ------------------------------------------------------------
+ * AI プロンプトのコピペ用ブロック (コピーボタン常時表示)
+ *   getting-started 各ページの「エージェントに渡す一文」は
+ *   ```text wrap で書いており <pre class="wrap"> になる。
+ *   Expressive Code の既定ではコピーボタンは hover 時のみ出るが、
+ *   この用途は「ワンクリックでコピーさせる」のが主目的なので、
+ *   pre.wrap を含む frame に限ってコピーボタンを常時表示する。
+ *   (通常のコードブロックは従来どおり hover 表示のまま)
+ *   折り返しは wrap meta で済んでいるため横スクロールは出ない。
+ *   customCss は EC の cascade layer より優先されるので確実に効く。
+ * ------------------------------------------------------------ */
+.expressive-code .frame:has(pre.wrap) .copy button {
+  opacity: 1;
+}

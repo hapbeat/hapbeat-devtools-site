@@ -10,7 +10,7 @@ sidebar:
 :::tip[AI コーディングエージェントを使う方へ]
 Python SDK の仕様・使い方を AI（Claude / Cursor / Copilot 等）に把握させるには、次の一文をエージェントに渡してください。
 
-```text
+```text wrap
 Hapbeat Python SDK を使います。https://devtools.hapbeat.com/_llms-txt/python-sdk.txt を読んで、仕様とベストプラクティスに従ってください。
 ```
 
@@ -91,7 +91,7 @@ Claude / Cursor / Copilot などにこの SDK を使わせるなら、SDK に同
 - 場所: SDK リポジトリ直下の <a href="https://github.com/hapbeat/hapbeat-python-sdk/blob/master/AGENTS.md" target="_blank" rel="noopener noreferrer">`AGENTS.md`</a>
 - 渡し方の例（そのままエージェントへ）:
 
-```text
+```text wrap
 Hapbeat Python SDK を使います。AGENTS.md を読んで、その仕様とベストプラクティスに従ってください。
 ```
 

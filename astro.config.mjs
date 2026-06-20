@@ -328,27 +328,29 @@ export default defineConfig({
       // と渡すだけでその SDK の仕様・使い方を把握させられる。
       plugins: [
         starlightLlmsTxt({
+          // llms.txt は AI エージェントが読む前提のため、索引・説明文は英語で書く
+          // (本文はソース docs が日本語のため日本語で生成される)。
           projectName: 'Hapbeat Developer Tools',
-          description: '触覚デバイス Hapbeat の SDK・ツールの開発者向けドキュメント。Unity SDK / Python SDK / Studio / Helper の使い方・仕様・サンプルを収録。',
+          description: 'Developer documentation for the Hapbeat haptic device ecosystem (SDKs and tools). Covers usage, specifications, and samples for the Unity SDK, Python SDK, Studio, and Helper. Note: page bodies are in Japanese (the source-of-truth docs language); section descriptions and the index are in English.',
           customSets: [
             {
               label: 'python-sdk',
-              description: 'Hapbeat Python SDK の使い方・仕様・サンプル。',
+              description: 'Hapbeat Python SDK — usage, specification, and samples (with shared concepts).',
               paths: ['docs/sdk-integration/python-sdk/**', 'docs/concepts/**'],
             },
             {
               label: 'unity-sdk',
-              description: 'Hapbeat Unity SDK の使い方・仕様・サンプル。',
+              description: 'Hapbeat Unity SDK — usage, specification, and samples (with shared concepts).',
               paths: ['docs/sdk-integration/unity-sdk/**', 'docs/concepts/**'],
             },
             {
               label: 'studio',
-              description: 'Hapbeat Studio（Web デザインツール）の使い方・初期設定。',
+              description: 'Hapbeat Studio (web-based design tool) — usage and initial setup (with shared concepts).',
               paths: ['docs/tools/studio/**', 'docs/concepts/**'],
             },
             {
               label: 'helper',
-              description: 'hapbeat-helper（CLI daemon）のインストール・設定・使い方。',
+              description: 'hapbeat-helper (CLI daemon) — installation, configuration, and usage (with shared concepts).',
               paths: ['docs/tools/helper/**', 'docs/concepts/**'],
             },
             // 将来: web-sdk / godot-sdk / vrchat / touchdesigner / unreal-sdk の
