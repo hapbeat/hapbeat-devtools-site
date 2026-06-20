@@ -10,7 +10,7 @@ description: Hapbeat Studio とデバイスを橋渡しする CLI daemon `hapbea
 hapbeat-helper を AI に把握させるには、下記プロンプトを入力してください。
 
 ```text
-hapbeat-helper を使います。https://devtools.hapbeat.com/_llms-txt/helper.txt を読んで、仕様とベストプラクティスに従ってください。
+hapbeat-helper を使います。https://raw.githubusercontent.com/hapbeat/hapbeat-helper/master/AGENTS.md を読んで、仕様とベストプラクティスに従ってください。
 ```
 :::
 

@@ -10,7 +10,7 @@ sidebar:
 Hapbeat Unity SDK を AI に把握させるには、下記プロンプトを入力してください。
 
 ```text
-Hapbeat Unity SDK を使います。https://devtools.hapbeat.com/_llms-txt/unity-sdk.txt を読んで、仕様とベストプラクティスに従ってください。
+Hapbeat Unity SDK を使います。https://raw.githubusercontent.com/hapbeat/hapbeat-unity-sdk/master/AGENTS.md を読んで、仕様とベストプラクティスに従ってください。
 ```
 :::
 

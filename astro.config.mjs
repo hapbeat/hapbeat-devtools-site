@@ -341,6 +341,21 @@ export default defineConfig({
               url: 'https://raw.githubusercontent.com/hapbeat/hapbeat-python-sdk/master/AGENTS.md',
               description: 'Hand-curated, high-signal reference for AI coding agents. Smaller than the full python-sdk set — prefer this as the entry point for the Python SDK, then fetch the full set only if needed.',
             },
+            {
+              label: 'Unity SDK — AGENTS.md (curated single-file reference)',
+              url: 'https://raw.githubusercontent.com/hapbeat/hapbeat-unity-sdk/master/AGENTS.md',
+              description: 'Curated, high-signal reference for AI coding agents. Prefer this as the entry point for the Unity SDK, then fetch the full unity-sdk set only if needed.',
+            },
+            {
+              label: 'Studio — AGENTS.md (operation cheat sheet)',
+              url: 'https://raw.githubusercontent.com/hapbeat/hapbeat-studio/master/AGENTS.md',
+              description: 'Curated cheat sheet for AI agents operating Hapbeat Studio (a GUI tool, not a library). Prefer this as the entry point for Studio, then fetch the full studio set only if needed.',
+            },
+            {
+              label: 'Helper — AGENTS.md (operation cheat sheet)',
+              url: 'https://raw.githubusercontent.com/hapbeat/hapbeat-helper/master/AGENTS.md',
+              description: 'Curated cheat sheet for AI agents operating hapbeat-helper (a CLI daemon). Prefer this as the entry point for Helper, then fetch the full helper set only if needed.',
+            },
           ],
           customSets: [
             {

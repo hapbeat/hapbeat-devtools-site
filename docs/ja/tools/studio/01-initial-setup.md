@@ -10,7 +10,7 @@ sidebar:
 Hapbeat Studio を AI に把握させるには、下記プロンプトを入力してください。
 
 ```text
-Hapbeat Studio を使います。https://devtools.hapbeat.com/_llms-txt/studio.txt を読んで、仕様とベストプラクティスに従ってください。
+Hapbeat Studio を使います。https://raw.githubusercontent.com/hapbeat/hapbeat-studio/master/AGENTS.md を読んで、仕様とベストプラクティスに従ってください。
 ```
 :::
 
