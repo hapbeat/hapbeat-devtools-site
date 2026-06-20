@@ -1,14 +1,14 @@
 ---
-title: OSC ブリッジ（スマホ触覚リモコン等）
+title: OSC ブリッジ
 kind: howto
-description: OSC を話せる任意のツール(TouchOSC/Max/DAW)から Hapbeat を駆動。触覚ファイルを載せると OSC からも command/clip 分岐 + per-event target が効く。
+description: スマホ（TouchOSC）など OSC に対応したツールから Hapbeat を駆動する。触覚ファイルを指定すると OSC からも command/clip の分岐とイベントごとの target が反映される。
 sidebar:
   order: 6
   label: OSC ブリッジ
 ---
 
-OSC ブリッジは「OSC を話せる任意のツール → Hapbeat」の中継です。**ツール側はコード不要**。
-代表ユースケースは **スマホ（TouchOSC）をワイヤレス触覚リモコンにする**こと（ライブ演出・
+OSC ブリッジは「OSC に対応したツール → Hapbeat」の中継です。**ツール側はコード不要**。
+代表的な使い方は **スマホ（TouchOSC）をワイヤレス触覚リモコンにする**ことです（ライブ演出・
 展示・Wizard-of-Oz 実験）。他に Max/MSP・DAW（音楽同期）・他言語アプリからの駆動にも使えます。
 
 ```
@@ -21,12 +21,12 @@ TouchOSC (スマホ)  --/hapbeat/play "rain.loop"-->  hapbeat osc-bridge  --UDP-
 ```bash
 pip install "hapbeat-python-sdk[osc]"
 
-# 触覚ファイルを載せる（推奨）: OSC からも command/clip が分岐し、event id だけで
+# 触覚ファイルを指定する（推奨）: OSC からも command/clip が分かれ、event id だけで
 # 送信先(target)も触覚ファイルから決まる
 hapbeat osc-bridge --listen 7702 --haptics haptics.json
 
 # kit だけ（intensity/clip のみ・target なし）:  --kit kits/my-kit
-# 何も載せない（command のみ・target は OSC 引数頼み）:  そのまま
+# 何も指定しない（command のみ・target は OSC 引数で渡す）:  そのまま
 ```
 
 ## OSC アドレス
@@ -38,13 +38,33 @@ hapbeat osc-bridge --listen 7702 --haptics haptics.json
 | `/hapbeat/stop-all` | `[target]` | 全停止 |
 | `/hapbeat/ping` | — | 検出 / keep-alive |
 
-`target` を省略すると触覚ファイルの per-event target が使われ、明示すればそのメッセージだけ上書きします。
+`target` を省略すると触覚ファイルのイベントごとの target が使われ、明示すれば
+そのメッセージだけ上書きします。
 
-## なぜ触覚ファイルが効くのか
+## 触覚ファイルで何が決まるか
 
-スマホは **event id を送るだけ**（`/hapbeat/play rain.loop`）。どの端末/部位へ・どの強さ・
-command か clip かは、ブリッジが読む**触覚ファイル**が決めます。狙いや強さの変更は
-ファイル 1 つの編集で済み、スマホ側は触りません。
+スマホは **event id を送るだけ**です（`/hapbeat/play rain.loop`）。どの端末/部位へ・
+どの強さで・command か clip かは、ブリッジが読む**触覚ファイル**が決めます。狙いや
+強さを変えるときはファイル 1 つを直すだけで、スマホ側は触りません。
+
+## スマホ（TouchOSC）で動かすまでの流れ
+
+実際にスマホをリモコンにする手順の道筋です（詳細な設定画面の操作は TouchOSC 側の
+ドキュメントを参照）。
+
+1. **同じ Wi-Fi に乗せる** — スマホと、ブリッジを動かす PC を同一ネットワークに置く。
+2. **PC でブリッジを起動** — `hapbeat osc-bridge --listen 7702 --haptics haptics.json`。
+   起動ログに待受ポート（7702）が出る。
+3. **PC のファイアウォールで UDP 7702 の受信を許可** — 初回は許可ダイアログが出る。
+4. **スマホに TouchOSC を入れ、送信先を設定** — 接続（OSC）の宛先ホストを **PC の IP**、
+   ポートを **7702** にする。
+5. **ボタンに OSC メッセージを割り当てる** — 各ボタンの送信アドレスを `/hapbeat/play`、
+   引数（文字列）に `rain.loop` などの **event id** を入れる。停止ボタンは
+   `/hapbeat/stop-all`。
+6. **押して確認** — ボタンを押すと、触覚ファイルが決めた端末・強さで再生される。
+
+> ポート整理: スマホが狙うのは**ブリッジの 7702**（`--listen`）です。デバイスが
+> 待ち受ける UDP 7700 とは別物なので混同しないでください。
 
 ## TouchOSC レイアウト（例）
 

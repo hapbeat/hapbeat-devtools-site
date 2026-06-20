@@ -1,14 +1,15 @@
 ---
-title: プロジェクト構成（kit + 触覚ファイル）
+title: プロジェクト構成
 kind: explanation
-description: kit(Studio 生成の内容) と 触覚ファイル(target 等を足す overlay) を分離。コードは event id を呼ぶだけ。Unity SDK の EventMap と同型。
+description: kit（Studio が作る内容）と触覚ファイル（target などを足す設定）を分け、コードは event id を呼ぶだけにする。
 sidebar:
   order: 3
   label: プロジェクト構成
 ---
 
-推奨するプロジェクトの組み方は Unity SDK と同型です。**コードは event id を呼ぶだけ**で、
-各イベントの詳細は 2 つのレイヤーに分かれます。
+kit（Studio が作る内容）と触覚ファイル（target などを足す設定）を分けると、
+**コードは event id を呼ぶだけ**になります。各イベントの詳細は次の 2 つのレイヤーに
+分かれます。
 
 ## 2 つのレイヤー
 
@@ -17,9 +18,9 @@ sidebar:
 | **kit manifest**（`<kit>-manifest.json`） | kit の内容: intensity / clip / command か clip か | **Hapbeat Studio が自動生成** |
 | **触覚ファイル**（`haptics.json`, EventMap overlay） | アプリ側の指定: **target（どの端末/部位）** / gain 上書き | **開発者が書く（kit を参照）** |
 
-manifest は「kit のコンテンツ記述」で、**targeting は持ちません**（どの端末に出すかは
-アプリ/運用の都合なので kit に入れない）。それを足すのが**触覚ファイル**で、Unity SDK の
-EventMap アセットに相当します。
+manifest は「kit の中身の記述」で、**どの端末/部位に出すか（target）は持ちません**
+（どこに出すかはアプリ・運用の都合なので kit には入れません）。それを足すのが
+**触覚ファイル**です。
 
 ## レイアウト
 

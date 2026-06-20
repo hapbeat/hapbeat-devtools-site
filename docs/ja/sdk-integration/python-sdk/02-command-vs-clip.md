@@ -7,8 +7,8 @@ sidebar:
   label: command と clip
 ---
 
-Python SDK は Unity / web SDK と同じく、**同じ `play(id)` 呼び出しが kit manifest
-の bucket で 2 つの再生モードに自動分岐**します。呼ぶ側のコードはどちらでも 1 行です。
+**同じ `play(id)` 呼び出しが、kit manifest の bucket に応じて 2 つの再生モードに
+自動で分かれます**。呼ぶ側のコードはどちらでも 1 行です。
 
 ## 2 つのモード
 
@@ -26,8 +26,8 @@ hb.play("rain.loop")    # clip    → SDK が WAV をストリーム
 hb.stop("rain.loop")    # clip は再生中のストリームを終了
 ```
 
-`EventDef.streaming`（= `stream_events` 由来か）で分岐します。EventMap を渡して
-いなければ常に command（従来どおりの fire）です。
+分岐は EventMap（触覚ファイル）の情報で決まります。EventMap を渡していなければ、
+すべて command として送られます。
 
 ## どちらを選ぶか
 
@@ -38,8 +38,7 @@ hb.stop("rain.loop")    # clip は再生中のストリームを終了
 | 事前 deploy | 要（Studio で書込） | 不要（WAV を置くだけ） |
 | 触覚の差し替え | kit 再 deploy | WAV を置き換えるだけ |
 
-迷ったら **試作は clip、固まったら command** が基本です（Unity SDK の
-[](/docs/sdk-integration/unity-sdk/fire-vs-clip/) と同じ判断軸）。
+迷ったら **試作は clip、固まったら command** が基本です。
 
 ## gain の扱い（二重適用しない）
 

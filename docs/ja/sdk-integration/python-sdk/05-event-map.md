@@ -1,13 +1,13 @@
 ---
-title: EventMap（触覚ファイル）リファレンス
+title: EventMap リファレンス
 kind: reference
-description: EventMap / EventDef の API。kit manifest の events/stream_events から intensity・loop・clip・mode を解決する調整側カタログ。
+description: 触覚ファイル（EventMap / EventDef）の API。kit manifest から intensity・loop・clip・mode・target を解決する調整側カタログ。
 sidebar:
   order: 5
   label: EventMap
 ---
 
-`EventMap` は SDK の**調整側（触覚ファイル）**で、発火側（`play`/`stop`）と直交し、
+`EventMap`（触覚ファイル）は SDK の**調整側**で、発火側（`play` / `stop`）と分かれ、
 event id だけで結ばれます。kit manifest（schema 2.0.0）を読み、各イベントの既定値を
 持ちます。
 

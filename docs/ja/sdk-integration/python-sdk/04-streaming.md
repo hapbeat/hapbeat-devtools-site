@@ -1,14 +1,13 @@
 ---
 title: clip ストリーミングの詳細
 kind: reference
-description: WAV(16kHz PCM16) の読み込み、ClipStreamer のペーシング、stream_pcm によるアドホック送出、stop/close、現状の制限(level-2)。
+description: WAV（16kHz PCM16）の読み込み、ストリーミングのペーシング、stream_pcm によるアドホック送出、停止、現状の制限。
 sidebar:
   order: 4
   label: ストリーミング詳細
 ---
 
-clip モードの内部動作と、マニフェストを介さない PCM 送出の使い方です。設計は
-web SDK（`clip.ts`）と 1:1 同型です。
+clip モードの動作と、マニフェストを介さない PCM 送出の使い方です。
 
 ## WAV の要件
 
@@ -67,10 +66,9 @@ hb.preload_clips()       # clip モード全 event の WAV を先に読む
 SDK は PCM を加工せず、`gain` を **STREAM_BEGIN.gain にのみ**畳んで送り、デバイスが
 一度だけ適用します。`gain` 省略時は kit manifest の `intensity`。
 
-## 現状の制限（level-2）
+## 現状の制限
 
-- 実装済み: **ファイルベースの session clip ストリーミング**（`stream_events` の
-  WAV を UDP 送出）。
-- 未実装: 再生中の **リアルタイム gain/pan binding** と **多ソースミキシング**
-  （Unity SDK の `HapbeatStreamPlayback` / mixer 相当）。マイク等の**ライブ取り込み**
-  ストリーミングも未対応。
+- 実装済み: **ファイルの clip ストリーミング**（`stream_events` の WAV を、一度に
+  1 本ずつ UDP 送出）。
+- 未対応: 再生中の **リアルタイムな gain / pan の変調**、**複数 clip の同時ミックス**、
+  マイク等の**ライブ取り込み**ストリーミング。
