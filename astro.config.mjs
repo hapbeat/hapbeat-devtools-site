@@ -332,6 +332,16 @@ export default defineConfig({
           // (本文はソース docs が日本語のため日本語で生成される)。
           projectName: 'Hapbeat Developer Tools',
           description: 'Developer documentation for the Hapbeat haptic device ecosystem (SDKs and tools). Covers usage, specifications, and samples for the Unity SDK, Python SDK, Studio, and Helper. Note: page bodies are in Japanese (the source-of-truth docs language); section descriptions and the index are in English.',
+          // 索引 (llms.txt) に curated な AGENTS.md を載せる。エージェントは
+          // 索引を読んで「必要なら」これを取りに行ける (full set より小さく高密度)。
+          // AGENTS.md を持つ SDK が増えたら同形で 1 行ずつ足す。
+          optionalLinks: [
+            {
+              label: 'Python SDK — AGENTS.md (curated single-file reference)',
+              url: 'https://raw.githubusercontent.com/hapbeat/hapbeat-python-sdk/master/AGENTS.md',
+              description: 'Hand-curated, high-signal reference for AI coding agents. Smaller than the full python-sdk set — prefer this as the entry point for the Python SDK, then fetch the full set only if needed.',
+            },
+          ],
           customSets: [
             {
               label: 'python-sdk',

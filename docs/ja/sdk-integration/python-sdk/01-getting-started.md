@@ -8,13 +8,13 @@ sidebar:
 ---
 
 :::tip[AI コーディングエージェントを使う方へ]
-Python SDK の仕様・使い方を AI（Claude / Cursor / Copilot 等）に把握させるには、次の一文をエージェントに渡してください。
+キュレーション済みの **AGENTS.md**（要点を 1 ファイルに凝縮・文脈も小さい）を渡すのが最も効率的です。
 
 ```text wrap
-Hapbeat Python SDK を使います。https://devtools.hapbeat.com/_llms-txt/python-sdk.txt を読んで、仕様とベストプラクティスに従ってください。
+Hapbeat Python SDK を使います。https://raw.githubusercontent.com/hapbeat/hapbeat-python-sdk/master/AGENTS.md を読んで、その仕様とベストプラクティスに従ってください。
 ```
 
-SDK 同梱の `AGENTS.md` や詳細な渡し方は[こちら](#ai-コーディングエージェントに渡す)をご覧ください。
+網羅的な仕様が必要なら `https://devtools.hapbeat.com/_llms-txt/python-sdk.txt` も渡せます。別の渡し方は[こちら](#ai-コーディングエージェントに渡す)。
 :::
 
 Python から Hapbeat を Wi-Fi UDP で駆動する SDK です。研究（PsychoPy / Jupyter /
