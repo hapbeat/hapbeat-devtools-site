@@ -7,9 +7,9 @@ description: Hapbeat Studio とデバイスを橋渡しする CLI daemon `hapbea
 ---
 
 :::tip[AI コーディングエージェントを使う方へ]
-hapbeat-helper の仕様・使い方を AI（Claude / Cursor / Copilot 等）に把握させるには、次の一文をエージェントに渡してください。
+hapbeat-helper を AI に把握させるには、下記プロンプトを入力してください。
 
-```text wrap
+```text
 hapbeat-helper を使います。https://devtools.hapbeat.com/_llms-txt/helper.txt を読んで、仕様とベストプラクティスに従ってください。
 ```
 :::

@@ -7,9 +7,9 @@ sidebar:
 ---
 
 :::tip[AI コーディングエージェントを使う方へ]
-Hapbeat Studio の仕様・使い方を AI（Claude / Cursor / Copilot 等）に把握させるには、次の一文をエージェントに渡してください。
+Hapbeat Studio を AI に把握させるには、下記プロンプトを入力してください。
 
-```text wrap
+```text
 Hapbeat Studio を使います。https://devtools.hapbeat.com/_llms-txt/studio.txt を読んで、仕様とベストプラクティスに従ってください。
 ```
 :::
