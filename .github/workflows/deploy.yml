@@ -46,7 +46,11 @@ jobs:
           DOCS_FETCH_TOKEN: ${{ secrets.DOCS_FETCH_TOKEN }}
 
       # --- 配信先 1: Xserver (FTP) — Phase 1 の本番。Phase 2 (DNS切替) で削除する ---
+      # Xserver は撤去進行中で FTP が接続タイムアウトすることがある。これは旧経路なので
+      # best-effort 扱い (continue-on-error) とし、失敗しても後続の Cloudflare deploy を
+      # 止めない。Phase 2 でこの step ごと削除する。
       - name: FTP Deploy (Xserver — 本番, Phase 2 で廃止)
+        continue-on-error: true
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: ${{ secrets.FTP_SERVER }}
