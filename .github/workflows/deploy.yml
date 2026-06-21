@@ -15,7 +15,7 @@ on:
 
 jobs:
   build-and-deploy:
-    name: Build and FTP Deploy
+    name: Build and Deploy (FTP + Cloudflare)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -41,11 +41,12 @@ jobs:
         run: npm run build
         env:
           FETCH_DOCS_MODE: git
-          # Cross-repo private clone token. Optional: if not set, fetch-docs falls back to placeholders.
-          # 設定する場合: org の private repo を read できる fine-grained PAT を Settings > Secrets で DOCS_FETCH_TOKEN に登録。
+          # fetch-docs が clone する唯一の外部 repo (hapbeat-contracts) は public 化済みのため
+          # トークンは原則不要。将来 private repo を再び集約する場合のみ DOCS_FETCH_TOKEN を設定する。
           DOCS_FETCH_TOKEN: ${{ secrets.DOCS_FETCH_TOKEN }}
 
-      - name: FTP Deploy
+      # --- 配信先 1: Xserver (FTP) — Phase 1 の本番。Phase 2 (DNS切替) で削除する ---
+      - name: FTP Deploy (Xserver — 本番, Phase 2 で廃止)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -60,3 +61,17 @@ jobs:
           exclude: |
             studio/**
             studio/
+
+      # --- 配信先 2: Cloudflare Workers (static assets) ---
+      # CF Workers Builds は非 root で Playwright (mermaid→SVG) を動かせないため、
+      # ビルドは GitHub Actions で行い (上記 --with-deps が効く)、成果物 (./dist) を
+      # wrangler で Cloudflare に deploy する。wrangler.jsonc の assets.directory=./dist。
+      # Phase 1: workers.dev で配信して検証 (本番 DNS は Xserver のまま)。
+      # Phase 2: Worker に custom domain devtools.hapbeat.com を割当 + 上の FTP step を削除。
+      # 必要な secret: CLOUDFLARE_API_TOKEN (Workers Scripts:Edit) / CLOUDFLARE_ACCOUNT_ID。
+      - name: Cloudflare Deploy (Workers static assets)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
