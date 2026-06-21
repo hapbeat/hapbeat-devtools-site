@@ -78,4 +78,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # wrangler-action のデフォルト (3.90.0) は main の無い assets-only Worker を
+          # deploy できず "Missing entry-point" で落ちる。assets-only は 4.x で対応のため固定。
+          wranglerVersion: '4.103.0'
           command: deploy
