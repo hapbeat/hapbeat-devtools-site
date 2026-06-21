@@ -1,0 +1,4 @@
+# Cloudflare Pages _redirects
+# Phase 2: /studio/* を独立ドメインへ 301 リダイレクト
+# (DNS切替後に有効。Xserver 配信中は CF Pages から配信されないため影響なし)
+/studio/* https://studio.hapbeat.com/:splat 301
