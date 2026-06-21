@@ -1,0 +1,12 @@
+{
+  // Cloudflare Workers (static assets) 配信設定。
+  // 純静的サイト (Astro output: static) なので Worker スクリプト (main) は無し、
+  // ASSETS binding も持たない (binding は main がある時のみ有効)。
+  // _redirects / _headers は assets ディレクトリ (= ./dist) 直下に置けば適用される。
+  // 公式: https://developers.cloudflare.com/workers/static-assets/
+  "name": "hapbeat-devtools-site",
+  "compatibility_date": "2026-06-22",
+  "assets": {
+    "directory": "./dist"
+  }
+}
