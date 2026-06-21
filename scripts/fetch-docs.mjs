@@ -30,7 +30,11 @@ const TARGET_PARENT = path.join(ROOT, 'src', 'content', 'docs', 'docs');
 // JA (root) は docs/ja/ → TARGET_PARENT。assets は docs/assets/ にロケール中立で共有。
 const EN_TARGET = path.join(ROOT, 'src', 'content', 'docs', 'en', 'docs');
 const TMP_DIR = path.join(ROOT, '.astro', '_fetch-tmp');
-const WORKSPACE_SIBLING = path.resolve(ROOT, '..'); // hapbeat-sdk-workspace/
+// workspace root = .../hapbeat-sdk-workspace。devtools-site は repos-tools/ 配下なので 2 階層上。
+// sub-repo は 2026-06 の再編でフラットから repos-<category>/ 配下に分類移動した
+// (正規パスは .claude-workspace.json の sub_repos)。sibling docs は各カテゴリを横断探索する。
+const WORKSPACE_ROOT = path.resolve(ROOT, '..', '..');
+const REPO_CATEGORY_DIRS = ['repos-core', 'repos-firmware', 'repos-sdk', 'repos-tools', '_legacy'];
 
 // ユーザー向け docs/ を持つ repo のみ列挙する。
 // hapbeat-bridge / hapbeat-transmitter-firmware は内部コンポーネント
@@ -77,9 +81,12 @@ function run(cmd, opts = {}) {
 async function resolveSiblingDocs(repo) {
   // Unity package repos use docs~/ to exclude from Unity's asset import.
   // Non-Unity repos use docs/. Try docs~/ first, fall back to docs/.
-  for (const dir of ['docs~', 'docs']) {
-    const p = path.join(WORKSPACE_SIBLING, repo, dir);
-    if (await isDir(p)) return p;
+  // repos-<category>/ を横断して repo を探す (例: repos-core/hapbeat-contracts/docs)。
+  for (const category of REPO_CATEGORY_DIRS) {
+    for (const dir of ['docs~', 'docs']) {
+      const p = path.join(WORKSPACE_ROOT, category, repo, dir);
+      if (await isDir(p)) return p;
+    }
   }
   return null;
 }
@@ -224,93 +231,6 @@ async function normalizeMarkdownFrontmatter(filePath, { orderFromPrefix = null }
 
   if (!changed) return;
   await writeFile(filePath, `---\n${newFm}\n---\n${body}`);
-}
-
-// frontmatter の title を抜き出す (walkAndNormalize 後なので必ず存在する想定)。
-function extractTitleFromFrontmatter(raw) {
-  const fm = raw.match(/^---\n([\s\S]*?)\n---/);
-  if (!fm) return null;
-  const m = fm[1].match(/^title\s*:\s*"?([^"\n]+)"?$/m);
-  return m ? m[1].trim().replace(/\\"/g, '"') : null;
-}
-
-// セクションの landing page (index.md) が無ければ自動生成する。
-//   - 既存の index.md / index.mdx がある場合は何もしない (sub-repo 側が override)
-//   - 自動生成版は: タイトル + getting-started への導線 + ページ一覧 (top-level のみ)
-//   - 結果として /docs/<section>/ が 200 OK で開けるようになる
-async function ensureSectionIndex(dir, label) {
-  if (existsSync(path.join(dir, 'index.md'))) return false;
-  if (existsSync(path.join(dir, 'index.mdx'))) return false;
-
-  const entries = await readdir(dir, { withFileTypes: true });
-  const pages = [];
-  const subdirs = [];
-  for (const entry of entries) {
-    if (entry.isDirectory()) {
-      subdirs.push(entry.name);
-      continue;
-    }
-    if (!entry.isFile()) continue;
-    if (!/\.(md|mdx)$/.test(entry.name)) continue;
-    const slug = entry.name.replace(/\.(md|mdx)$/, '');
-    if (slug === 'index') continue;
-    const raw = await readFile(path.join(dir, entry.name), 'utf8');
-    const title = extractTitleFromFrontmatter(raw) || slug;
-    pages.push({ slug, title });
-  }
-
-  // getting-started を先頭に、その他はタイトル昇順に。
-  pages.sort((a, b) => {
-    if (a.slug === 'getting-started') return -1;
-    if (b.slug === 'getting-started') return 1;
-    return a.title.localeCompare(b.title, 'ja');
-  });
-  subdirs.sort();
-
-  const lines = [];
-  lines.push('---');
-  lines.push(`title: "${label}"`);
-  // sidebar からは隠す: section 見出し (group label) クリックでこの landing
-  // に遷移するため、sub-page リストにも index を出すと重複する。
-  // 各 sub-repo が docs/index.md を自前で用意した場合は同様に
-  // `sidebar: { hidden: true }` を入れることを推奨。
-  lines.push('sidebar:');
-  lines.push('  hidden: true');
-  lines.push('---');
-  lines.push('');
-  if (pages.length === 0 && subdirs.length === 0) {
-    lines.push(`${label} のドキュメントは準備中です。`);
-  } else {
-    lines.push(`${label} のドキュメント一覧です。`);
-    lines.push('');
-    for (const p of pages) {
-      lines.push(`- [${p.title}](./${p.slug}/)`);
-    }
-    for (const sub of subdirs) {
-      lines.push(`- [${sub}](./${sub}/)`);
-    }
-  }
-  lines.push('');
-
-  await writeFile(path.join(dir, 'index.md'), lines.join('\n'));
-  return true;
-}
-
-// TARGET_PARENT 配下のサブディレクトリ (任意階層) に landing index.md が
-// 無ければ自動生成する。ディレクトリ名から label を推定 (dash → space, capitalize)。
-async function autoGenLandingsRecursive(root) {
-  const entries = await readdir(root, { withFileTypes: true });
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
-    if (entry.name === 'assets') continue;
-    const dir = path.join(root, entry.name);
-    const label = entry.name
-      .replace(/[-_]+/g, ' ')
-      .replace(/\b\w/g, (c) => c.toUpperCase());
-    const generated = await ensureSectionIndex(dir, label);
-    if (generated) console.log(`  + auto-generated index for ${path.relative(TARGET_PARENT, dir)}/`);
-    await autoGenLandingsRecursive(dir);
-  }
 }
 
 // frontmatter から `draft: true` を検出する。dev / build 両方で隠したいページに
@@ -469,12 +389,12 @@ async function startWatch() {
       .on('all', async (event, filePath) => {
         try {
           await syncOneFile(filePath, watchDir, destDir);
-          console.log(`[fetch-docs] ${event}: ${path.relative(WORKSPACE_SIBLING, filePath)}`);
+          console.log(`[fetch-docs] ${event}: ${path.relative(WORKSPACE_ROOT, filePath)}`);
         } catch (e) {
           console.warn(`[fetch-docs] sync error: ${e.message}`);
         }
       });
-    console.log(`  watching: ${path.relative(WORKSPACE_SIBLING, watchDir)}/`);
+    console.log(`  watching: ${path.relative(WORKSPACE_ROOT, watchDir)}/`);
   }
 
   // locale ごとに監視: docs/ja/ → TARGET_PARENT, docs/en/ → EN_TARGET
