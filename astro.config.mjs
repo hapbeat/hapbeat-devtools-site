@@ -342,6 +342,11 @@ export default defineConfig({
               description: 'Hand-curated, high-signal reference for AI coding agents. Smaller than the full python-sdk set — prefer this as the entry point for the Python SDK, then fetch the full set only if needed.',
             },
             {
+              label: 'JS / Web SDK — AGENTS.md (curated single-file reference)',
+              url: 'https://raw.githubusercontent.com/hapbeat/hapbeat-js-sdk/master/AGENTS.md',
+              description: 'Hand-curated, high-signal reference for AI coding agents using the JS/TS SDK (@hapbeat/sdk). Prefer this as the entry point for the JS SDK, then fetch the full js-sdk set only if needed.',
+            },
+            {
               label: 'Unity SDK — AGENTS.md (curated single-file reference)',
               url: 'https://raw.githubusercontent.com/hapbeat/hapbeat-unity-sdk/master/AGENTS.md',
               description: 'Curated, high-signal reference for AI coding agents. Prefer this as the entry point for the Unity SDK, then fetch the full unity-sdk set only if needed.',
@@ -362,6 +367,11 @@ export default defineConfig({
               label: 'python-sdk',
               description: 'Hapbeat Python SDK — usage, specification, and samples (with shared concepts).',
               paths: ['docs/sdk-integration/python-sdk/**', 'docs/concepts/**'],
+            },
+            {
+              label: 'js-sdk',
+              description: 'Hapbeat JS / Web SDK (@hapbeat/sdk) — usage, specification, and samples (with shared concepts).',
+              paths: ['docs/sdk-integration/js-sdk/**', 'docs/concepts/**'],
             },
             {
               label: 'unity-sdk',
@@ -504,6 +514,19 @@ export default defineConfig({
                 pub('docs/sdk-integration/python-sdk/osc'),
                 pub('docs/sdk-integration/python-sdk/examples'),
                 pub('docs/sdk-integration/python-sdk/event-map'),
+              ].filter(Boolean),
+            },
+            {
+              label: 'JS / Web SDK',
+              items: [
+                pub('docs/sdk-integration/js-sdk/getting-started'),
+                pub('docs/sdk-integration/js-sdk/transports'),
+                pub('docs/sdk-integration/js-sdk/command-vs-clip'),
+                pub('docs/sdk-integration/js-sdk/project-structure'),
+                pub('docs/sdk-integration/js-sdk/streaming-clips'),
+                pub('docs/sdk-integration/js-sdk/streaming-live'),
+                pub('docs/sdk-integration/js-sdk/event-map'),
+                pub('docs/sdk-integration/js-sdk/examples'),
               ].filter(Boolean),
             },
           ],
