@@ -1,0 +1,170 @@
+---
+/**
+ * SupportedSdks
+ *
+ * トップページの「対応 SDK・プラットフォーム」セクション。
+ * 訪問者が「何と組み合わせて Hapbeat を使えるか」を公式ロゴで一目で把握できる。
+ *
+ * 新しい SDK を増やすときは SDKS 配列に 1 つ足し、public/sdk-logos/<logo> に
+ * 公式ロゴ SVG を置くだけ。
+ *
+ * ロゴは各社の商標であり、Hapbeat が対応する環境を示す目的（指名的表示）で
+ * 公式/標準の SVG を配置している。各 SVG の出所は public/sdk-logos/SOURCES.md 参照。
+ *
+ * Props:
+ *   - lang: 'ja' | 'en'   href prefix と表示文言の出し分け
+ */
+interface Sdk {
+  id: string;
+  name: string;
+  logo: string; // public/sdk-logos/ 配下のファイル名
+  chip: string; // 配布形態
+  slug: string; // /docs/sdk-integration/<slug>/getting-started/
+  desc: { ja: string; en: string };
+}
+
+const SDKS: Sdk[] = [
+  {
+    id: 'unity',
+    name: 'Unity',
+    logo: 'unity.svg',
+    chip: 'UPM',
+    slug: 'unity-sdk',
+    desc: { ja: 'ゲーム・VR エンジン', en: 'Game / VR engine' },
+  },
+  {
+    id: 'python',
+    name: 'Python',
+    logo: 'python.svg',
+    chip: 'PyPI',
+    slug: 'python-sdk',
+    desc: { ja: '研究・プロトタイプ・メディアアート', en: 'Research / prototyping / media art' },
+  },
+  {
+    id: 'javascript',
+    name: 'JavaScript',
+    logo: 'javascript.svg',
+    chip: 'npm',
+    slug: 'js-sdk',
+    desc: { ja: 'Web・Node・Electron', en: 'Web / Node / Electron' },
+  },
+];
+
+interface Props {
+  lang?: 'ja' | 'en';
+}
+const { lang = 'ja' } = Astro.props;
+const prefix = lang === 'en' ? '/en' : '';
+const tagline =
+  lang === 'en'
+    ? 'Hapbeat works with these environments — pick your stack and start in minutes.'
+    : 'Hapbeat はこれらの環境から利用できます。お使いのスタックを選んですぐに始められます。';
+const more =
+  lang === 'en'
+    ? 'More SDKs (Unreal, Godot, TouchDesigner, VRChat) are on the way.'
+    : 'Unreal / Godot / TouchDesigner / VRChat などにも順次対応予定です。';
+---
+
+<p class="hb-sdks__lead">{tagline}</p>
+<div class="hb-sdks">
+  {
+    SDKS.map((s) => (
+      <a class="hb-sdks__card" href={`${prefix}/docs/sdk-integration/${s.slug}/getting-started/`}>
+        <span class="hb-sdks__logo">
+          <img src={`/sdk-logos/${s.logo}`} alt={`${s.name} logo`} width="48" height="48" loading="lazy" />
+        </span>
+        <span class="hb-sdks__name">{s.name}</span>
+        <span class="hb-sdks__desc">{lang === 'en' ? s.desc.en : s.desc.ja}</span>
+        <span class="hb-sdks__chip">{s.chip}</span>
+      </a>
+    ))
+  }
+</div>
+<p class="hb-sdks__more">{more}</p>
+
+<style>
+  .hb-sdks__lead {
+    margin: 0 0 16px;
+    font-size: 15px;
+    color: var(--hb-ink-soft);
+    line-height: 1.6;
+  }
+  .hb-sdks {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 0 0 12px;
+  }
+  @media (max-width: 40rem) {
+    .hb-sdks {
+      grid-template-columns: 1fr;
+    }
+  }
+  .hb-sdks__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    padding: 24px 18px 18px;
+    border: 1px solid var(--hb-line);
+    border-radius: var(--hb-radius);
+    background: var(--hb-bg-elev);
+    text-decoration: none;
+    color: inherit;
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s,
+      transform 0.15s;
+  }
+  .hb-sdks__card:hover {
+    border-color: var(--hb-purple);
+    box-shadow: var(--hb-shadow-md);
+    text-decoration: none;
+    transform: translateY(-2px);
+  }
+  /* ロゴは白タイルに載せて、配色ロゴ・濃色ロゴをライト/ダーク両テーマで等しく読ませる */
+  .hb-sdks__logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: #ffffff;
+    border: 1px solid var(--hb-line);
+    margin-bottom: 4px;
+  }
+  .hb-sdks__logo img {
+    width: 48px;
+    height: 48px;
+    display: block;
+  }
+  .hb-sdks__name {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--hb-ink);
+    line-height: 1.2;
+  }
+  .hb-sdks__desc {
+    font-size: 13px;
+    color: var(--hb-ink-soft);
+    line-height: 1.5;
+  }
+  .hb-sdks__chip {
+    margin-top: 2px;
+    font-family: var(--hb-font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.05em;
+    color: var(--hb-ink-mute);
+    background: var(--hb-bg-soft);
+    border: 1px solid var(--hb-line);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .hb-sdks__more {
+    margin: 0 0 8px;
+    font-size: 12.5px;
+    color: var(--hb-ink-mute);
+    line-height: 1.6;
+  }
+</style>
