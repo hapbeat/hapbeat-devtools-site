@@ -54,8 +54,8 @@ hapbeat-helper               # 起動しておく
 import { connect } from "@hapbeat/sdk";
 
 const hb = await connect({ appName: "MyApp" }); // UDP ブロードキャスト + keep-alive
-hb.play("impact.hit", { gain: 0.3 });           // event id で発火（gain は 0..1）
-hb.play("impact.hit");                          // gain 省略 → kit / EventMap の既定値
+hb.play("sample-kit.sine_100hz", { gain: 0.3 });           // event id で発火（gain は 0..1）
+hb.play("sample-kit.sine_100hz");                          // gain 省略 → kit / EventMap の既定値
 hb.stopAll();
 await hb.close();
 ```
@@ -68,7 +68,7 @@ await hb.close();
 - 終了時は必ず `await hb.close()`。アプリが離れたことをデバイスに伝え、再生中の
   ストリームをキャンセルします。
 
-`"impact.hit"` は、**デバイスに配備した kit**（[Hapbeat Studio](https://devtools.hapbeat.com)
+`"sample-kit.sine_100hz"` は、**デバイスに配備した kit**（[Hapbeat Studio](https://devtools.hapbeat.com)
 で書き込み）に含まれる event id である必要があります。SDK は*指示*を送るだけで、
 波形はデバイス上の kit にあります（command モード。波形を SDK から送る clip モードは
 [](/docs/sdk-integration/js-sdk/command-vs-clip/) を参照）。
@@ -82,7 +82,7 @@ await hb.close();
 import { connect } from "@hapbeat/sdk";
 
 const hb = await connect({ appName: "MyWebXR" }); // → ws://localhost:7703 (helper)
-hb.play("impact.hit", { gain: 0.5 });
+hb.play("sample-kit.sine_100hz", { gain: 0.5 });
 ```
 
 バンドラーが browser ビルドを自動で選び、UDP ブロードキャストは helper が代わりに
@@ -114,7 +114,7 @@ import { connect, EventMap } from "@hapbeat/sdk";
 
 const manifest = await fetch("/my-kit/my-kit-manifest.json").then((r) => r.json());
 const hb = await connect({ eventMap: EventMap.fromManifest(manifest) });
-hb.play("impact.hit"); // kit manifest の intensity で発火
+hb.play("sample-kit.sine_100hz"); // kit manifest の intensity で発火
 ```
 
 「いつ鳴らすか（コード）」と「どれくらいの強さか（kit）」を独立して差し替えられます。
@@ -123,9 +123,9 @@ hb.play("impact.hit"); // kit manifest の intensity で発火
 ## ターゲットを指定する
 
 ```ts
-hb.play("impact.hit", { target: "player_1/chest" }); // 1 台
-hb.play("impact.hit", { target: "*/chest" });        // chest の全台
-hb.play("impact.hit", { target: "" });               // 全台ブロードキャスト（既定）
+hb.play("sample-kit.sine_100hz", { target: "player_1/chest" }); // 1 台
+hb.play("sample-kit.sine_100hz", { target: "*/chest" });        // chest の全台
+hb.play("sample-kit.sine_100hz", { target: "" });               // 全台ブロードキャスト（既定）
 ```
 
 ターゲットの解決順は「呼び出し時の `target`」→「`connect()` の `defaultTarget`」。

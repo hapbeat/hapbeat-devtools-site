@@ -29,7 +29,7 @@ const hb = await connect({
   clipBase: "/my-kit/stream-clips/", // clip モードの WAV 置き場
 });
 
-hb.play("impact.hit"); // command → デバイスが内蔵 clip を再生
+hb.play("sample-kit.sine_100hz"); // command → デバイスが内蔵 clip を再生
 hb.play("rain.loop");  // clip    → SDK が WAV をストリーム
 hb.stop("rain.loop");  // clip は再生中のストリームを終了
 ```

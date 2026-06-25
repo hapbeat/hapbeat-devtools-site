@@ -35,21 +35,21 @@ import { connect, EventMap } from "@hapbeat/sdk";
 
 const manifest = await fetch("/my-kit/my-kit-manifest.json").then((r) => r.json());
 const hb = await connect({ eventMap: EventMap.fromManifest(manifest) });
-hb.play("impact.hit"); // この manifest の intensity で発火
+hb.play("sample-kit.sine_100hz"); // この manifest の intensity で発火
 ```
 
 - `fromManifest` は `events`（command）と `stream_events`（clip）の両 bucket を
   読み、各イベントの `parameters.intensity` / `loop` / `device_wiper` と clip 名を
   取り込みます。
-- `fromGains` は `{ "impact.hit": 0.5 }` のような単純マップから作り、すべて
+- `fromGains` は `{ "sample-kit.sine_100hz": 0.5 }` のような単純マップから作り、すべて
   command モード・`loop: false`・`streaming: false` になります。
 
 ## インスタンスメソッド
 
 ```ts
-em.get("impact.hit");      // EventDef | undefined
-em.gainFor("impact.hit");  // 既定 gain（intensity）。無ければ 1.0
-em.has("impact.hit");      // boolean
+em.get("sample-kit.sine_100hz");      // EventDef | undefined
+em.gainFor("sample-kit.sine_100hz");  // 既定 gain（intensity）。無ければ 1.0
+em.has("sample-kit.sine_100hz");      // boolean
 em.ids();                  // string[] — 全 event id
 em.size;                   // number — 件数
 ```
@@ -85,7 +85,7 @@ interface KitManifest {
 {
   "schema_version": "2.0.0",
   "events": {
-    "impact.hit": { "clip": "hit.wav", "parameters": { "intensity": 0.8 } }
+    "sample-kit.sine_100hz": { "clip": "hit.wav", "parameters": { "intensity": 0.8 } }
   },
   "stream_events": {
     "rain.loop": { "clip": "rain.wav", "parameters": { "intensity": 0.3, "loop": true } }
