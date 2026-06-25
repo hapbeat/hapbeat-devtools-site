@@ -73,10 +73,6 @@ interface Props {
 }
 const { lang = 'ja' } = Astro.props;
 const prefix = lang === 'en' ? '/en' : '';
-const tagline =
-  lang === 'en'
-    ? 'Hapbeat works with these environments — pick your stack and start in minutes.'
-    : 'Hapbeat はこれらの環境から利用できます。お使いのスタックを選んですぐに始められます。';
 const more =
   lang === 'en'
     ? 'More SDKs (Unreal, Godot, TouchDesigner, VRChat) are on the way.'
@@ -87,7 +83,6 @@ const trademark =
     : '各名称・ロゴは各社の商標です（Python: Python Software Foundation／JavaScript ロゴ: Chris Williams, MIT／Unity: Unity Technologies）。';
 ---
 
-<p class="hb-sdks__lead">{tagline}</p>
 <div class="hb-sdks">
   {
     SDKS.map((s) => (
@@ -125,12 +120,6 @@ const trademark =
 <p class="hb-sdks__tm-note">{trademark}</p>
 
 <style>
-  .hb-sdks__lead {
-    margin: 0 0 14px;
-    font-size: 14.5px;
-    color: var(--hb-ink-soft);
-    line-height: 1.6;
-  }
   .hb-sdks {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -146,25 +135,24 @@ const trademark =
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 14px 16px 14px 18px;
+    padding: 14px 16px;
+    /* 直角 + 左端のソリッドな縦線 (アクセント色) */
     border: 1px solid var(--hb-line);
-    /* 左アクセントは inset box-shadow で描き、hover の border 変色と独立させる */
-    box-shadow: inset 3px 0 0 var(--accent);
-    border-radius: var(--hb-radius);
+    border-left: 4px solid var(--accent);
+    border-radius: 0;
     background: var(--hb-bg-elev);
     text-decoration: none;
     color: inherit;
     transition:
       border-color 0.15s,
-      box-shadow 0.15s,
-      transform 0.15s;
+      box-shadow 0.15s;
   }
   .hb-sdks__card:hover {
-    border-color: var(--hb-purple);
-    box-shadow:
-      inset 3px 0 0 var(--accent),
-      var(--hb-shadow-md);
-    transform: translateY(-2px);
+    /* 左の縦線は accent のまま、他 3 辺だけ強調 */
+    border-top-color: var(--hb-line-strong);
+    border-right-color: var(--hb-line-strong);
+    border-bottom-color: var(--hb-line-strong);
+    box-shadow: var(--hb-shadow-md);
     text-decoration: none;
   }
   .hb-sdks__mark {
@@ -217,13 +205,14 @@ const trademark =
   }
   .hb-sdks__chip {
     font-family: var(--hb-font-mono);
-    font-size: 10px;
-    letter-spacing: 0.05em;
-    color: var(--hb-ink-mute);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--hb-ink);
     background: var(--hb-bg-soft);
-    border: 1px solid var(--hb-line);
-    padding: 1px 7px;
-    border-radius: 4px;
+    border: 1px solid var(--hb-line-strong);
+    padding: 2px 8px;
+    border-radius: 3px;
   }
   .hb-sdks__desc {
     font-size: 12.5px;
