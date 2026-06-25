@@ -2,14 +2,17 @@
 /**
  * SupportedSdks
  *
- * トップページの「対応 SDK・プラットフォーム」セクション。
- * 訪問者が「何と組み合わせて Hapbeat を使えるか」を公式ロゴで一目で把握できる。
+ * トップページの「対応 SDK」セクション。訪問者が「何と組み合わせて Hapbeat を
+ * 使えるか」を一目で把握できるよう、横長カードを 2 列 (モバイル 1 列) で並べる。
  *
- * 新しい SDK を増やすときは SDKS 配列に 1 つ足し、public/sdk-logos/<logo> に
- * 公式ロゴ SVG を置くだけ。
+ * ロゴの扱い（利用許諾の確認結果, 2026-06-22。詳細は public/sdk-logos/SOURCES.md）:
+ *   - Python : PSF 商標ポリシーで未改変ロゴの互換性表示が可（™ 併記 + 帰属）。公式ロゴを使用。
+ *   - JavaScript : "JS" バッジは MIT。公式ロゴを使用。
+ *   - Unity : ブランドガイドラインが第三者の自社製品宣伝でのロゴ使用を認めないため、
+ *             ロゴではなく名称（文字ワードマーク）で表示する。書面許可があれば差し替え可。
  *
- * ロゴは各社の商標であり、Hapbeat が対応する環境を示す目的（指名的表示）で
- * 公式/標準の SVG を配置している。各 SVG の出所は public/sdk-logos/SOURCES.md 参照。
+ * 新しい SDK は SDKS 配列に 1 つ足す。ロゴが使える場合は mark にファイル名
+ * (public/sdk-logos/<file>) を、使えない/無い場合は mark:'word' を指定する。
  *
  * Props:
  *   - lang: 'ja' | 'en'   href prefix と表示文言の出し分け
@@ -17,9 +20,11 @@
 interface Sdk {
   id: string;
   name: string;
-  logo: string; // public/sdk-logos/ 配下のファイル名
+  mark: string; // 'word' か public/sdk-logos/ 配下のファイル名
   chip: string; // 配布形態
   slug: string; // /docs/sdk-integration/<slug>/getting-started/
+  accent: string; // 左アクセント色（CSS color）
+  tm?: boolean; // 名称に ™ を付ける（Python 商標表示）
   desc: { ja: string; en: string };
 }
 
@@ -27,26 +32,39 @@ const SDKS: Sdk[] = [
   {
     id: 'unity',
     name: 'Unity',
-    logo: 'unity.svg',
+    mark: 'word',
     chip: 'UPM',
     slug: 'unity-sdk',
-    desc: { ja: 'ゲーム・VR エンジン', en: 'Game / VR engine' },
+    accent: 'var(--hb-ink-mute)',
+    desc: {
+      ja: 'Unity 製ゲーム・VR/MR アプリ向け。Trigger と EventMap で既存プロジェクトに触覚を追加できます。',
+      en: 'For Unity games and VR/MR apps. Add haptics to an existing project with Trigger components and EventMap.',
+    },
   },
   {
     id: 'python',
     name: 'Python',
-    logo: 'python.svg',
+    mark: 'python.svg',
     chip: 'PyPI',
     slug: 'python-sdk',
-    desc: { ja: '研究・プロトタイプ・メディアアート', en: 'Research / prototyping / media art' },
+    accent: '#3776ab',
+    tm: true,
+    desc: {
+      ja: '研究・プロトタイピング・メディアアート向け。OSC ブリッジ同梱で外部ツールとも連携できます。',
+      en: 'For research, prototyping, and media art. A bundled OSC bridge connects external tools.',
+    },
   },
   {
     id: 'javascript',
     name: 'JavaScript',
-    logo: 'javascript.svg',
+    mark: 'javascript.svg',
     chip: 'npm',
     slug: 'js-sdk',
-    desc: { ja: 'Web・Node・Electron', en: 'Web / Node / Electron' },
+    accent: '#eab308',
+    desc: {
+      ja: 'Web・Node・Electron 向け。ブラウザは Helper 経由、Node は UDP 直送で再生します。',
+      en: 'For Web, Node, and Electron. Browser via Helper; Node sends over UDP directly.',
+    },
   },
 ];
 
@@ -63,51 +81,75 @@ const more =
   lang === 'en'
     ? 'More SDKs (Unreal, Godot, TouchDesigner, VRChat) are on the way.'
     : 'Unreal / Godot / TouchDesigner / VRChat などにも順次対応予定です。';
+const trademark =
+  lang === 'en'
+    ? 'Names and logos are trademarks of their respective owners (Python: Python Software Foundation; JavaScript logo: Chris Williams, MIT; Unity: Unity Technologies).'
+    : '各名称・ロゴは各社の商標です（Python: Python Software Foundation／JavaScript ロゴ: Chris Williams, MIT／Unity: Unity Technologies）。';
 ---
 
 <p class="hb-sdks__lead">{tagline}</p>
 <div class="hb-sdks">
   {
     SDKS.map((s) => (
-      <a class="hb-sdks__card" href={`${prefix}/docs/sdk-integration/${s.slug}/getting-started/`}>
-        <span class="hb-sdks__logo">
-          <img src={`/sdk-logos/${s.logo}`} alt={`${s.name} logo`} width="48" height="48" loading="lazy" />
+      <a
+        class="hb-sdks__card"
+        href={`${prefix}/docs/sdk-integration/${s.slug}/getting-started/`}
+        style={`--accent:${s.accent}`}
+        data-mark={s.mark === 'word' ? 'word' : 'img'}
+      >
+        <span class="hb-sdks__mark">
+          {s.mark === 'word' ? (
+            <span class="hb-sdks__wordmark">{s.name}</span>
+          ) : (
+            <img src={`/sdk-logos/${s.mark}`} alt={`${s.name} logo`} width="40" height="40" />
+          )}
         </span>
-        <span class="hb-sdks__name">{s.name}</span>
-        <span class="hb-sdks__desc">{lang === 'en' ? s.desc.en : s.desc.ja}</span>
-        <span class="hb-sdks__chip">{s.chip}</span>
+        <span class="hb-sdks__body">
+          <span class="hb-sdks__titlerow">
+            {s.mark !== 'word' && (
+              <span class="hb-sdks__name">
+                {s.name}
+                {s.tm && <sup class="hb-sdks__tm">™</sup>}
+              </span>
+            )}
+            <span class="hb-sdks__chip">{s.chip}</span>
+          </span>
+          <span class="hb-sdks__desc">{lang === 'en' ? s.desc.en : s.desc.ja}</span>
+        </span>
+        <span class="hb-sdks__arrow" aria-hidden="true">→</span>
       </a>
     ))
   }
 </div>
 <p class="hb-sdks__more">{more}</p>
+<p class="hb-sdks__tm-note">{trademark}</p>
 
 <style>
   .hb-sdks__lead {
-    margin: 0 0 16px;
-    font-size: 15px;
+    margin: 0 0 14px;
+    font-size: 14.5px;
     color: var(--hb-ink-soft);
     line-height: 1.6;
   }
   .hb-sdks {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
     margin: 0 0 12px;
   }
-  @media (max-width: 40rem) {
+  @media (max-width: 48rem) {
     .hb-sdks {
       grid-template-columns: 1fr;
     }
   }
   .hb-sdks__card {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    text-align: center;
-    gap: 8px;
-    padding: 24px 18px 18px;
+    gap: 14px;
+    padding: 14px 16px 14px 18px;
     border: 1px solid var(--hb-line);
+    /* 左アクセントは inset box-shadow で描き、hover の border 変色と独立させる */
+    box-shadow: inset 3px 0 0 var(--accent);
     border-radius: var(--hb-radius);
     background: var(--hb-bg-elev);
     text-decoration: none;
@@ -119,52 +161,107 @@ const more =
   }
   .hb-sdks__card:hover {
     border-color: var(--hb-purple);
-    box-shadow: var(--hb-shadow-md);
-    text-decoration: none;
+    box-shadow:
+      inset 3px 0 0 var(--accent),
+      var(--hb-shadow-md);
     transform: translateY(-2px);
+    text-decoration: none;
   }
-  /* ロゴは白タイルに載せて、配色ロゴ・濃色ロゴをライト/ダーク両テーマで等しく読ませる */
-  .hb-sdks__logo {
-    width: 72px;
-    height: 72px;
-    border-radius: 14px;
+  .hb-sdks__mark {
+    flex: none;
     display: grid;
     place-items: center;
-    background: #ffffff;
-    border: 1px solid var(--hb-line);
-    margin-bottom: 4px;
+    height: 46px;
   }
-  .hb-sdks__logo img {
-    width: 48px;
-    height: 48px;
+  .hb-sdks__card[data-mark='img'] .hb-sdks__mark {
+    width: 46px;
+  }
+  .hb-sdks__mark img {
+    width: 40px;
+    height: 40px;
     display: block;
   }
+  .hb-sdks__wordmark {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--hb-ink);
+    white-space: nowrap;
+    padding: 0 4px;
+  }
+  .hb-sdks__body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    flex: 1;
+  }
+  .hb-sdks__titlerow {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
   .hb-sdks__name {
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--hb-ink);
     line-height: 1.2;
   }
-  .hb-sdks__desc {
-    font-size: 13px;
-    color: var(--hb-ink-soft);
-    line-height: 1.5;
+  .hb-sdks__tm {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--hb-ink-mute);
+    vertical-align: super;
+    margin-left: 1px;
   }
   .hb-sdks__chip {
-    margin-top: 2px;
     font-family: var(--hb-font-mono);
-    font-size: 10.5px;
+    font-size: 10px;
     letter-spacing: 0.05em;
     color: var(--hb-ink-mute);
     background: var(--hb-bg-soft);
     border: 1px solid var(--hb-line);
-    padding: 2px 8px;
+    padding: 1px 7px;
     border-radius: 4px;
   }
+  .hb-sdks__desc {
+    font-size: 12.5px;
+    color: var(--hb-ink-soft);
+    line-height: 1.5;
+  }
+  .hb-sdks__arrow {
+    flex: none;
+    align-self: center;
+    font-size: 16px;
+    color: var(--hb-ink-faint);
+    transition:
+      transform 0.15s,
+      color 0.15s;
+  }
+  .hb-sdks__card:hover .hb-sdks__arrow {
+    transform: translateX(3px);
+    color: var(--hb-purple);
+  }
   .hb-sdks__more {
-    margin: 0 0 8px;
+    margin: 0 0 6px;
     font-size: 12.5px;
     color: var(--hb-ink-mute);
     line-height: 1.6;
+  }
+  .hb-sdks__tm-note {
+    margin: 0 0 4px;
+    font-size: 11px;
+    color: var(--hb-ink-faint);
+    line-height: 1.55;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hb-sdks__card,
+    .hb-sdks__arrow {
+      transition: none;
+    }
+    .hb-sdks__card:hover {
+      transform: none;
+    }
   }
 </style>
