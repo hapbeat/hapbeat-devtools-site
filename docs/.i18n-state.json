@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "note": "i18n sync baseline. Each EN page records the JA-source git blob sha it was translated from. A future i18n-sync skill compares the current JA blob sha (git ls-tree) to source_sha; if it differs (or the EN file is missing) it re-translates that page (feeding old-JA@source_sha + new-JA + current-EN, updating only what changed) and advances source_sha. Only pages translated so far are listed; EN sections without an entry (concepts/unity-sdk/tools/hardware, hand-translated 2026-05-30) need a baseline set when the skill is built.",
+  "pages": {
+    "docs/en/sdk-integration/js-sdk/01-getting-started.md": {
+      "source": "docs/ja/sdk-integration/js-sdk/01-getting-started.md",
+      "source_sha": "872b19391fd27c6bc88d3061578502628fc2e3f5",
+      "translated_at": "2026-06-25T20:42:51Z"
+    },
+    "docs/en/sdk-integration/js-sdk/02-transports.md": {
+      "source": "docs/ja/sdk-integration/js-sdk/02-transports.md",
+      "source_sha": "85fe1e7202e67a9aa12044c4592d8f14e29f3366",
+      "translated_at": "2026-06-25T20:42:51Z"
+    },
+    "docs/en/sdk-integration/js-sdk/03-command-vs-clip.md": {
+      "source": "docs/ja/sdk-integration/js-sdk/03-command-vs-clip.md",
+      "source_sha": "205b88fce1477913934db5964a446117d7bc8b0f",
+      "translated_at": "2026-06-25T20:42:51Z"
+    },
+    "docs/en/sdk-integration/js-sdk/04-project-structure.md": {
+      "source": "docs/ja/sdk-integration/js-sdk/04-project-structure.md",
+      "source_sha": "733cdccd69af978fefdb147a5e4edbc40612752e",
+      "translated_at": "2026-06-25T20:42:51Z"
+    },
+    "docs/en/sdk-integration/js-sdk/05-streaming-clips.md": {
+      "source": "docs/ja/sdk-integration/js-sdk/05-streaming-clips.md",
+      "source_sha": "22f976d137e626996de69f96b2f63185d32c0e1d",
+      "translated_at": "2026-06-25T20:42:51Z"
+    },
+    "docs/en/sdk-integration/js-sdk/06-streaming-live.md": {
+      "source": "docs/ja/sdk-integration/js-sdk/06-streaming-live.md",
+      "source_sha": "da7d727bb10ed0dc726804484266ee4911097bca",
+      "translated_at": "2026-06-25T20:42:51Z"
+    },
+    "docs/en/sdk-integration/js-sdk/07-event-map.md": {
+      "source": "docs/ja/sdk-integration/js-sdk/07-event-map.md",
+      "source_sha": "7f4f3dc8aee9c8b2f3a768102a792efd23834e73",
+      "translated_at": "2026-06-25T20:42:51Z"
+    },
+    "docs/en/sdk-integration/js-sdk/08-examples.md": {
+      "source": "docs/ja/sdk-integration/js-sdk/08-examples.md",
+      "source_sha": "f66f675331071b68a96c8ca63d458ddc2127260b",
+      "translated_at": "2026-06-25T20:42:51Z"
+    },
+    "docs/en/sdk-integration/python-sdk/01-getting-started.md": {
+      "source": "docs/ja/sdk-integration/python-sdk/01-getting-started.md",
+      "source_sha": "0f455116814c44d9eab01510626d6f4a062165c8",
+      "translated_at": "2026-06-25T20:42:51Z"
+    },
+    "docs/en/sdk-integration/python-sdk/02-command-vs-clip.md": {
+      "source": "docs/ja/sdk-integration/python-sdk/02-command-vs-clip.md",
+      "source_sha": "f4a345e529532b6bf2a0ff7e96f0f1d824211ff2",
+      "translated_at": "2026-06-25T20:42:51Z"
+    },
+    "docs/en/sdk-integration/python-sdk/03-project-structure.md": {
+      "source": "docs/ja/sdk-integration/python-sdk/03-project-structure.md",
+      "source_sha": "073a2de9c3465c40347becb514d95997b968dfa6",
+      "translated_at": "2026-06-25T20:42:51Z"
+    },
+    "docs/en/sdk-integration/python-sdk/04-streaming.md": {
+      "source": "docs/ja/sdk-integration/python-sdk/04-streaming.md",
+      "source_sha": "a2b65567c6f6dd18e04e2205e55b3fa1c6db9181",
+      "translated_at": "2026-06-25T20:42:51Z"
+    },
+    "docs/en/sdk-integration/python-sdk/05-event-map.md": {
+      "source": "docs/ja/sdk-integration/python-sdk/05-event-map.md",
+      "source_sha": "1cc44bea6f5199ceb457efeca9230068d477bddf",
+      "translated_at": "2026-06-25T20:42:51Z"
+    },
+    "docs/en/sdk-integration/python-sdk/06-osc.md": {
+      "source": "docs/ja/sdk-integration/python-sdk/06-osc.md",
+      "source_sha": "beeed33cc570aef551451bad5bf8daac2f70cbc6",
+      "translated_at": "2026-06-25T20:42:51Z"
+    },
+    "docs/en/sdk-integration/python-sdk/07-examples.md": {
+      "source": "docs/ja/sdk-integration/python-sdk/07-examples.md",
+      "source_sha": "7e1f0d12b68c79ae38665f29c53dc131e984b50e",
+      "translated_at": "2026-06-25T20:42:51Z"
+    }
+  }
+}
