@@ -342,7 +342,7 @@ export default defineConfig({
               description: 'Hand-curated, high-signal reference for AI coding agents. Smaller than the full python-sdk set — prefer this as the entry point for the Python SDK, then fetch the full set only if needed.',
             },
             {
-              label: 'JS / Web SDK — AGENTS.md (curated single-file reference)',
+              label: 'JavaScript SDK — AGENTS.md (curated single-file reference)',
               url: 'https://raw.githubusercontent.com/hapbeat/hapbeat-js-sdk/master/AGENTS.md',
               description: 'Hand-curated, high-signal reference for AI coding agents using the JS/TS SDK (@hapbeat/sdk). Prefer this as the entry point for the JS SDK, then fetch the full js-sdk set only if needed.',
             },
@@ -370,7 +370,7 @@ export default defineConfig({
             },
             {
               label: 'js-sdk',
-              description: 'Hapbeat JS / Web SDK (@hapbeat/sdk) — usage, specification, and samples (with shared concepts).',
+              description: 'Hapbeat JavaScript SDK (@hapbeat/sdk) — usage, specification, and samples (with shared concepts).',
               paths: ['docs/sdk-integration/js-sdk/**', 'docs/concepts/**'],
             },
             {
@@ -517,7 +517,7 @@ export default defineConfig({
               ].filter(Boolean),
             },
             {
-              label: 'JS / Web SDK',
+              label: 'JavaScript SDK',
               items: [
                 pub('docs/sdk-integration/js-sdk/getting-started'),
                 pub('docs/sdk-integration/js-sdk/transports'),
