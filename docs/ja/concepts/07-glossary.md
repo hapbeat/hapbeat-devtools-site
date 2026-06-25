@@ -17,7 +17,7 @@ sidebar:
 : 触覚資産のフォルダ単位。`<kit-name>-manifest.json` + WAV 群で構成。Studio で作成し、Helper 経由で Hapbeat デバイスに転送する。詳細: [Event ID と Kit](./event-id-and-kit/)
 
 **Event ID**
-: 触覚イベントを識別する文字列。基本形式 `<category>.<name>`、拡張形式 `<category>.<subcategory>.<name>`、名前空間付き `<namespace>/<category>.<name>` をサポート。
+: 触覚イベントを識別する文字列。正準形式は `<kit-name>.<file-name>`（例: `sample-kit.sine_100hz`）— Kit 名 + 拡張子を除いた clip ファイル名を `.` 1 個で繋いだもの。Studio が自動合成する。詳細: [Event ID と Kit](./event-id-and-kit/)
 
 **address**
 : パケットの宛先文字列。形式は `[prefix/] player_{N} / {position} [/group_{M}]`。詳細: [Address の仕組み](./group-player-addressing/)

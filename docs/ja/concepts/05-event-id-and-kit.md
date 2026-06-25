@@ -80,33 +80,34 @@ manifest は **`events` (Fire 用) と `stream_events` (Clip 用) の 2 つの b
 
 ## Event ID の命名規則
 
-Event ID は触覚イベントを一意に識別する文字列です。
+Event ID は触覚イベントを一意に識別する文字列です。正準フォーマットは [event-id spec](https://github.com/Hapbeat/hapbeat-contracts/blob/master/specs/event-id.md) (DEC-040) が定義します。
 
 ```
-基本形式:        <category>.<name>
-拡張形式:        <category>.<subcategory>.<name>
-名前空間付き:    <namespace>/<category>.<name>
+<kit-name>.<file-name>
 ```
+
+- **`<kit-name>`** — その clip が属する Kit の `name`（上の manifest の `name`・on-disk フォルダ名・wire の `kit_id` と同値）
+- **`<file-name>`** — Kit 内の clip ファイル名から拡張子 `.wav` を除いた basename
+- 区切りは **`.` (ドット) 1 個**。`<kit-name>` が名前空間を兼ねるため、異なる Kit 間で ID が衝突しません
 
 | 規則 | 値 |
 |---|---|
-| 使用可能文字 | 英小文字 `a-z` / 数字 `0-9` / ハイフン `-` / アンダースコア `_` |
-| 先頭文字 | 英字で始まる |
-| カテゴリ区切り | `.` (ドット) |
-| 名前空間区切り | `/` (スラッシュ) |
-| 各セグメント長 | 1〜64 文字 |
-| 最大階層深度 | 名前空間含めて 4 セグメントまで |
+| `<kit-name>` | `^[a-z][a-z0-9-]*$`（英小文字始まり・英数字・ハイフン。アンダースコア不可） |
+| `<file-name>` | `^[a-z][a-z0-9_-]*$`（英小文字始まり・英数字・アンダースコア・ハイフン） |
+| 区切り文字 | `.` (ドット) 1 個のみ |
+| 大文字 | 使用不可（小文字のみに正規化） |
+| `<file-name>` 先頭 | 英字始まり（`100hz` ではなく `sine_100hz`） |
+| ID 全体の最大長 | 255 文字 |
 
 実例:
 
 ```
-my-game.sword-hit                  ← <category>.<name>
-my-game.impact.heavy               ← <category>.<subcategory>.<name>
-red-team/impact.hit                ← <namespace>/<category>.<name>
-basic-exam-kit.sine_100hz_1s       ← Studio が auto-sync で生成する典型形
+sample-kit.sine_100hz      ← 公式の疎通確認イベント (sample-kit)
+showcase-kit.z1_pin_hit    ← showcase-kit の clip z1_pin_hit.wav
+my-game.sword_slash        ← my-game kit の clip sword_slash.wav
 ```
 
-Unity SDK の EventMap ウィンドウでは **Kit 名 + clip ファイル名から自動合成** するワークフローが既定で、結果として `<kit-name>.<clip-name>` 形式に揃いますが、これは命名の **慣習** であって spec が強制する形ではありません。意味的に整理したいときは subcategory や namespace を活用できます。
+Event ID は **Studio が Kit 名 + clip ファイル名から自動合成**します（ユーザーが手で組み立てません）。`sample-kit` / `showcase-kit` / `hapbeat-*` は Hapbeat 公式用途に予約されており、コンテンツ開発者は使用しません。
 
 ## 「フォルダ名 = manifest.name = wire 上の kit_id」を一本化した理由 (DEC-028)
 

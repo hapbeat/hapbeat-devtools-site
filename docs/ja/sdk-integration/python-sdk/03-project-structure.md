@@ -41,7 +41,7 @@ my-app/
 {
   "kit": "kits/my-kit",
   "events": {
-    "impact.hit": { "target": "player_1/chest", "gain": 0.8 },
+    "sample-kit.sine_100hz": { "target": "player_1/chest", "gain": 0.8 },
     "rain.loop":  { "target": "*/back" }
   }
 }
@@ -53,7 +53,7 @@ my-app/
 import hapbeat
 
 hb = hapbeat.connect(app_name="MyApp", haptics="haptics.json")
-hb.play("impact.hit")     # player_1/chest に gain 0.8 で（触覚ファイルが決める）
+hb.play("sample-kit.sine_100hz")     # player_1/chest に gain 0.8 で（触覚ファイルが決める）
 hb.play("rain.loop")      # */back に clip ストリーム
 ```
 

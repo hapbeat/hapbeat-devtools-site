@@ -33,7 +33,7 @@ SDK の <a href="https://github.com/hapbeat/hapbeat-python-sdk/tree/master/examp
 | morse_text.py | アクセシビリティ | テキスト → モールス（play/stop で長短） | ループ buzz（または 2 つの one-shot） |
 | haptic_pad.py | ライブ・WoZ | キーボードのトリガーパッド（記録・再生） | マッピング元（下記） |
 
-> 表の「既定の event id」（`impact.hit` など）は**プレースホルダ**で、必ず自分の kit に
+> 表の「既定の event id」（`sample-kit.sine_100hz` など）は**プレースホルダ**で、必ず自分の kit に
 > 含まれる id に置き換えてください。
 
 ## コピーして使うときの再利用性

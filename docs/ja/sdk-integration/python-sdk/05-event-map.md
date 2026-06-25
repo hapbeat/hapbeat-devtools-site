@@ -27,7 +27,7 @@ em = hapbeat.EventMap.from_manifest("kits/my-kit/my-kit-manifest.json")
 em = hapbeat.EventMap.from_manifest(parsed_dict)        # dict でも可
 
 # 手書き（command のみ・gain だけ）
-em = hapbeat.EventMap.from_dict({"impact.hit": 0.5})
+em = hapbeat.EventMap.from_dict({"sample-kit.sine_100hz": 0.5})
 ```
 
 `from_file` は **触覚ファイル**（kit を参照する overlay）を読み、manifest の
@@ -57,10 +57,10 @@ intensity/clip に **target / gain 上書き**を重ねます（[](/docs/sdk-int
 ## 主なメソッド
 
 ```python
-em.get("impact.hit")          # EventDef | None
-em.gain_for("impact.hit")     # 既定 gain（無ければ 1.0）
+em.get("sample-kit.sine_100hz")          # EventDef | None
+em.gain_for("sample-kit.sine_100hz")     # 既定 gain（無ければ 1.0）
 em.ids()                      # 全 event id
-"impact.hit" in em            # 存在判定
+"sample-kit.sine_100hz" in em            # 存在判定
 len(em)                       # 件数
 em.kit_dir                    # kit フォルダ（from_kit/path 由来）or None
 ```
@@ -72,7 +72,7 @@ em.kit_dir                    # kit フォルダ（from_kit/path 由来）or Non
   "schema_version": "2.0.0",
   "name": "my-kit",
   "events": {
-    "impact.hit": { "clip": "hit.wav", "parameters": { "intensity": 0.8 } }
+    "sample-kit.sine_100hz": { "clip": "sine_100hz.wav", "parameters": { "intensity": 0.8 } }
   },
   "stream_events": {
     "rain.loop": { "clip": "rain.wav", "parameters": { "intensity": 0.3, "loop": true } }

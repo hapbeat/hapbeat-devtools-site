@@ -69,7 +69,7 @@ hapbeat osc-bridge --listen 7702 --haptics haptics.json
 ## TouchOSC レイアウト（例）
 
 - ボタン "Rain" → `/hapbeat/play`（文字列 `rain.loop`）
-- ボタン "Tap"  → `/hapbeat/play`（文字列 `impact.hit`）
+- ボタン "Tap"  → `/hapbeat/play`（文字列 `sample-kit.sine_100hz`）
 - ボタン "Stop" → `/hapbeat/stop-all`
 - 接続設定: ホスト = ブリッジを動かす PC の IP、ポート = `7702`
 

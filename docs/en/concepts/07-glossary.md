@@ -17,7 +17,7 @@ Each term used throughout the documentation is defined in one to two lines. For 
 : The unit of haptic assets — a folder. Composed of `<kit-name>-manifest.json` + WAV files. Created in Studio and transferred to the Hapbeat device via Helper. Details: [Event ID and Kit](/en/docs/concepts/event-id-and-kit/)
 
 **Event ID**
-: A string that identifies a haptic event. Supports the basic form `<category>.<name>`, extended form `<category>.<subcategory>.<name>`, and namespaced form `<namespace>/<category>.<name>`.
+: A string that identifies a haptic event. Canonical form is `<kit-name>.<file-name>` (e.g. `sample-kit.sine_100hz`) — the Kit name plus the clip filename with its extension stripped, joined by a single `.`. Studio auto-generates it. Details: [Event ID and Kit](/en/docs/concepts/event-id-and-kit/)
 
 **address**
 : The destination string for a packet. Format: `[prefix/] player_{N} / {position} [/group_{M}]`. Details: [Address System](/en/docs/concepts/group-player-addressing/)
