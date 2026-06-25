@@ -674,7 +674,7 @@ html:not([data-has-sidebar]) starlight-menu-button {
   gap: 8px;
   background: var(--hb-purple-soft);
   padding: 5px 12px;
-  border-radius: 999px;
+  border-radius: 2px;
 }
 .hb-hero__dot {
   width: 6px;
@@ -733,7 +733,7 @@ html:not([data-has-sidebar]) starlight-menu-button {
   gap: 8px;
   height: 44px;
   padding: 0 18px;
-  border-radius: 9px;
+  border-radius: 2px;
   font-weight: 500;
   font-size: 14.5px;
   text-decoration: none !important;
@@ -771,7 +771,7 @@ html:not([data-has-sidebar]) starlight-menu-button {
 .hb-hero__shot img {
   width: 100%;
   height: auto;
-  border-radius: 10px;
+  border-radius: 2px;
   border: 1px solid var(--hb-line);
   box-shadow: var(--hb-shadow-md);
   display: block;
