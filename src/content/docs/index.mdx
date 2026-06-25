@@ -5,15 +5,12 @@ title: Hapbeat devtools — 触覚デバイス開発者ポータル
 description: 触覚デバイス Hapbeat のクリエイター・開発者向けツール、SDK、ドキュメントのポータル
 template: splash
 hero:
-  title: <em>Hapbeat</em> 開発者向け  ドキュメントとツール群
-  tagline: ESP32-S3 ベースのワイヤレス触覚デバイス Hapbeat を、ゲーム・VR・展示・ライブ演出に利用するための SDK、デザインツール、ファームウェア、仕様書をまとめています。
+  title: <em>Hapbeat</em> 開発者向けドキュメント＆ツール
+  tagline: ESP32-S3 ベースのワイヤレス触覚デバイス Hapbeat を、ゲーム・VR・展示・ライブ演出などに活用するための SDK・ツール・ドキュメントをまとめています。
   actions:
     - text: Getting Started
       link: /docs/start-here/getting-started/
       variant: primary
-    - text: Downloads
-      link: /downloads/
-      variant: secondary
 ---
 
 import Campaign from '../../components/Campaign.astro';
@@ -21,7 +18,7 @@ import SupportedSdks from '../../components/SupportedSdks.astro';
 import ToolCard from '../../components/ToolCard.astro';
 import ToolGrid from '../../components/ToolGrid.astro';
 
-## 対応 SDK
+## 対応プラットフォーム
 
 <SupportedSdks lang="ja" />
 
@@ -35,7 +32,6 @@ import ToolGrid from '../../components/ToolGrid.astro';
     title="Hapbeat Studio"
     description="ブラウザで動く統合セッティングツール。波形・LED・ディスプレイの編集、デバイス管理、ファーム書込みまで完結。"
     href="/studio/"
-    icon="🎛"
     chip="Web App"
     meta={["browser-only", "no install"]}
   />
@@ -43,16 +39,7 @@ import ToolGrid from '../../components/ToolGrid.astro';
     title="Helper"
     description="Studio と Hapbeat デバイスを橋渡しするローカル CLI daemon。pipx 経由で導入。"
     href="/docs/tools/helper/getting-started/"
-    icon="🔌"
     chip="CLI"
     meta={["Mac / Win", "pipx install"]}
-  />
-  <ToolCard
-    title="Unity SDK"
-    description="Unity 向け SDK。Trigger コンポーネント / EventMap 等で簡単に触覚を組み込める。"
-    href="/docs/sdk-integration/unity-sdk/getting-started/"
-    icon="🎮"
-    chip="UPM"
-    meta={["Unity 2022.3+", "VR / 平面 両対応"]}
   />
 </ToolGrid>

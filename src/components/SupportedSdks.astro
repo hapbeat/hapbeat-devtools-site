@@ -124,7 +124,8 @@ const trademark =
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
-    margin: 0 0 12px;
+    /* 見出し (##) との間隔を確保 */
+    margin: 20px 0 12px;
   }
   @media (max-width: 48rem) {
     .hb-sdks {
@@ -136,11 +137,12 @@ const trademark =
     align-items: center;
     gap: 14px;
     padding: 14px 16px;
-    /* 直角 + 左端のソリッドな縦線 (アクセント色) */
+    /* ほぼ直角 (角を 2px だけ丸めて刺々しさを緩和) + 左端のソリッドな縦線 */
     border: 1px solid var(--hb-line);
     border-left: 4px solid var(--accent);
-    border-radius: 0;
+    border-radius: 2px;
     background: var(--hb-bg-elev);
+    box-shadow: var(--hb-shadow-sm);
     text-decoration: none;
     color: inherit;
     transition:

@@ -79,14 +79,16 @@ const linkProps = isNewTab
 
 <style>
   .hb-tool {
-    padding: 22px 22px 20px;
+    padding: 20px 20px 18px;
+    /* SupportedSdks カードと統一: ほぼ直角 (2px) + 左ソリッド縦線 (ブランド purple) */
     border: 1px solid var(--hb-line);
-    border-radius: var(--hb-radius);
+    border-left: 4px solid var(--hb-purple);
+    border-radius: 2px;
     background: var(--hb-bg-elev);
+    box-shadow: var(--hb-shadow-sm);
     transition:
       border-color 0.15s,
-      box-shadow 0.15s,
-      transform 0.15s;
+      box-shadow 0.15s;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -94,10 +96,11 @@ const linkProps = isNewTab
     color: inherit;
   }
   .hb-tool:hover {
-    border-color: var(--hb-purple);
+    border-top-color: var(--hb-line-strong);
+    border-right-color: var(--hb-line-strong);
+    border-bottom-color: var(--hb-line-strong);
     box-shadow: var(--hb-shadow-md);
     text-decoration: none;
-    transform: translateY(-2px);
   }
   .hb-tool__head {
     display: flex;

@@ -1,27 +1,25 @@
 ---
 title: Downloads
-description: Where to get the Unity SDK package and firmware binaries.
+description: How to install the SDKs (package managers) and where to get firmware.
 ---
 
 import DownloadItem from '../../../components/DownloadItem.astro';
 
-Every distributable is provided through GitHub Releases. The links below always point to the **latest release** (GitHub automatically redirects `/releases/latest` to the newest version).
+Each SDK is installed primarily **through a package manager**. Some distributables, such as firmware, are downloaded directly from GitHub Releases.
 
-## Unity SDK
+## Package managers
 
-Installable via the Unity Package Manager (UPM).
+| SDK | Install | Host |
+|---|---|---|
+| **Python SDK** | `pip install hapbeat-python-sdk` (import name is `hapbeat`) | [PyPI](https://pypi.org/project/hapbeat-python-sdk/) |
+| **JavaScript SDK** | `npm install @hapbeat/sdk` | [npm](https://www.npmjs.com/package/@hapbeat/sdk) |
+| **Unity SDK** | UPM → "Add package from git URL" → `https://github.com/Hapbeat/hapbeat-unity-sdk.git` (pinning a tag is recommended) | [GitHub Releases](https://github.com/Hapbeat/hapbeat-unity-sdk/releases/latest) |
 
-<DownloadItem
-  name="Hapbeat Unity SDK (UPM tarball)"
-  description="Unity 2022.3 LTS or later / supports both VR and flat-screen"
-  href="https://github.com/Hapbeat/hapbeat-unity-sdk/releases/latest"
-  icon="🎮"
-  btnLabel="GitHub Release"
-/>
+Setup guides:
 
-UPM registration URL: `https://github.com/Hapbeat/hapbeat-unity-sdk.git` (pinning a tag is recommended)
-
-Setup guide: [Unity SDK Installation](/en/docs/sdk-integration/unity-sdk/installation/)
+- [Python SDK Getting Started](/en/docs/sdk-integration/python-sdk/getting-started/)
+- [JavaScript SDK Getting Started](/en/docs/sdk-integration/js-sdk/getting-started/)
+- [Unity SDK Installation](/en/docs/sdk-integration/unity-sdk/installation/)
 
 ## Device Firmware
 
