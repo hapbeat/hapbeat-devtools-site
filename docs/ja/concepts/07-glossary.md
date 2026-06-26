@@ -51,7 +51,7 @@ sidebar:
 ## ツール
 
 **Hapbeat Studio**
-: Web ベースの Kit デザイン + デバイス管理ツール。`devtools.hapbeat.com/studio/` で動作する SPA。
+: Web ベースの Kit デザイン + デバイス管理ツール。`studio.hapbeat.com/` で動作する SPA。
 
 **hapbeat-helper**
 : Studio と Hapbeat デバイスを橋渡しする CLI daemon。`pipx install hapbeat-helper` で導入。`localhost:7703` の WebSocket と mDNS / UDP / TCP / Serial を中継する。アプリ実行時は不要。

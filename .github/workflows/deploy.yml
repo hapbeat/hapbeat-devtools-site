@@ -15,7 +15,7 @@ on:
 
 jobs:
   build-and-deploy:
-    name: Build and Deploy (FTP + Cloudflare)
+    name: Build and Deploy (Cloudflare)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,8 +32,7 @@ jobs:
 
       # rehype-mermaid (strategy: inline-svg) は Playwright で chromium を起動して
       # mermaid を SVG に SSR する。CI runner には未インストールなので明示的に入れる。
-      # これが無いと initial-setup.md など mermaid を含むページが空ボディで生成されて
-      # FTP に上がってしまう (build 自体はエラーにならない)。
+      # これが無いと initial-setup.md など mermaid を含むページが空ボディで生成される。
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium-headless-shell
 
@@ -45,33 +44,11 @@ jobs:
           # トークンは原則不要。将来 private repo を再び集約する場合のみ DOCS_FETCH_TOKEN を設定する。
           DOCS_FETCH_TOKEN: ${{ secrets.DOCS_FETCH_TOKEN }}
 
-      # --- 配信先 1: Xserver (FTP) — Phase 1 の本番。Phase 2 (DNS切替) で削除する ---
-      # Xserver は撤去進行中で FTP が接続タイムアウトすることがある。これは旧経路なので
-      # best-effort 扱い (continue-on-error) とし、失敗しても後続の Cloudflare deploy を
-      # 止めない。Phase 2 でこの step ごと削除する。
-      - name: FTP Deploy (Xserver — 本番, Phase 2 で廃止)
-        continue-on-error: true
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          port: 21
-          server-dir: /
-          local-dir: ./dist/
-          # /studio/ 配下は別 repo (hapbeat-studio) のデプロイ対象。
-          # このデプロイでは触らないように除外する。
-          exclude: |
-            studio/**
-            studio/
-
-      # --- 配信先 2: Cloudflare Workers (static assets) ---
+      # --- 配信: Cloudflare Workers (static assets) ---
       # CF Workers Builds は非 root で Playwright (mermaid→SVG) を動かせないため、
       # ビルドは GitHub Actions で行い (上記 --with-deps が効く)、成果物 (./dist) を
       # wrangler で Cloudflare に deploy する。wrangler.jsonc の assets.directory=./dist。
-      # Phase 1: workers.dev で配信して検証 (本番 DNS は Xserver のまま)。
-      # Phase 2: Worker に custom domain devtools.hapbeat.com を割当 + 上の FTP step を削除。
+      # 本番ドメイン devtools.hapbeat.com は Worker の custom domain で配信 (2026-06 cutover 済)。
       # 必要な secret: CLOUDFLARE_API_TOKEN (Workers Scripts:Edit) / CLOUDFLARE_ACCOUNT_ID。
       - name: Cloudflare Deploy (Workers static assets)
         uses: cloudflare/wrangler-action@v3

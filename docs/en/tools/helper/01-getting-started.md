@@ -9,7 +9,7 @@ description: OS-specific installation guide for `hapbeat-helper`, the CLI daemon
 `hapbeat-helper` is a local daemon that bridges **Hapbeat Studio (Web)** and **Hapbeat devices (Wi-Fi LAN)**. It relays mDNS discovery, UDP broadcast, and raw TCP — operations a browser cannot perform on its own.
 
 ```
-Browser (https://devtools.hapbeat.com/studio/)
+Browser (https://studio.hapbeat.com/)
         │  ws://localhost:7703 (JSON)
         ▼
 hapbeat-helper                  ← this CLI
@@ -167,7 +167,7 @@ Keep this terminal open. Press `Ctrl+C` to stop when you are done with Studio.
 
 ## Verifying the connection
 
-Open <https://devtools.hapbeat.com/studio/> in your browser. If the Helper connection status at the top of Studio shows **green "Helper connected"**, the connection is working.
+Open <https://studio.hapbeat.com/> in your browser. If the Helper connection status at the top of Studio shows **green "Helper connected"**, the connection is working.
 
 To verify from the command line:
 

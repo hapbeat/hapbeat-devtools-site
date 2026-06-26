@@ -8,7 +8,7 @@ sidebar:
 
 Hapbeat Studio is a haptic content design tool that runs entirely client-side in your browser. It handles everything from waveform (Kit) and UI (OLED / LED) design to device management, all within a single SPA.
 
-**Launch**: [Open Hapbeat Studio](https://devtools.hapbeat.com/studio/)
+**Launch**: [Open Hapbeat Studio](https://studio.hapbeat.com/)
 
 ## Prerequisites
 

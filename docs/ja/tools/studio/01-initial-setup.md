@@ -43,7 +43,7 @@ flowchart TD
 
 ## Step 0: Studio を開いて Helper を起動
 
-1. ブラウザで Studio を開く: <https://devtools.hapbeat.com/studio/>
+1. ブラウザで Studio を開く: <https://studio.hapbeat.com/>
 2. `hapbeat-helper` が起動していることを確認。初回は `hapbeat-helper install-service` で自動起動を登録（推奨）、または `hapbeat-helper start` で手動起動。Studio 上部に **「Helper 接続中」** と緑色で表示されれば OK。
    - 緑バッジは clickable で、クリックすると Helper Manage モーダル (version 確認・起動コマンドの表示) が開きます
    - 赤の **「Helper 未接続」** の場合はクリックでインストール手順モーダルが開きます

@@ -35,7 +35,7 @@ flowchart TD
 
 ## Step 0: Open Studio and Start Helper
 
-1. Open Studio in your browser: <https://devtools.hapbeat.com/studio/>
+1. Open Studio in your browser: <https://studio.hapbeat.com/>
 2. Confirm that `hapbeat-helper` is running. For first-time setup, register it for auto-start with `hapbeat-helper install-service` (recommended), or start it manually with `hapbeat-helper start`. A green **"Helper connected"** badge at the top of Studio means it is running.
    - The green badge is clickable and opens the Helper Manage modal (version info and restart commands).
    - A red **"Helper disconnected"** badge opens an installation instructions modal when clicked.

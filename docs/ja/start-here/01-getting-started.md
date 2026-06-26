@@ -80,7 +80,7 @@ OS 別の詳細手順やトラブルシューティングは **[](/docs/tools/he
 
 ## Step 2 — Studio を開く
 
-ブラウザで [https://devtools.hapbeat.com/studio/](https://devtools.hapbeat.com/studio/) を開きます。
+ブラウザで [https://studio.hapbeat.com/](https://studio.hapbeat.com/) を開きます。
 
 画面上部に **「Helper 接続中」** が緑で表示されることを確認してください。表示されない場合は Helper が起動していないか、ポート 7703 が塞がれています（[](/docs/tools/helper/getting-started/#トラブルシューティング)）。
 

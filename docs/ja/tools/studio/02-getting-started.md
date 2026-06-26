@@ -8,7 +8,7 @@ sidebar:
 
 Hapbeat Studio はブラウザ完全クライアントサイドで動作する触覚コンテンツのデザインツールです。波形 (Kit) と UI (OLED / LED) のデザインから、デバイス管理までを 1 つの SPA で扱います。
 
-**起動**: [Hapbeat Studio を開く](https://devtools.hapbeat.com/studio/)
+**起動**: [Hapbeat Studio を開く](https://studio.hapbeat.com/)
 
 ## 前提
 

@@ -17,7 +17,7 @@ hapbeat-helper を使います。https://raw.githubusercontent.com/hapbeat/hapbe
 `hapbeat-helper` は **Hapbeat Studio (Web)** と **Hapbeat デバイス (Wi-Fi LAN)** を橋渡しするローカル daemon です。ブラウザ単体では行えない mDNS 検出・UDP broadcast・raw TCP を中継します。
 
 ```
-ブラウザ (https://devtools.hapbeat.com/studio/)
+ブラウザ (https://studio.hapbeat.com/)
         │  ws://localhost:7703 (JSON)
         ▼
 hapbeat-helper                  ← この CLI
@@ -175,7 +175,7 @@ Press Ctrl+C to stop.
 
 ## 動作確認
 
-ブラウザで <https://devtools.hapbeat.com/studio/> を開きます。Studio 上部の Helper 接続ステータスが **緑「Helper 接続中」** になれば接続成功です。
+ブラウザで <https://studio.hapbeat.com/> を開きます。Studio 上部の Helper 接続ステータスが **緑「Helper 接続中」** になれば接続成功です。
 
 コマンドライン側の単体確認は以下のいずれかで行えます:
 

@@ -62,7 +62,7 @@ flowchart LR
 そこでは以下を行います。
 
 1. **Step 1** — PC に `hapbeat-helper` をインストール（`pipx install hapbeat-helper`）
-2. **Step 2** — ブラウザで Hapbeat Studio を開く（[https://devtools.hapbeat.com/studio/](https://devtools.hapbeat.com/studio/)）
+2. **Step 2** — ブラウザで Hapbeat Studio を開く（[https://studio.hapbeat.com/](https://studio.hapbeat.com/)）
 3. **Step 3** — Hapbeat を USB 接続して Wi-Fi に接続（Studio 画面の指示に従って進めます）
 4. **Step 4** — ライブラリ波形を再生して、Hapbeat が振動することを確認
 

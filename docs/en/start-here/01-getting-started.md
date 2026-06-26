@@ -71,7 +71,7 @@ See [](/en/docs/tools/helper/getting-started/) for details.
 
 ## Step 2 — Open Studio
 
-Open [https://devtools.hapbeat.com/studio/](https://devtools.hapbeat.com/studio/) in your browser.
+Open [https://studio.hapbeat.com/](https://studio.hapbeat.com/) in your browser.
 
 Confirm that **"Helper connected"** appears in green at the top of the page. If it does not appear, Helper is not running or port 7703 is blocked (see [](/en/docs/tools/helper/getting-started/#troubleshooting)).
 

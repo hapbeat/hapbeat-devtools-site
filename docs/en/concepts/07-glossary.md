@@ -51,7 +51,7 @@ Each term used throughout the documentation is defined in one to two lines. For 
 ## Tools
 
 **Hapbeat Studio**
-: A web-based Kit design and device management tool. Runs as a SPA at `devtools.hapbeat.com/studio/`.
+: A web-based Kit design and device management tool. Runs as a SPA at `studio.hapbeat.com/`.
 
 **hapbeat-helper**
 : A CLI daemon that bridges Studio and Hapbeat devices. Installed via `pipx install hapbeat-helper`. Bridges the WebSocket at `localhost:7703` with mDNS / UDP / TCP / Serial. Not required at app runtime.

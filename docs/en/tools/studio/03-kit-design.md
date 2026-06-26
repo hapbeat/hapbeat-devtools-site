@@ -10,7 +10,7 @@ This page focuses on the **hands-on workflow for assembling a Kit in the Studio 
 
 ## Prerequisites
 
-- Hapbeat Studio is accessible at `devtools.hapbeat.com/studio/`
+- Hapbeat Studio is accessible at `studio.hapbeat.com/`
 - The **Helper connected** badge (green) is visible in the header (required for deployment)
 - Your Hapbeat device is connected to the same Wi-Fi network and visible in Studio's Manage tab
 

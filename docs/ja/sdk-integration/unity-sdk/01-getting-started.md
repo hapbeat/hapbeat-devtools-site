@@ -113,7 +113,7 @@ EventMap の詳細: [](/docs/sdk-integration/unity-sdk/event-map/)
 
 Command モード（F キー）を動かすには、デバイスに `basic-exam-kit` をインストールします。Studio からのデプロイには **hapbeat-helper** が必要です（[](/docs/tools/studio/initial-setup/) 参照）。
 
-1. **Hapbeat Studio** を開く（`https://devtools.hapbeat.com/studio/`）
+1. **Hapbeat Studio** を開く（`https://studio.hapbeat.com/`）
 2. **Kit タブ（右側）** → フォルダ選択（「フォルダを開く」）で Unity の `Assets/HapbeatSDK/SDK_Samples/BasicExample/Kit/` を指定
 3. `basic-exam-kit` が一覧に表示されたら選択
 4. デバイスが選択されていることを確認（ページ内右上）→ **Deploy** を実行
