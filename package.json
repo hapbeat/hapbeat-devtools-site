@@ -10,6 +10,7 @@
     "build": "npm run fetch-docs && astro build && node scripts/postbuild-fix-link-targets.mjs",
     "preview": "astro preview",
     "reorder": "node scripts/reorder.mjs",
+    "i18n:sync": "node scripts/i18n-sync.mjs",
     "astro": "astro"
   },
   "dependencies": {
