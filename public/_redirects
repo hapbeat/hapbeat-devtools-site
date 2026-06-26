@@ -1,13 +1,7 @@
 # Cloudflare Workers/Pages _redirects
 #
-# /studio は devtools-site とは別配信 (studio repo)。週末の cutover までは
-# 現本番 (Xserver の devtools.hapbeat.com/studio/) を指す。
-#  - Xserver は _redirects を解釈しないため、Xserver 上の /studio/ は従来どおり
-#    ローカル配信される (この行は Xserver では無害)。
-#  - CF (workers.dev / 将来の devtools.hapbeat.com) には /studio/ コンテンツが無いので
-#    現本番の studio へ送る。
-#
-# ⚠️ Phase 2 (cutover) で必ず下記へ差し替えること
-#    (さもないと cutover 後、devtools.hapbeat.com が CF になった時点で自己ループする):
-#      /studio/* https://studio.hapbeat.com/:splat 301
-/studio/* https://devtools.hapbeat.com/studio/:splat 301
+# studio は studio.hapbeat.com へ移行済み (別配信)。
+# devtools.hapbeat.com/studio/* への旧アクセスは studio.hapbeat.com へ恒久 301 で転送
+# (顧客の旧ブックマーク対応)。cutover 完了: 2026-06。
+# :splat は /studio/ 以降のパスを studio.hapbeat.com のルートへ写す (例 /studio/v0.2/ -> studio.hapbeat.com/v0.2/)。
+/studio/* https://studio.hapbeat.com/:splat 301
