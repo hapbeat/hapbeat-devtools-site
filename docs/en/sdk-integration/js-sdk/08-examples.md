@@ -1,7 +1,7 @@
 ---
 title: Examples
 kind: tutorial
-description: A walkthrough of the runnable samples bundled in the repo (node-minimal → browser-minimal → games arcade) and worked instances of the EventMap / kit-manifest / router patterns.
+description: A walkthrough of the runnable samples bundled in the repo (node-minimal → browser-minimal → React Native → games arcade) and worked instances of the EventMap / kit-manifest / router patterns.
 sidebar:
   order: 8
   label: Examples
@@ -9,15 +9,29 @@ sidebar:
 
 The `@hapbeat/sdk` repo's [`examples/`](https://github.com/hapbeat/hapbeat-js-sdk/tree/master/examples) contains runnable samples ordered from smallest to largest. They are a foundation to copy and bring into your own project.
 
+## How to get the examples
+
+:::note
+The `examples/` folder is **not shipped in the npm package** (the npm `@hapbeat/sdk` only contains `dist`, the README, and LICENSE). Get the examples by cloning the GitHub repo:
+
+```bash
+git clone https://github.com/hapbeat/hapbeat-js-sdk
+cd hapbeat-js-sdk/examples/<name>
+```
+
+(You can also download a repo tarball or use `degit`.)
+:::
+
 ## Reading order
 
 We recommend reading them progressively: start with the minimal fire, then the browser path, and finally the real-app-scale arcade.
 
 1. <a href="https://github.com/hapbeat/hapbeat-js-sdk/blob/master/examples/node-minimal.mjs" target="_blank" rel="noopener noreferrer">`examples/node-minimal.mjs`</a> — one round trip of `connect()` → `play(id)` → `close()` over UDP from Node. Grasps the SDK's minimal loop.
 2. <a href="https://github.com/hapbeat/hapbeat-js-sdk/blob/master/examples/browser-minimal.html" target="_blank" rel="noopener noreferrer">`examples/browser-minimal.html`</a> — the exact same calls, sent from the browser via the helper's WebSocket. Confirms that the API is identical in Node and the browser.
-3. [`examples/games/`](#arcade) (Hapbeat Arcade) — a real-app-scale setup that also includes EventMap + kit manifest + a "file-first / synth-fallback" router.
+3. <a href="https://github.com/hapbeat/hapbeat-js-sdk/tree/master/examples/react-native" target="_blank" rel="noopener noreferrer">`examples/react-native/`</a> — a minimal Android demo where a button tap sends a command (play) plus a 1 s synthesized streaming buffer. A phone is not sandboxed like a browser, so it sends a **direct UDP broadcast** via `react-native-udp` (no helper needed).
+4. [`examples/games/`](#arcade) (Hapbeat Arcade) — a real-app-scale setup that also includes EventMap + kit manifest + a "file-first / synth-fallback" router.
 
-For the transport difference (Node = direct UDP / Browser = helper WS), see [](/en/docs/sdk-integration/js-sdk/transports/).
+For the transport difference (Node = direct UDP / React Native = direct UDP via `react-native-udp` / Browser = helper WS), see [](/en/docs/sdk-integration/js-sdk/transports/).
 
 ## Sample table
 
@@ -25,6 +39,7 @@ For the transport difference (Node = direct UDP / Browser = helper WS), see [](/
 |---|---|---|---|
 | `node-minimal.mjs` | Node | `connect()` → `play(id)` → `close()` over UDP | a Hapbeat on the LAN + a deployed kit, if you want haptics |
 | `browser-minimal.html` | Browser | the same calls via the helper WebSocket | `hapbeat-helper` running + HTTP serving |
+| `react-native/` | React Native (Android) | a button tap sends a command (play) + a 1 s synthesized stream over direct UDP (helper-free); verified on Android (RN 0.86) | a Hapbeat on the LAN + a deployed kit. Needs `react-native-udp` + the `fast-text-encoding` polyfill (see the example's README / [](/en/docs/sdk-integration/js-sdk/transports/)) |
 | `games/` (Hapbeat Arcade) | Browser | a worked instance of EventMap + kit manifest + a file/synth router (FPS + mini-games) | HTTP serving. Haptics need helper + demo-kit |
 
 The two minimal samples are designed to "launch even with no device on the LAN" (they send command-mode events, which are simply ignored if no device is present). The arcade can be tried with sound and visuals alone, even without a device or helper.

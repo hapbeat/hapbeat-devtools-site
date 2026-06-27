@@ -1,7 +1,7 @@
 ---
 title: Getting Started
 kind: tutorial
-description: Install from npm and drive Hapbeat in a few lines. Node sends UDP directly; Browser relays through the helper. A JS/TS SDK that separates the fire side (when to play) from the tuning side (what and how to play), tying them together by event id.
+description: Install from npm and drive Hapbeat in a few lines. Node and React Native send UDP directly; Browser relays through the helper. A JS/TS SDK that separates the fire side (when to play) from the tuning side (what and how to play), tying them together by event id.
 sidebar:
   order: 1
   label: Getting Started
@@ -20,18 +20,21 @@ It targets WebXR, three.js / Babylon.js, p5.js, jsPsych experiments, Electron, N
 **It separates the fire side (when and where to play) from the tuning side (what and how to play)**,
 tying them together by event id alone.
 
-## One API, two transports
+## One API, three transports
 
 There is a single `connect()`, but the transport switches automatically depending on
 the runtime (determined by the package's `exports` map).
 
 - **Node** (Electron / server / CLI / creative coding) → sends Wi-Fi **UDP**
   broadcasts directly.
+- **React Native** (Android / iOS mobile apps) → a phone is not sandboxed like a browser,
+  so it can open a real UDP socket. It sends Wi-Fi **UDP** broadcasts directly through
+  `react-native-udp`, so **no hapbeat-helper is needed**.
 - **Browser** (WebXR / three.js / p5.js / React / jsPsych) → since browsers cannot open
   a raw UDP socket, it relays over **WebSocket** (`ws://localhost:7703`) to the locally
   running [hapbeat-helper](https://github.com/hapbeat/hapbeat-helper).
 
-The code is the same either way (`connect()` → `play(id)`). For the differences and
+The code is the same in every case (`connect()` → `play(id)`). For the differences and
 constraints between transports, see [](/en/docs/sdk-integration/js-sdk/transports/).
 
 ## Installation
@@ -92,6 +95,20 @@ are summarized in [](/en/docs/sdk-integration/js-sdk/transports/).
 
 It works the same in React. Call `connect()` exactly once (in an effect or a module-level
 singleton), then just call `hb.play(...)` from your event handlers.
+
+## Your first event (React Native)
+
+The code is the same in an Android / iOS mobile app, sending **UDP directly without the
+helper** through `react-native-udp` (verified on a physical Android device, RN 0.86 / Hermes).
+
+```ts
+const hb = await connect({ appName: "MyApp" });
+hb.play("sample-kit.sine_100hz", { gain: 0.5 });
+```
+
+For setup (installing `react-native-udp` / `fast-text-encoding`, the metro.config.js
+resolver, and Android / iOS permissions), see
+[](/en/docs/sdk-integration/js-sdk/transports/).
 
 ## Discovering devices
 

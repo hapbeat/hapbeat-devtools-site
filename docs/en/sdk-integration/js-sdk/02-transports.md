@@ -1,18 +1,21 @@
 ---
-title: Transports — Node UDP vs Browser helper
+title: Transports — Node UDP / React Native UDP / Browser helper
 kind: explanation
-description: One API, two transports. Node broadcasts Wi-Fi UDP directly; the browser relays through hapbeat-helper over WebSocket. How the package's exports map switches automatically based on the runtime, and how the two differ in capability.
+description: One API, three transports. Node and React Native broadcast Wi-Fi UDP directly; the browser relays through hapbeat-helper over WebSocket. How the package's exports map switches automatically based on the runtime, and how the paths differ in capability.
 sidebar:
   order: 2
   label: Transports
 ---
 
-The JS/TS SDK has **one API and two transports (send paths)**.
+The JS/TS SDK has **one API and three transports (send paths)**.
 Even though you call `connect()` the same way, the internal send method differs between
-Node and the browser.
+Node, React Native, and the browser.
 
 - **Node** (Electron / server / CLI / creative coding) → sends a Wi-Fi
   **UDP broadcast** directly to the device.
+- **React Native** (Android / iOS phone apps) → sends a Wi-Fi **UDP broadcast** directly
+  from the phone via the optional `react-native-udp`. Because a phone is not sandboxed
+  like a browser, it can open a real UDP socket, so **no hapbeat-helper is needed**.
 - **Browser** (WebXR / three.js / p5.js / jsPsych, etc.) → relays over
   **WebSocket** (`ws://localhost:7703`) to the locally running **hapbeat-helper**.
   Since browsers cannot open a raw UDP socket, the helper broadcasts on its behalf.
@@ -20,19 +23,21 @@ Node and the browser.
 You **don't need to choose** which one to use. The package's `exports` map looks at the
 runtime / bundler and automatically picks the correct build.
 
-## Why two builds are needed
+## Why three builds are needed
 
 Hapbeat devices receive **UDP broadcasts** on the LAN and self-filter
 (details in [](/en/docs/concepts/group-player-addressing/)). Node can send UDP directly with
-`node:dgram`, but **the browser sandbox does not permit raw UDP**.
+`node:dgram` and React Native with `react-native-udp`, but **the browser sandbox does not
+permit raw UDP**.
 So the browser side hands instructions to the local helper daemon over WebSocket, and the
 helper performs the UDP broadcast in its place.
 
-To absorb this difference, the SDK has two entry points with different internals.
+To absorb this difference, the SDK has three entry points with different internals.
 
 | Build | Entry | Dependency | Send path |
 |---|---|---|---|
 | Node | `dist/node.js` | `node:dgram` | UDP broadcast (direct) |
+| React Native | `dist/react-native.js` | `react-native-udp` | UDP broadcast (direct) |
 | Browser | `dist/browser.js` | `WebSocket` | via hapbeat-helper |
 
 The transport implementations are split per entry so that `node:dgram` does not leak into
@@ -45,14 +50,16 @@ The `package.json` of `@hapbeat/sdk` selects builds via `exports` conditions.
 ```jsonc
 "exports": {
   ".": {
-    "node":    { "default": "./dist/node.js" },     // Node runtime
-    "browser": { "default": "./dist/browser.js" },  // a bundler's browser condition
-    "default": { "default": "./dist/browser.js" }   // everything else (WebXR, etc.)
+    "node":         { "default": "./dist/node.js" },          // Node runtime
+    "react-native": { "default": "./dist/react-native.js" },  // React Native runtime
+    "browser":      { "default": "./dist/browser.js" },       // a bundler's browser condition
+    "default":      { "default": "./dist/browser.js" }        // everything else (WebXR, etc.)
   }
 }
 ```
 
 - **Run in Node** → matches the `node` condition → UDP build.
+- **Bundle with React Native (Metro)** → matches the `react-native` condition → RN UDP build.
 - **Bundle with Vite / webpack / esbuild** → matches the `browser` condition → helper build.
 - Any other runtime falls back to `default` (= browser build).
 
@@ -93,6 +100,57 @@ Hapbeat**. If devices are not found or do not fire, check that the NIC connected
 LAN as the Hapbeat has a route. To send to a specific segment, set `broadcastAddr` to that
 subnet's broadcast address (e.g. `192.168.1.255`).
 
+## React Native — UDP broadcast (helper-free)
+
+The React Native build sends a **UDP broadcast directly** from the phone using the optional
+peer dependency `react-native-udp`. A phone is not sandboxed like a browser, so it can open a
+real UDP socket. That means **no hapbeat-helper is needed**, and the wire format is identical
+to Node. The `react-native` condition in `exports` resolves `dist/react-native.js`.
+
+```ts
+const hb = await connect({ appName: "MyApp" });
+hb.play("sample-kit.sine_100hz", { gain: 0.5 });
+```
+
+### Setup in the app
+
+1. Install the dependencies.
+
+   ```bash
+   npm install react-native-udp fast-text-encoding
+   ```
+
+   - `react-native-udp` — the UDP native module (autolinked).
+   - `fast-text-encoding` — a **required polyfill**. RN Hermes (including 0.86) ships
+     `TextEncoder` but **not** `TextDecoder`, which the wire protocol needs to decode.
+
+2. Add a `metro.config.js` resolver so `@hapbeat/sdk` resolves to its React Native build.
+
+   ```js
+   // metro.config.js
+   config.resolver.unstable_enablePackageExports = true;
+   config.resolver.unstable_conditionNames = ["react-native", "require", "default"];
+   ```
+
+3. Make **`import 'fast-text-encoding';` the first import** (before `@hapbeat/sdk`, at the top
+   of `index.js` or `App.tsx`). Otherwise you get
+   `ReferenceError: Property 'TextDecoder' doesn't exist`.
+
+   ```ts
+   import "fast-text-encoding"; // ← first, before @hapbeat/sdk
+   import { connect } from "@hapbeat/sdk";
+   ```
+
+### Platform permission notes
+
+- **Android**: the `INTERNET` permission is granted by default, and broadcast send works out
+  of the box. Receiving discovery PONGs may need a multicast lock on some networks. AP /
+  client isolation can block broadcast.
+- **iOS 14+**: requires the Local Network permission
+  (add `NSLocalNetworkUsageDescription` to `Info.plist`).
+
+For a complete, runnable example, see [](/en/docs/sdk-integration/js-sdk/examples/).
+
 ## Browser — via hapbeat-helper
 
 Because the browser build cannot send UDP, it hands instructions (`play_event` /
@@ -128,18 +186,19 @@ const hb = await connect({
 
 ## Capability differences between transports
 
-`play` / `stop` / `stopAll` (command mode) behave **the same on both transports**.
-Streaming (clip / live), on the other hand, has some constraints when going through the helper.
+`play` / `stop` / `stopAll` (command mode) behave **the same on all transports**.
+Node and React Native both send UDP directly and match in capability; only the browser
+(via the helper) has some constraints around streaming (clip / live).
 
-| Feature | Node (direct UDP) | Browser (helper WS) |
-|---|---|---|
-| command playback `play(id)` | ✅ | ✅ |
-| `target` specification (command) | ✅ device self-filters | ✅ |
-| `targetTimeUs` (synced playback) | ✅ carried in the packet | ⚠️ **ignored** (immediate playback only) |
-| clip / live streaming | ✅ | ✅ |
-| per-device targeting of clip / stream | ✅ scoped by in-packet address | ⚠️ reaches **every device** the helper knows |
-| keep-alive (OLED app name display) | ✅ `CONNECT_STATUS` every 5 s | — |
-| device discovery `discover()` | ✅ broadcast PING/PONG | ✅ via the helper's `rescan` |
+| Feature | Node (direct UDP) | React Native (direct UDP) | Browser (helper WS) |
+|---|---|---|---|
+| command playback `play(id)` | ✅ | ✅ | ✅ |
+| `target` specification (command) | ✅ device self-filters | ✅ device self-filters | ✅ |
+| `targetTimeUs` (synced playback) | ✅ carried in the packet | ✅ carried in the packet | ⚠️ **ignored** (immediate playback only) |
+| clip / live streaming | ✅ | ✅ | ✅ |
+| per-device targeting of clip / stream | ✅ scoped by in-packet address | ✅ scoped by in-packet address | ⚠️ reaches **every device** the helper knows |
+| keep-alive (OLED app name display) | ✅ `CONNECT_STATUS` every 5 s | ✅ `CONNECT_STATUS` every 5 s | — |
+| device discovery `discover()` | ✅ broadcast PING/PONG | ✅ broadcast PING/PONG | ✅ via the helper's `rescan` |
 
 Why the browser-side constraints exist:
 
@@ -164,11 +223,13 @@ These relate to [](/en/docs/sdk-integration/js-sdk/command-vs-clip/) /
 
 ## Summary
 
-- One API, two transports. The selection is made automatically by the `exports` map.
+- One API, three transports. The selection is made automatically by the `exports` map.
 - Node = direct UDP (port 7700, keep-alive, mind multi-NIC).
+- React Native = direct UDP (requires `react-native-udp` + the `fast-text-encoding` polyfill,
+  a `metro.config.js` resolver, polyfill as the first import; no helper needed).
 - Browser = via hapbeat-helper (requires `pip install hapbeat-helper`; constraints on
   `targetTimeUs` and per-device clip targeting).
-- Command-mode behavior matches between the two, so starting with command lets you avoid
+- Command-mode behavior matches across all paths, so starting with command lets you avoid
   worrying about the difference at first.
 
 ## Read next

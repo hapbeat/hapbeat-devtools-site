@@ -1,7 +1,7 @@
 ---
 title: Examples
 kind: tutorial
-description: リポジトリ同梱の動くサンプル（node-minimal → browser-minimal → games アーケード）の歩き方と、EventMap / kit-manifest / router パターンの実例。
+description: リポジトリ同梱の動くサンプル（node-minimal → browser-minimal → React Native → games アーケード）の歩き方と、EventMap / kit-manifest / router パターンの実例。
 sidebar:
   order: 8
   label: Examples
@@ -9,15 +9,29 @@ sidebar:
 
 `@hapbeat/sdk` リポジトリの [`examples/`](https://github.com/hapbeat/hapbeat-js-sdk/tree/master/examples) には、小さいものから順に動くサンプルが入っています。コピーして自分のプロジェクトに持ち込むための土台です。
 
+## サンプルの入手方法
+
+:::note
+`examples/` は **npm パッケージには同梱されていません**（npm の `@hapbeat/sdk` には `dist` / README / LICENSE のみが含まれます）。サンプルは GitHub リポジトリを clone して入手してください。
+
+```bash
+git clone https://github.com/hapbeat/hapbeat-js-sdk
+cd hapbeat-js-sdk/examples/<name>
+```
+
+（リポジトリの tarball ダウンロードや `degit` でも構いません。）
+:::
+
 ## 読む順
 
 最小の発火から始めて、ブラウザ経路、最後に実アプリ規模のアーケードへ、と段階的に読むのがおすすめです。
 
 1. <a href="https://github.com/hapbeat/hapbeat-js-sdk/blob/master/examples/node-minimal.mjs" target="_blank" rel="noopener noreferrer">`examples/node-minimal.mjs`</a> — Node から `connect()` → `play(id)` → `close()` を UDP で一往復。SDK の最小ループを把握する。
 2. <a href="https://github.com/hapbeat/hapbeat-js-sdk/blob/master/examples/browser-minimal.html" target="_blank" rel="noopener noreferrer">`examples/browser-minimal.html`</a> — まったく同じ呼び出しを、ブラウザから helper の WebSocket 経由で送る。Node とブラウザで API が同一であることを確認する。
-3. [`examples/games/`](#arcade)（Hapbeat Arcade） — EventMap + kit manifest +「ファイル優先 / 合成フォールバック」ルーターまで含む、実アプリ規模の構成。
+3. <a href="https://github.com/hapbeat/hapbeat-js-sdk/tree/master/examples/react-native" target="_blank" rel="noopener noreferrer">`examples/react-native/`</a> — ボタンタップで command（play）と 1 秒の合成ストリーミングバッファを送る最小の Android デモ。スマホはブラウザのようにサンドボックスされないため、`react-native-udp` で **直接 UDP ブロードキャスト**を送れる（helper 不要）。
+4. [`examples/games/`](#arcade)（Hapbeat Arcade） — EventMap + kit manifest +「ファイル優先 / 合成フォールバック」ルーターまで含む、実アプリ規模の構成。
 
-transport の違い（Node = UDP 直送 / Browser = helper WS）は [](/docs/sdk-integration/js-sdk/transports/) を参照。
+transport の違い（Node = UDP 直送 / React Native = `react-native-udp` で UDP 直送 / Browser = helper WS）は [](/docs/sdk-integration/js-sdk/transports/) を参照。
 
 ## サンプル表
 
@@ -25,6 +39,7 @@ transport の違い（Node = UDP 直送 / Browser = helper WS）は [](/docs/sdk
 |---|---|---|---|
 | `node-minimal.mjs` | Node | `connect()` → `play(id)` → `close()` を UDP で | 触覚を鳴らすなら LAN 上の Hapbeat + 配備済み kit |
 | `browser-minimal.html` | Browser | 同じ呼び出しを helper WebSocket 経由で | `hapbeat-helper` 起動 + HTTP 配信 |
+| `react-native/` | React Native (Android) | ボタンタップで command（play）+ 1 秒の合成ストリーミングを UDP 直送（helper 不要）。Android（RN 0.86）で検証済み | LAN 上の Hapbeat + 配備済み kit。`react-native-udp` + `fast-text-encoding` polyfill が必要（例の README / [](/docs/sdk-integration/js-sdk/transports/) を参照） |
 | `games/`（Hapbeat Arcade） | Browser | EventMap + kit manifest + file/synth ルーターの実例（FPS + ミニゲーム） | HTTP 配信。触覚は helper + demo-kit |
 
 最小 2 本は「LAN 上にデバイスが無くても起動はする」設計です（command モードの event を送るが、デバイスが居なければ無視されるだけ）。アーケードはデバイス／helper が無くても音と映像だけで試遊できます。
