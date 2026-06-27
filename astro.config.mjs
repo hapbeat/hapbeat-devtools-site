@@ -184,7 +184,10 @@ function remarkAutoLinkTitle() {
           (node.children.length === 1 &&
             node.children[0].type === 'text' &&
             (node.children[0].value || '').trim() === '');
-        if (isEmpty && node.url.startsWith('/docs/')) {
+        // 空テキスト内部リンクに title 注入。JA は /docs/...、EN は /en/docs/...
+        // (resolveTitleFromContentSlug は slug をそのまま content パスに解決するため
+        //  en/docs/... は src/content/docs/en/docs/... の EN ページ title を拾う)。
+        if (isEmpty && (node.url.startsWith('/docs/') || node.url.startsWith('/en/docs/'))) {
           const title = resolveTitleFromContentSlug(node.url);
           if (title) {
             node.children = [{ type: 'text', value: title }];
@@ -359,6 +362,11 @@ export default defineConfig({
               description: 'Curated, high-signal reference for AI coding agents. Prefer this as the entry point for the Unity SDK, then fetch the full unity-sdk set only if needed.',
             },
             {
+              label: 'Arduino SDK — AGENTS.md (curated single-file reference)',
+              url: 'https://raw.githubusercontent.com/hapbeat/hapbeat-arduino/master/AGENTS.md',
+              description: 'Hand-curated, high-signal reference for AI coding agents using the Arduino / ESP32 / M5Stack library. Prefer this as the entry point for the Arduino SDK, then fetch the full arduino-sdk set only if needed.',
+            },
+            {
               label: 'Studio — AGENTS.md (operation cheat sheet)',
               url: 'https://raw.githubusercontent.com/hapbeat/hapbeat-studio/master/AGENTS.md',
               description: 'Curated cheat sheet for AI agents operating Hapbeat Studio (a GUI tool, not a library). Prefer this as the entry point for Studio, then fetch the full studio set only if needed.',
@@ -384,6 +392,11 @@ export default defineConfig({
               label: 'unity-sdk',
               description: 'Hapbeat Unity SDK — usage, specification, and samples (with shared concepts).',
               paths: ['docs/sdk-integration/unity-sdk/**', 'docs/concepts/**'],
+            },
+            {
+              label: 'arduino-sdk',
+              description: 'Hapbeat Arduino / ESP32 / M5Stack library — usage and specification (with shared concepts).',
+              paths: ['docs/sdk-integration/arduino-sdk/**', 'docs/concepts/**'],
             },
             {
               label: 'studio',
@@ -537,6 +550,17 @@ export default defineConfig({
                 pub('docs/sdk-integration/js-sdk/event-map'),
                 pub('docs/sdk-integration/js-sdk/examples'),
                 pub('docs/sdk-integration/js-sdk/changelog'),
+              ].filter(Boolean),
+            },
+            {
+              label: 'Arduino SDK',
+              items: [
+                pub('docs/sdk-integration/arduino-sdk/getting-started'),
+                pub('docs/sdk-integration/arduino-sdk/command-vs-sine'),
+                pub('docs/sdk-integration/arduino-sdk/streaming'),
+                pub('docs/sdk-integration/arduino-sdk/discovery'),
+                pub('docs/sdk-integration/arduino-sdk/api-reference'),
+                pub('docs/sdk-integration/arduino-sdk/changelog'),
               ].filter(Boolean),
             },
           ],

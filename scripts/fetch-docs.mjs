@@ -65,6 +65,7 @@ const CHANGELOG_SOURCES = [
   { repo: 'hapbeat-unity-sdk',            destPath: 'sdk-integration/unity-sdk/changelog.md',      title: '変更履歴 — Hapbeat Unity SDK'      },
   { repo: 'hapbeat-python-sdk',           destPath: 'sdk-integration/python-sdk/changelog.md',     title: '変更履歴 — Hapbeat Python SDK'     },
   { repo: 'hapbeat-js-sdk',               destPath: 'sdk-integration/js-sdk/changelog.md',         title: '変更履歴 — Hapbeat JavaScript SDK' },
+  { repo: 'hapbeat-arduino',              destPath: 'sdk-integration/arduino-sdk/changelog.md',    title: '変更履歴 — Hapbeat Arduino'        },
   { repo: 'hapbeat-device-firmware',      destPath: 'hardware/device-firmware/changelog.md',       title: '変更履歴 — デバイスファームウェア'  },
   { repo: 'hapbeat-transmitter-firmware', destPath: 'hardware/transmitter-firmware/changelog.md',  title: '変更履歴 — 送信機ファームウェア'   },
 ];
