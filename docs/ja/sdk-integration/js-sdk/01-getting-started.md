@@ -5,6 +5,15 @@ description: npm で入れて数行で Hapbeat を駆動する。Node と React 
 sidebar:
   order: 1
   label: Getting Started
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://devtools.hapbeat.com/og/js-sdk.png
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://devtools.hapbeat.com/og/js-sdk.png
 ---
 
 :::tip[AI コーディングエージェントを使う方へ]

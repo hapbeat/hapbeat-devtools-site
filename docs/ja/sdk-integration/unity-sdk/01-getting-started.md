@@ -4,6 +4,15 @@ kind: tutorial
 description: 新規 Unity プロジェクトに SDK をインストールして BasicExample で Hapbeat を鳴らすまでの最短手順。
 sidebar:
   order: 1
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://devtools.hapbeat.com/og/unity-sdk.png
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://devtools.hapbeat.com/og/unity-sdk.png
 ---
 
 :::tip[AI コーディングエージェントを使う方へ]

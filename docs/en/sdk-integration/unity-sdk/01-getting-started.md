@@ -4,6 +4,15 @@ kind: tutorial
 description: The fastest path from a blank Unity project to Hapbeat vibration output — install the SDK and run BasicExample.
 sidebar:
   order: 1
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://devtools.hapbeat.com/og/unity-sdk.png
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://devtools.hapbeat.com/og/unity-sdk.png
 ---
 
 This guide takes you from a **new Unity project** through SDK installation and the Basic Example sample until you feel your first vibration from a Hapbeat device.

@@ -5,6 +5,15 @@ description: Install from npm and drive Hapbeat in a few lines. Node and React N
 sidebar:
   order: 1
   label: Getting Started
+head:
+  - tag: meta
+    attrs:
+      property: og:image
+      content: https://devtools.hapbeat.com/og/js-sdk.png
+  - tag: meta
+    attrs:
+      name: twitter:image
+      content: https://devtools.hapbeat.com/og/js-sdk.png
 ---
 
 :::tip[For those using an AI coding agent]

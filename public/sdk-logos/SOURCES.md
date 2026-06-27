@@ -26,3 +26,18 @@ products… not for promoting your own… products" — https://unity.com/legal/
 
 差し替え・追加時は、必ず**利用許諾を確認**し、可能な限り公式/権威あるソースの実ファイルを
 使うこと（手描き再現はしない）。
+
+## OGP 画像 (各 SDK getting-started) でも同じロゴ/判断を再利用
+
+`scripts/gen-og-images.mjs` が各 SDK の getting-started ページ用 OGP 画像
+(`public/og/<slug>.png`, 1200×630) を生成する。ロゴの利用許諾判断は上表と同一で、
+ここでも未改変ロゴのみを使う:
+
+- **Python / JavaScript**: 上記の許諾に基づき公式ロゴ (`python.svg` / `javascript.svg`)
+  を OGP カードに配置。カード下部に帰属注記を焼き込む。
+- **Unity**: ロゴ不可のため、トップページ同様「正方形 + 文字 (Unity ワードマーク)」の
+  タイルで表示する。
+
+各ページの `og:image` は frontmatter の `head` で上書きしている
+(`docs/<locale>/sdk-integration/<sdk>/01-getting-started.md`)。
+ロゴを更新したら `npm run gen:og` で再生成すること。
