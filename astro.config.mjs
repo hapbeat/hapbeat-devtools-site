@@ -33,13 +33,20 @@ function resolveSourceFile(slug) {
   // 2) 同ディレクトリ内で `^\d+[-_]<basename>\.(md|mdx)$` を探す
   const dir = path.join(__dirname, 'docs', 'ja', path.dirname(rel));
   const basename = path.basename(rel);
-  if (!existsSync(dir)) return null;
-  try {
-    for (const e of readdirSync(dir)) {
-      const m = e.match(/^\d+[-_](.+)\.(md|mdx)$/);
-      if (m && m[1] === basename) return path.join(dir, e);
-    }
-  } catch {}
+  if (existsSync(dir)) {
+    try {
+      for (const e of readdirSync(dir)) {
+        const m = e.match(/^\d+[-_](.+)\.(md|mdx)$/);
+        if (m && m[1] === basename) return path.join(dir, e);
+      }
+    } catch {}
+  }
+  // 3) src/content/docs/docs/ — fetch-docs が生成したページ (changelog 等)
+  //    fetch-docs は astro build より先に実行されるため、この時点で存在確認できる。
+  for (const ext of ['.md', '.mdx']) {
+    const generated = path.join(__dirname, 'src', 'content', 'docs', 'docs', rel + ext);
+    if (existsSync(generated)) return generated;
+  }
   return null;
 }
 
@@ -502,6 +509,7 @@ export default defineConfig({
                 pub('docs/sdk-integration/unity-sdk/parameter-binding'),
                 pub('docs/sdk-integration/unity-sdk/editor-menus'),
                 pub('docs/sdk-integration/unity-sdk/installation'),
+                pub('docs/sdk-integration/unity-sdk/changelog'),
               ].filter(Boolean),
             },
             {
@@ -514,6 +522,7 @@ export default defineConfig({
                 pub('docs/sdk-integration/python-sdk/osc'),
                 pub('docs/sdk-integration/python-sdk/examples'),
                 pub('docs/sdk-integration/python-sdk/event-map'),
+                pub('docs/sdk-integration/python-sdk/changelog'),
               ].filter(Boolean),
             },
             {
@@ -527,6 +536,7 @@ export default defineConfig({
                 pub('docs/sdk-integration/js-sdk/streaming-live'),
                 pub('docs/sdk-integration/js-sdk/event-map'),
                 pub('docs/sdk-integration/js-sdk/examples'),
+                pub('docs/sdk-integration/js-sdk/changelog'),
               ].filter(Boolean),
             },
           ],

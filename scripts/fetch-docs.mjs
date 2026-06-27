@@ -54,6 +54,21 @@ const SOURCES = [
   { short: 'concepts/contracts', label: 'Contracts (仕様)', repo: 'hapbeat-contracts', url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
 ];
 
+// 各リポジトリの CHANGELOG.md を docs ポータルに公開する設定。
+// destPath: TARGET_PARENT 配下の相対パス (URL に対応)
+// title:    Starlight ページタイトル (frontmatter に注入)
+// 各 CHANGELOG.md は Keep a Changelog 形式で管理。
+// CI / ローカルともに取得できなかった場合は静かにスキップ（ビルド失敗にしない）。
+const CHANGELOG_SOURCES = [
+  { repo: 'hapbeat-studio',               destPath: 'tools/studio/changelog.md',                  title: '変更履歴 — Hapbeat Studio'         },
+  { repo: 'hapbeat-helper',               destPath: 'tools/helper/changelog.md',                   title: '変更履歴 — hapbeat-helper'         },
+  { repo: 'hapbeat-unity-sdk',            destPath: 'sdk-integration/unity-sdk/changelog.md',      title: '変更履歴 — Hapbeat Unity SDK'      },
+  { repo: 'hapbeat-python-sdk',           destPath: 'sdk-integration/python-sdk/changelog.md',     title: '変更履歴 — Hapbeat Python SDK'     },
+  { repo: 'hapbeat-js-sdk',               destPath: 'sdk-integration/js-sdk/changelog.md',         title: '変更履歴 — Hapbeat JavaScript SDK' },
+  { repo: 'hapbeat-device-firmware',      destPath: 'hardware/device-firmware/changelog.md',       title: '変更履歴 — デバイスファームウェア'  },
+  { repo: 'hapbeat-transmitter-firmware', destPath: 'hardware/transmitter-firmware/changelog.md',  title: '変更履歴 — 送信機ファームウェア'   },
+];
+
 // 集約後に portal で表示しないファイル名 (case-insensitive)。
 //  - README.md: docs/ ディレクトリの説明 (contributor 向けメタ文書)
 //  - .meta:     Unity の asset metadata
@@ -157,6 +172,80 @@ async function stripOrderPrefix(filePath) {
   return { finalPath: newPath, orderFromPrefix };
 }
 
+// ========================================================================
+// Changelog 取得ロジック
+// ========================================================================
+
+// 1 repo の CHANGELOG.md を取得して文字列で返す。取得できなければ null。
+// ローカル (sibling) → CI (git clone) の順に試みる。
+async function fetchOneChangelog(repo, useGit) {
+  // 1. sibling lookup (ローカル dev)
+  for (const category of REPO_CATEGORY_DIRS) {
+    const p = path.join(WORKSPACE_ROOT, category, repo, 'CHANGELOG.md');
+    if (existsSync(p)) {
+      return { content: await readFile(p, 'utf8'), from: 'sibling' };
+    }
+  }
+
+  if (!useGit) return null; // ローカル non-git: sibling 無ければスキップ
+
+  // 2. sparse git clone (CI / git mode)
+  const token = process.env.DOCS_FETCH_TOKEN;
+  let cloneUrl = `https://github.com/Hapbeat/${repo}.git`;
+  if (token) cloneUrl = cloneUrl.replace('https://github.com/', `https://x-access-token:${token}@github.com/`);
+  const tmpDir = path.join(TMP_DIR, `changelog-${repo}`);
+  if (existsSync(tmpDir)) await rm(tmpDir, { recursive: true, force: true });
+  try {
+    // sparse checkout で CHANGELOG.md のみ取得（大規模 repo でも高速）
+    run(`git clone --depth=1 --filter=blob:none --no-checkout "${cloneUrl}" "${tmpDir}"`, { stdio: 'pipe' });
+    run(`git -C "${tmpDir}" sparse-checkout set CHANGELOG.md`, { stdio: 'pipe' });
+    run(`git -C "${tmpDir}" checkout`, { stdio: 'pipe' });
+    const f = path.join(tmpDir, 'CHANGELOG.md');
+    if (!existsSync(f)) return null;
+    return { content: await readFile(f, 'utf8'), from: 'git' };
+  } catch {
+    return null; // 静かにスキップ（private repo / token 未設定等を想定）
+  } finally {
+    try { await rm(tmpDir, { recursive: true, force: true }); } catch {}
+  }
+}
+
+// 全 CHANGELOG_SOURCES を処理して TARGET_PARENT に配置する。
+// 取得失敗はスキップ。CI でも失敗時は build failure にしない（docs と異なる仕様）。
+async function fetchChangelogs(useGit) {
+  const fetched = [];
+  for (const src of CHANGELOG_SOURCES) {
+    const result = await fetchOneChangelog(src.repo, useGit);
+    if (!result) {
+      console.log(`  skip (changelog): ${src.repo}/CHANGELOG.md not found`);
+      continue;
+    }
+    // 先頭の BOM / CRLF を正規化
+    const raw = result.content.replace(/^﻿/, '').replace(/\r\n/g, '\n');
+    // 先頭 H1 行 ("# Changelog" 等) を strip し、frontmatter のタイトルで代替
+    const bodyWithoutH1 = raw.replace(/^#[^\n]*\n+/, '');
+    // Starlight frontmatter を注入
+    const page = [
+      '---',
+      `title: "${src.title}"`,
+      'sidebar:',
+      '  order: 99',
+      '  label: 変更履歴',
+      '---',
+      '',
+      bodyWithoutH1.trimStart(),
+    ].join('\n');
+    const dest = path.join(TARGET_PARENT, src.destPath);
+    await mkdir(path.dirname(dest), { recursive: true });
+    await writeFile(dest, page, 'utf8');
+    fetched.push(`docs/${src.destPath} (${result.from})`);
+  }
+  if (fetched.length > 0) {
+    console.log(`  ok (changelogs): ${fetched.join(', ')}`);
+  }
+}
+
+// ========================================================================
 // frontmatter 文字列内の sidebar.order を set / inject する。既存の sidebar:
 // ブロックがあれば order だけ書き換え、他のサブキー (label / hidden 等) は温存。
 function setSidebarOrder(frontmatter, order) {
@@ -324,6 +413,12 @@ async function main() {
     await walkAndNormalize(dest);
     // (auto-gen index.md は無効化。/docs/<section>/ は 404 で OK の方針)
   }
+
+  // 各リポジトリの CHANGELOG.md を取得して changelog ページを生成する。
+  // SOURCES (contracts) と同じ useGit フラグを参照。
+  // 取得失敗はスキップするため CI の失敗判定には影響しない。
+  console.log('- changelogs');
+  await fetchChangelogs(useGit);
 
   // clean tmp
   if (existsSync(TMP_DIR)) await rm(TMP_DIR, { recursive: true, force: true });
