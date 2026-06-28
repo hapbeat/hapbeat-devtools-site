@@ -29,11 +29,11 @@ The library itself has **zero dependencies**. Only the examples use M5Unified.
 
 ## Install
 
-- **Arduino IDE**: Library Manager → search "Hapbeat" (once published), or
-  *Sketch → Include Library → Add .ZIP Library* from a repo ZIP.
+- **Arduino IDE**: Library Manager → search "Hapbeat" → Install. (Or *Sketch →
+  Include Library → Add .ZIP Library* from a repo ZIP.)
 - **PlatformIO**: add to `lib_deps`
   ```ini
-  lib_deps = https://github.com/hapbeat/hapbeat-arduino.git
+  lib_deps = hapbeat/arduino@^0.1.0
   ```
 
 ## First buzz (no kit needed)

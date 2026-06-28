@@ -28,11 +28,11 @@ Hapbeat Arduino ライブラリを使います。https://raw.githubusercontent.c
 
 ## インストール
 
-- **Arduino IDE**: ライブラリマネージャで「Hapbeat」を検索（公開後）。または repo の
-  ZIP を *スケッチ → ライブラリをインクルード → .ZIP 形式のライブラリをインストール*。
+- **Arduino IDE**: ライブラリマネージャで「Hapbeat」を検索 → インストール。または
+  repo の ZIP を *スケッチ → ライブラリをインクルード → .ZIP 形式のライブラリをインストール*。
 - **PlatformIO**: `lib_deps` に追加
   ```ini
-  lib_deps = https://github.com/hapbeat/hapbeat-arduino.git
+  lib_deps = hapbeat/arduino@^0.1.0
   ```
 
 ## まずは振動させる（kit 不要・最短）
