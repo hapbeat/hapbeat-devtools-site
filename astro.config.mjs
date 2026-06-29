@@ -560,6 +560,7 @@ export default defineConfig({
                 pub('docs/sdk-integration/arduino-sdk/streaming'),
                 pub('docs/sdk-integration/arduino-sdk/discovery'),
                 pub('docs/sdk-integration/arduino-sdk/api-reference'),
+                pub('docs/sdk-integration/arduino-sdk/other-frameworks'),
                 pub('docs/sdk-integration/arduino-sdk/changelog'),
               ].filter(Boolean),
             },
