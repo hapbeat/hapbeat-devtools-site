@@ -79,7 +79,7 @@ const SDKS = [
   {
     slug: 'arduino-sdk', name: 'Arduino SDK', brand: 'Arduino', mark: '®',
     logo: null, wordmark: 'Arduino', accent: '#00878F',
-    tagline: 'Haptics for Arduino, ESP32 & M5Stack', chip: 'PlatformIO',
+    tagline: 'Haptics for Arduino, ESP32 & M5Stack', chip: ['Arduino IDE', 'PlatformIO'],
     credit: 'Arduino is a trademark of Arduino S.r.l. Nominative use only.',
   },
 ];
@@ -120,11 +120,26 @@ function wordmarkText(word, accent) {
         letter-spacing="-0.5">${esc(word)}</text>`;
 }
 
+/** 配布形態チップ（1 つ以上）を左から並べて描く */
+function chipsSvg(chip) {
+  const chips = Array.isArray(chip) ? chip : [chip];
+  const y = 372;
+  let x = 96;
+  let svg = '';
+  for (const c of chips) {
+    const w = c.length * 13.5 + 44;
+    svg += `
+  <rect x="${x}" y="${y}" width="${w}" height="46" rx="23"
+        fill="${C.card}" stroke="${C.line}" stroke-width="1.5"/>
+  <text x="${x + w / 2}" y="${y + 30}" font-family="ui-monospace, 'JetBrains Mono', monospace"
+        font-size="22" font-weight="600" fill="${C.ink}" text-anchor="middle">${esc(c)}</text>`;
+    x += w + 14;
+  }
+  return svg;
+}
+
 /** カード背景 SVG (ロゴ画像以外すべて) を組み立てる */
 function buildCardSvg(sdk) {
-  const chipW = sdk.chip.length * 13.5 + 44;
-  const chipX = 96;
-  const chipY = 372;
   const isWordmark = !sdk.logo;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
@@ -153,11 +168,8 @@ function buildCardSvg(sdk) {
   <text x="98" y="322" font-family="${FONT}" font-size="28" font-weight="500"
         fill="${C.inkSoft}">${esc(sdk.tagline)}</text>
 
-  <!-- 配布形態チップ -->
-  <rect x="${chipX}" y="${chipY}" width="${chipW}" height="46" rx="23"
-        fill="${C.card}" stroke="${C.line}" stroke-width="1.5"/>
-  <text x="${chipX + chipW / 2}" y="${chipY + 30}" font-family="ui-monospace, 'JetBrains Mono', monospace"
-        font-size="22" font-weight="600" fill="${C.ink}" text-anchor="middle">${esc(sdk.chip)}</text>
+  <!-- 配布形態チップ（1 つ以上） -->
+  ${chipsSvg(sdk.chip)}
 
   <!-- 帰属注記 -->
   <text x="96" y="586" font-family="${FONT}" font-size="17" font-weight="400"

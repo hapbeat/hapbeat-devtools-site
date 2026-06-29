@@ -24,7 +24,7 @@ interface Sdk {
   id: string;
   name: string;
   mark: string; // 'word' か public/sdk-logos/ 配下のファイル名
-  chip: string; // 配布形態
+  chip: string | string[]; // 配布形態（複数経路があれば配列で併記）
   slug: string; // /docs/sdk-integration/<slug>/getting-started/
   accent: string; // 左アクセント色（CSS color）
   tm?: boolean; // 名称に ® を付ける（登録商標表示。PSF は ® 併記を要求）
@@ -73,7 +73,7 @@ const SDKS: Sdk[] = [
     id: 'arduino',
     name: 'Arduino',
     mark: 'word', // 商標ガイドがロゴ使用を禁止 → 文字ワードマーク
-    chip: 'PlatformIO',
+    chip: ['Arduino IDE', 'PlatformIO'],
     slug: 'arduino-sdk',
     accent: '#00878F',
     desc: {
@@ -122,7 +122,9 @@ const trademark =
                 {s.tm && <sup class="hb-sdks__tm">®</sup>}
               </span>
             )}
-            <span class="hb-sdks__chip">{s.chip}</span>
+            {(Array.isArray(s.chip) ? s.chip : [s.chip]).map((c) => (
+              <span class="hb-sdks__chip">{c}</span>
+            ))}
           </span>
           <span class="hb-sdks__desc">{lang === 'en' ? s.desc.en : s.desc.ja}</span>
         </span>
