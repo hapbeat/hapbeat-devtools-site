@@ -5,15 +5,6 @@ description: Install with pip / pipx and drive Hapbeat in a few lines. A Python 
 sidebar:
   order: 1
   label: Getting Started
-head:
-  - tag: meta
-    attrs:
-      property: og:image
-      content: https://devtools.hapbeat.com/og/python-sdk.png
-  - tag: meta
-    attrs:
-      name: twitter:image
-      content: https://devtools.hapbeat.com/og/python-sdk.png
 ---
 
 :::tip[For AI coding agents]

@@ -18,6 +18,27 @@
  */
 import Default from '@astrojs/starlight/components/Head.astro';
 import { ClientRouter } from 'astro:transitions';
+import { ogImageForPath } from '../lib/sdk-og';
+
+// SDK セクション (/docs/sdk-integration/<slug>/ 配下、ja/en 両方) では、
+// 全体 OGP を per-SDK 画像に差し替える。getting-started だけでなく
+// セクション landing や下位ページも含めディレクトリ全体に適用したいので、
+// frontmatter ではなく pathname ベースで route head を上書きする。
+// Default Head は Astro.locals.starlightRoute.head を読むため、ここで
+// 同じ配列の og:image / twitter:image エントリを書き換えれば重複なく差し替わる。
+const sdkOg = ogImageForPath(Astro.url.pathname);
+if (sdkOg) {
+  const head = Astro.locals.starlightRoute?.head;
+  if (Array.isArray(head)) {
+    for (const entry of head) {
+      if (entry.tag !== 'meta' || !entry.attrs) continue;
+      const attrs = entry.attrs as Record<string, unknown>;
+      if (attrs.property === 'og:image' || attrs.name === 'twitter:image') {
+        attrs.content = sdkOg;
+      }
+    }
+  }
+}
 ---
 
 <Default {...Astro.props}><slot /></Default>

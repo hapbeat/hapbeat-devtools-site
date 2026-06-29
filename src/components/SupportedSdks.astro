@@ -5,11 +5,14 @@
  * トップページの「対応 SDK」セクション。訪問者が「何と組み合わせて Hapbeat を
  * 使えるか」を一目で把握できるよう、横長カードを 2 列 (モバイル 1 列) で並べる。
  *
- * ロゴの扱い（利用許諾の確認結果, 2026-06-22。詳細は public/sdk-logos/SOURCES.md）:
- *   - Python : PSF 商標ポリシーで未改変ロゴの互換性表示が可（™ 併記 + 帰属）。公式ロゴを使用。
+ * ロゴの扱い（利用許諾の確認結果, 2026-06-22 / Arduino は 2026-06-29 に追加確認。
+ *  詳細・一次ソースは public/sdk-logos/SOURCES.md）:
+ *   - Python : PSF 商標ポリシーで未改変ロゴの互換性表示が可（® 併記 + 帰属）。公式ロゴを使用。
  *   - JavaScript : "JS" バッジは MIT。公式ロゴを使用。
  *   - Unity : ブランドガイドラインが第三者の自社製品宣伝でのロゴ使用を認めないため、
  *             ロゴではなく名称（文字ワードマーク）で表示する。書面許可があれば差し替え可。
+ *   - Arduino : 商標ガイドが互換製品でのロゴ使用を明確に禁止（"Arduino" の語のみ可）。
+ *             ロゴではなく名称（文字ワードマーク）で表示する。
  *
  * 新しい SDK は SDKS 配列に 1 つ足す。ロゴが使える場合は mark にファイル名
  * (public/sdk-logos/<file>) を、使えない/無い場合は mark:'word' を指定する。
@@ -24,7 +27,7 @@ interface Sdk {
   chip: string; // 配布形態
   slug: string; // /docs/sdk-integration/<slug>/getting-started/
   accent: string; // 左アクセント色（CSS color）
-  tm?: boolean; // 名称に ™ を付ける（Python 商標表示）
+  tm?: boolean; // 名称に ® を付ける（登録商標表示。PSF は ® 併記を要求）
   desc: { ja: string; en: string };
 }
 
@@ -66,6 +69,18 @@ const SDKS: Sdk[] = [
       en: 'For Web, Node, and Electron. Browser via Helper; Node sends over UDP directly.',
     },
   },
+  {
+    id: 'arduino',
+    name: 'Arduino',
+    mark: 'word', // 商標ガイドがロゴ使用を禁止 → 文字ワードマーク
+    chip: 'PlatformIO',
+    slug: 'arduino-sdk',
+    accent: '#00878F',
+    desc: {
+      ja: 'Arduino / ESP32 / M5Stack 向け C++ ライブラリ。マイコンから Wi-Fi で直接 Hapbeat を駆動できます。',
+      en: 'A C++ library for Arduino, ESP32, and M5Stack. Drive Hapbeat over Wi-Fi straight from a microcontroller.',
+    },
+  },
 ];
 
 interface Props {
@@ -79,8 +94,8 @@ const more =
     : 'Unreal / Godot / TouchDesigner / VRChat などにも順次対応予定です。';
 const trademark =
   lang === 'en'
-    ? 'Names and logos are trademarks of their respective owners (Python: Python Software Foundation; JavaScript logo: Chris Williams, MIT; Unity: Unity Technologies).'
-    : '各名称・ロゴは各社の商標です（Python: Python Software Foundation／JavaScript ロゴ: Chris Williams, MIT／Unity: Unity Technologies）。';
+    ? 'Names and logos are trademarks of their respective owners (Python: Python Software Foundation; JavaScript logo: Chris Williams, MIT; Unity: Unity Technologies; Arduino: Arduino S.r.l.). Nominative use only; no affiliation or endorsement implied.'
+    : '各名称・ロゴは各社の商標です（Python: Python Software Foundation／JavaScript ロゴ: Chris Williams, MIT／Unity: Unity Technologies／Arduino: Arduino S.r.l.）。指名的表示であり、提携・推奨を示すものではありません。';
 ---
 
 <div class="hb-sdks">
@@ -104,7 +119,7 @@ const trademark =
             {s.mark !== 'word' && (
               <span class="hb-sdks__name">
                 {s.name}
-                {s.tm && <sup class="hb-sdks__tm">™</sup>}
+                {s.tm && <sup class="hb-sdks__tm">®</sup>}
               </span>
             )}
             <span class="hb-sdks__chip">{s.chip}</span>
