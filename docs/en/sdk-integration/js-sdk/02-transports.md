@@ -78,16 +78,20 @@ The Node build opens a UDP4 socket with `node:dgram` and broadcasts packets such
 ```ts
 const hb = await connect({
   appName: "MyApp",          // OLED display name (up to 16 characters)
-  port: 7700,                // default 7700
+  port: 7700,                // default 7700 (command destination port)
   broadcastAddr: "255.255.255.255", // default
   keepalive: true,           // default true
+  // bindPort: 7700,         // opt-in: bind the well-known receive port (default: ephemeral)
 });
 ```
 
-- **The default port is `7700`.** It is used for both sending and receiving (PONG reception).
-- If the port is in use (e.g. hapbeat-helper holds 7700 on the same PC), it
-  **falls back automatically to an ephemeral port**. Since sends go to a broadcast address,
-  the receiving side is unaffected.
+- **Sends go to port `7700`** (the device command port). The **receive socket binds
+  an ephemeral (OS-assigned) port by default** (DEC-036): only the daemon
+  (hapbeat-helper) binds the well-known 7700, so the SDK never steals it from the
+  helper. PONGs come back to the ephemeral source port, so discovery still works.
+- Pass `bindPort: 7700` to opt in to binding the well-known receive port (a
+  daemon-style listener that wants unsolicited broadcasts); it falls back to an
+  ephemeral port if 7700 is busy.
 - Only when `keepalive` is enabled and `appName` is set does it send
   `CONNECT_STATUS` every 5 seconds to show the app name on the device OLED
   (`hb.close()` sends an "app has left" notification to clear it).
@@ -224,7 +228,7 @@ These relate to [](/en/docs/sdk-integration/js-sdk/command-vs-clip/) /
 ## Summary
 
 - One API, three transports. The selection is made automatically by the `exports` map.
-- Node = direct UDP (port 7700, keep-alive, mind multi-NIC).
+- Node = direct UDP (sends to 7700; receive bind is ephemeral by default, `bindPort` to opt in; keep-alive; mind multi-NIC).
 - React Native = direct UDP (requires `react-native-udp` + the `fast-text-encoding` polyfill,
   a `metro.config.js` resolver, polyfill as the first import; no helper needed).
 - Browser = via hapbeat-helper (requires `pip install hapbeat-helper`; constraints on
