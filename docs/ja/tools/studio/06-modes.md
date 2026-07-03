@@ -72,5 +72,5 @@ Studio から CLIP を再生テストするときは、Helper 接続 + デバイ
 ## 関連リンク
 
 - [](/docs/concepts/fire-vs-clip/) — mode 選択の判断材料 (概念)
-- [Kit を作って配布する](./kit-design/) — Studio で Kit を組み立てる手順
+- [Kit を作って配布する](/docs/tools/studio/kit-design/) — Studio で Kit を組み立てる手順
 - [](/docs/concepts/event-id-and-kit/) — `events` / `stream_events` 辞書と mode フィールドの spec

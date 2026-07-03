@@ -46,7 +46,7 @@ Kit Event 行の Mode セレクタで再生方式を選びます。
 | **CLIP** (stream_clip) | `♪ CLIP` | やや長め / 動的変調。Helper または SDK が PCM をストリーミング送信 |
 | **BOTH** (command + stream_clip) | `>♪ BOTH` | 開発中に FIRE と CLIP の両方を試したいときに 1 event で両 entry を出力 |
 
-最初は **FIRE** から始めるのが簡単です。Kit ヘッダーの **「モード説明」** ボタンで詳細ヘルプを開けます。詳細は [Mode を切り替える](./modes/)。
+最初は **FIRE** から始めるのが簡単です。Kit ヘッダーの **「モード説明」** ボタンで詳細ヘルプを開けます。詳細は [Mode を切り替える](/docs/tools/studio/modes/)。
 
 ## 5. 強度（Intensity）を調整
 

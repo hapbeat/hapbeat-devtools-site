@@ -173,34 +173,62 @@
 
 /* テーブル
  *
- * 根本方針: display:table（ブラウザ本来の table レイアウト）に戻す。
- *
- * Starlight は display:block + overflow:auto を設定するが、
- * display:block + overflow:auto + border-radius の組み合わせが
- * 各ブラウザで scroll container の clip 境界として border-radius を使い、
- * テーブル右端コンテンツを切り取る原因になる。
- *
- * display:table にすると:
- *   - テーブルは内容に合わせた自然幅になる（空白が出ない）
- *   - 幅が親を超える場合は .main-pane { overflow-x:auto } がスクロールを担う
- *   - overflow:auto / border-radius の clip 問題が発生しない
+ * 方針: セルは自然な境界で折り返し（内容に応じて最大 2 行程度）、内側の余白を
+ * 最小化して高さ・幅の無駄を減らす。列幅は内容に合わせて詰める。折り返しても
+ * なお全体が入りきらない広いテーブルは、横スクロールコンテナ
+ * （display:block + overflow-x:auto）で逃がす。border-radius:0 のため
+ * overflow による右端 clip は起きない。
  *
  * Starlight の padding-inline-start/end:0（first/last セル）は
  * !important で打ち消す。
  */
 .sl-markdown-content table {
-  display: table !important;  /* Starlight の display:block を上書き */
+  display: block;              /* はみ出す場合の横スクロール容器 */
+  width: fit-content;          /* 外枠を中身の幅にフィット（全幅に伸ばさない） */
+  max-width: 100%;             /* はみ出しは 100% で頭打ち → 横スクロール */
+  overflow-x: auto;
   font-size: 14px;
   border: 1px solid var(--hb-line);
   border-radius: 0;
-  border-collapse: separate;   /* セル境界の制御のため separate */
+  border-collapse: separate;
   border-spacing: 0;
-  /* 幅・overflow は display:table の自然サイズに委ねる。
-   * 親 .main-pane { overflow-x:auto } が横スクロールを担当する。 */
+}
+/* セルは自然な境界（空白・句読点・「/」「・」など）だけで折り返す。
+ * word-break:keep-all で語句を 1 文字ずつ縦積みするのを防ぎ、意味の切れ目で
+ * 最大 2 行程度に収める。折り返してもなお入りきらない広い表は横スクロール。 */
+.sl-markdown-content table th,
+.sl-markdown-content table td {
+  white-space: normal;
+  word-break: keep-all;
+  line-height: 1.4;
+}
+
+/* 本文画像: クリックでライトボックス（ウィンドウ一杯のモーダル）表示。
+ * 実際の開閉は astro.config.mjs head の script が担当する。 */
+.sl-markdown-content img {
+  cursor: zoom-in;
+}
+.hb-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5vmin;
+  background: rgba(0, 0, 0, 0.88);
+  cursor: zoom-out;
+}
+.hb-lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
 }
 /* Starlight が first/last セルの padding-inline を 0 にするのを上書き */
 .sl-markdown-content :is(thead th, tbody td) {
-  padding: 10px 14px !important;
+  padding: 5px 9px !important;
   vertical-align: top;
 }
 .sl-markdown-content thead th {
