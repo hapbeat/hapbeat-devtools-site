@@ -1,0 +1,213 @@
+{
+  "main": {
+    "id": "1311565d1d0fdf7d",
+    "type": "split",
+    "children": [
+      {
+        "id": "49c2656af6ced8a6",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "34fb2e243c01ae04",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "docs/ja/tools/studio/07-mqtt-alerts.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "07-mqtt-alerts"
+            }
+          },
+          {
+            "id": "f3c92e216ea88203",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "docs/ja/start-here/01-getting-started.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "01-getting-started"
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "630b7ca7404d301a",
+    "type": "split",
+    "children": [
+      {
+        "id": "e19ece8a90ac0551",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "3adfd7c6afd5acb7",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "ファイルエクスプローラ"
+            }
+          },
+          {
+            "id": "0b72627c9a4d02fa",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "検索"
+            }
+          },
+          {
+            "id": "f5ccf1ee872547ec",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "ブックマーク"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 200
+  },
+  "right": {
+    "id": "f92ac68f3edf51bd",
+    "type": "split",
+    "children": [
+      {
+        "id": "dcd4d1eac0934baa",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f3373156097d48a5",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "docs/ja/tools/studio/07-mqtt-alerts.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "07-mqtt-alertsへのバックリンク"
+            }
+          },
+          {
+            "id": "ac7f0c894f5f9080",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "docs/ja/tools/studio/07-mqtt-alerts.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "07-mqtt-alertsからのアウトゴーイングリンク"
+            }
+          },
+          {
+            "id": "ba59473ec1b0254b",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "タグ"
+            }
+          },
+          {
+            "id": "f7d36ba923ddfa85",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "すべてのプロパティ"
+            }
+          },
+          {
+            "id": "75f587de5f6c5f14",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "docs/ja/tools/studio/07-mqtt-alerts.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "07-mqtt-alertsのアウトライン"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:クイックスイッチャーを開く": false,
+      "graph:グラフビューを開く": false,
+      "canvas:新規キャンバスを作成": false,
+      "daily-notes:今日のデイリーノートを開く": false,
+      "templates:テンプレートを挿入": false,
+      "command-palette:コマンドパレットを開く": false,
+      "bases:新規ベースを作成": false
+    }
+  },
+  "active": "f3c92e216ea88203",
+  "lastOpenFiles": [
+    "src/content/docs/docs/concepts/contracts/overview.md",
+    "src/content/docs/docs/concepts/contracts",
+    "src/content/docs/docs/start-here/01-getting-started.md",
+    "src/content/docs/docs/sdk-integration/_drafts/xri-handdemo-quickstart.md",
+    "docs/ja/tools/studio/07-mqtt-alerts.md",
+    "docs/tools/studio/initial-setup 1.md",
+    "docs/tools/studio/initial-setup.md",
+    "docs/tools/studio",
+    "docs/tools"
+  ]
+}
