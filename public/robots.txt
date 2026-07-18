@@ -1,0 +1,23 @@
+# robots.txt — Hapbeat devtools portal (https://devtools.hapbeat.com)
+#
+# Everyone is welcome. These docs are public and meant to be discovered —
+# by search engines AND AI assistants. We deliberately publish machine-readable
+# summaries for LLMs at /llms.txt and /llms-full.txt (plus /llms-<sdk>.txt),
+# so AI-assisted answers can surface and cite Hapbeat accurately.
+#
+# ⚠️ Cloudflare note: if the zone's "AI Crawl Control" / "Block AI bots" or
+# "Managed robots.txt" feature is enabled, Cloudflare rewrites this file at the
+# edge and returns 403 to AI crawlers (GPTBot, ClaudeBot, OAI-SearchBot,
+# PerplexityBot, …) regardless of the rules below. To make this file
+# authoritative, disable that Cloudflare feature. Likewise, "Bot Fight Mode"
+# blocks non-verified link-preview crawlers such as note's `notebot`, so OGP
+# cards won't render on those platforms until it is turned off.
+
+User-agent: *
+Allow: /
+
+# Explicit content-usage signals: search indexing, AI real-time input
+# (RAG / AI answers), and AI training are all permitted.
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+
+Sitemap: https://devtools.hapbeat.com/sitemap-index.xml

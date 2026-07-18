@@ -19,7 +19,11 @@ yarn-error.log*
 .vscode/
 .idea/
 .claude/
+.obsidian/
 .DS_Store
+
+# crash dumps / local junk
+*.stackdump
 
 # fetched docs (regenerated on build by scripts/fetch-docs.mjs)
 # docs/ja/ が真の編集場所 (JA root) → src/content/docs/docs/ へ flat copy。
