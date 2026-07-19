@@ -1,0 +1,210 @@
+---
+/**
+ * DemoCard
+ *
+ * /demos/ ポータル専用の「遊べるデモ」カード。トップページの ToolCard とは
+ * 意図的に見た目を分け、ゲームギャラリー / アーケード筐体らしい演出にする
+ * (大きめアイコン・アクセント色・hover リフト・明確な CTA)。
+ * スタイルはこのコンポーネント内に scoped で閉じており、他ページ・
+ * グローバル CSS には一切影響しない。
+ *
+ * デモは devtools.hapbeat.com とは別の自己完結ページ (Studio 同様の
+ * 「別アプリ」感) なので、常に新規タブで開く。
+ *
+ * Props:
+ *   - title / description: カード本文
+ *   - href: デモ URL (/demos/arcade/ 等)
+ *   - icon: 大きく表示する絵文字 1 個
+ *   - chip: 右上ピル (例: "Web Demo")
+ *   - accent: アクセント配色 ("red" | "teal") — サイト既定の purple から
+ *     意図的にずらして「デモ専用ページ」であることを一目で示す
+ *   - ctaLabel: カード下部の明確な CTA 文言 (例: "▶ 今すぐ遊ぶ")
+ *   - games: 収録ミニゲームのチップ列 (任意。Arcade カードのみ使用)
+ */
+interface GameChip {
+  icon: string;
+  label: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  href: string;
+  icon: string;
+  chip?: string;
+  accent?: 'red' | 'teal';
+  ctaLabel: string;
+  games?: GameChip[];
+}
+
+const {
+  title,
+  description,
+  href,
+  icon,
+  chip,
+  accent = 'red',
+  ctaLabel,
+  games = [],
+} = Astro.props;
+---
+
+<a class="hb-demo-card" data-accent={accent} href={href} target="_blank" rel="noopener noreferrer">
+  <div class="hb-demo-card__top">
+    <span class="hb-demo-card__icon" aria-hidden="true">{icon}</span>
+    {chip && <span class="hb-demo-card__chip">{chip}</span>}
+  </div>
+
+  <h3 class="hb-demo-card__title">{title}</h3>
+  <p class="hb-demo-card__desc">{description}</p>
+
+  {games.length > 0 && (
+    <ul class="hb-demo-card__games">
+      {games.map((g) => (
+        <li class="hb-demo-card__game">
+          <span aria-hidden="true">{g.icon}</span>
+          {g.label}
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <span class="hb-demo-card__cta">
+    {ctaLabel}
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  </span>
+</a>
+
+<style>
+  .hb-demo-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 24px 24px 22px;
+    border: 1px solid var(--hb-line);
+    border-radius: var(--hb-radius-lg);
+    background: var(--hb-bg-elev);
+    box-shadow: var(--hb-shadow-sm);
+    text-decoration: none !important;
+    color: inherit;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.18s ease,
+      border-color 0.18s ease;
+  }
+  /* アクセント配色 (サイト既定の purple から意図的にずらす) */
+  .hb-demo-card[data-accent='red'] {
+    --_accent: var(--hb-red);
+    --_accent-soft: var(--hb-red-soft);
+    --_accent-ink: var(--hb-red-ink);
+  }
+  .hb-demo-card[data-accent='teal'] {
+    --_accent: var(--hb-teal);
+    --_accent-soft: var(--hb-teal-soft);
+    --_accent-ink: var(--hb-teal-ink);
+  }
+  /* 上部アクセントバー (筐体の縁取りのような差し色) */
+  .hb-demo-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background: var(--_accent);
+    opacity: 0.9;
+  }
+  .hb-demo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--hb-shadow-lg);
+    border-color: var(--_accent);
+  }
+  .hb-demo-card:active {
+    transform: translateY(-2px);
+  }
+
+  .hb-demo-card__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .hb-demo-card__icon {
+    font-size: 32px;
+    line-height: 1;
+    width: 60px;
+    height: 60px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--hb-radius);
+    background: var(--_accent-soft);
+    flex: none;
+  }
+  .hb-demo-card__chip {
+    font-family: var(--hb-font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    color: var(--_accent-ink);
+    background: var(--_accent-soft);
+    border: 1px solid var(--_accent-soft);
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex: none;
+  }
+
+  .hb-demo-card__title {
+    margin: 4px 0 0;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--hb-ink);
+    line-height: 1.3;
+  }
+  .hb-demo-card__desc {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--hb-ink-soft);
+  }
+
+  .hb-demo-card__games {
+    list-style: none;
+    margin: 2px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .hb-demo-card__game {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    color: var(--hb-ink-mute);
+    background: var(--hb-bg-soft);
+    border: 1px solid var(--hb-line);
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .hb-demo-card__cta {
+    margin-top: auto;
+    padding-top: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--_accent-ink);
+    transition: gap 0.15s ease;
+  }
+  .hb-demo-card:hover .hb-demo-card__cta {
+    gap: 10px;
+  }
+</style>

@@ -1,0 +1,25 @@
+---
+/**
+ * DemoGrid — DemoCard を並べる薄いラッパ。
+ * ToolGrid (3列) とは別カラム数にして、大きめの DemoCard がゆったり
+ * 収まるようにする (デスクトップ 2 列 / モバイル 1 列)。
+ */
+---
+
+<div class="hb-demo-grid">
+  <slot />
+</div>
+
+<style>
+  .hb-demo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin: 20px 0 28px;
+  }
+  @media (max-width: 48rem) {
+    .hb-demo-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

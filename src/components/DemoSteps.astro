@@ -1,0 +1,61 @@
+---
+/**
+ * DemoSteps — 番号付きバッジで手順を並べる軽量コンポーネント (demo-kit 配備の
+ * 3 ステップ用)。箇条書きの `<ol>` より視覚的な「ステップフロー」にする。
+ * スタイルはこのコンポーネント内に scoped で閉じる。
+ *
+ * Props:
+ *   - steps: 各ステップの文言 (string[])
+ */
+interface Props {
+  steps: string[];
+}
+const { steps } = Astro.props;
+---
+
+<ol class="hb-demo-steps">
+  {steps.map((step, i) => (
+    <li class="hb-demo-steps__item">
+      <span class="hb-demo-steps__num" aria-hidden="true">{i + 1}</span>
+      <span class="hb-demo-steps__text">{step}</span>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .hb-demo-steps {
+    list-style: none;
+    margin: 16px 0 20px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .hb-demo-steps__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--hb-line);
+    border-radius: var(--hb-radius);
+    background: var(--hb-bg-elev);
+  }
+  .hb-demo-steps__num {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--hb-teal-soft);
+    color: var(--hb-teal-ink);
+    font-family: var(--hb-font-mono);
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .hb-demo-steps__text {
+    font-size: 14px;
+    color: var(--hb-ink-soft);
+    line-height: 1.5;
+  }
+</style>

@@ -1,0 +1,71 @@
+---
+/**
+ * DemoPortalHeader
+ *
+ * /demos/ ページ専用の軽量ヘッダー。Starlight の splash hero (Hero.astro /
+ * .hb-hero, トップページ用) は使わず、代わりにこのコンポーネントで
+ * 「アーケード / ゲームギャラリー」らしい小さめの導入部を作る。
+ * トップページと同じ 2 カラム hero レイアウトを避けることで、
+ * 一目でデモポータルだと分かるようにする狙い。
+ * スタイルはこのコンポーネント内に scoped で閉じる。
+ *
+ * Props:
+ *   - eyebrow: 上部の小さなピル文言 (例: "🎮 PLAY IN BROWSER")
+ *   - title: プレーンテキストの見出し (H1)
+ *   - tagline: 1〜2 行の説明
+ */
+interface Props {
+  eyebrow: string;
+  title: string;
+  tagline: string;
+}
+const { eyebrow, title, tagline } = Astro.props;
+---
+
+<header class="hb-demo-header">
+  <span class="hb-demo-header__eyebrow">{eyebrow}</span>
+  <h1 class="hb-demo-header__title" id="_top" data-page-title>{title}</h1>
+  <p class="hb-demo-header__tagline">{tagline}</p>
+</header>
+
+<style>
+  .hb-demo-header {
+    padding: 8px 0 4px;
+    margin-bottom: 4px;
+  }
+  .hb-demo-header__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--hb-font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--hb-red-ink);
+    background: var(--hb-red-soft);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  .hb-demo-header__title {
+    margin: 0 0 12px;
+    font-size: clamp(30px, 4.6vw, 44px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    /* ブランドグラデーションの文字塗り (Hero.astro と同系だが、この
+       コンポーネント内で完結させるため独自に定義する)。 */
+    background: linear-gradient(90deg, var(--hb-red) 0%, var(--hb-magenta) 45%, var(--hb-teal) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-wrap: balance;
+  }
+  .hb-demo-header__tagline {
+    margin: 0;
+    max-width: 70ch;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--hb-ink-soft);
+  }
+</style>

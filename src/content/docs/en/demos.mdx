@@ -2,53 +2,65 @@
 title: Demos — Hapbeat
 description: Browser-playable Hapbeat haptic demos, plus local SDK samples you can try on your own machine.
 template: splash
-hero:
-  title: <em>Feel it</em> — Hapbeat demos
-  tagline: From haptic mini-games you can play right in your browser, to SDK samples you run locally. See for yourself how haptics change the experience.
 ---
 
+import DemoPortalHeader from '../../../components/DemoPortalHeader.astro';
+import DemoCard from '../../../components/DemoCard.astro';
+import DemoGrid from '../../../components/DemoGrid.astro';
+import DemoSteps from '../../../components/DemoSteps.astro';
+import DownloadItem from '../../../components/DownloadItem.astro';
 import ToolCard from '../../../components/ToolCard.astro';
 import ToolGrid from '../../../components/ToolGrid.astro';
-import DownloadItem from '../../../components/DownloadItem.astro';
 
-## Play in your browser
+<DemoPortalHeader
+  eyebrow="🎮 Playable in your browser"
+  title="Feel it — Hapbeat demos"
+  tagline="No install needed. Just open your browser and see for yourself how haptics change the experience."
+/>
 
-<ToolGrid>
-  <ToolCard
+<DemoGrid>
+  <DemoCard
     title="Hapbeat Arcade"
     description="Four haptic mini-games built for expo floors: navigate, tap, hunt, and react — each one built around a haptic mechanic."
     href="/demos/arcade/"
+    icon="🕹️"
     chip="Web Demo"
-    meta={["browser-only", "helper optional"]}
+    accent="red"
+    ctaLabel="Play now"
+    games={[
+      { icon: '🧭', label: 'Invisible Maze' },
+      { icon: '🥁', label: 'Haptic Rhythm' },
+      { icon: '💎', label: 'Hot & Cold' },
+      { icon: '⚡', label: 'Haptic Reflex' },
+    ]}
   />
-  <ToolCard
+  <DemoCard
     title="Haptic FPS"
     description="A first-person demo where attacks arrive from any direction — localized in both audio (HRTF spatial sound) and haptics (left/right)."
     href="/demos/arcade/fps/"
+    icon="🎯"
     chip="Web Demo"
-    meta={["browser-only", "helper optional"]}
+    accent="teal"
+    ctaLabel="Play now"
   />
-</ToolGrid>
-
-Mini-games included in Hapbeat Arcade:
-
-- 🧭 **Invisible Maze** — the walls aren't shown; navigate by collision haptics alone
-- 🥁 **Haptic Rhythm** — toggle sound / visuals / haptics independently and see if you can keep the beat on haptics alone
-- 💎 **Hot & Cold** — a Geiger-counter-style haptic that gets stronger and faster as you get closer
-- ⚡ **Haptic Reflex** — react to a "go" cue delivered through haptics; feel a warning channel that's faster than sight
+</DemoGrid>
 
 :::note
 Haptics require **hapbeat-helper running + a Hapbeat device + the demo-kit deployed to it**.
 Without them you can still try the demos with sound and visuals only (a warning banner appears when the helper isn't connected).
 :::
 
-### Deploying the demo-kit
+## Deploying the demo-kit
 
 To hear haptics, the device needs the Kit that matches the event IDs the demos send.
 
-1. Download and unzip the file below
-2. In Hapbeat Studio's Kit tab, load the folder (`fps-kit/` or `shell-kit/`)
-3. Deploy it to your target device
+<DemoSteps
+  steps={[
+    'Download and unzip the file below',
+    "In Hapbeat Studio's Kit tab, load the folder (fps-kit/ or shell-kit/)",
+    'Deploy it to your target device',
+  ]}
+/>
 
 <DownloadItem
   name="hapbeat-arcade-demo-kit.zip"
@@ -62,7 +74,19 @@ To hear haptics, the device needs the Kit that matches the event IDs the demos s
 
 These SDK samples aren't hosted in the browser — you run them on your own machine.
 
-- **Python launchpad** — after `pipx install hapbeat-python-sdk`, run `hapbeat launchpad` to launch a local UI at `127.0.0.1:7100`. It's local-only by nature, so it can't be hosted here.
-  → [Python SDK Getting Started](/en/docs/sdk-integration/python-sdk/getting-started/)
-- **Arduino examples** — a set of samples that run directly on ESP32 / M5Stack boards.
-  → [Arduino SDK Getting Started](/en/docs/sdk-integration/arduino-sdk/getting-started/)
+<ToolGrid>
+  <ToolCard
+    title="Python launchpad"
+    description="After pipx install hapbeat-python-sdk, run hapbeat launchpad to launch a local UI at 127.0.0.1:7100. It's local-only by nature, so it can't be hosted here."
+    href="/en/docs/sdk-integration/python-sdk/getting-started/"
+    chip="CLI"
+    meta={["local-only", "pipx install"]}
+  />
+  <ToolCard
+    title="Arduino examples"
+    description="A set of samples that run directly on ESP32 / M5Stack boards."
+    href="/en/docs/sdk-integration/arduino-sdk/getting-started/"
+    chip="Firmware"
+    meta={["local-only"]}
+  />
+</ToolGrid>
