@@ -9,6 +9,95 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// ===========================================================================
+// dev サーバー専用: /demos/ 配下の「フォルダ URL」フォールバック統合
+// ===========================================================================
+//
+// なぜ必要か:
+//   scripts/fetch-demos.mjs が hapbeat-js-sdk の examples/games/ (生の静的
+//   HTML/JS、Astro のコンテンツコレクションを一切経由しない) を public/demos/
+//   にコピーする。本番相当の静的ホスト (astro build → dist/ をそのまま配る
+//   Cloudflare Workers Static Assets、および `astro preview`) は「ディレクトリ
+//   URL → その中の index.html」というよくある静的サイト規約を解決してくれる
+//   ため、/demos/arcade/ のようなフォルダ URL は正しく 200 を返す。
+//
+//   一方 `astro dev` (Vite dev server) の public/ 配下ファイル配信は、
+//   Astro 自身のページルーティング (コンテンツコレクション由来のページ) を
+//   最優先で処理するため、public/ 直下に置いた「ページではない生ファイル
+//   フォルダ」に対してはディレクトリ→index.html のフォールバックを行わず、
+//   拡張子なし・末尾スラッシュ付きの URL はそのまま 404 になる
+//   (`/demos/arcade/vendor/browser.js` のように拡張子付きの実ファイルは
+//   問題なく配信される。/demos/arcade/index.html のように index.html を
+//   明示すれば dev でも 200 になる — つまり欠けているのは
+//   ディレクトリ→index.html の解決だけ)。
+//
+//   これは `astro build` の出力 (dist/) には一切関係ない dev server 固有の
+//   挙動差なので、対症療法 (例: ドキュメント上の注記だけで済ませる) ではなく
+//   dev server 側の挙動を本番相当に補完する形で解決する。
+//
+// 実装方針:
+//   Vite の `configureServer` 相当である Astro integration hook
+//   `astro:server:setup` の中で `server.middlewares.use()` を**同期的に直接
+//   呼ぶ**(コールバックを return しない)。Vite はこの場合、登録した
+//   ミドルウェアを内部の static file serving ミドルウェアより**前**に差し
+//   込むため、/demos/arcade/ のような URL が Vite 標準の 404 を返す前に
+//   実ファイルの有無を見て書き換え/リダイレクトできる。
+//
+//   対象は "/demos/" prefix のみ (Starlight ページや fetch-docs 生成物には
+//   一切触れない)。build には影響しない: `astro:server:setup` は dev server
+//   起動時にしか呼ばれず、`astro build` の実行パスには現れない。
+function demosDevStaticFallback() {
+  const publicDemosDir = path.join(__dirname, 'public', 'demos');
+  return {
+    name: 'demos-dev-static-fallback',
+    hooks: {
+      'astro:server:setup': ({ server }) => {
+        server.middlewares.use((req, res, next) => {
+          if (!req.url || !req.url.startsWith('/demos/')) return next();
+
+          const queryIdx = req.url.indexOf('?');
+          const pathname = queryIdx === -1 ? req.url : req.url.slice(0, queryIdx);
+          const query = queryIdx === -1 ? '' : req.url.slice(queryIdx);
+          // pathname は必ず "/demos/" で始まる (上のガードで確認済み)。
+          const relFromDemos = pathname.slice('/demos/'.length);
+
+          if (pathname.endsWith('/')) {
+            // フォルダ URL (末尾スラッシュ付き): 対応する index.html が
+            // public/demos/ 側に実在する時だけ req.url を書き換える。
+            // 実在しない場合は何もせず next() — Astro 自身のページ
+            // (例: /demos/ そのもの、Starlight コンテンツコレクション) の
+            // ルーティングに委ねる。
+            const indexFile = path.join(publicDemosDir, relFromDemos, 'index.html');
+            if (existsSync(indexFile)) {
+              req.url = `${pathname}index.html${query}`;
+            }
+            return next();
+          }
+
+          if (path.extname(pathname) === '') {
+            // 拡張子なし・末尾スラッシュなし (例: /demos/arcade): 本番の
+            // Cloudflare Workers Static Assets に寄せて、対応する index.html
+            // が実在する場合のみ末尾スラッシュ付き URL へ 301 する。
+            // (直接 index.html を配信せず redirect するのは、配信 HTML 内の
+            // 相対パス (`./vendor/browser.js` 等) が /demos/arcade/ 基準で
+            // 解決される前提のため — redirect 無しで直接配信すると相対パスが
+            // /demos/ 基準にずれて壊れる)
+            const indexFile = path.join(publicDemosDir, relFromDemos, 'index.html');
+            if (existsSync(indexFile)) {
+              res.statusCode = 301;
+              res.setHeader('Location', `${pathname}/${query}`);
+              res.end();
+              return;
+            }
+          }
+
+          return next();
+        });
+      },
+    },
+  };
+}
+
 // 参考: docs/protocol と docs/kit 等の情報源は各 repo の docs/ を
 // scripts/fetch-docs.mjs で src/content/docs/docs/ に取り込んでから build する。
 
@@ -327,6 +416,9 @@ export default defineConfig({
     '/docs/hardware/wifi-setup': '/docs/tools/studio/initial-setup/',
   },
   integrations: [
+    // dev server 専用の /demos/ フォルダ URL フォールバック (定義は本ファイル
+    // 冒頭参照)。astro:server:setup のみを実装しており build には影響しない。
+    demosDevStaticFallback(),
     starlight({
       title: 'Hapbeat devtools',
       description: '触覚デバイス Hapbeat のクリエイター・開発者向けツールとドキュメント',
