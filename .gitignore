@@ -40,3 +40,7 @@ src/content/docs/en/docs/
 dev-notes/
 CLAUDE.md
 instructions/
+
+# fetched demos (regenerated on build by scripts/fetch-demos.mjs)
+# source of truth は hapbeat-js-sdk/examples/games/ 側。
+public/demos/

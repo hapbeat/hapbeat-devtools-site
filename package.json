@@ -6,8 +6,9 @@
   "scripts": {
     "fetch-docs": "node scripts/fetch-docs.mjs",
     "fetch-docs:watch": "node scripts/fetch-docs.mjs --watch",
-    "dev": "concurrently --kill-others --names \"fetch,astro\" --prefix-colors \"blue,green\" \"npm:fetch-docs:watch\" \"astro dev\"",
-    "build": "npm run fetch-docs && astro build && node scripts/postbuild-fix-link-targets.mjs",
+    "fetch-demos": "node scripts/fetch-demos.mjs",
+    "dev": "npm run fetch-demos && concurrently --kill-others --names \"fetch,astro\" --prefix-colors \"blue,green\" \"npm:fetch-docs:watch\" \"astro dev\"",
+    "build": "npm run fetch-docs && npm run fetch-demos && astro build && node scripts/postbuild-fix-link-targets.mjs",
     "preview": "astro preview",
     "reorder": "node scripts/reorder.mjs",
     "gen:og": "node scripts/gen-og-images.mjs",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "adm-zip": "^0.6.0",
     "chokidar": "^5.0.0",
     "concurrently": "^9.2.1",
     "image-size": "^2.0.2",

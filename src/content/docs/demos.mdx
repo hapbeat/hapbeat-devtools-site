@@ -1,0 +1,68 @@
+---
+title: デモ — Hapbeat
+description: ブラウザで遊べる Hapbeat の触覚デモと、ローカルで試せる SDK サンプル集。
+template: splash
+hero:
+  title: <em>触ってわかる</em> Hapbeat デモ
+  tagline: ブラウザだけで遊べる触覚ミニゲームから、ローカルで動かす SDK サンプルまで。触覚があることで体験がどう変わるかを実際に確かめられます。
+---
+
+import ToolCard from '../../components/ToolCard.astro';
+import ToolGrid from '../../components/ToolGrid.astro';
+import DownloadItem from '../../components/DownloadItem.astro';
+
+## ブラウザで遊ぶ
+
+<ToolGrid>
+  <ToolCard
+    title="Hapbeat Arcade"
+    description="展示会向けの触覚ミニゲーム 4 本。触覚だけを頼りに進む・叩く・探す・反応する体験を収録。"
+    href="/demos/arcade/"
+    chip="Web Demo"
+    meta={["ブラウザのみ", "helper 任意"]}
+  />
+  <ToolCard
+    title="触覚 FPS"
+    description="360° から飛んでくる攻撃を音（HRTF 空間音響）と触覚（左右）の両方で定位する一人称視点デモ。"
+    href="/demos/arcade/fps/"
+    chip="Web Demo"
+    meta={["ブラウザのみ", "helper 任意"]}
+  />
+</ToolGrid>
+
+Hapbeat Arcade に収録されているミニゲーム:
+
+- 🧭 **見えない壁の迷路** — 壁が見えない。衝突（触覚）だけを頼りに進む
+- 🥁 **触覚リズム** — 音・映像・触覚を個別 ON/OFF し、「触覚だけ」でリズムを取れるか試す
+- 💎 **宝探し** — 近づくほど触覚が強く・速くなるガイガーカウンタ式の誘導
+- ⚡ **反応速度** — GO の合図を触覚で受けて最速反応。視覚より速い警告チャネルを実感
+
+:::note
+触覚を出すには **hapbeat-helper の起動 + Hapbeat 実機 + demo-kit の配備** が必要です。
+無くても音と映像だけで試遊できます（helper 未接続時は画面上部に警告が表示されます）。
+:::
+
+### demo-kit を配備する
+
+触覚を鳴らすには、デモが送る event id に対応する Kit をデバイスへ配備する必要があります。
+
+1. 下の zip をダウンロードして展開する
+2. Hapbeat Studio の Kit タブでフォルダ（`fps-kit/` または `shell-kit/`）を読み込む
+3. 対象デバイスへ Deploy する
+
+<DownloadItem
+  name="hapbeat-arcade-demo-kit.zip"
+  description="Arcade / FPS デモ用の触覚 Kit（fps-kit + shell-kit）一式"
+  href="/demos/arcade/hapbeat-arcade-demo-kit.zip"
+  icon="🕹️"
+  btnLabel="Download"
+/>
+
+## ローカルで試す
+
+ブラウザ上ではホストしていない、手元の環境で動かす SDK サンプルです。
+
+- **Python launchpad** — `pipx install hapbeat-python-sdk` の後に `hapbeat launchpad` を実行すると、ローカル `127.0.0.1:7100` に操作 UI が立ち上がります。性質上ホストできないためローカル実行のみです。
+  → [Python SDK Getting Started](/docs/sdk-integration/python-sdk/getting-started/)
+- **Arduino examples** — ESP32 / M5Stack 等で直接動かすサンプル一式。
+  → [Arduino SDK Getting Started](/docs/sdk-integration/arduino-sdk/getting-started/)

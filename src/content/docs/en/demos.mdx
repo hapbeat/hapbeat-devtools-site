@@ -1,0 +1,68 @@
+---
+title: Demos — Hapbeat
+description: Browser-playable Hapbeat haptic demos, plus local SDK samples you can try on your own machine.
+template: splash
+hero:
+  title: <em>Feel it</em> — Hapbeat demos
+  tagline: From haptic mini-games you can play right in your browser, to SDK samples you run locally. See for yourself how haptics change the experience.
+---
+
+import ToolCard from '../../../components/ToolCard.astro';
+import ToolGrid from '../../../components/ToolGrid.astro';
+import DownloadItem from '../../../components/DownloadItem.astro';
+
+## Play in your browser
+
+<ToolGrid>
+  <ToolCard
+    title="Hapbeat Arcade"
+    description="Four haptic mini-games built for expo floors: navigate, tap, hunt, and react — each one built around a haptic mechanic."
+    href="/demos/arcade/"
+    chip="Web Demo"
+    meta={["browser-only", "helper optional"]}
+  />
+  <ToolCard
+    title="Haptic FPS"
+    description="A first-person demo where attacks arrive from any direction — localized in both audio (HRTF spatial sound) and haptics (left/right)."
+    href="/demos/arcade/fps/"
+    chip="Web Demo"
+    meta={["browser-only", "helper optional"]}
+  />
+</ToolGrid>
+
+Mini-games included in Hapbeat Arcade:
+
+- 🧭 **Invisible Maze** — the walls aren't shown; navigate by collision haptics alone
+- 🥁 **Haptic Rhythm** — toggle sound / visuals / haptics independently and see if you can keep the beat on haptics alone
+- 💎 **Hot & Cold** — a Geiger-counter-style haptic that gets stronger and faster as you get closer
+- ⚡ **Haptic Reflex** — react to a "go" cue delivered through haptics; feel a warning channel that's faster than sight
+
+:::note
+Haptics require **hapbeat-helper running + a Hapbeat device + the demo-kit deployed to it**.
+Without them you can still try the demos with sound and visuals only (a warning banner appears when the helper isn't connected).
+:::
+
+### Deploying the demo-kit
+
+To hear haptics, the device needs the Kit that matches the event IDs the demos send.
+
+1. Download and unzip the file below
+2. In Hapbeat Studio's Kit tab, load the folder (`fps-kit/` or `shell-kit/`)
+3. Deploy it to your target device
+
+<DownloadItem
+  name="hapbeat-arcade-demo-kit.zip"
+  description="Haptic Kits for the Arcade / FPS demos (fps-kit + shell-kit)"
+  href="/demos/arcade/hapbeat-arcade-demo-kit.zip"
+  icon="🕹️"
+  btnLabel="Download"
+/>
+
+## Try locally
+
+These SDK samples aren't hosted in the browser — you run them on your own machine.
+
+- **Python launchpad** — after `pipx install hapbeat-python-sdk`, run `hapbeat launchpad` to launch a local UI at `127.0.0.1:7100`. It's local-only by nature, so it can't be hosted here.
+  → [Python SDK Getting Started](/en/docs/sdk-integration/python-sdk/getting-started/)
+- **Arduino examples** — a set of samples that run directly on ESP32 / M5Stack boards.
+  → [Arduino SDK Getting Started](/en/docs/sdk-integration/arduino-sdk/getting-started/)
