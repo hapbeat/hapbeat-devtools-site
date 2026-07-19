@@ -7,6 +7,9 @@
  * 「アーケード / ゲームギャラリー」らしい小さめの導入部を作る。
  * トップページと同じ 2 カラム hero レイアウトを避けることで、
  * 一目でデモポータルだと分かるようにする狙い。
+ *
+ * 背景に軽量 CSS のみの放射グラデーション + ドットパターンを敷いて
+ * 「遊び場」感を出す (画像アセット不要、追加リクエスト無し)。
  * スタイルはこのコンポーネント内に scoped で閉じる。
  *
  * Props:
@@ -23,6 +26,7 @@ const { eyebrow, title, tagline } = Astro.props;
 ---
 
 <header class="hb-demo-header">
+  <div class="hb-demo-header__bg" aria-hidden="true"></div>
   <span class="hb-demo-header__eyebrow">{eyebrow}</span>
   <h1 class="hb-demo-header__title" id="_top" data-page-title>{title}</h1>
   <p class="hb-demo-header__tagline">{tagline}</p>
@@ -30,9 +34,47 @@ const { eyebrow, title, tagline } = Astro.props;
 
 <style>
   .hb-demo-header {
-    padding: 8px 0 4px;
-    margin-bottom: 4px;
+    position: relative;
+    isolation: isolate;
+    padding: 28px 4px 16px;
+    margin: -8px -4px 4px;
+    overflow: hidden;
+    border-radius: var(--hb-radius-lg);
   }
+  /* 放射グラデーション 2 個 + ドットパターン。すべて CSS のみ、画像なし。 */
+  .hb-demo-header__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(38% 65% at 8% 15%, oklch(0.68 0.19 25 / 0.18) 0%, transparent 70%),
+      radial-gradient(32% 60% at 82% 0%, oklch(0.62 0.13 200 / 0.16) 0%, transparent 72%),
+      radial-gradient(circle, color-mix(in oklab, var(--hb-ink) 14%, transparent) 1.2px, transparent 1.2px);
+    background-size:
+      auto,
+      auto,
+      18px 18px;
+    background-position:
+      0 0,
+      0 0,
+      -4px -4px;
+  }
+  :global([data-theme='dark']) .hb-demo-header__bg {
+    background:
+      radial-gradient(38% 65% at 8% 15%, oklch(0.72 0.2 25 / 0.28) 0%, transparent 70%),
+      radial-gradient(32% 60% at 82% 0%, oklch(0.78 0.15 195 / 0.24) 0%, transparent 72%),
+      radial-gradient(circle, color-mix(in oklab, var(--hb-ink) 16%, transparent) 1.2px, transparent 1.2px);
+    background-size:
+      auto,
+      auto,
+      18px 18px;
+    background-position:
+      0 0,
+      0 0,
+      -4px -4px;
+  }
+
   .hb-demo-header__eyebrow {
     display: inline-flex;
     align-items: center;
@@ -41,12 +83,19 @@ const { eyebrow, title, tagline } = Astro.props;
     font-size: 12px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--hb-red-ink);
-    background: var(--hb-red-soft);
+    color: oklch(0.42 0.19 25);
+    background: oklch(0.93 0.09 25);
+    border: 1px solid color-mix(in oklab, oklch(0.6 0.22 25) 30%, transparent);
     padding: 5px 12px;
     border-radius: 999px;
     margin-bottom: 14px;
   }
+  :global([data-theme='dark']) .hb-demo-header__eyebrow {
+    color: oklch(0.9 0.14 25);
+    background: oklch(0.4 0.16 25);
+    border-color: color-mix(in oklab, oklch(0.72 0.21 25) 45%, transparent);
+  }
+
   .hb-demo-header__title {
     margin: 0 0 12px;
     font-size: clamp(30px, 4.6vw, 44px);

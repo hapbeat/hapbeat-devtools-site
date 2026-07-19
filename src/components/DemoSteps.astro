@@ -2,6 +2,8 @@
 /**
  * DemoSteps — 番号付きバッジで手順を並べる軽量コンポーネント (demo-kit 配備の
  * 3 ステップ用)。箇条書きの `<ol>` より視覚的な「ステップフロー」にする。
+ * 各ステップの番号バッジは 3 色 (teal/purple/amber) を巡回させ、
+ * デモポータル全体のポップな色使いに揃える。
  * スタイルはこのコンポーネント内に scoped で閉じる。
  *
  * Props:
@@ -15,7 +17,7 @@ const { steps } = Astro.props;
 
 <ol class="hb-demo-steps">
   {steps.map((step, i) => (
-    <li class="hb-demo-steps__item">
+    <li class="hb-demo-steps__item" data-hue={(i % 3) + 1}>
       <span class="hb-demo-steps__num" aria-hidden="true">{i + 1}</span>
       <span class="hb-demo-steps__text">{step}</span>
     </li>
@@ -37,6 +39,7 @@ const { steps } = Astro.props;
     gap: 12px;
     padding: 10px 14px;
     border: 1px solid var(--hb-line);
+    border-left: 3px solid var(--_hue-ink);
     border-radius: var(--hb-radius);
     background: var(--hb-bg-elev);
   }
@@ -47,8 +50,8 @@ const { steps } = Astro.props;
     display: grid;
     place-items: center;
     border-radius: 999px;
-    background: var(--hb-teal-soft);
-    color: var(--hb-teal-ink);
+    background: var(--_hue-soft);
+    color: var(--_hue-ink);
     font-family: var(--hb-font-mono);
     font-weight: 700;
     font-size: 13px;
@@ -58,4 +61,13 @@ const { steps } = Astro.props;
     color: var(--hb-ink-soft);
     line-height: 1.5;
   }
+
+  /* 3 色巡回 (teal / purple / amber)。ライトは彩度控えめ、ダークは
+     明度・彩度を上げて沈まないようにする。 */
+  .hb-demo-steps__item[data-hue='1'] { --_hue-soft: oklch(0.92 0.07 200); --_hue-ink: oklch(0.4 0.13 200); }
+  .hb-demo-steps__item[data-hue='2'] { --_hue-soft: oklch(0.92 0.08 320); --_hue-ink: oklch(0.44 0.16 320); }
+  .hb-demo-steps__item[data-hue='3'] { --_hue-soft: oklch(0.92 0.1 85);   --_hue-ink: oklch(0.42 0.14 75); }
+  :global([data-theme='dark']) .hb-demo-steps__item[data-hue='1'] { --_hue-soft: oklch(0.38 0.13 195); --_hue-ink: oklch(0.9 0.12 195); }
+  :global([data-theme='dark']) .hb-demo-steps__item[data-hue='2'] { --_hue-soft: oklch(0.38 0.14 320); --_hue-ink: oklch(0.9 0.13 320); }
+  :global([data-theme='dark']) .hb-demo-steps__item[data-hue='3'] { --_hue-soft: oklch(0.4 0.15 85);   --_hue-ink: oklch(0.92 0.15 90); }
 </style>
