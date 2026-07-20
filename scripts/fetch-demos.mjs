@@ -162,16 +162,43 @@ async function copyGamesTree(srcDir, destDir) {
   });
 }
 
+// dist/browser.js is NOT a self-contained bundle — it's a plain ESM entry point
+// that statically imports sibling files within dist/ (`export * from "./index.js"`,
+// `import { Hapbeat } from "./hapbeat.js"`, `import { BrowserWsTransport } from
+// "./transport-browser.js"`), which themselves import further siblings
+// (clip.js / live-stream.js / wav.js / protocol.js / eventmap.js). Copying only
+// browser.js leaves that whole module graph 404ing in the browser — since ES
+// module static imports are resolved eagerly before any module body runs, a
+// single missing sibling aborts the ENTIRE import chain silently (no console
+// error is guaranteed to surface in every browser/devtools combination), so the
+// page's own script (e.g. examples/games/fps/fps.js) never executes at all —
+// this is what previously produced a fully blank page ("真っ暗") at
+// /demos/arcade/ and /demos/arcade/fps/ in `astro dev`.
+//
+// Rather than hand-enumerate that dependency list (fragile: it silently goes
+// stale again the moment the SDK's internal module structure changes), copy
+// every dist/*.js + dist/*.js.map file into vendor/ as a group. Relative
+// imports inside browser.js (`./index.js` etc.) then resolve correctly because
+// all of its siblings now live alongside it in the same vendor/ directory.
+// `.d.ts`/`.d.ts.map` are TypeScript-only and never fetched by the browser, so
+// they're excluded. The extra non-browser-entry files (node.js, react-native.js,
+// transport-node.js, transport-react-native.js, transport-udp-base.js, types.js)
+// are harmless dead weight (~135 KB total for the whole dist/ JS set) — nobody
+// imports them from the browser entry graph, so browsers never fetch them.
 async function copySdkVendorBundle(sdkRepoDir) {
   const vendorDir = path.join(ARCADE_DEST, 'vendor');
   await mkdir(vendorDir, { recursive: true });
-  const browserJs = path.join(sdkRepoDir, 'dist', 'browser.js');
-  await cp(browserJs, path.join(vendorDir, 'browser.js'));
-  const browserMap = path.join(sdkRepoDir, 'dist', 'browser.js.map');
-  if (existsSync(browserMap)) {
-    await cp(browserMap, path.join(vendorDir, 'browser.js.map'));
+  const distDir = path.join(sdkRepoDir, 'dist');
+  const entries = await readdir(distDir, { withFileTypes: true });
+  let copied = 0;
+  for (const entry of entries) {
+    if (!entry.isFile()) continue;
+    const lower = entry.name.toLowerCase();
+    if (!lower.endsWith('.js') && !lower.endsWith('.js.map')) continue; // skip .d.ts / .d.ts.map
+    await cp(path.join(distDir, entry.name), path.join(vendorDir, entry.name));
+    copied++;
   }
-  console.log('  ok: dist/browser.js → demos/arcade/vendor/browser.js');
+  console.log(`  ok: dist/*.js(.map) (${copied} files) → demos/arcade/vendor/`);
 }
 
 async function rewriteImportMaps() {
