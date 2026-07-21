@@ -174,26 +174,29 @@
 
       <!-- タイミング補正スライダー -->
       <section class="panel" aria-label="タイミング補正">
-        <h2 class="panel__title">触覚タイミング補正</h2>
-        <div class="row row--offset">
-          <span class="offset-edge">音声が早い</span>
-          <input id="offsetRange" type="range" min="-400" max="400" step="5" value="0" />
-          <span class="offset-edge">触覚が早い</span>
+        <div class="panel__head">
+          <h2 class="panel__title">触覚タイミング補正</h2>
+          <button id="offsetResetBtn" class="btn btn--mini" type="button">0 に戻す</button>
+        </div>
+        <!-- スライダーは panel 幅いっぱい。左右の意味と現在値はその下に置く。 -->
+        <input id="offsetRange" class="offset-slider" type="range" min="-400" max="400" step="5" value="0" />
+        <div class="row row--offset-legend">
+          <span class="offset-edge">← 音声が早い</span>
           <span id="offsetValue" class="num-readout num-readout--wide">0 ms</span>
-          <button id="offsetResetBtn" class="btn btn--icon" type="button" aria-label="タイミング補正を 0 に戻す" title="0 に戻す">0</button>
+          <span class="offset-edge">触覚が早い →</span>
         </div>
       </section>
 
       <!-- 音量/gain -->
-      <section class="panel" aria-label="音量 / ゲイン">
-        <h2 class="panel__title">音量・ゲイン</h2>
+      <section class="panel" aria-label="音量 / 強度">
+        <h2 class="panel__title">音量・強度</h2>
         <div class="row">
           <label class="row__label" for="audioVolumeRange">音声音量</label>
           <input id="audioVolumeRange" type="range" min="0" max="100" step="1" value="80" />
           <span id="audioVolumeValue" class="num-readout">80%</span>
         </div>
         <div class="row">
-          <label class="row__label" for="hapticGainRange">触覚 gain</label>
+          <label class="row__label" for="hapticGainRange">触覚強度</label>
           <input id="hapticGainRange" type="range" min="0" max="100" step="1" value="80" />
           <span id="hapticGainValue" class="num-readout">80%</span>
         </div>

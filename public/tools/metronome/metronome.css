@@ -143,6 +143,30 @@ body {
   flex-wrap: nowrap;
 }
 
+/* パネル見出し + 右端のアクションボタン (例: 触覚タイミング補正の「0 に戻す」) */
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* タイミング補正スライダーは panel 幅いっぱい。意味と現在値は下の legend 行に置く。 */
+.offset-slider {
+  width: 100%;
+  /* Chrome の UA 既定 (input[type=range] { margin: 2px }) を打ち消して
+     panel の内側幅とぴったり一致させる (右に 2px はみ出すのを防ぐ)。 */
+  margin: 0;
+}
+.row--offset-legend {
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  margin-top: -4px;
+}
+.row--offset-legend .num-readout {
+  text-align: center;
+}
+
 .row__label {
   font-size: 13px;
   font-weight: 600;
@@ -283,6 +307,12 @@ select {
   padding: 12px 22px;
   font-size: 16px;
   border-radius: 10px;
+}
+.btn--mini {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  flex: none;
 }
 .btn--secondary {
   background: var(--accent-soft);
