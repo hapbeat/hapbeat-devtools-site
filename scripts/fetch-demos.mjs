@@ -14,6 +14,11 @@
 //
 // 出力先: public/demos/arcade/
 //   ※ このディレクトリは .gitignore 対象。build 時に regenerate される。
+//
+// 加えて、同じ js-sdk dist/*.js(.map) を public/tools/vendor/ にもコピーする
+// (/tools/metronome/ 手書きメトロノームアプリの importmap 参照先)。
+// public/tools/metronome/ (手書きソース、git 管理対象) には一切触れない —
+// リセット/コピーは public/tools/vendor/ 単体に限定する。
 
 import { execSync } from 'node:child_process';
 import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
@@ -36,6 +41,13 @@ const GAMES_SUBDIR = 'examples/games';
 
 const DEMOS_ROOT = path.join(ROOT, 'public', 'demos');
 const ARCADE_DEST = path.join(DEMOS_ROOT, 'arcade');
+
+// public/tools/vendor/ — /tools/metronome/ (手書き・fetch-demos の対象外) が
+// importmap 経由で参照する @hapbeat/sdk browser バンドルの置き場所。
+// public/tools/ 配下のうち vendor/ *だけ* を管理する。metronome/ (index.html
+// 等の手書きアプリ本体) には一切触れない — reset も vendor/ 単体に限定する。
+const TOOLS_ROOT = path.join(ROOT, 'public', 'tools');
+const TOOLS_VENDOR_DEST = path.join(TOOLS_ROOT, 'vendor');
 
 // examples/games/ をコピーする際に除外するもの (相対パス、POSIX 区切り)。
 const EXCLUDE_REL_DIRS = new Set(['games/_archive', 'node_modules']);
@@ -185,8 +197,14 @@ async function copyGamesTree(srcDir, destDir) {
 // transport-node.js, transport-react-native.js, transport-udp-base.js, types.js)
 // are harmless dead weight (~135 KB total for the whole dist/ JS set) — nobody
 // imports them from the browser entry graph, so browsers never fetch them.
-async function copySdkVendorBundle(sdkRepoDir) {
-  const vendorDir = path.join(ARCADE_DEST, 'vendor');
+//
+// This same copy is reused verbatim for /tools/vendor/ (§ copyToolsVendorBundle
+// below) — /tools/metronome/index.html references it via an absolute
+// `"/tools/vendor/browser.js"` importmap entry, so unlike the arcade examples
+// (copied wholesale from js-sdk with relative `"../../dist/browser.js"` refs
+// that need IMPORT_MAP_REWRITES + scanForStaleDistRefs) it needs no rewriting:
+// the metronome page is authored directly in this repo with the final path.
+async function copySdkVendorBundle(sdkRepoDir, vendorDir, label) {
   await mkdir(vendorDir, { recursive: true });
   const distDir = path.join(sdkRepoDir, 'dist');
   const entries = await readdir(distDir, { withFileTypes: true });
@@ -198,7 +216,14 @@ async function copySdkVendorBundle(sdkRepoDir) {
     await cp(path.join(distDir, entry.name), path.join(vendorDir, entry.name));
     copied++;
   }
-  console.log(`  ok: dist/*.js(.map) (${copied} files) → demos/arcade/vendor/`);
+  console.log(`  ok: dist/*.js(.map) (${copied} files) → ${label}/`);
+}
+
+// public/tools/vendor/ を再生成する。public/tools/metronome/ (手書きアプリ)
+// には一切触れない — reset 対象は vendor/ ディレクトリ単体。
+async function copyToolsVendorBundle(sdkRepoDir) {
+  await resetDir(TOOLS_VENDOR_DEST);
+  await copySdkVendorBundle(sdkRepoDir, TOOLS_VENDOR_DEST, 'tools/vendor');
 }
 
 async function rewriteImportMaps() {
@@ -309,8 +334,9 @@ async function main() {
   await copyGamesTree(gamesSrc, ARCADE_DEST);
   console.log(`  ok: ${GAMES_SUBDIR}/ → demos/arcade/`);
 
-  await copySdkVendorBundle(sdkDir);
+  await copySdkVendorBundle(sdkDir, path.join(ARCADE_DEST, 'vendor'), 'demos/arcade/vendor');
   await rewriteImportMaps();
+  await copyToolsVendorBundle(sdkDir);
 
   const staleRefs = await scanForStaleDistRefs(ARCADE_DEST);
   if (staleRefs.length > 0) {

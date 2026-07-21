@@ -1,0 +1,46 @@
+---
+title: Web Tools — Hapbeat
+description: Browser-based developer tools for Hapbeat. No install needed — try them right away.
+template: splash
+---
+
+import DemoPortalHeader from '../../../components/DemoPortalHeader.astro';
+import DemoCard from '../../../components/DemoCard.astro';
+import DemoGrid from '../../../components/DemoGrid.astro';
+import DemoSteps from '../../../components/DemoSteps.astro';
+
+<DemoPortalHeader
+  eyebrow="🛠 Runs in your browser"
+  title="Hapbeat Web Tools"
+  tagline="Small browser apps for Hapbeat developers — no install needed. This is separate from the sidebar's '🛠 Tools' section (the Studio / Helper documentation) — here we host the tool apps themselves, runnable directly in your browser."
+/>
+
+<DemoGrid>
+  <DemoCard
+    title="Web Metronome"
+    description="A metronome that plays sound in the browser and can send haptics to a Hapbeat device via hapbeat-helper. Useful for checking and tuning haptic timing offset."
+    href="/tools/metronome/"
+    icon="🎵"
+    chip="Web Tool"
+    accent="teal"
+    ctaLabel="Open now"
+  />
+</DemoGrid>
+
+:::note
+Haptics require **hapbeat-helper running + a Hapbeat device**.
+Without them it still works as a sound-only metronome (a status line at the bottom shows the connection state when the helper isn't connected).
+:::
+
+## Connect the helper to try haptics too
+
+<DemoSteps
+  steps={[
+    'Install hapbeat-helper (pipx install hapbeat-helper)',
+    'Start the helper',
+    'Open the Web Metronome page and enable "Send haptics to Hapbeat"',
+  ]}
+/>
+
+For detailed setup steps, see
+<a href="/en/docs/tools/helper/getting-started/" target="_blank" rel="noopener noreferrer">Helper setup</a>.

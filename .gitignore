@@ -44,3 +44,8 @@ instructions/
 # fetched demos (regenerated on build by scripts/fetch-demos.mjs)
 # source of truth は hapbeat-js-sdk/examples/games/ 側。
 public/demos/
+
+# fetched @hapbeat/sdk browser vendor bundle (regenerated on build by
+# scripts/fetch-demos.mjs). public/tools/metronome/ (手書きアプリ本体) は
+# 対象外 — git 管理される通常のソースファイル。
+public/tools/vendor/

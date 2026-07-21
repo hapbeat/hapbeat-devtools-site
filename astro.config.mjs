@@ -10,16 +10,19 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // ===========================================================================
-// dev サーバー専用: /demos/ 配下の「フォルダ URL」フォールバック統合
+// dev サーバー専用: /demos/ + /tools/ 配下の「フォルダ URL」フォールバック統合
 // ===========================================================================
 //
 // なぜ必要か:
 //   scripts/fetch-demos.mjs が hapbeat-js-sdk の examples/games/ (生の静的
 //   HTML/JS、Astro のコンテンツコレクションを一切経由しない) を public/demos/
-//   にコピーする。本番相当の静的ホスト (astro build → dist/ をそのまま配る
+//   にコピーする。同様に public/tools/metronome/ (手書きの Web メトロノーム)
+//   + public/tools/vendor/ (fetch-demos が生成する SDK バンドル) も生の静的
+//   ファイルである。本番相当の静的ホスト (astro build → dist/ をそのまま配る
 //   Cloudflare Workers Static Assets、および `astro preview`) は「ディレクトリ
 //   URL → その中の index.html」というよくある静的サイト規約を解決してくれる
-//   ため、/demos/arcade/ のようなフォルダ URL は正しく 200 を返す。
+//   ため、/demos/arcade/ や /tools/metronome/ のようなフォルダ URL は正しく
+//   200 を返す。
 //
 //   一方 `astro dev` (Vite dev server) の public/ 配下ファイル配信は、
 //   Astro 自身のページルーティング (コンテンツコレクション由来のページ) を
@@ -43,31 +46,38 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 //   込むため、/demos/arcade/ のような URL が Vite 標準の 404 を返す前に
 //   実ファイルの有無を見て書き換え/リダイレクトできる。
 //
-//   対象は "/demos/" prefix のみ (Starlight ページや fetch-docs 生成物には
-//   一切触れない)。build には影響しない: `astro:server:setup` は dev server
-//   起動時にしか呼ばれず、`astro build` の実行パスには現れない。
+//   対象は "/demos/" と "/tools/" の 2 prefix のみ (Starlight ページや
+//   fetch-docs 生成物には一切触れない)。対応する index.html が
+//   public/ 側に実在する場合にのみ書き換える — 例えば /tools/ そのものは
+//   public/tools/index.html が存在しないため常にガードを素通りし、
+//   Starlight のコンテンツコレクションページ (src/content/docs/tools.mdx)
+//   のルーティングに委ねられる (現行ガードを維持)。
+//   build には影響しない: `astro:server:setup` は dev server 起動時にしか
+//   呼ばれず、`astro build` の実行パスには現れない。
 function demosDevStaticFallback() {
-  const publicDemosDir = path.join(__dirname, 'public', 'demos');
+  const publicDir = path.join(__dirname, 'public');
+  const FALLBACK_PREFIXES = ['/demos/', '/tools/'];
   return {
     name: 'demos-dev-static-fallback',
     hooks: {
       'astro:server:setup': ({ server }) => {
         server.middlewares.use((req, res, next) => {
-          if (!req.url || !req.url.startsWith('/demos/')) return next();
+          const prefix = req.url && FALLBACK_PREFIXES.find((p) => req.url.startsWith(p));
+          if (!prefix) return next();
 
           const queryIdx = req.url.indexOf('?');
           const pathname = queryIdx === -1 ? req.url : req.url.slice(0, queryIdx);
           const query = queryIdx === -1 ? '' : req.url.slice(queryIdx);
-          // pathname は必ず "/demos/" で始まる (上のガードで確認済み)。
-          const relFromDemos = pathname.slice('/demos/'.length);
+          // pathname は必ず "/" で始まる (URL の常。上のガードで prefix 一致も確認済み)。
+          const relFromPublic = pathname.slice(1); // "/demos/arcade/" → "demos/arcade/" (/tools/ も同様)
 
           if (pathname.endsWith('/')) {
             // フォルダ URL (末尾スラッシュ付き): 対応する index.html が
-            // public/demos/ 側に実在する時だけ req.url を書き換える。
+            // public/ 側に実在する時だけ req.url を書き換える。
             // 実在しない場合は何もせず next() — Astro 自身のページ
             // (例: /demos/ そのもの、Starlight コンテンツコレクション) の
             // ルーティングに委ねる。
-            const indexFile = path.join(publicDemosDir, relFromDemos, 'index.html');
+            const indexFile = path.join(publicDir, relFromPublic, 'index.html');
             if (existsSync(indexFile)) {
               req.url = `${pathname}index.html${query}`;
             }
@@ -75,14 +85,14 @@ function demosDevStaticFallback() {
           }
 
           if (path.extname(pathname) === '') {
-            // 拡張子なし・末尾スラッシュなし (例: /demos/arcade): 本番の
-            // Cloudflare Workers Static Assets に寄せて、対応する index.html
-            // が実在する場合のみ末尾スラッシュ付き URL へ 301 する。
+            // 拡張子なし・末尾スラッシュなし (例: /demos/arcade, /tools/metronome):
+            // 本番の Cloudflare Workers Static Assets に寄せて、対応する
+            // index.html が実在する場合のみ末尾スラッシュ付き URL へ 301 する。
             // (直接 index.html を配信せず redirect するのは、配信 HTML 内の
-            // 相対パス (`./vendor/browser.js` 等) が /demos/arcade/ 基準で
+            // 相対パス (`./vendor/browser.js` 等) がフォルダ URL 基準で
             // 解決される前提のため — redirect 無しで直接配信すると相対パスが
-            // /demos/ 基準にずれて壊れる)
-            const indexFile = path.join(publicDemosDir, relFromDemos, 'index.html');
+            // 一段上のディレクトリ基準にずれて壊れる)
+            const indexFile = path.join(publicDir, relFromPublic, 'index.html');
             if (existsSync(indexFile)) {
               res.statusCode = 301;
               res.setHeader('Location', `${pathname}/${query}`);

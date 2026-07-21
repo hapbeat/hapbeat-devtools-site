@@ -1,0 +1,169 @@
+<!doctype html>
+<!--
+  Hapbeat Web メトロノーム — インストール不要のブラウザ版メトロノーム。
+
+  音声は WebAudio のみで完結する。触覚 (Hapbeat 実機への送信) は
+  hapbeat-helper (pip install hapbeat-helper) 経由。helper が居なくても
+  音声だけで動作する (graceful fallback)。
+
+  このディレクトリは devtools-site の public/ に直置きの生 HTML (Astro の
+  コンテンツコレクションを経由しない、Hapbeat Arcade と同じパターン)。
+  scripts/fetch-demos.mjs が @hapbeat/sdk の browser バンドルを
+  /tools/vendor/ に生成する。このファイル自体・audio/ は fetch-demos の
+  対象外 (このリポジトリに直接コミットされる)。
+-->
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hapbeat Web メトロノーム</title>
+    <meta
+      name="description"
+      content="ブラウザで動くメトロノーム。音声はその場で鳴らし、触覚は hapbeat-helper 経由で Hapbeat 実機に送信できます。"
+    />
+    <link rel="stylesheet" href="./metronome.css" />
+    <script type="importmap">
+      { "imports": { "@hapbeat/sdk": "/tools/vendor/browser.js" } }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <h1>Hapbeat Web メトロノーム</h1>
+        <p class="app__lead">
+          インストール不要のブラウザ版メトロノーム。触覚を送るには
+          <a href="https://devtools.hapbeat.com/docs/tools/helper/getting-started/" target="_blank" rel="noopener noreferrer"
+            >hapbeat-helper</a
+          >
+          を起動してください（無くても音声のみで動作します）。
+        </p>
+      </header>
+
+      <section class="transport" aria-label="再生コントロール">
+        <button id="startStopBtn" class="btn btn--primary btn--big" type="button" aria-pressed="false">
+          <span id="startStopLabel">開始</span>
+          <span class="btn__hint">Space</span>
+        </button>
+        <div id="beatDots" class="beat-dots" aria-hidden="true"></div>
+      </section>
+
+      <section class="panel" aria-label="テンポ">
+        <h2 class="panel__title">テンポ</h2>
+        <div class="row">
+          <label class="row__label" for="bpmRange">BPM</label>
+          <button id="bpmDown" class="btn btn--icon" type="button" aria-label="BPM を下げる">−</button>
+          <input id="bpmRange" type="range" min="30" max="500" step="1" value="120" />
+          <button id="bpmUp" class="btn btn--icon" type="button" aria-label="BPM を上げる">＋</button>
+          <input id="bpmNumber" class="num num--bpm" type="number" min="30" max="500" step="1" value="120" />
+        </div>
+        <div class="row">
+          <button id="tapTempoBtn" class="btn" type="button">タップテンポ <span class="btn__hint">T</span></button>
+          <span id="tapHint" class="hint">クリックして拍を叩くと BPM を計算します</span>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="拍子">
+        <h2 class="panel__title">拍子</h2>
+        <div class="row">
+          <label class="row__label" for="beatsRange">拍数</label>
+          <input id="beatsRange" type="range" min="1" max="12" step="1" value="4" />
+          <input id="beatsNumber" class="num" type="number" min="1" max="12" step="1" value="4" />
+        </div>
+        <div class="row">
+          <label class="row__check">
+            <input id="accentToggle" type="checkbox" checked />
+            最初の拍にアクセント
+          </label>
+        </div>
+        <div class="row">
+          <label class="row__label" for="subdivSelect">細分</label>
+          <select id="subdivSelect">
+            <option value="1">なし</option>
+            <option value="2">1/2</option>
+            <option value="3">1/3</option>
+            <option value="4">1/4</option>
+          </select>
+          <span class="hint">細分は音声のみ（触覚には影響しません）</span>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="音源">
+        <h2 class="panel__title">音源</h2>
+        <div class="row">
+          <label class="row__label" for="audioSourceSelect">音声用</label>
+          <select id="audioSourceSelect">
+            <option value="builtin:click">内蔵: クリック (2kHz)</option>
+            <option value="builtin:beep">内蔵: ビープ (1kHz)</option>
+            <option value="bundle:z1_pin_hit.wav">バンドル: z1_pin_hit</option>
+            <option value="bundle:z5_shot_light.wav">バンドル: z5_shot_light</option>
+            <option value="file">ファイルを選択…</option>
+          </select>
+          <input id="audioFileInput" class="file-input" type="file" accept="audio/*,.wav" hidden />
+          <span id="audioFileName" class="hint"></span>
+        </div>
+        <div class="row">
+          <label class="row__label" for="hapticSourceSelect">触覚用</label>
+          <select id="hapticSourceSelect">
+            <option value="builtin:100hz">内蔵: 100Hz (60ms)</option>
+            <option value="builtin:40hz">内蔵: 40Hz (80ms)</option>
+            <option value="bundle:z1_pin_hit.wav">バンドル: z1_pin_hit</option>
+            <option value="bundle:z5_shot_light.wav">バンドル: z5_shot_light</option>
+            <option value="file">ファイルを選択…</option>
+          </select>
+          <input id="hapticFileInput" class="file-input" type="file" accept="audio/*,.wav" hidden />
+          <span id="hapticFileName" class="hint"></span>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="音量 / ゲイン">
+        <h2 class="panel__title">音量・ゲイン</h2>
+        <div class="row">
+          <label class="row__label" for="audioVolumeRange">音声音量</label>
+          <input id="audioVolumeRange" type="range" min="0" max="100" step="1" value="80" />
+          <span id="audioVolumeValue" class="num-readout">80%</span>
+        </div>
+        <div class="row">
+          <label class="row__label" for="hapticGainRange">触覚 gain</label>
+          <input id="hapticGainRange" type="range" min="0" max="100" step="1" value="80" />
+          <span id="hapticGainValue" class="num-readout">80%</span>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="Hapbeat 送信">
+        <h2 class="panel__title">Hapbeat 送信</h2>
+        <div class="row">
+          <label class="row__check">
+            <input id="hapbeatSendToggle" type="checkbox" />
+            Hapbeat に触覚を送信する（hapbeat-helper 経由）
+          </label>
+        </div>
+        <div class="row">
+          <label class="row__check">
+            <input id="localHapticPreviewToggle" type="checkbox" />
+            触覚をスピーカーでも試聴する
+          </label>
+        </div>
+        <div class="row row--offset">
+          <label class="row__label" for="offsetRange">触覚タイミング補正</label>
+          <span class="offset-edge">音声が早い</span>
+          <input id="offsetRange" type="range" min="-400" max="400" step="5" value="150" />
+          <span class="offset-edge">触覚が早い</span>
+          <span id="offsetValue" class="num-readout num-readout--wide">+150 ms</span>
+        </div>
+      </section>
+
+      <section class="status" aria-live="polite">
+        <p id="statusLine" class="status__line">Hapbeat 送信: オフ（音声のみ）</p>
+        <p id="warningLine" class="status__line status__line--warning"></p>
+      </section>
+
+      <footer class="app__footer">
+        <p>
+          <a href="/tools/" target="_blank" rel="noopener noreferrer">← Web ツール一覧に戻る</a>
+        </p>
+      </footer>
+    </main>
+
+    <script type="module" src="./metronome.js"></script>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+---
+title: Web ツール — Hapbeat
+description: ブラウザで動く Hapbeat 開発者向けツール集。インストール不要ですぐ試せます。
+template: splash
+---
+
+import DemoPortalHeader from '../../components/DemoPortalHeader.astro';
+import DemoCard from '../../components/DemoCard.astro';
+import DemoGrid from '../../components/DemoGrid.astro';
+import DemoSteps from '../../components/DemoSteps.astro';
+
+<DemoPortalHeader
+  eyebrow="🛠 ブラウザで動きます"
+  title="Hapbeat Web ツール"
+  tagline="インストール不要ですぐ試せる、Hapbeat 開発者向けの小さなブラウザアプリ集です。サイドバーの「🛠 Tools」（Studio / Helper のドキュメント）とは別物 — ここではブラウザで直接動くツール本体を配布しています。"
+/>
+
+<DemoGrid>
+  <DemoCard
+    title="Web メトロノーム"
+    description="音声はブラウザだけで鳴らし、触覚は hapbeat-helper 経由で Hapbeat 実機に送れるメトロノーム。触覚タイミングのズレを確認・調整するのに使えます。"
+    href="/tools/metronome/"
+    icon="🎵"
+    chip="Web Tool"
+    accent="teal"
+    ctaLabel="今すぐ開く"
+  />
+</DemoGrid>
+
+:::note
+触覚を送るには **hapbeat-helper の起動 + Hapbeat 実機** が必要です。
+無くても音声だけのメトロノームとして動作します（helper 未接続時は画面下部に状態が表示されます）。
+:::
+
+## helper をつないで触覚も試す
+
+<DemoSteps
+  steps={[
+    'hapbeat-helper をインストールする（pipx install hapbeat-helper）',
+    'helper を起動する',
+    'Web メトロノームのページを開き、「Hapbeat に触覚を送信する」をオンにする',
+  ]}
+/>
+
+詳しい導入手順は
+<a href="/docs/tools/helper/getting-started/" target="_blank" rel="noopener noreferrer">Helper のセットアップ</a>
+を参照してください。
