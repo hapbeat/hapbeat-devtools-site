@@ -58,8 +58,8 @@ When LAN separation is not possible (e.g. multiple apps and many Hapbeat devices
 | App B | 11–20 (players 11–20) |
 
 - Assign a **unique group ID to each Hapbeat device** in advance via Hapbeat Studio or Hapbeat Helper Settings (e.g. 1, 2, 3, ..., 11, 12, ...)
-- App A specifies `HapbeatConfig.group` within 1–10 (or switches dynamically with `Manager.SetTargetGroup(n)`)
-- App B uses a group within 11–20
+- App A sets `overrideGroup` in `HapbeatConfig`'s Addressing settings to a value within 1–10, or switches dynamically at runtime with `HapbeatManager.Instance.SetAddressOverride(player, group)`
+- App B sets `overrideGroup` to a value within 11–20
 
 Each Hapbeat only picks up packets matching its own group ID, so haptic collisions do not occur.
 
@@ -69,6 +69,23 @@ Each Hapbeat only picks up packets matching its own group ID, so haptic collisio
   - Haptic behavior itself is correctly separated by the group filter, so functionality is unaffected.
   - If you need the display to confirm which app is connected, this approach is insufficient.
 - Group ID range management must be enforced by operational rules (if App A accidentally sends group 15, it reaches App B's devices).
+
+---
+
+## Deploying the same build to multiple HMDs (Address Override)
+
+The case above was "multiple apps targeting one Hapbeat." The opposite case is also common: **deploying the exact same Unity build to multiple HMDs, with each device paired 1:1 to its own Hapbeat** (a booth with several HMD/Hapbeat pairs side by side, rental hardware that always runs the same build, etc.).
+
+For this use case you don't need to fork the build per HMD (baking a different `HapbeatConfig.group` into each). The SDK's **Address Override** feature lets you keep a single build and pick the player/group on each device instead.
+
+- `HapbeatConfig` has an `Addressing` section with `overridePlayer` / `overrideGroup` fields. -1 = disabled (the EventMap entry's target is sent as-is); 1–99 forces every outgoing command (Play/Stop/StopAll/StreamBegin) to that value.
+- To switch at runtime, call `HapbeatManager.Instance.SetAddressOverride(player, group, persist: true)`. With `persist: true`, the values are saved to PlayerPrefs and restored automatically on the next launch. The `AddressOverrideDemo` sample in Showcase (Z4_Stream) is a working example with a +/- stepper UI.
+- No device-side changes are required — this works with no protocol or firmware changes. Set the player/group number on the Hapbeat itself via its physical buttons, and as long as it matches the SDK-side override, the 1:1 pairing just works.
+
+```csharp
+// Call this at startup, or whenever the user confirms the number chosen in a settings screen
+HapbeatManager.Instance.SetAddressOverride(player: 3, group: -1, persist: true);
+```
 
 ---
 

@@ -58,8 +58,8 @@ LAN を分けられない (同じ展示ブースで複数アプリ・Hapbeat 多
 | App B | 11〜20 (player 11〜20) |
 
 - 各 Hapbeat デバイスには Hapbeat Studio または Hapbeat Helper の Settings から **個別に group ID を割り当て** ておく (例: 1, 2, 3, ..., 11, 12, ...)
-- App A は `HapbeatConfig.group = 1〜10 のいずれか` を指定 (もしくは `Manager.SetTargetGroup(n)` で動的に切替)
-- App B は `group = 11〜20` のいずれか
+- App A は `HapbeatConfig` の Addressing 設定 (`overrideGroup`) に 1〜10 のいずれかを指定するか、実行時に `HapbeatManager.Instance.SetAddressOverride(player, group)` で動的に切替
+- App B は `overrideGroup` に 11〜20 のいずれかを指定
 
 各 Hapbeat は自分の group ID に対する packet しか拾わないので、振動衝突は起きません。
 
@@ -69,6 +69,23 @@ LAN を分けられない (同じ展示ブースで複数アプリ・Hapbeat 多
   - 触覚自体は group filter で正しく分離されるので動作には影響しない
   - 表示で「自分のアプリと繋がっているか」を確認したい場合はこの方法では不十分
 - group ID 範囲の管理は運用ルールで縛る必要がある (アプリ A が誤って 15 を送信すれば B のデバイスに伝わる)
+
+---
+
+## 同一ビルドを複数 HMD に配布する場合 (Address Override)
+
+上記は「複数アプリを 1 台の Hapbeat に向ける」ケースでしたが、逆に **「同一の Unity ビルドを複数の HMD に配布し、各端末を自分の Hapbeat に 1:1 で向けたい」** ケース (展示ブースで HMD×Hapbeat のペアを何組も並べる、貸出機材を毎回同じビルドで運用する、など) もよくあります。
+
+このユースケースでは、HMD ごとにビルドを分ける (`HapbeatConfig.group` を焼き分ける) 必要はありません。SDK が持つ **Address Override** 機能を使うと、同一ビルドのまま各端末側で player/group を選ぶだけで済みます。
+
+- `HapbeatConfig` の `Addressing` セクションに `overridePlayer` / `overrideGroup` フィールドがあります。-1 = 無効 (EventMap 側の target をそのまま送信)、1〜99 = 送信するすべてのコマンド (Play/Stop/StopAll/StreamBegin) に強制適用。
+- 実行時に切り替えたい場合は `HapbeatManager.Instance.SetAddressOverride(player, group, persist: true)` を呼びます。`persist: true` を指定すると PlayerPrefs に保存され、次回起動時も同じ player/group が復元されます。Showcase サンプルの `AddressOverrideDemo` (Z4_Stream) が +/- ステッパー UI の実装例です。
+- デバイス側の対応は不要です。プロトコルやファームウェアの変更なしに動作します。各 Hapbeat 本体のボタン操作で player/group 番号を設定するだけで、SDK 側の override とデバイス側の番号を一致させれば 1:1 のペアリングが成立します。
+
+```csharp
+// 起動時、または設定画面でユーザーが選んだ番号を確定するタイミングで呼ぶ
+HapbeatManager.Instance.SetAddressOverride(player: 3, group: -1, persist: true);
+```
 
 ---
 
