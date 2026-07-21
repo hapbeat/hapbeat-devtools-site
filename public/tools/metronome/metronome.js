@@ -9,11 +9,26 @@
  * デスクトップ版 tools/metronome (workspace, Python/Tk) の縮約移植。
  * 意味論は engine.py / sounds.py に合わせる:
  *   - ACCENT_GAIN=1.0 / NORMAL_GAIN=0.65 / SUBDIV_GAIN=0.4
+ *     (engine.py: hamp = ev.gain * params.haptic_gain — アクセント/通常の
+ *     gain 差は音声だけでなく触覚ローカルミックス・UDP 送信の両方に効く。
+ *     round1 の scheduleHaptic はこの gain 引数を一切受け取っておらず、
+ *     触覚側は常に同一 gain で送出していた — round2 #4 の根本原因)
+ *   - 内蔵クリック/ビープはアクセント拍で周波数も変える (sounds.py
+ *     make_click_pair: 2000/2800Hz, make_beep_pair: 1000/1500Hz)。
+ *     gain 差だけの単純な減衰は短い過渡音では知覚しにくいため。
+ *     外部/バンドル WAV はアクセント = gain 差のみ (同一波形を使い回す)。
  *   - haptic clip は「拍間隔 × 0.9」に切り詰めて送る/試聴する
  *     (デバイスは毎拍ストリームを差し替えるため、1拍分を超える長尺クリップは
  *     実機ではどのみち途中で打ち切られる — ローカル試聴もそれに合わせる)
  *   - タイミング補正 (bipolar offset): 正 = 触覚を先出しする。
- *     送信/ローカル試聴とも「拍時刻 − offset」を起点にする
+ *     送信/ローカル試聴とも「拍時刻 − offset」を起点にする。既定値は 0ms
+ *     (round2 #1 — 旧既定 +150ms は録音/デバイス実測が無い状態での暫定値で、
+ *     ユーザーが自分の環境で合わせる前提の補正なので中立な 0 に戻す)
+ *   - ローカルミックス既定化 (round2 #7): 本アプリは有線音声出力前提のため、
+ *     Hapbeat 送信が OFF の間は常に音声+触覚をスピーカーにミックスする
+ *     (デスクトップ版の output_mode="local" と同義、トグル無し)。送信 ON の
+ *     ときだけ「送信中も触覚をスピーカーに重ねて出す」でローカルミックスを
+ *     任意に止められる (既定 ON)。
  *   - Python 版は複数スレッド + 別カーソルで組んでいたが、ブラウザは
  *     シングルスレッドなので state はただの mutable object で良い
  *     (ロック不要 — UI ハンドラとスケジューラは同じイベントループ上で動く)。
@@ -28,6 +43,10 @@ import { connect } from '@hapbeat/sdk';
 // ── 定数 ────────────────────────────────────────────────────────────────
 
 const STORAGE_KEY = 'hapbeat-web-metronome';
+// 設定スキーマ version (round2 #1)。旧形式 (version フィールド無し) の
+// 保存データからは hapticOffsetMs だけ新既定値 (0) にリセットし、他の設定は
+// そのまま引き継ぐ。version が現行と一致する保存データはそのまま全項目使う。
+const SETTINGS_SCHEMA_VERSION = 2;
 
 const ACCENT_GAIN = 1.0;
 const NORMAL_GAIN = 0.65;
@@ -46,11 +65,14 @@ const DEFAULT_STATE = {
   subdiv: 1,
   audioVolume: 80, // 0-100 %
   hapticGain: 80, // 0-100 %
-  hapticOffsetMs: 150, // -400..400, 0中心。既定 +150ms (仕様指定)
+  hapticOffsetMs: 0, // -400..400, 0中心。既定 0ms (round2 #1)
   audioSourceKind: 'builtin:click',
   hapticSourceKind: 'builtin:100hz',
   hapbeatSendEnabled: false,
-  localHapticPreviewEnabled: false,
+  // round2 #7: ローカルミックス (音声+触覚→スピーカー) は送信 OFF の間は
+  // 常時 ON で切替不可。この値は「送信 ON 中もスピーカーに触覚を重ねるか」
+  // だけを意味する (既定 ON = 送信中も今まで通り聞こえる)。
+  hapticSpeakerWhenSending: true,
 };
 
 const state = { ...DEFAULT_STATE };
@@ -69,10 +91,11 @@ const el = {
   bpmUp: $('bpmUp'),
   tapTempoBtn: $('tapTempoBtn'),
   tapHint: $('tapHint'),
-  beatsRange: $('beatsRange'),
   beatsNumber: $('beatsNumber'),
+  beatsDown: $('beatsDown'),
+  beatsUp: $('beatsUp'),
   accentToggle: $('accentToggle'),
-  subdivSelect: $('subdivSelect'),
+  subdivGroup: $('subdivGroup'),
   audioSourceSelect: $('audioSourceSelect'),
   audioFileInput: $('audioFileInput'),
   audioFileName: $('audioFileName'),
@@ -84,7 +107,9 @@ const el = {
   hapticGainRange: $('hapticGainRange'),
   hapticGainValue: $('hapticGainValue'),
   hapbeatSendToggle: $('hapbeatSendToggle'),
-  localHapticPreviewToggle: $('localHapticPreviewToggle'),
+  hapticSpeakerRow: $('hapticSpeakerRow'),
+  hapticSpeakerToggle: $('hapticSpeakerToggle'),
+  hapticSpeakerHint: $('hapticSpeakerHint'),
   offsetRange: $('offsetRange'),
   offsetValue: $('offsetValue'),
   statusLine: $('statusLine'),
@@ -119,8 +144,14 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const saved = JSON.parse(raw);
+      // round2 #1: version フィールドが無い (= round1 以前) 保存データは
+      // hapticOffsetMs だけ新既定 (0) にリセットする。他のキーはそのまま
+      // 引き継ぐ (version が現行と一致していれば offset もそのまま復元)。
+      const savedVersion = Number(saved.schemaVersion) || 0;
+      const resetOffset = savedVersion < SETTINGS_SCHEMA_VERSION;
       for (const key of Object.keys(DEFAULT_STATE)) {
         if (!(key in saved)) continue;
+        if (key === 'hapticOffsetMs' && resetOffset) continue; // DEFAULT_STATE の 0 のまま
         if (key === 'audioSourceKind' || key === 'hapticSourceKind') {
           const v = saved[key];
           if (typeof v === 'string' && (v.startsWith('builtin:') || v.startsWith('bundle:'))) {
@@ -139,15 +170,15 @@ function loadState() {
   state.subdiv = clamp(Math.round(Number(state.subdiv) || 1), 1, 4);
   state.audioVolume = clamp(Number.isFinite(state.audioVolume) ? state.audioVolume : 80, 0, 100);
   state.hapticGain = clamp(Number.isFinite(state.hapticGain) ? state.hapticGain : 80, 0, 100);
-  state.hapticOffsetMs = clamp(Number.isFinite(state.hapticOffsetMs) ? state.hapticOffsetMs : 150, -400, 400);
+  state.hapticOffsetMs = clamp(Number.isFinite(state.hapticOffsetMs) ? state.hapticOffsetMs : 0, -400, 400);
   state.accentEnabled = !!state.accentEnabled;
   state.hapbeatSendEnabled = !!state.hapbeatSendEnabled;
-  state.localHapticPreviewEnabled = !!state.localHapticPreviewEnabled;
+  state.hapticSpeakerWhenSending = state.hapticSpeakerWhenSending === undefined ? true : !!state.hapticSpeakerWhenSending;
 }
 
 function saveState() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, schemaVersion: SETTINGS_SCHEMA_VERSION }));
   } catch {
     /* private mode / quota 超過などは非致命 */
   }
@@ -223,22 +254,32 @@ async function fetchArrayBuffer(url) {
 
 // ── 音源解決 (音声用 / 触覚用) ───────────────────────────────────────────
 // soundBank は「今選ばれている音源から作った再生可能データ」を保持する。
-//   audio: { buffer: AudioBuffer(audioCtx.sampleRate) }
+//   audio: { accentBuffer: AudioBuffer, normalBuffer: AudioBuffer } — 内蔵
+//     click/beep はアクセント/通常で別波形 (周波数違い、sounds.py 準拠)。
+//     bundle:/file: は同一波形を accentBuffer/normalBuffer 両方に積む
+//     (アクセント表現は gain 差のみ、round2 #4)。
 //   haptic: { pcm16: Uint8Array(16kHz LE), sampleRate: 16000, localBuffer: AudioBuffer }
 
 const soundBank = { audio: null, haptic: null };
 
 async function resolveAudioSource(kind) {
   if (kind === 'builtin:click') {
-    return floatArrayToAudioBuffer(makeSine(2000, 12, audioCtx.sampleRate), audioCtx.sampleRate);
+    return {
+      normalBuffer: floatArrayToAudioBuffer(makeSine(2000, 12, audioCtx.sampleRate), audioCtx.sampleRate),
+      accentBuffer: floatArrayToAudioBuffer(makeSine(2800, 12, audioCtx.sampleRate), audioCtx.sampleRate),
+    };
   }
   if (kind === 'builtin:beep') {
-    return floatArrayToAudioBuffer(makeSine(1000, 40, audioCtx.sampleRate), audioCtx.sampleRate);
+    return {
+      normalBuffer: floatArrayToAudioBuffer(makeSine(1000, 40, audioCtx.sampleRate), audioCtx.sampleRate),
+      accentBuffer: floatArrayToAudioBuffer(makeSine(1500, 40, audioCtx.sampleRate), audioCtx.sampleRate),
+    };
   }
   if (kind.startsWith('bundle:')) {
     const filename = kind.slice('bundle:'.length);
     const arrBuf = await fetchArrayBuffer(`./audio/${filename}`);
-    return audioCtx.decodeAudioData(arrBuf.slice(0));
+    const buffer = await audioCtx.decodeAudioData(arrBuf.slice(0));
+    return { normalBuffer: buffer, accentBuffer: buffer };
   }
   throw new Error(`unknown audio source kind: ${kind}`);
 }
@@ -279,7 +320,8 @@ async function resolveHapticSource(kind) {
 async function applyAudioSourceKind(kind) {
   el.audioSourceSelect.value = kind;
   try {
-    soundBank.audio = { buffer: await resolveAudioSource(kind), kind };
+    const { accentBuffer, normalBuffer } = await resolveAudioSource(kind);
+    soundBank.audio = { accentBuffer, normalBuffer, kind };
     clearWarning('audio-source');
   } catch (e) {
     setWarning('audio-source', `音源の読み込みに失敗しました: ${e?.message ?? e}`);
@@ -347,7 +389,7 @@ function disconnectHapbeat() {
 // 標準的な Web Audio lookahead パターン: 25ms タイマーで
 // audioCtx.currentTime 起点の少し先まで beat/subdiv を生成し、その場で
 // AudioBufferSourceNode.start(t) を予約する (サンプル精度)。
-// 触覚 (ローカル試聴 + hapbeat 送信) も同じ生成ループの中で、同じ論理拍
+// 触覚 (ローカルミックス + hapbeat 送信) も同じ生成ループの中で、同じ論理拍
 // 時刻を基準にスケジュールする。
 
 let running = false;
@@ -367,6 +409,8 @@ function ctxTimeToPerfTime(t) {
 // 触覚オフセットが正 (触覚を先出し) の場合、その分だけ余分に先読みしないと
 // 「クリック音より前に触覚を鳴らす/送る」ための予約が間に合わない
 // (engine.py の horizon_sec = max(GEN_LOOKAHEAD_SEC, offset+0.15) と同じ考え方)。
+// round2 #7 でローカルミックスは常時アクティブになった (送信 OFF 時は無条件、
+// 送信 ON 時も既定 ON) ので、offset を常にこの計算に反映する。
 function scheduleAheadSecFor(offsetMs) {
   return Math.max(BASE_SCHEDULE_AHEAD_SEC, Math.max(0, offsetMs) / 1000 + 0.15);
 }
@@ -385,8 +429,15 @@ function scheduleAudioVoice(buffer, time, gain, durationSec) {
   }
 }
 
-function scheduleHaptic(beatTime, periodSec, offsetMs) {
-  const wantLocal = state.localHapticPreviewEnabled;
+// round2 #7: ローカル (スピーカー) ミックスは
+//   - 送信 OFF: 常に ON (本アプリは有線出力前提のデスクトップ版と同義)
+//   - 送信 ON: state.hapticSpeakerWhenSending (既定 ON) で任意に切れる
+function wantHapticLocal() {
+  return !state.hapbeatSendEnabled || state.hapticSpeakerWhenSending;
+}
+
+function scheduleHaptic(beatTime, periodSec, offsetMs, isAccent) {
+  const wantLocal = wantHapticLocal();
   const wantSend = state.hapbeatSendEnabled;
   if (!wantLocal && !wantSend) return;
   const haptic = soundBank.haptic;
@@ -395,12 +446,17 @@ function scheduleHaptic(beatTime, periodSec, offsetMs) {
   const offsetSec = offsetMs / 1000;
   const maxDurSec = Math.max(0, periodSec * 0.9);
   if (maxDurSec <= 0) return;
+  // round2 #4 根本修正: engine.py (`hamp = ev.gain * params.haptic_gain`) と
+  // 同じく、アクセント/通常の gain 差を触覚 (ローカル・送信とも) にも適用する。
+  // round1 はここで isAccent を一切受け取っておらず、常に同一 gain で
+  // 送出していたため「アクセントが効かない」バグの主因になっていた。
+  const accentMul = isAccent ? ACCENT_GAIN : NORMAL_GAIN;
 
   if (wantLocal && haptic.localBuffer) {
     // 拍の sample 位置を offset ぶんずらして生成する python 版と同様、
     // タイムライン開始直後などで「今より前」になる場合は「今」に floor する。
     const spawnTime = Math.max(audioCtx.currentTime, beatTime - offsetSec);
-    scheduleAudioVoice(haptic.localBuffer, spawnTime, clamp(state.hapticGain / 100, 0, 1), maxDurSec);
+    scheduleAudioVoice(haptic.localBuffer, spawnTime, clamp((state.hapticGain / 100) * accentMul, 0, 1), maxDurSec);
   }
 
   if (wantSend && hapbeatBridge.connected && hapbeatBridge.hb) {
@@ -408,7 +464,7 @@ function scheduleHaptic(beatTime, periodSec, offsetMs) {
     if (bytes.length === 0) return;
     const sendPerfTime = ctxTimeToPerfTime(beatTime) - offsetMs;
     const delayMs = Math.max(0, sendPerfTime - performance.now());
-    const gain = clamp(state.hapticGain / 100, 0, 1);
+    const gain = clamp((state.hapticGain / 100) * accentMul, 0, 1);
     const timeoutId = setTimeout(() => {
       pendingHapticTimeouts.delete(timeoutId);
       if (!running || !hapbeatBridge.connected || !hapbeatBridge.hb) return;
@@ -428,8 +484,7 @@ function schedulerTick() {
   const beatsPerBar = clamp(Math.round(state.beatsPerBar), 1, 12);
   const subdiv = clamp(Math.round(state.subdiv), 1, 4);
   const offsetMs = clamp(state.hapticOffsetMs, -400, 400);
-  const hapticActive = state.hapbeatSendEnabled || state.localHapticPreviewEnabled;
-  const horizon = audioCtx.currentTime + scheduleAheadSecFor(hapticActive ? offsetMs : 0);
+  const horizon = audioCtx.currentTime + scheduleAheadSecFor(offsetMs);
 
   while (nextNoteTime < horizon) {
     const periodSec = 60 / bpm;
@@ -437,17 +492,17 @@ function schedulerTick() {
     const beatTime = nextNoteTime;
 
     scheduleAudioVoice(
-      soundBank.audio?.buffer,
+      isAccent ? soundBank.audio?.accentBuffer : soundBank.audio?.normalBuffer,
       beatTime,
       (isAccent ? ACCENT_GAIN : NORMAL_GAIN) * (state.audioVolume / 100),
     );
-    scheduleHaptic(beatTime, periodSec, offsetMs);
+    scheduleHaptic(beatTime, periodSec, offsetMs, isAccent);
     uiEvents.push({ time: beatTime, beatIndex, isAccent });
 
     if (subdiv > 1) {
       for (let k = 1; k < subdiv; k++) {
         const subTime = nextNoteTime + (periodSec * k) / subdiv;
-        scheduleAudioVoice(soundBank.audio?.buffer, subTime, SUBDIV_GAIN * (state.audioVolume / 100));
+        scheduleAudioVoice(soundBank.audio?.normalBuffer, subTime, SUBDIV_GAIN * (state.audioVolume / 100));
       }
     }
 
@@ -498,7 +553,7 @@ function toggleStartStop() {
   else startEngine();
 }
 
-// ── 拍ドット UI ─────────────────────────────────────────────────────────
+// ── 拍ドット帯 UI (round2 #2: 大型・全幅・アクセント色分け) ──────────────
 
 function rebuildBeatDots(count, accentEnabled) {
   el.beatDots.innerHTML = '';
@@ -559,9 +614,16 @@ function setBpm(bpm) {
 
 function setBeatsPerBar(n) {
   state.beatsPerBar = clamp(Math.round(n), 1, 12);
-  el.beatsRange.value = String(state.beatsPerBar);
   el.beatsNumber.value = String(state.beatsPerBar);
   rebuildBeatDots(state.beatsPerBar, state.accentEnabled);
+  saveState();
+}
+
+function setSubdiv(v) {
+  state.subdiv = clamp(Math.round(v), 1, 4);
+  for (const btn of el.subdivGroup.querySelectorAll('.segmented__btn')) {
+    btn.setAttribute('aria-pressed', Number(btn.dataset.subdiv) === state.subdiv ? 'true' : 'false');
+  }
   saveState();
 }
 
@@ -569,19 +631,32 @@ function updateOffsetDisplay(ms) {
   el.offsetValue.textContent = ms > 0 ? `+${ms} ms` : ms < 0 ? `${ms} ms` : '0 ms';
 }
 
+// round2 #7: 送信 OFF の間はローカルミックスが常時有効 (トグル不要) なので、
+// 「送信中も…」チェックは送信 ON の間だけ意味を持つ。送信 OFF の間は
+// チェック状態そのものを操作しても効果が無いことが分かるよう disabled 表示に
+// する (行自体は常に存在させ、レイアウトシフトさせない — ワークスペース UI 方針)。
+function refreshHapticSpeakerRowState() {
+  const sending = state.hapbeatSendEnabled;
+  el.hapticSpeakerToggle.disabled = !sending;
+  el.hapticSpeakerRow.classList.toggle('is-disabled', !sending);
+  el.hapticSpeakerHint.textContent = sending
+    ? '送信中はこのチェックでスピーカー側の触覚だけ止められます（実機だけに触覚を出す場合はオフ）。'
+    : '音声＋触覚のミックスは常にスピーカーへ出力されます（有線出力前提）。Hapbeat 送信を ON にすると、このチェックで送信中もスピーカーに触覚を重ねるかを選べます。';
+}
+
 function reflectStateToUi() {
   el.bpmRange.value = String(state.bpm);
   el.bpmNumber.value = String(state.bpm);
-  el.beatsRange.value = String(state.beatsPerBar);
   el.beatsNumber.value = String(state.beatsPerBar);
   el.accentToggle.checked = state.accentEnabled;
-  el.subdivSelect.value = String(state.subdiv);
+  setSubdiv(state.subdiv);
   el.audioVolumeRange.value = String(state.audioVolume);
   el.audioVolumeValue.textContent = `${state.audioVolume}%`;
   el.hapticGainRange.value = String(state.hapticGain);
   el.hapticGainValue.textContent = `${state.hapticGain}%`;
   el.hapbeatSendToggle.checked = state.hapbeatSendEnabled;
-  el.localHapticPreviewToggle.checked = state.localHapticPreviewEnabled;
+  el.hapticSpeakerToggle.checked = state.hapticSpeakerWhenSending;
+  refreshHapticSpeakerRowState();
   el.offsetRange.value = String(state.hapticOffsetMs);
   updateOffsetDisplay(state.hapticOffsetMs);
 }
@@ -596,8 +671,9 @@ function wireUiEvents() {
 
   el.tapTempoBtn.addEventListener('click', handleTap);
 
-  el.beatsRange.addEventListener('input', () => setBeatsPerBar(Number(el.beatsRange.value)));
   el.beatsNumber.addEventListener('change', () => setBeatsPerBar(Number(el.beatsNumber.value)));
+  el.beatsDown.addEventListener('click', () => setBeatsPerBar(state.beatsPerBar - 1));
+  el.beatsUp.addEventListener('click', () => setBeatsPerBar(state.beatsPerBar + 1));
 
   el.accentToggle.addEventListener('change', () => {
     state.accentEnabled = el.accentToggle.checked;
@@ -605,10 +681,9 @@ function wireUiEvents() {
     saveState();
   });
 
-  el.subdivSelect.addEventListener('change', () => {
-    state.subdiv = clamp(Number(el.subdivSelect.value), 1, 4);
-    saveState();
-  });
+  for (const btn of el.subdivGroup.querySelectorAll('.segmented__btn')) {
+    btn.addEventListener('click', () => setSubdiv(Number(btn.dataset.subdiv)));
+  }
 
   el.audioSourceSelect.addEventListener('change', async () => {
     const val = el.audioSourceSelect.value;
@@ -626,7 +701,7 @@ function wireUiEvents() {
     if (!file) return;
     try {
       const buf = await audioCtx.decodeAudioData((await file.arrayBuffer()).slice(0));
-      soundBank.audio = { buffer: buf, kind: 'file' };
+      soundBank.audio = { accentBuffer: buf, normalBuffer: buf, kind: 'file' };
       el.audioFileName.textContent = file.name;
       clearWarning('audio-file');
     } catch (e) {
@@ -671,12 +746,13 @@ function wireUiEvents() {
 
   el.hapbeatSendToggle.addEventListener('change', () => {
     state.hapbeatSendEnabled = el.hapbeatSendToggle.checked;
+    refreshHapticSpeakerRowState();
     saveState();
     if (state.hapbeatSendEnabled) connectHapbeat();
     else disconnectHapbeat();
   });
-  el.localHapticPreviewToggle.addEventListener('change', () => {
-    state.localHapticPreviewEnabled = el.localHapticPreviewToggle.checked;
+  el.hapticSpeakerToggle.addEventListener('change', () => {
+    state.hapticSpeakerWhenSending = el.hapticSpeakerToggle.checked;
     saveState();
   });
 
@@ -704,6 +780,7 @@ function wireUiEvents() {
 
 async function init() {
   loadState();
+  saveState(); // schemaVersion を即座に確定させる (round2 #1 の移行をこの回で完了させる)
   reflectStateToUi();
   rebuildBeatDots(state.beatsPerBar, state.accentEnabled);
   wireUiEvents();

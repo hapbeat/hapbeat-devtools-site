@@ -6,6 +6,11 @@
   hapbeat-helper (pip install hapbeat-helper) 経由。helper が居なくても
   音声だけで動作する (graceful fallback)。
 
+  行構成はデスクトップ版 (tools/metronome, Python/Tk) の GUI に準拠する:
+  BPM 行 → 開始/タップ行 → 拍ドット帯 → 拍数・アクセント・細分 行 →
+  音源選択 → 出力設定 (送信トグル等) → タイミング補正スライダー →
+  音量/gain → ステータス (instructions-web-metronome-ui-round2 #5)。
+
   このディレクトリは devtools-site の public/ に直置きの生 HTML (Astro の
   コンテンツコレクションを経由しない、Hapbeat Arcade と同じパターン)。
   scripts/fetch-demos.mjs が @hapbeat/sdk の browser バンドルを
@@ -30,23 +35,9 @@
     <main class="app">
       <header class="app__header">
         <h1>Hapbeat Web メトロノーム</h1>
-        <p class="app__lead">
-          インストール不要のブラウザ版メトロノーム。触覚を送るには
-          <a href="https://devtools.hapbeat.com/docs/tools/helper/getting-started/" target="_blank" rel="noopener noreferrer"
-            >hapbeat-helper</a
-          >
-          を起動してください（無くても音声のみで動作します）。
-        </p>
       </header>
 
-      <section class="transport" aria-label="再生コントロール">
-        <button id="startStopBtn" class="btn btn--primary btn--big" type="button" aria-pressed="false">
-          <span id="startStopLabel">開始</span>
-          <span class="btn__hint">Space</span>
-        </button>
-        <div id="beatDots" class="beat-dots" aria-hidden="true"></div>
-      </section>
-
+      <!-- BPM 行 -->
       <section class="panel" aria-label="テンポ">
         <h2 class="panel__title">テンポ</h2>
         <div class="row">
@@ -56,18 +47,32 @@
           <button id="bpmUp" class="btn btn--icon" type="button" aria-label="BPM を上げる">＋</button>
           <input id="bpmNumber" class="num num--bpm" type="number" min="30" max="500" step="1" value="120" />
         </div>
-        <div class="row">
-          <button id="tapTempoBtn" class="btn" type="button">タップテンポ <span class="btn__hint">T</span></button>
-          <span id="tapHint" class="hint">クリックして拍を叩くと BPM を計算します</span>
-        </div>
       </section>
 
+      <!-- 開始/タップ行 -->
+      <section class="transport" aria-label="再生コントロール">
+        <button id="startStopBtn" class="btn btn--primary btn--big" type="button" aria-pressed="false">
+          <span id="startStopLabel">開始</span>
+          <span class="btn__hint">Space</span>
+        </button>
+        <button id="tapTempoBtn" class="btn btn--secondary btn--big" type="button">
+          タップテンポ <span class="btn__hint">T</span>
+        </button>
+      </section>
+      <p id="tapHint" class="tap-hint">クリックして拍を叩くと BPM を計算します</p>
+
+      <!-- 拍ドット帯: 横幅いっぱい・大型ドット・現在拍/アクセントのハイライト。
+           見せ場のため周囲に説明テキストを置かない (round2 #2)。 -->
+      <div id="beatDots" class="beat-band" aria-hidden="true"></div>
+
+      <!-- 拍数・アクセント・細分 行 -->
       <section class="panel" aria-label="拍子">
         <h2 class="panel__title">拍子</h2>
         <div class="row">
-          <label class="row__label" for="beatsRange">拍数</label>
-          <input id="beatsRange" type="range" min="1" max="12" step="1" value="4" />
+          <span class="row__label">拍数</span>
+          <button id="beatsDown" class="btn btn--icon" type="button" aria-label="拍数を減らす">−</button>
           <input id="beatsNumber" class="num" type="number" min="1" max="12" step="1" value="4" />
+          <button id="beatsUp" class="btn btn--icon" type="button" aria-label="拍数を増やす">＋</button>
         </div>
         <div class="row">
           <label class="row__check">
@@ -76,24 +81,25 @@
           </label>
         </div>
         <div class="row">
-          <label class="row__label" for="subdivSelect">細分</label>
-          <select id="subdivSelect">
-            <option value="1">なし</option>
-            <option value="2">1/2</option>
-            <option value="3">1/3</option>
-            <option value="4">1/4</option>
-          </select>
-          <span class="hint">細分は音声のみ（触覚には影響しません）</span>
+          <span class="row__label">細分</span>
+          <div id="subdivGroup" class="segmented" role="group" aria-label="細分">
+            <button class="segmented__btn" type="button" data-subdiv="1" aria-pressed="true">4分</button>
+            <button class="segmented__btn" type="button" data-subdiv="2" aria-pressed="false">8分</button>
+            <button class="segmented__btn" type="button" data-subdiv="3" aria-pressed="false">3連</button>
+            <button class="segmented__btn" type="button" data-subdiv="4" aria-pressed="false">16分</button>
+          </div>
         </div>
+        <p class="hint">細分は音声のみ（触覚には影響しません）</p>
       </section>
 
+      <!-- 音源選択 -->
       <section class="panel" aria-label="音源">
         <h2 class="panel__title">音源</h2>
         <div class="row">
           <label class="row__label" for="audioSourceSelect">音声用</label>
           <select id="audioSourceSelect">
-            <option value="builtin:click">内蔵: クリック (2kHz)</option>
-            <option value="builtin:beep">内蔵: ビープ (1kHz)</option>
+            <option value="builtin:click">内蔵: クリック (2/2.8kHz)</option>
+            <option value="builtin:beep">内蔵: ビープ (1/1.5kHz)</option>
             <option value="bundle:z1_pin_hit.wav">バンドル: z1_pin_hit</option>
             <option value="bundle:z5_shot_light.wav">バンドル: z5_shot_light</option>
             <option value="file">ファイルを選択…</option>
@@ -115,6 +121,39 @@
         </div>
       </section>
 
+      <!-- 出力設定 (送信トグル等) -->
+      <section class="panel" aria-label="Hapbeat 送信">
+        <h2 class="panel__title">Hapbeat 送信</h2>
+        <div class="row">
+          <label class="row__check">
+            <input id="hapbeatSendToggle" type="checkbox" />
+            Hapbeat に触覚を送信する（hapbeat-helper 経由）
+          </label>
+        </div>
+        <div class="row">
+          <label class="row__check" id="hapticSpeakerRow">
+            <input id="hapticSpeakerToggle" type="checkbox" checked />
+            送信中も触覚をスピーカーに重ねて出す
+          </label>
+        </div>
+        <p id="hapticSpeakerHint" class="hint">
+          音声＋触覚のミックスは常にスピーカーへ出力されます（有線出力前提）。送信 ON
+          時のみこのチェックで「スピーカー側の触覚だけ止める」ことができます。
+        </p>
+      </section>
+
+      <!-- タイミング補正スライダー -->
+      <section class="panel" aria-label="タイミング補正">
+        <h2 class="panel__title">触覚タイミング補正</h2>
+        <div class="row row--offset">
+          <span class="offset-edge">音声が早い</span>
+          <input id="offsetRange" type="range" min="-400" max="400" step="5" value="0" />
+          <span class="offset-edge">触覚が早い</span>
+          <span id="offsetValue" class="num-readout num-readout--wide">0 ms</span>
+        </div>
+      </section>
+
+      <!-- 音量/gain -->
       <section class="panel" aria-label="音量 / ゲイン">
         <h2 class="panel__title">音量・ゲイン</h2>
         <div class="row">
@@ -129,35 +168,20 @@
         </div>
       </section>
 
-      <section class="panel" aria-label="Hapbeat 送信">
-        <h2 class="panel__title">Hapbeat 送信</h2>
-        <div class="row">
-          <label class="row__check">
-            <input id="hapbeatSendToggle" type="checkbox" />
-            Hapbeat に触覚を送信する（hapbeat-helper 経由）
-          </label>
-        </div>
-        <div class="row">
-          <label class="row__check">
-            <input id="localHapticPreviewToggle" type="checkbox" />
-            触覚をスピーカーでも試聴する
-          </label>
-        </div>
-        <div class="row row--offset">
-          <label class="row__label" for="offsetRange">触覚タイミング補正</label>
-          <span class="offset-edge">音声が早い</span>
-          <input id="offsetRange" type="range" min="-400" max="400" step="5" value="150" />
-          <span class="offset-edge">触覚が早い</span>
-          <span id="offsetValue" class="num-readout num-readout--wide">+150 ms</span>
-        </div>
-      </section>
-
+      <!-- ステータス -->
       <section class="status" aria-live="polite">
         <p id="statusLine" class="status__line">Hapbeat 送信: オフ（音声のみ）</p>
         <p id="warningLine" class="status__line status__line--warning"></p>
       </section>
 
       <footer class="app__footer">
+        <p class="app__footer-note">
+          インストール不要。触覚を実機に送るには
+          <a href="https://devtools.hapbeat.com/docs/tools/helper/getting-started/" target="_blank" rel="noopener noreferrer"
+            >hapbeat-helper</a
+          >
+          を起動してください（無くても音声のみで動作します）。
+        </p>
         <p>
           <a href="/tools/" target="_blank" rel="noopener noreferrer">← Web ツール一覧に戻る</a>
         </p>
