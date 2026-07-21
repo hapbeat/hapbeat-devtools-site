@@ -58,8 +58,8 @@ LAN を分けられない (同じ展示ブースで複数アプリ・Hapbeat 多
 | App B | 11〜20 (player 11〜20) |
 
 - 各 Hapbeat デバイスには Hapbeat Studio または Hapbeat Helper の Settings から **個別に group ID を割り当て** ておく (例: 1, 2, 3, ..., 11, 12, ...)
-- App A は `HapbeatConfig` の Addressing 設定 (`overrideGroup`) に 1〜10 のいずれかを指定するか、実行時に `HapbeatManager.Instance.SetAddressOverride(player, group)` で動的に切替
-- App B は `overrideGroup` に 11〜20 のいずれかを指定
+- App A は実行時に `HapbeatManager.Instance.SetAddressOverride(player, group, persist: true)` を呼び、group を 1〜10 のいずれかに固定
+- App B は同様に group を 11〜20 のいずれかに固定
 
 各 Hapbeat は自分の group ID に対する packet しか拾わないので、振動衝突は起きません。
 
@@ -76,16 +76,43 @@ LAN を分けられない (同じ展示ブースで複数アプリ・Hapbeat 多
 
 上記は「複数アプリを 1 台の Hapbeat に向ける」ケースでしたが、逆に **「同一の Unity ビルドを複数の HMD に配布し、各端末を自分の Hapbeat に 1:1 で向けたい」** ケース (展示ブースで HMD×Hapbeat のペアを何組も並べる、貸出機材を毎回同じビルドで運用する、など) もよくあります。
 
-このユースケースでは、HMD ごとにビルドを分ける (`HapbeatConfig.group` を焼き分ける) 必要はありません。SDK が持つ **Address Override** 機能を使うと、同一ビルドのまま各端末側で player/group を選ぶだけで済みます。
+このユースケースでは、HMD ごとにビルドを分ける必要はありません。**Address Override はビルド設定 (`HapbeatConfig`) には存在せず、常に実行時 API で設定します** — SDK が持つ **Address Override** 機能を使うと、全端末に同一ビルドを配布したまま、各端末側で player/group を選ぶだけで済みます。
 
-- `HapbeatConfig` の `Addressing` セクションに `overridePlayer` / `overrideGroup` フィールドがあります。-1 = 無効 (EventMap 側の target をそのまま送信)、1〜99 = 送信するすべてのコマンド (Play/Stop/StopAll/StreamBegin) に強制適用。
-- 実行時に切り替えたい場合は `HapbeatManager.Instance.SetAddressOverride(player, group, persist: true)` を呼びます。`persist: true` を指定すると PlayerPrefs に保存され、次回起動時も同じ player/group が復元されます。Showcase サンプルの `AddressOverrideDemo` (Z4_Stream) が +/- ステッパー UI の実装例です。
-- デバイス側の対応は不要です。プロトコルやファームウェアの変更なしに動作します。各 Hapbeat 本体のボタン操作で player/group 番号を設定するだけで、SDK 側の override とデバイス側の番号を一致させれば 1:1 のペアリングが成立します。
+### 設定する 2 つの導線
+
+1. **スクリプトから直接呼ぶ**: `HapbeatManager.Instance.SetAddressOverride(player, group, persist: true)`。
+   `player` / `group` は 1〜99、`HapbeatManager.AddressOverrideDisabled` (`-1`) を渡すとそのまま (EventMap 側の target を上書きしない)。
+   `persist: true` を指定すると PlayerPrefs に保存され、次回起動時も同じ値が自動的に復元されます — **これが「1 本のビルドを何台もの HMD に配り、各端末を自分の Hapbeat に紐付ける」フローの基本形**です。
+2. **`HapbeatAddressOverridePanel` コンポーネントを 1 個アタッチする**: GameObject に追加するだけで、player/group を +/- ステッパーで選び Apply する実行時 UI が自動生成されます。シーン側で UI 階層を組む必要はありません。
+   - `Space` (Inspector) で `ScreenSpaceOverlay` (画面固定 HUD、既定) と `WorldSpace` (VR コントローラーや空間に貼り付ける 3D パネル) を切り替え可能。
+   - Showcase サンプルの `AddressOverrideDemo` (Z4_Stream) は、この `HapbeatAddressOverridePanel` をそのまま継承しただけの薄いクラスです — 独自 UI を実装したい場合の最小の出発点として読めます。
 
 ```csharp
 // 起動時、または設定画面でユーザーが選んだ番号を確定するタイミングで呼ぶ
-HapbeatManager.Instance.SetAddressOverride(player: 3, group: -1, persist: true);
+HapbeatManager.Instance.SetAddressOverride(player: 3, group: HapbeatManager.AddressOverrideDisabled, persist: true);
 ```
+
+デバイス側の対応は不要です。プロトコルやファームウェアの変更なしに動作します。各 Hapbeat 本体のボタン操作で player/group 番号を設定するだけで、SDK 側の override とデバイス側の番号を一致させれば 1:1 のペアリングが成立します。
+
+### appName に \<p\>/\<g\> を埋め込むと現場で確認しやすい
+
+`HapbeatConfig.appName` の文字列内に `<p>` / `<g>` を含めておくと、送信直前に現在の override 値へ自動置換されてからデバイスの OLED (`app_name` 要素) に表示されます。override が無効なときはそれぞれ `-` に置き換わります。
+
+```text
+appName = "Booth <p>/<g>"
+→ player=3, group 無効 のとき: "Booth 3/-"
+→ override 無効のとき:          "Booth -/-"
+```
+
+現場で「この HMD は正しい Hapbeat とペアになっているか」を、デバイスの画面だけで即座に確認できます。
+
+### ベストプラクティス
+
+- **ビルドは全端末共通、個体差は端末側で持つ**: `SetAddressOverride(..., persist: true)` は PlayerPrefs (端末ローカル) に保存されるので、ビルド自体は 1 本のまま何台の HMD にも配布できます。player/group の割り当ては配布後、各端末側で 1 回設定すれば済みます。
+- **EventMap の target は端末非依存に作る**: target のプレイヤー部分は `*` (ワイルドカード) にしておきます。override が無効な端末ではそのまま全デバイスに届き、override を設定した端末ではペア先の Hapbeat だけに届く — 同じ EventMap をそのまま両方の運用で使い回せます。
+- **group は「override」とは別の軸として使う**: player の 1:1 ペアリングとは別に、「チームで一斉に鳴らす」といった用途には group を使う、という住み分けが安全です。
+- **付け替え時は明示的にクリアする**: 端末を別の Hapbeat に付け替える場合は `HapbeatManager.Instance.ClearPersistedAddressOverride()` を呼ぶか、Play モード中は `HapbeatManager` インスペクタの **Clear Saved Override** ボタンを押します。クリア後は override 無効 (config 側にフォールバックする default 値は存在しません) に戻ります。
+- **最終検証は実運用プラットフォームで 1 回行う**: Editor 上の Play モードでの確認に加えて、Quest 向けなら Quest ビルドで実際に PlayerPrefs の永続化・OLED 表示・ペアリングが機能することを最低 1 回確認してください。
 
 ---
 
