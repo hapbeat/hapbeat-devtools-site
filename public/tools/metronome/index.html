@@ -1,15 +1,15 @@
 <!doctype html>
 <!--
-  Hapbeat Web メトロノーム — インストール不要のブラウザ版メトロノーム。
+  Hapbeat Web メトロノーム — ブラウザで動くメトロノーム。
 
   音声は WebAudio のみで完結する。触覚 (Hapbeat 実機への送信) は
   hapbeat-helper (pip install hapbeat-helper) 経由。helper が居なくても
   音声だけで動作する (graceful fallback)。
 
-  行構成はデスクトップ版 (tools/metronome, Python/Tk) の GUI に準拠する:
-  BPM 行 → 開始/タップ行 → 拍ドット帯 → 拍数・アクセント・細分 行 →
-  音源選択 → 出力設定 (送信トグル等) → タイミング補正スライダー →
-  音量/gain → ステータス (instructions-web-metronome-ui-round2 #5)。
+  行構成 (round3): タイトル(中央) → 拍ドット帯 → BPM 行 → 開始/タップ行 →
+  拍数・アクセント・細分 行 → 音源選択 → 出力設定 (送信トグル等) →
+  タイミング補正スライダー → 音量/gain → 設定初期化 → ステータス。
+  拍ドット帯を最上部に置くのは、演奏中に一番見る要素だから (round3 #1)。
 
   このディレクトリは devtools-site の public/ に直置きの生 HTML (Astro の
   コンテンツコレクションを経由しない、Hapbeat Arcade と同じパターン)。
@@ -37,6 +37,11 @@
         <h1>Hapbeat Web メトロノーム</h1>
       </header>
 
+      <!-- 拍ドット帯: 横幅いっぱい・大型の真円ドット。演奏中に一番見る要素なので
+           最上部に置き、周囲に説明テキストを置かない (round3 #1)。
+           アクセント拍は枠線と色だけで区別する (サイズは全拍同じ, round3 #2)。 -->
+      <div id="beatDots" class="beat-band" aria-hidden="true"></div>
+
       <!-- BPM 行 -->
       <section class="panel" aria-label="テンポ">
         <h2 class="panel__title">テンポ</h2>
@@ -46,6 +51,35 @@
           <input id="bpmRange" type="range" min="30" max="500" step="1" value="120" />
           <button id="bpmUp" class="btn btn--icon" type="button" aria-label="BPM を上げる">＋</button>
           <input id="bpmNumber" class="num num--bpm" type="number" min="30" max="500" step="1" value="120" />
+        </div>
+        <!-- ランダム BPM (round3 #3): 現在値から「最小〜最大変化量」の範囲だけ
+             離れた BPM へ飛ぶ。小さすぎる変化は体感できないため下限を設ける。 -->
+        <div class="row">
+          <span class="row__label">ランダム</span>
+          <button id="randomBpmBtn" class="btn btn--secondary" type="button">BPM をランダム変更</button>
+          <span class="hint">変化量</span>
+          <input
+            id="randomMinNumber"
+            class="num num--narrow"
+            type="number"
+            min="1"
+            max="470"
+            step="1"
+            value="20"
+            aria-label="ランダム変化量の最小値 (BPM)"
+          />
+          <span class="hint">〜</span>
+          <input
+            id="randomMaxNumber"
+            class="num num--narrow"
+            type="number"
+            min="1"
+            max="470"
+            step="1"
+            value="80"
+            aria-label="ランダム変化量の最大値 (BPM)"
+          />
+          <span class="hint">BPM</span>
         </div>
       </section>
 
@@ -60,10 +94,6 @@
         </button>
       </section>
       <p id="tapHint" class="tap-hint">クリックして拍を叩くと BPM を計算します</p>
-
-      <!-- 拍ドット帯: 横幅いっぱい・大型ドット・現在拍/アクセントのハイライト。
-           見せ場のため周囲に説明テキストを置かない (round2 #2)。 -->
-      <div id="beatDots" class="beat-band" aria-hidden="true"></div>
 
       <!-- 拍数・アクセント・細分 行 -->
       <section class="panel" aria-label="拍子">
@@ -150,6 +180,7 @@
           <input id="offsetRange" type="range" min="-400" max="400" step="5" value="0" />
           <span class="offset-edge">触覚が早い</span>
           <span id="offsetValue" class="num-readout num-readout--wide">0 ms</span>
+          <button id="offsetResetBtn" class="btn btn--icon" type="button" aria-label="タイミング補正を 0 に戻す" title="0 に戻す">0</button>
         </div>
       </section>
 
@@ -168,6 +199,15 @@
         </div>
       </section>
 
+      <!-- 設定の初期化 (round3 #4) -->
+      <section class="panel" aria-label="設定">
+        <h2 class="panel__title">設定</h2>
+        <div class="row">
+          <button id="resetAllBtn" class="btn btn--secondary" type="button">すべての設定を初期値に戻す</button>
+          <span class="hint">設定はこのブラウザに保存されます（localStorage）</span>
+        </div>
+      </section>
+
       <!-- ステータス -->
       <section class="status" aria-live="polite">
         <p id="statusLine" class="status__line">Hapbeat 送信: オフ（音声のみ）</p>
@@ -176,7 +216,7 @@
 
       <footer class="app__footer">
         <p class="app__footer-note">
-          インストール不要。触覚を実機に送るには
+          触覚を実機に送るには
           <a href="https://devtools.hapbeat.com/docs/tools/helper/getting-started/" target="_blank" rel="noopener noreferrer"
             >hapbeat-helper</a
           >

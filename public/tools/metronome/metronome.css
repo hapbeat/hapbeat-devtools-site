@@ -108,6 +108,7 @@ body {
   margin: 0 0 6px;
   font-size: 22px;
   font-weight: 700;
+  text-align: center; /* round3 #1 */
 }
 
 
@@ -189,6 +190,10 @@ input[type='range'] {
 }
 .num--bpm {
   width: 56px;
+}
+/* ランダム変化量の最小/最大入力 (round3 #3) */
+.num--narrow {
+  width: 52px;
 }
 
 .num-readout {
@@ -314,7 +319,9 @@ select {
   text-align: center;
 }
 
-/* 拍ドット帯 (round2 #2): 横幅いっぱい・大型ドット・見せ場のため周囲にテキストなし。 */
+/* 拍ドット帯 (round2 #2 / round3 #1): 横幅いっぱい・大型ドット・周囲にテキストなし。
+   min-height はドット最大サイズ (48px) + 上下 padding 分で固定し、拍数を変えても
+   帯の高さが動かないようにする (レイアウトシフト防止)。 */
 .beat-band {
   display: flex;
   align-items: center;
@@ -325,12 +332,16 @@ select {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 22px 18px;
-  min-height: 84px;
+  /* 48px (ドット最大) + 22px*2 (padding) + 1px*2 (border) = 94px。拍数を増やして
+     ドットが縮んでも帯の高さが変わらないよう実測値で固定する。 */
+  min-height: 94px;
 }
+/* round3 #2: 高さを指定せず aspect-ratio に決めさせることで、拍数によらず必ず真円に
+   なる (以前は width=flex / height=40px 固定で楕円になっていた)。アクセント拍も
+   同じサイズにし、枠線と色だけで区別する。 */
 .beat-dot {
   flex: 1 1 0;
-  height: 40px;
-  max-width: 56px;
+  max-width: 48px;
   margin: 0 auto;
   border-radius: 50%;
   background: var(--line);
@@ -338,7 +349,6 @@ select {
   aspect-ratio: 1 / 1;
 }
 .beat-dot[data-accent='true'] {
-  height: 52px;
   outline: 3px solid var(--ink-mute);
   outline-offset: 2px;
 }

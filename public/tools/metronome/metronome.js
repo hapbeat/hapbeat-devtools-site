@@ -58,11 +58,17 @@ const HIGHLIGHT_SEC = 0.12; // 拍ドットのフラッシュ表示時間 (engin
 const TAP_RESET_MS = 2000; // タップテンポの間隔リセット (2s 空いたらやり直し)
 const TAP_MAX_SAMPLES = 5; // 直近5打 = 直近4区間の平均
 
+// ランダム BPM (round3 #3): 現在値からの変化量の下限/上限。10 BPM 程度の
+// 変化は体感できないため既定の下限は 20。UI から調整でき localStorage に載る。
+const RANDOM_CHANGE_LIMIT = 470; // BPM レンジ (30..500) の幅
+
 const DEFAULT_STATE = {
   bpm: 120,
   beatsPerBar: 4,
   accentEnabled: true,
   subdiv: 1,
+  randomMinChange: 20,
+  randomMaxChange: 80,
   audioVolume: 80, // 0-100 %
   hapticGain: 80, // 0-100 %
   hapticOffsetMs: 0, // -400..400, 0中心。既定 0ms (round2 #1)
@@ -91,6 +97,11 @@ const el = {
   bpmUp: $('bpmUp'),
   tapTempoBtn: $('tapTempoBtn'),
   tapHint: $('tapHint'),
+  randomBpmBtn: $('randomBpmBtn'),
+  randomMinNumber: $('randomMinNumber'),
+  randomMaxNumber: $('randomMaxNumber'),
+  offsetResetBtn: $('offsetResetBtn'),
+  resetAllBtn: $('resetAllBtn'),
   beatsNumber: $('beatsNumber'),
   beatsDown: $('beatsDown'),
   beatsUp: $('beatsUp'),
@@ -168,6 +179,7 @@ function loadState() {
   state.bpm = clamp(Math.round(Number(state.bpm) || 120), 30, 500);
   state.beatsPerBar = clamp(Math.round(Number(state.beatsPerBar) || 4), 1, 12);
   state.subdiv = clamp(Math.round(Number(state.subdiv) || 1), 1, 4);
+  normalizeRandomRange();
   state.audioVolume = clamp(Number.isFinite(state.audioVolume) ? state.audioVolume : 80, 0, 100);
   state.hapticGain = clamp(Number.isFinite(state.hapticGain) ? state.hapticGain : 80, 0, 100);
   state.hapticOffsetMs = clamp(Number.isFinite(state.hapticOffsetMs) ? state.hapticOffsetMs : 0, -400, 400);
@@ -612,6 +624,66 @@ function setBpm(bpm) {
   saveState();
 }
 
+// ── ランダム BPM (round3 #3) ────────────────────────────────────────────
+
+// 最小 <= 最大、かつ両方 1..470 に収める。壊れた保存値でも必ず有効域に落とす。
+function normalizeRandomRange() {
+  let lo = Math.round(Number(state.randomMinChange));
+  let hi = Math.round(Number(state.randomMaxChange));
+  if (!Number.isFinite(lo)) lo = DEFAULT_STATE.randomMinChange;
+  if (!Number.isFinite(hi)) hi = DEFAULT_STATE.randomMaxChange;
+  lo = clamp(lo, 1, RANDOM_CHANGE_LIMIT);
+  hi = clamp(hi, 1, RANDOM_CHANGE_LIMIT);
+  if (hi < lo) hi = lo;
+  state.randomMinChange = lo;
+  state.randomMaxChange = hi;
+}
+
+function setRandomRange(minChange, maxChange) {
+  state.randomMinChange = minChange;
+  state.randomMaxChange = maxChange;
+  normalizeRandomRange();
+  el.randomMinNumber.value = String(state.randomMinChange);
+  el.randomMaxNumber.value = String(state.randomMaxChange);
+  saveState();
+}
+
+// 現在の BPM から [min, max] だけ離れた値を等確率で選ぶ。下側/上側の候補帯を
+// 30..500 でクリップし、残った候補数に比例して選ぶ (端に張り付いていても偏らない)。
+// 両帯とも空 (= 変化量が広すぎる) 場合のみ、現在値以外の全域から選ぶ。
+function pickRandomBpm(current, minChange, maxChange) {
+  const lowHi = current - minChange;
+  const lowLo = current - maxChange;
+  const highLo = current + minChange;
+  const highHi = current + maxChange;
+  const bands = [];
+  const lo1 = Math.max(30, lowLo);
+  const hi1 = Math.min(500, lowHi);
+  if (hi1 >= lo1) bands.push([lo1, hi1]);
+  const lo2 = Math.max(30, highLo);
+  const hi2 = Math.min(500, highHi);
+  if (hi2 >= lo2) bands.push([lo2, hi2]);
+
+  if (bands.length === 0) {
+    let v = current;
+    while (v === current) v = 30 + Math.floor(Math.random() * 471);
+    return v;
+  }
+  const total = bands.reduce((n, [lo, hi]) => n + (hi - lo + 1), 0);
+  let k = Math.floor(Math.random() * total);
+  for (const [lo, hi] of bands) {
+    const size = hi - lo + 1;
+    if (k < size) return lo + k;
+    k -= size;
+  }
+  return bands[0][0];
+}
+
+function randomizeBpm() {
+  normalizeRandomRange();
+  setBpm(pickRandomBpm(state.bpm, state.randomMinChange, state.randomMaxChange));
+}
+
 function setBeatsPerBar(n) {
   state.beatsPerBar = clamp(Math.round(n), 1, 12);
   el.beatsNumber.value = String(state.beatsPerBar);
@@ -659,6 +731,32 @@ function reflectStateToUi() {
   refreshHapticSpeakerRowState();
   el.offsetRange.value = String(state.hapticOffsetMs);
   updateOffsetDisplay(state.hapticOffsetMs);
+  el.randomMinNumber.value = String(state.randomMinChange);
+  el.randomMaxNumber.value = String(state.randomMaxChange);
+}
+
+// タイミング補正を 0 に戻す (round3 #4)
+function resetOffset() {
+  state.hapticOffsetMs = 0;
+  el.offsetRange.value = '0';
+  updateOffsetDisplay(0);
+  saveState();
+}
+
+// 全設定を初期値へ (round3 #4)。音源も既定に戻すため再ロードする。
+// 再生中でもタイムラインは維持したまま設定だけ差し替える。
+async function resetAllSettings() {
+  if (!window.confirm('すべての設定を初期値に戻します。よろしいですか？')) return;
+  const wasSending = state.hapbeatSendEnabled;
+  Object.assign(state, DEFAULT_STATE);
+  el.audioFileName.textContent = '';
+  el.hapticFileName.textContent = '';
+  saveState();
+  reflectStateToUi();
+  rebuildBeatDots(state.beatsPerBar, state.accentEnabled);
+  if (wasSending) disconnectHapbeat(); // 既定は送信 OFF
+  await Promise.all([applyAudioSourceKind(state.audioSourceKind), applyHapticSourceKind(state.hapticSourceKind)]);
+  setStatus('設定を初期値に戻しました');
 }
 
 function wireUiEvents() {
@@ -670,6 +768,14 @@ function wireUiEvents() {
   el.bpmUp.addEventListener('click', () => setBpm(state.bpm + 1));
 
   el.tapTempoBtn.addEventListener('click', handleTap);
+
+  el.randomBpmBtn.addEventListener('click', randomizeBpm);
+  el.randomMinNumber.addEventListener('change', () =>
+    setRandomRange(Number(el.randomMinNumber.value), state.randomMaxChange)
+  );
+  el.randomMaxNumber.addEventListener('change', () =>
+    setRandomRange(state.randomMinChange, Number(el.randomMaxNumber.value))
+  );
 
   el.beatsNumber.addEventListener('change', () => setBeatsPerBar(Number(el.beatsNumber.value)));
   el.beatsDown.addEventListener('click', () => setBeatsPerBar(state.beatsPerBar - 1));
@@ -761,6 +867,9 @@ function wireUiEvents() {
     updateOffsetDisplay(state.hapticOffsetMs);
     saveState();
   });
+  el.offsetResetBtn.addEventListener('click', resetOffset);
+
+  el.resetAllBtn.addEventListener('click', resetAllSettings);
 
   document.addEventListener('keydown', (e) => {
     const t = e.target;
