@@ -111,6 +111,7 @@ appName = "Booth <p>/<g>"
 - **ビルドは全端末共通、個体差は端末側で持つ**: `SetAddressOverride(..., persist: true)` は PlayerPrefs (端末ローカル) に保存されるので、ビルド自体は 1 本のまま何台の HMD にも配布できます。player/group の割り当ては配布後、各端末側で 1 回設定すれば済みます。
 - **EventMap の target は端末非依存に作る**: target のプレイヤー部分は `*` (ワイルドカード) にしておきます。override が無効な端末ではそのまま全デバイスに届き、override を設定した端末ではペア先の Hapbeat だけに届く — 同じ EventMap をそのまま両方の運用で使い回せます。
 - **group は「override」とは別の軸として使う**: player の 1:1 ペアリングとは別に、「チームで一斉に鳴らす」といった用途には group を使う、という住み分けが安全です。
+- **group override を使うにはデバイス側にも group 設定 (1〜99) が必要**: アドレス照合は位置ベースの前方一致 (i 番目のセグメント同士のみ比較) のため、group を未設定のデバイス (出荷時は group=0 で、自身のアドレスに group セグメントを持たない) は group を指定した送信を受信できません。SDK 側で group override を有効にする場合は、対になる Hapbeat 本体側でも同じ group 番号 (1〜99) を設定してください。
 - **付け替え時は明示的にクリアする**: 端末を別の Hapbeat に付け替える場合は `HapbeatManager.Instance.ClearPersistedAddressOverride()` を呼ぶか、Play モード中は `HapbeatManager` インスペクタの **Clear Saved Override** ボタンを押します。クリア後は override 無効 (config 側にフォールバックする default 値は存在しません) に戻ります。
 - **最終検証は実運用プラットフォームで 1 回行う**: Editor 上の Play モードでの確認に加えて、Quest 向けなら Quest ビルドで実際に PlayerPrefs の永続化・OLED 表示・ペアリングが機能することを最低 1 回確認してください。
 
