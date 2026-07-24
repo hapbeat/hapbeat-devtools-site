@@ -55,6 +55,15 @@ Range: 10ms to 200ms.
 | Congested Wi-Fi / multiple devices | **80–120 ms** | Prioritizes resilience against packet loss and latency spikes |
 | Live performance | Depends on intent | Larger if drop-outs are unacceptable; smaller if immediate responsiveness is critical |
 
+## Device-Side Jitter Buffer (`streamBufferMs`)
+
+`streamSendAheadSeconds` is a **host-side** send buffer, but `HapbeatConfig.streamBufferMs` (default 30ms, 0-500) is a **device-side** jitter-buffer depth. Raise this if CLIP audio/haptics drop out on flaky Wi-Fi (trade-off: more latency).
+
+- `0` = don't send. The device stays in its low-latency default (re-primes on underrun)
+- `>0` = the SDK pushes `set_stream_buffer` to the device's TCP 7701, switching it into continuous mode (hold-decay + drift correction, no re-prime)
+- Sent once per value: to already-known devices when a stream starts, and to newly-discovered devices after connecting
+- The device's TCP 7701 is a single-client slot — if Studio/Helper is connected, the send fails silently and is retried next session; UDP audio playback is never affected
+
 ## Only StreamClip Is Affected
 
 | Mode | Stop latency |
