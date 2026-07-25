@@ -63,7 +63,7 @@ For the typical game developer using only the runtime flow:
 ```
 Your game / app
    └─ Unity SDK (or Unreal / Creative Kit)
-       └─ Wi-Fi UDP broadcast
+       └─ Wi-Fi UDP (unicast by default)
            └─ Hapbeat device (pre-configured in Studio)
 ```
 
@@ -71,6 +71,6 @@ Simply connect your PC, smartphone, or Quest to the same Wi-Fi network as the pr
 
 ## See Also
 
-- [Communication Model: Wi-Fi UDP / ESP-NOW](/en/docs/concepts/communication-model/) — Why UDP broadcast is the primary path
+- [Communication Model: Wi-Fi UDP / ESP-NOW](/en/docs/concepts/communication-model/) — Why Wi-Fi UDP unicast is the default
 - [Event ID and Kit](/en/docs/concepts/event-id-and-kit/) — The unit of haptic assets
 - [Gain Architecture](/en/docs/concepts/gain-architecture/) — Separation of responsibilities between Studio and SDK

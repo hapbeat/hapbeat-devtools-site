@@ -6,7 +6,7 @@ sidebar:
   order: 4
 ---
 
-Hapbeat の通信は UDP broadcast が基本です。複数のデバイスを同じネットワークに混在させたとき、**どのパケットを誰が再生するか** を決めるのが address です。このページは address 文字列の組み立て方と、その背景にある設計判断を説明します。
+Hapbeat の通信は UDP で、送信側がどの配送手段（unicast / broadcast）を使うかに関わらず、**再生するかどうかはデバイス側が判断します**。複数のデバイスを同じネットワークに混在させたとき、**どのパケットを誰が再生するか** を決めるのが address です。このページは address 文字列の組み立て方と、その背景にある設計判断を説明します。
 
 仕様の正式定義は [Contracts: device-addressing](https://github.com/Hapbeat/hapbeat-contracts/blob/master/specs/device-addressing.md) を参照。
 
@@ -44,16 +44,16 @@ Hapbeat の通信は UDP broadcast が基本です。複数のデバイスを同
 
 OLED 表示 (`Gr:01..99` / `P:01..99`) と整合させるため、Player / Group とも **`1..99` 固定** です ([DEC-030](https://github.com/Hapbeat/hapbeat-sdk-workspace/blob/master/docs/decision-log.md#DEC-030))。技術的には `uint8_t` で 255 まで保持できるため、将来必要になれば拡張可能です。
 
-## なぜ broadcast + デバイス側フィルタにしたか
+## なぜデバイス側フィルタにしたか
 
 | 設計判断 | 理由 |
 |---|---|
 | **デバイス IP を管理しない** | DHCP で IP が変わってもアドレス指定の更新は不要 |
-| **1 台でも複数台でも送信コードが同じ** | unicast / broadcast の切替や宛先テーブルが不要 |
+| **1 台でも複数台でも送信コードが同じ** | 宛先テーブルを書き換えずに送り分けられる（配送手段は SDK が選ぶ） |
 | **PC / Quest / スマホで同一の動作** | 各プラットフォームの UDP socket API だけで完結 |
 | **Bridge / 中継サーバ不要** | アプリ起動だけで触覚が出る、オフラインでも動く |
 
-このため Hapbeat は「中央サーバが存在しない / クラウド不要」設計が成立しています。詳細は [通信モデル](./communication-model/) を参照。
+このため Hapbeat は「中央サーバが存在しない / クラウド不要」設計が成立しています。配送手段そのもの（既定が unicast である理由・台数と同時性）は [通信モデル](./communication-model/) を参照。
 
 ## 接続シナリオでの使い分け
 

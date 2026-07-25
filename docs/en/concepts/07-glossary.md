@@ -64,8 +64,8 @@ Each term used throughout the documentation is defined in one to two lines. For 
 
 ## Networking
 
-**Wi-Fi UDP broadcast**
-: The standard communication path. The SDK sends via UDP broadcast; each Hapbeat self-filters by address. No relay server required.
+**Wi-Fi UDP**
+: The standard communication path. By default the SDK unicasts to discovered devices (falling back to broadcast when none are known yet); each Hapbeat self-filters by address. No relay server required.
 
 **ESP-NOW**
 : The upper-tier optional communication path. Uses Bridge + Transmitter firmware to form an independent network without an AP. For large-scale performances or Wi-Fi-free environments.

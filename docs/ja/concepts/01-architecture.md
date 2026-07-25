@@ -63,7 +63,7 @@ hapbeat-contracts（仕様の起点）
 ```
 あなたのゲーム / アプリ
    └─ Unity SDK (or Unreal / Creative Kit)
-       └─ Wi-Fi UDP broadcast
+       └─ Wi-Fi UDP (既定は unicast)
            └─ Hapbeat デバイス（事前に Studio で設定済み）
 ```
 
@@ -71,6 +71,6 @@ hapbeat-contracts（仕様の起点）
 
 ## 関連
 
-- [通信モデル: Wi-Fi UDP / ESP-NOW](./communication-model/) — なぜ UDP broadcast が主経路なのか
+- [通信モデル: Wi-Fi UDP / ESP-NOW](./communication-model/) — なぜ Wi-Fi UDP unicast が既定なのか
 - [Event ID と Kit の関係](./event-id-and-kit/) — 触覚資産の単位
 - [gain の乗算構造](./gain-architecture/) — Studio と SDK の責務分離

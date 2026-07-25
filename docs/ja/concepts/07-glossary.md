@@ -64,8 +64,8 @@ sidebar:
 
 ## ネットワーク
 
-**Wi-Fi UDP broadcast**
-: 標準通信経路。SDK が UDP broadcast で送信し、各 Hapbeat が address で自己フィルタする。中継サーバ不要。
+**Wi-Fi UDP**
+: 標準通信経路。SDK は既定で発見済みデバイスへ unicast 送信し（既知 0 台のときは broadcast にフォールバック）、各 Hapbeat が address で自己フィルタする。中継サーバ不要。
 
 **ESP-NOW**
 : 上位オプション通信経路。Bridge + Transmitter ファームウェア経由で AP 不要の独立網を構成する。大規模パフォーマンス / Wi-Fi 不在環境向け。

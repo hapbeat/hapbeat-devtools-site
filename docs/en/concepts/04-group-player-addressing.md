@@ -6,7 +6,7 @@ sidebar:
   order: 4
 ---
 
-Hapbeat communication is based on UDP broadcast. When multiple devices share the same network, the **address** determines which packets each device plays. This page explains how address strings are constructed and the design decisions behind them.
+Hapbeat communication runs over UDP, and **the device decides whether to play**, regardless of how the sender delivers the packet (unicast or broadcast). When multiple devices share the same network, the **address** determines which packets each device plays. This page explains how address strings are constructed and the design decisions behind them.
 
 For the formal specification, see [Contracts: device-addressing](https://github.com/Hapbeat/hapbeat-contracts/blob/master/specs/device-addressing.md).
 
@@ -44,16 +44,16 @@ An **address without `group_{M}` is received by all groups**. You can omit it wh
 
 To align with the OLED display (`Gr:01..99` / `P:01..99`), both Player and Group are fixed at **1..99** ([DEC-030](https://github.com/Hapbeat/hapbeat-sdk-workspace/blob/master/docs/decision-log.md#DEC-030)). Internally, `uint8_t` can hold up to 255, so the range can be expanded in the future if needed.
 
-## Why Broadcast + Device-Side Filtering?
+## Why Device-Side Filtering?
 
 | Design decision | Reason |
 |---|---|
 | **No device IP management** | No need to update address assignments when DHCP reassigns IPs |
-| **Same send code for one or many devices** | No unicast/broadcast switching or destination tables |
+| **Same send code for one or many devices** | Routing changes without rewriting destination tables (the SDK picks the delivery method) |
 | **Identical behavior on PC / Quest / smartphone** | Only a standard UDP socket API is needed per platform |
 | **No Bridge or relay server** | Haptic output works immediately on app launch, works offline |
 
-This is why Hapbeat achieves a "no central server / no cloud" design. See [Communication Model](/en/docs/concepts/communication-model/) for details.
+This is why Hapbeat achieves a "no central server / no cloud" design. For the delivery method itself (why unicast is the default, device count vs. simultaneity), see [Communication Model](/en/docs/concepts/communication-model/).
 
 ## Choosing Addresses for Connection Scenarios
 
