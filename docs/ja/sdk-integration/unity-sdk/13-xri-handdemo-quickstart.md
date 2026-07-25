@@ -23,29 +23,36 @@ XRI とそのサンプルは **Unity Companion License** で提供されてお�
 - **Hapbeat SDK**（[](/docs/sdk-integration/unity-sdk/installation/) 参照）
 - Hapbeat デバイスが Unity を実行する PC と同じ Wi-Fi LAN にいること
 - ハンドトラッキング対応 HMD（Quest 3 / 3S など）。XRI 側の要件に従います
+- OpenXR の **Hand Interaction Profile** と **Hand Tracking Subsystem** が有効になっていること（手順 5）
 
 ## 手順
 
 1. **Package Manager → Unity Registry → XR Interaction Toolkit を Install**
-   XRI 本体が入ります。
+   XRI 本体が入ります。**Unity の VR テンプレートでプロジェクトを作成した場合は XR Interaction Toolkit が最初から入っている**ため、この手順は不要です（バージョンだけ確認してください）。3D テンプレートなどから始めた場合のみ Package Manager から導入します。
 2. **XR Interaction Toolkit の Samples タブ → *Starter Assets* と *Hands Interaction Demo* を Import**
    `Assets/Samples/XR Interaction Toolkit/<version>/Hands Interaction Demo/` にシーンとアセットが展開されます。XRI が追加サンプルの import を促す場合はそれに従ってください。
 3. **Hapbeat SDK を導入**
    Git URL でインストールします（手順は [](/docs/sdk-integration/unity-sdk/installation/)）。
 4. **Hapbeat SDK の Samples → *XR Helpers* と *XRI Hand Demo (haptics add-on)* を Import**
    前者は XRI 用のフィルタコンポーネント、後者は `HandsDemoEventMap.asset` と `Kit/hand-demo-kit/` が入ります。**両方**必要です。
-5. **`HandsDemoScene.unity` を開く**
+5. **XR 設定（OpenXR）でハンドトラッキングの入力を有効にする**
+   `Project Settings → XR Plug-in Management → OpenXR` を開き、**ビルド対象のタブ**（Quest 単体で動かすなら **Android**、Air Link 等で Editor Play するなら **PC**）で次の 2 つを設定します。
+   - **Enabled Interaction Profiles** に **Hand Interaction Profile** を追加する
+   - **Hand Tracking Subsystem** feature を有効化する
+
+   この設定が無いと **「触覚は鳴るが掴めない」** 状態になります。poke（指先で押す）は指の**位置**だけで成立するのに対し、grab はピンチ = **select 入力**を必要とし、それを供給しているのが Hand Interaction Profile だからです。
+6. **`HandsDemoScene.unity` を開く**
    コマンドは「今開いているシーン」に対して適用されます。
-6. **メニュー `Hapbeat > Samples > Augment XRI Hand Demo` を実行**
+7. **メニュー `Hapbeat > Samples > Augment XRI Hand Demo` を実行**
    触覚コンポーネント（Sequence Trigger / UnityEvent Trigger / Tick Emitter / Parameter Binding、およびシーンに `HapbeatManager` が無ければ `[Hapbeat Event Router]`）が配置され、XRI 側の UnityEvent へ配線されます。適用件数・スキップ件数・警告数は Console に 1 行で出ます。
    - **Undo 可**: 実行直後の `Edit → Undo` 1 回ですべて取り消せます。
    - **冪等**: 既に入っているコンポーネントと同じ配線は追加されず、スキップとして数えられます。何度実行しても重複しません。
    - **XRI 自身の select イベントは書き換えません**。ソケット周りは *XR Helpers* のフィルタコンポーネントが公開するイベントに配線されます。
-7. **Hapbeat デバイスを同じ Wi-Fi に接続 → Play**
+8. **Hapbeat デバイスを同じ Wi-Fi に接続 → Play**
    HMD をかぶってキューブを掴む / ボタンを押す / スライダーを動かすと触覚が返ります。
 
 :::tip[どのイベントに触覚を足すか検討したいとき]
-手順 6 の代わりに `Hapbeat > Samples > Augment XRI Hand Demo (+ diagnostic Event Logger)` を実行すると、Poke ボタンの XRI インタラクタブルイベントがすべて Console にログされます。配線先を決めるときに便利ですが、通常はノイズになるので必要なときだけ使ってください。
+手順 7 の代わりに `Hapbeat > Samples > Augment XRI Hand Demo (+ diagnostic Event Logger)` を実行すると、Poke ボタンの XRI インタラクタブルイベントがすべて Console にログされます。配線先を決めるときに便利ですが、通常はノイズになるので必要なときだけ使ってください。
 :::
 
 ## Kit（`hand-demo-kit`）の扱い
@@ -62,6 +69,7 @@ XRI とそのサンプルは **Unity Companion License** で提供されてお�
 | ダイアログ「開いているシーンは Hands Interaction Demo ではない」 | `HandsDemoScene.unity` 以外が開いている、または XRI のバージョン差でシーン構造が変わっている。ダイアログには見つからなかった GameObject のパスが列挙されるので、XRI のバージョン（動作確認済みは 3.3.1）を確認する |
 | Console に「GameObject '…' not found」警告 | XRI 側で該当オブジェクトが改名・移動されている。コマンドは見つかった分だけ適用するので、**警告に出たパスは手動で配線**する（配線パターンは [](/docs/sdk-integration/unity-sdk/triggers/) 参照） |
 | Console に「type '…HapbeatXRGrabFilter' not found」警告 | サンプル *XR Helpers* が未 import。手順 4 を実行して再実行する |
+| 触覚は鳴るが掴めない / ハンドジェスチャーが認識されない | OpenXR の **Hand Interaction Profile** と **Hand Tracking Subsystem** を有効化する（手順 5） |
 | 触覚が鳴らない | [](/docs/support/faq/) の接続関連、および [](/docs/sdk-integration/unity-sdk/getting-started/) の確認手順を参照 |
 
 XRI は 3.3.1 で動作確認しています。他バージョンでも構造が変わっていなければ動作しますが、GameObject のパスが変わっていると該当箇所だけ警告になります（コマンド全体が失敗するわけではありません）。

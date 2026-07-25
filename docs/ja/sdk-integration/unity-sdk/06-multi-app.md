@@ -105,27 +105,6 @@ HapbeatManager.Instance.SetAddressOverride(player: 3, group: HapbeatManager.Addr
 
 デバイス側の対応は不要です。プロトコルやファームウェアの変更なしに動作します。各 Hapbeat 本体のボタン操作で player/group 番号を設定するだけで、SDK 側の override とデバイス側の番号を一致させれば 1:1 のペアリングが成立します。
 
-### `CompositionLayer` モード (視界固定 + 高精細)
-
-`HapbeatAddressOverridePanel` の `World Attach Mode` = `CompositionLayer` にすると、パネルを RenderTexture に描画して **OpenXR の quad composition layer** として XR コンポジタに直接渡します (Quest の起動ロゴと同じ仕組み)。アプリのアイバッファを経由しないため:
-
-- **揺れない** — 再投影 (TimeWarp) の**後段**で合成されるので、視界に固定しても泳ぎません。
-- **鮮明** — アイバッファの解像度 (Render Scale) の影響を受けず、コンポジタが元テクスチャを直接サンプリングします。
-
-利用側プロジェクトの前提が 3 つあります:
-
-1. `com.unity.xr.compositionlayers` パッケージを Package Manager で導入する。
-2. `Project Settings > XR Plug-in Management > OpenXR` (Android ビルドなら Android タブ) で **Composition Layers** feature を有効にする。
-3. **Hapbeat Settings ウィンドウの `XR > Enable Composition Layer Support` を有効にする** (既定は OFF)。
-
-**2 だけでは動きません。** OpenXR の Composition Layers feature がレイヤープロバイダを割り当てるのは XR セッション開始時の一度きりで、しかも**その瞬間に composition layer マネージャが起動している場合のみ**です。XR の初期化・セッション開始は最初のシーン読み込みより前に走るため、シーン上のコンポーネントから作ったレイヤーでは間に合いません。3 を有効にすると SDK が XR 初期化前 (subsystem registration) にマネージャを起動状態にするので、この割り当てが成立します。常駐コストがあるため既定は OFF です。
-
-どれかが欠けている場合、または実行時にレイヤープロバイダが起動しなかった場合は、**警告を 1 回出して `LazyFollow` にフォールバック**します。パッケージ未導入でも SDK はそのままコンパイルできます (asmdef の `versionDefines` による opt-in で、SDK の `package.json` に依存は追加していません)。
-
-サンプルシーン (`VRConfigExample`) の既定は `LazyFollow` のままです — 上記 2 つの前提が要るため、切り替えは利用側で明示的に行ってください。
-
-制約: このモードでは Canvas をシーン外に退避して撮影するため、パネルへのポインター (マウス / レイ) 操作は効きません — コントローラーのフォーカスグリッド操作 (`MoveFocus` / `ActivateFocused`) で操作してください。また撮影範囲はパネル Canvas の矩形内のみなので、`PanelCanvasTransform` の下に矩形外へオフセットして付けた UI は写りません。
-
 ### appName に \<p\>/\<g\> を埋め込むと現場で確認しやすい
 
 `HapbeatConfig.appName` の文字列内に `<p>` / `<g>` を含めておくと、送信直前に現在の override 値へ自動置換されてからデバイスの OLED (`app_name` 要素) に表示されます。override が無効なときはそれぞれ `-` に置き換わります。
