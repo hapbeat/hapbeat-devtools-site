@@ -76,7 +76,15 @@ LAN を分けられない (同じ展示ブースで複数アプリ・Hapbeat 多
 
 上記は「複数アプリを 1 台の Hapbeat に向ける」ケースでしたが、逆に **「同一の Unity ビルドを複数の HMD に配布し、各端末を自分の Hapbeat に 1:1 で向けたい」** ケース (展示ブースで HMD×Hapbeat のペアを何組も並べる、貸出機材を毎回同じビルドで運用する、など) もよくあります。
 
-このユースケースでは、HMD ごとにビルドを分ける必要はありません。**Address Override はビルド設定 (`HapbeatConfig`) には存在せず、常に実行時 API で設定します** — SDK が持つ **Address Override** 機能を使うと、全端末に同一ビルドを配布したまま、各端末側で player/group を選ぶだけで済みます。
+このユースケースでは、HMD ごとにビルドを分ける必要はありません。SDK が持つ **Address Override** 機能を使うと、全端末に同一ビルドを配布したまま、各端末側で player/group を選ぶだけで済みます。
+
+固定の単位は 2 つあり、名前も対になっています。ビルド全体で固定したいなら `Hapbeat > Settings` の **Override Addressing (this build)** (`HapbeatConfig.buildOverridePlayer` / `buildOverrideGroup`)、端末ごとに変えたいなら実行時 API / 設定パネル = **Override Addressing (this device)** です (軸ごとに独立。詳細は下記)。
+
+### 既定値は player_1 / group_1 — 番号は 1 以外から振る
+
+デバイスのアドレスは常に `player_<N>/<position>/group_<M>` の正規形で保持され、**既定値は `player_1` / `group_1`** です (firmware DEC-048 以降、group セグメントが省略されることはありません)。
+
+つまり **設定し忘れた機体はすべて player_1 / group_1、つまり「1 番のデモ」に合流します**。複数デモを分けるときは、デモ側の番号を **2, 3, … と 1 以外から振っておく**と、設定漏れの機体が「どのデモにも反応しない」形で即座に分かります。
 
 ### 設定する 2 つの導線
 
@@ -111,7 +119,7 @@ appName = "Booth <p>/<g>"
 - **ビルドは全端末共通、個体差は端末側で持つ**: `SetAddressOverride(..., persist: true)` は PlayerPrefs (端末ローカル) に保存されるので、ビルド自体は 1 本のまま何台の HMD にも配布できます。player/group の割り当ては配布後、各端末側で 1 回設定すれば済みます。
 - **EventMap の target は端末非依存に作る**: target のプレイヤー部分は `*` (ワイルドカード) にしておきます。override が無効な端末ではそのまま全デバイスに届き、override を設定した端末ではペア先の Hapbeat だけに届く — 同じ EventMap をそのまま両方の運用で使い回せます。
 - **group は「override」とは別の軸として使う**: player の 1:1 ペアリングとは別に、「チームで一斉に鳴らす」といった用途には group を使う、という住み分けが安全です。
-- **group override を使うにはデバイス側にも group 設定 (1〜99) が必要**: アドレス照合は位置ベースの前方一致 (i 番目のセグメント同士のみ比較) のため、group を未設定のデバイス (出荷時は group=0 で、自身のアドレスに group セグメントを持たない) は group を指定した送信を受信できません。SDK 側で group override を有効にする場合は、対になる Hapbeat 本体側でも同じ group 番号 (1〜99) を設定してください。
+- **group override を使うときはデバイス側の group 番号を必ず合わせる**: アドレス照合は位置ベースの前方一致 (i 番目のセグメント同士のみ比較) なので、`group_5` を指定した送信は group_5 のデバイスにしか届きません。デバイス側の既定は `group_1` なので、**未設定の機体は group_1 の送信だけを受け取ります**。SDK 側で group override を使う場合は、対になる Hapbeat 本体側にも同じ group 番号 (1〜99) を設定してください。
 - **付け替え時は明示的にクリアする**: 端末を別の Hapbeat に付け替える場合は `HapbeatManager.Instance.ClearPersistedAddressOverride()` を呼ぶか、Play モード中は `HapbeatManager` インスペクタの **Clear Saved Override** ボタンを押します。クリア後は override 無効 (config 側にフォールバックする default 値は存在しません) に戻ります。
 - **最終検証は実運用プラットフォームで 1 回行う**: Editor 上の Play モードでの確認に加えて、Quest 向けなら Quest ビルドで実際に PlayerPrefs の永続化・OLED 表示・ペアリングが機能することを最低 1 回確認してください。
 

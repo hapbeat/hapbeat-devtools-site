@@ -76,7 +76,15 @@ Each Hapbeat only picks up packets matching its own group ID, so haptic collisio
 
 The case above was "multiple apps targeting one Hapbeat." The opposite case is also common: **deploying the exact same Unity build to multiple HMDs, with each device paired 1:1 to its own Hapbeat** (a booth with several HMD/Hapbeat pairs side by side, rental hardware that always runs the same build, etc.).
 
-For this use case you don't need to fork the build per HMD. **Address Override has no build-time equivalent in `HapbeatConfig` — it is always configured at runtime.** The SDK's **Address Override** feature lets you keep a single build for every device and pick the player/group on each device instead.
+For this use case you don't need to fork the build per HMD. The SDK's **Address Override** feature lets you keep a single build for every device and pick the player/group on each device instead.
+
+There are two scopes, and their names are deliberately paired. To pin a value for the whole build, use **Override Addressing (this build)** in `Hapbeat > Settings` (`HapbeatConfig.buildOverridePlayer` / `buildOverrideGroup`). To vary it per device, use the runtime API / settings panel — **Override Addressing (this device)**. Each axis is independent; see below for details.
+
+### The defaults are player_1 / group_1 — number your demos from 2 up
+
+A device always stores its address in the canonical `player_<N>/<position>/group_<M>` form, and **the defaults are `player_1` / `group_1`** (since firmware DEC-048 the group segment is never omitted).
+
+That means **any unit you forget to configure joins player_1 / group_1 — i.e. "demo number 1."** When you split demos apart, number them **from 2 upward instead of 1**, so an unconfigured unit stands out immediately by responding to none of the demos.
 
 ### Two ways to set it
 
@@ -111,7 +119,7 @@ This lets you confirm "is this HMD paired with the right Hapbeat?" directly from
 - **Ship one build for every device; keep per-device identity on the device**: `SetAddressOverride(..., persist: true)` is saved to PlayerPrefs (local to that device), so a single build can be deployed to any number of HMDs. Assign player/group once per device after deployment.
 - **Author EventMap targets to be device-agnostic**: leave the player portion of the target as `*` (wildcard). On devices with no override set, everything still reaches every device; on devices with an override set, it reaches only the paired Hapbeat — the same EventMap works for both without changes.
 - **Treat group as a separate axis from the override**: keep the 1:1 player pairing distinct from group-based use cases like "trigger for the whole team at once."
-- **Using group override requires a matching group set on the device (1–99)**: address matching is positional, prefix-based (only the i-th segment on each side is compared), so a device with no group configured (group=0 out of the box, no group segment in its own address) will not receive sends targeted with a group. If you enable group override on the SDK side, set the same group number (1–99) on the paired Hapbeat device as well.
+- **When you use group override, always match the group number on the device**: address matching is positional, prefix-based (only the i-th segment on each side is compared), so a send targeted at `group_5` only reaches devices on group_5. A device defaults to `group_1`, so **an unconfigured unit only ever receives group_1 sends**. If you enable group override on the SDK side, set the same group number (1–99) on the paired Hapbeat device as well.
 - **Clear explicitly when re-pairing a device**: when moving a device to a different Hapbeat, call `HapbeatManager.Instance.ClearPersistedAddressOverride()`, or click **Clear Saved Override** in the `HapbeatManager` inspector while in Play mode. After clearing, the override reverts to disabled — there is no config-level default to fall back to.
 - **Do one final verification pass on the real target platform**: beyond checking in the Editor's Play mode, verify at least once on the actual deployment platform (e.g. an actual Quest build) that PlayerPrefs persistence, OLED display, and pairing all work end-to-end.
 
