@@ -96,7 +96,6 @@ LAN を分けられない (同じ展示ブースで複数アプリ・Hapbeat 多
    - `WorldSpace` のときは `World Attach Mode` で表示の張り付き方を選べます。距離と上下位置はいずれも `Follow Distance` / `Follow Vertical Offset` で調整します。
      - `LazyFollow` (既定) — 視界中央から `Follow Deadzone Degrees` 以内にある間はワールド固定のままにし、それを超えて見回したときだけ正面へ滑らかに移動します。カメラ Transform の子にする**ハードなヘッドロックは採用していません**: 頭に追従して動く面には XR コンポジタの再投影 (TimeWarp) が重ねて掛かるため、頭を振るたびに UI が泳いで見えます。
      - `WorldFixed` — 置いた場所に留まります。
-     - `CompositionLayer` (opt-in) — 完全に視界固定したい / 文字をもっと鮮明にしたい場合。下記「`CompositionLayer` モード」参照。
    - Showcase サンプルの `AddressOverrideDemo` (Z4_Stream) は、この `HapbeatAddressOverridePanel` をそのまま継承しただけの薄いクラスです — 独自 UI を実装したい場合の最小の出発点として読めます。
 
 ```csharp
