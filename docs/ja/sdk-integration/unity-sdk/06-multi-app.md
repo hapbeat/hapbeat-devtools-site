@@ -93,6 +93,7 @@ LAN を分けられない (同じ展示ブースで複数アプリ・Hapbeat 多
    `persist: true` を指定すると PlayerPrefs に保存され、次回起動時も同じ値が自動的に復元されます — **これが「1 本のビルドを何台もの HMD に配り、各端末を自分の Hapbeat に紐付ける」フローの基本形**です。
 2. **`HapbeatAddressOverridePanel` コンポーネントを 1 個アタッチする**: GameObject に追加するだけで、player/group を +/- ステッパーで選び Apply する実行時 UI が自動生成されます。シーン側で UI 階層を組む必要はありません。
    - `Space` (Inspector) で `ScreenSpaceOverlay` (画面固定 HUD、既定) と `WorldSpace` (VR コントローラーや空間に貼り付ける 3D パネル) を切り替え可能。
+   - `WorldSpace` のときは `World Attach Mode` で `HeadLocked` (既定・常に視界の中央に表示) と `WorldFixed` (置いた場所に留まる) を選べます。`HeadLocked` では Canvas をカメラ Transform の子にするため、視界に対する遅れやジッターは原理的に発生しません。距離と上下位置は `Head Locked Distance` / `Head Locked Vertical Offset` で調整します。
    - Showcase サンプルの `AddressOverrideDemo` (Z4_Stream) は、この `HapbeatAddressOverridePanel` をそのまま継承しただけの薄いクラスです — 独自 UI を実装したい場合の最小の出発点として読めます。
 
 ```csharp
@@ -113,6 +114,15 @@ appName = "Booth <p>/<g>"
 ```
 
 現場で「この HMD は正しい Hapbeat とペアになっているか」を、デバイスの画面だけで即座に確認できます。
+
+### VR 実機だけ文字が滲む場合 (レンダー解像度)
+
+Editor の Play モード (Air Link 等) では綺麗に読めるのに、Quest 実機ビルドだけパネルの文字が甘い — というときは、**Unity の Quality レベルがプラットフォームごとに別々**であることが原因のことがほとんどです。Air Link 経由の Editor Play は Standalone (PC) 側のレベル、Quest 実機ビルドは Android (Mobile) 側のレベルを使います。
+
+- **Render Scale を 1.0 に上げる**: VR テンプレートの既定 URP アセット `Mobile_RPAsset` は **Render Scale 0.8** です。実機側だけ描画解像度が 8 割に落ちるため、同じパネルでも文字がぼやけます。`Project Settings > Quality` で Android 側が参照しているレンダーパイプラインアセットを開き、Render Scale を `1.0` にすると改善します。
+- **パネル側の World Pixel Density で追い込む**: `HapbeatAddressOverridePanel` の `World Pixel Density` (既定 `3`、範囲 `1〜8`) を上げると、同じ物理サイズのままフォントを高い解像度でラスタライズします。フォントアトラスのメモリと引き換えなので、必要な分だけ上げてください。
+
+いずれも**利用側プロジェクトの設定**であり、SDK 側から変更することはできません (Quality / URP アセットはプロジェクト資産のため)。
 
 ### ベストプラクティス
 

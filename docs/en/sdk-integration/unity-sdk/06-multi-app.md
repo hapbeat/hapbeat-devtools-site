@@ -93,6 +93,7 @@ That means **any unit you forget to configure joins player_1 / group_1 — i.e. 
    With `persist: true`, the values are saved to PlayerPrefs and restored automatically on the next launch — **this is the basic flow for "one identical build deployed to many HMDs, each bound to its own Hapbeat."**
 2. **Attach the `HapbeatAddressOverridePanel` component**: add it to any GameObject and it builds a runtime UI with +/- steppers for player/group and an Apply button — no scene wiring required.
    - `Space` (Inspector) toggles between `ScreenSpaceOverlay` (fixed 2D HUD, default) and `WorldSpace` (a 3D panel for VR controllers or spatial attachment).
+   - In `WorldSpace`, `World Attach Mode` picks between `HeadLocked` (default — always centered in view) and `WorldFixed` (stays where it was placed). `HeadLocked` parents the Canvas to the camera Transform, so lag or jitter relative to the view is impossible by construction. Tune the placement with `Head Locked Distance` / `Head Locked Vertical Offset`.
    - The `AddressOverrideDemo` sample in Showcase (Z4_Stream) is just a thin subclass of `HapbeatAddressOverridePanel` — a minimal starting point if you want to build your own UI on top of it.
 
 ```csharp
@@ -113,6 +114,15 @@ appName = "Booth <p>/<g>"
 ```
 
 This lets you confirm "is this HMD paired with the right Hapbeat?" directly from the device's screen, on-site.
+
+### If text looks blurry only on the standalone headset (render resolution)
+
+If the panel reads crisply in the Editor's Play mode (e.g. over Air Link) but looks soft only in a Quest standalone build, the usual cause is that **Unity's Quality levels are per-platform**. Editor Play over Air Link uses the Standalone (PC) level; a Quest build uses the Android (Mobile) level.
+
+- **Raise Render Scale to 1.0**: the VR template's default URP asset, `Mobile_RPAsset`, ships with **Render Scale 0.8**. Only the device build renders at 80% resolution, so the same panel comes out blurrier there. Open the render pipeline asset the Android tier references under `Project Settings > Quality` and set Render Scale to `1.0`.
+- **Fine-tune with the panel's World Pixel Density**: raising `World Pixel Density` on `HapbeatAddressOverridePanel` (default `3`, range `1–8`) rasterizes glyphs at a higher resolution for the same physical size. It trades font atlas memory for sharpness, so raise it only as far as you need.
+
+Both are **settings in your own project** — the SDK cannot change them, since Quality tiers and URP assets are project assets.
 
 ### Best practices
 
