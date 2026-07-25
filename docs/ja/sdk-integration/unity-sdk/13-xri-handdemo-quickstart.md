@@ -7,79 +7,84 @@ sidebar:
   label: XRI デモに触覚を足す
 ---
 
-Unity 公式の **XR Interaction Toolkit (XRI)** サンプル「Hands Interaction Demo」に、Hapbeat の触覚を後付けします。掴む・押す・スナップする・こするといった操作に触覚が乗ります。
+Unity 公式の **XR Interaction Toolkit (XRI)** サンプル「Hands Interaction Demo」に Hapbeat の触覚を後付けする。掴む・押す・スナップする・こするといった操作に触覚が乗る。
 
-:::tip[体験するだけなら Unity は不要です]
-ビルド済み APK を配布しています → [](/docs/sdk-integration/unity-sdk/xri-handdemo-apk/)
+:::tip[体験するだけなら Unity は不要]
+ビルド済み APK を配布している → [](/docs/sdk-integration/unity-sdk/xri-handdemo-apk/)
 :::
 
 ## 必要なもの
 
-- Unity Editor（[](/docs/sdk-integration/unity-sdk/installation/) の要件に準拠）
-- XR Interaction Toolkit（動作確認済み: **3.3.1**）
-- Hapbeat SDK
-- Hapbeat 実機（Unity を動かす PC と同じ Wi-Fi）
-- ハンドトラッキング対応 HMD（Quest 3 / 3S など）
+- **Unity 6 (6000.0) 以上**
+- **XR Interaction Toolkit** — 動作確認済みは 3.3.1
+- **Hapbeat SDK**
+- **Hapbeat 実機** — Unity を動かす PC と同じ Wi-Fi
+- **ハンドトラッキング対応 HMD** — Quest 3 / 3S など
 
 ## 手順
 
-1. **XR Interaction Toolkit を Install する**
-   - Package Manager → Unity Registry から。VR テンプレートで作成したプロジェクトには最初から入っています
+1. **XR Interaction Toolkit を Install**
+   - Package Manager → Unity Registry
+   - VR テンプレートで作成したプロジェクトには最初から入っている
 
-2. **XRI の Samples から *Starter Assets* と *Hands Interaction Demo* を Import する**
-   - `Assets/Samples/XR Interaction Toolkit/<version>/Hands Interaction Demo/` に展開されます
+2. **XRI の Samples から *Starter Assets* と *Hands Interaction Demo* を Import**
+   - 展開先は `Assets/Samples/XR Interaction Toolkit/<version>/Hands Interaction Demo/`
 
-3. **Hapbeat SDK を Install する**
-   - Git URL の手順は [](/docs/sdk-integration/unity-sdk/installation/)
+3. **Hapbeat SDK を Install**
+   - Package Manager → `+` → `Install package from git URL...` に次を貼り付け
 
-4. **Hapbeat SDK の Samples から *XR Helpers* と *XRI Hand Demo (haptics add-on)* を Import する**
-   - **両方必要**です。前者は XRI 用のフィルタコンポーネント、後者は EventMap と Kit
+     ```
+     https://github.com/Hapbeat/hapbeat-unity-sdk.git
+     ```
 
-5. **OpenXR で Hand Interaction Profile と Hand Tracking Subsystem を有効にする**
-   - `Project Settings → XR Plug-in Management → OpenXR` の**ビルド対象のタブ**で設定します（Quest 単体なら Android、Air Link で Editor Play なら PC）
-   - 未設定だと「触覚は鳴るが掴めない」状態になります。poke は指の位置だけで成立しますが、grab はピンチ = select 入力を必要とし、それを供給するのが Hand Interaction Profile です
+   - バージョンを固定する場合は末尾にタグを付ける（例 `#v0.3.0`）
 
-6. **`HandsDemoScene.unity` を開く**
+4. **Hapbeat SDK の Samples から *XR Helpers* と *XRI Hand Demo (haptics add-on)* を Import**
+   - **両方必要**。前者は XRI 用のフィルタコンポーネント、後者は EventMap と Kit
 
-7. **メニュー `Hapbeat > Samples > Augment XRI Hand Demo` を実行する**
-   - 触覚コンポーネントが配置され、XRI 側の UnityEvent に配線されます
-   - Undo 1 回で全て取り消せます。何度実行しても重複しません
-   - 適用件数・スキップ件数・警告数は Console に 1 行で出ます
+5. **`HandsDemoScene.unity` を開く**
 
-8. **Hapbeat を同じ Wi-Fi に接続して Play する**
+6. **メニュー `Hapbeat > Samples > Augment XRI Hand Demo` を実行**
+   - 触覚コンポーネントを配置し、XRI 側の UnityEvent に配線する
+   - Undo 1 回で全て取り消せる。再実行しても重複しない
+   - 適用件数・スキップ件数・警告数を Console に 1 行で出力
+
+7. **OpenXR で Hand Interaction Profile と Hand Tracking Subsystem を有効化**
+   - 設定先は `Project Settings → XR Plug-in Management → OpenXR` の**ビルド対象のタブ**（Quest 単体なら Android、Air Link で Editor Play なら PC）
+   - 未設定だと掴めない。poke は指の位置だけで成立するが、grab はピンチ = select 入力を要し、それを供給するのが Hand Interaction Profile
+
+8. **Hapbeat を同じ Wi-Fi に接続して Play**
 
 :::tip[配線先を検討したいとき]
-手順 7 の代わりに `Hapbeat > Samples > Augment XRI Hand Demo (+ diagnostic Event Logger)` を実行すると、Poke ボタンの XRI イベントがすべて Console に出ます。
+手順 6 の代わりに `Hapbeat > Samples > Augment XRI Hand Demo (+ diagnostic Event Logger)` を実行すると、Poke ボタンの XRI イベントをすべて Console に出力する。
 :::
 
-## Kit のデプロイは不要です
+:::note[Kit のデプロイは不要]
+同梱 EventMap の 10 エントリはすべて CLIP（StreamClip）で、波形はアプリからストリーミングされる。同梱の `hand-demo-kit-manifest.json` は EventMap 上で基準 intensity をプレビューするためのもの。FIRE との違いは [](/docs/sdk-integration/unity-sdk/fire-vs-clip/) を参照。
+:::
 
-同梱 EventMap の 10 エントリはすべて **CLIP（StreamClip）** で、波形はアプリからストリーミングされます。Import して Play すればそのまま鳴ります。
-
-`hand-demo-kit-manifest.json` を同梱しているのは、EventMap 上で基準 intensity をプレビューするためです。FIRE との違いは [](/docs/sdk-integration/unity-sdk/fire-vs-clip/)。
-
-## うまくいかないとき
+## 動作しないとき
 
 | 症状 | 対処 |
 |---|---|
-| `HandsDemoEventMap.asset` が見つからない | サンプル *XRI Hand Demo (haptics add-on)* が未 Import。手順 4 |
-| 開いているシーンが Hands Interaction Demo ではない | シーン違い、または XRI のバージョン差。ダイアログに見つからなかったパスが出ます |
-| Console に `GameObject '…' not found` | XRI 側で改名・移動されている。**警告に出たパスを手動で配線**（[](/docs/sdk-integration/unity-sdk/triggers/)） |
-| Console に `type '…HapbeatXRGrabFilter' not found` | サンプル *XR Helpers* が未 Import。手順 4 |
-| 触覚は鳴るが掴めない | Hand Interaction Profile と Hand Tracking Subsystem を有効化。手順 5 |
-| 触覚が鳴らない | [](/docs/support/faq/) の接続関連 |
+| `HandsDemoEventMap.asset` が見つからない | サンプル *XRI Hand Demo (haptics add-on)* が未 Import → 手順 4 |
+| 開いているシーンが Hands Interaction Demo ではない | シーン違い、または XRI のバージョン差。見つからなかったパスはダイアログに列挙される |
+| Console に `GameObject '…' not found` | XRI 側で改名・移動された。警告に出たパスを手動で配線（[](/docs/sdk-integration/unity-sdk/triggers/)） |
+| Console に `type '…HapbeatXRGrabFilter' not found` | サンプル *XR Helpers* が未 Import → 手順 4 |
+| 掴めない | Hand Interaction Profile と Hand Tracking Subsystem を有効化 → 手順 7 |
+| 触覚が出ない | [](/docs/support/faq/) の接続関連を参照 |
 
 ## ライセンスとツール方式の理由
 
-Hapbeat SDK が配布するのは **EventMap・Kit・配線を適用する Editor コマンド**の 3 点だけで、シーン本体は含みません。XRI 由来のアセットは 1 つも入っていません。
+Hapbeat SDK が配布するのは **EventMap・Kit・配線を適用する Editor コマンド**の 3 点のみで、シーン本体は含まない。XRI 由来のアセットは 1 つも入っていない。
 
-XRI のサンプルは **Unity Companion License (UCL)** 下にあり、複製・派生物の作成・配布・サブライセンスは許諾されています（Unity エンジンに依存するアプリ / コンテンツの作成・使用・配布の範囲で）。そのうえでシーンを配らないのは次の理由です。
+XRI のサンプルは **Unity Companion License (UCL)** 下にあり、複製・派生物の作成・配布・サブライセンスは許諾されている（Unity エンジンに依存するアプリ / コンテンツの作成・使用・配布の範囲で）。そのうえでシーンを配らないのは次の理由による。
 
-- **UCL 第 3.2 条** — Software の派生物（＝改変した `HandsDemoScene`）の権利は **Unity に帰属**します
-- **UCL 第 5 条** — Software を実質的に含めて配布すると、**著作権表示とライセンス条文を添える義務**が生じます
-- SDK に第三者アセットを含めなければ、この 2 点を回避できます
+- **UCL 第 3.2 条** — Software の派生物（＝改変した `HandsDemoScene`）の権利は Unity に帰属する
+- **UCL 第 5 条** — Software を実質的に含めて配布する場合、著作権表示とライセンス条文を添える義務が生じる
+- SDK に第三者アセットを含めなければ、この 2 点を回避できる
 
-**ビルド済みアプリ（APK など）の配布は別の話**で、UCL が想定するアプリケーションそのものなので許諾範囲に収まります → [](/docs/sdk-integration/unity-sdk/xri-handdemo-apk/)
+ビルド済みアプリ（APK など）の配布は別で、UCL が想定するアプリケーションそのものであり許諾範囲に収まる → [](/docs/sdk-integration/unity-sdk/xri-handdemo-apk/)
 
 ## 次に読む
 

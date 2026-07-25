@@ -3,6 +3,7 @@ title: Build and Distribute a Kit
 kind: howto
 sidebar:
   order: 200
+  label: Build & deploy a Kit
 description: Step-by-step instructions for creating and editing a Kit in Hapbeat Studio and deploying it to a device.
 ---
 

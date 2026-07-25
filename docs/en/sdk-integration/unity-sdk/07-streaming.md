@@ -3,6 +3,7 @@ title: Adjusting the Streaming Buffer
 kind: howto
 sidebar:
   order: 200
+  label: Streaming buffer
 description: How the StreamClip send buffer (streamSendAheadSeconds) works, its tradeoffs, and recommended values.
 ---
 

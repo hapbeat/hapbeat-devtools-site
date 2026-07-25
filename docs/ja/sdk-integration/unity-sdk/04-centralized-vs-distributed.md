@@ -3,6 +3,7 @@ title: イベント呼び出しを集約する / 分散する
 kind: howto
 sidebar:
   order: 200
+  label: 呼び出しの集約と分散
 description: Trigger-first（分散）と HapbeatManager.Play（集約）の使い分け。どちらも SDK は等しくサポート。
 ---
 

@@ -3,6 +3,7 @@ title: Centralized vs. Distributed Event Dispatch
 kind: howto
 sidebar:
   order: 200
+  label: Central vs distributed
 description: When to use Trigger-first (distributed) vs. HapbeatManager.Play (centralized). The SDK supports both equally.
 ---
 

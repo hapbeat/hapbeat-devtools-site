@@ -4,6 +4,7 @@ kind: howto
 description: Guide for charging and battery management, cleaning, handling precautions, and storage/transport of Hapbeat devices.
 sidebar:
   order: 2
+  label: Care & handling
 ---
 
 This page covers best practices for keeping your Hapbeat in good condition over time.

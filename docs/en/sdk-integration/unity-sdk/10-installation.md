@@ -3,6 +3,7 @@ title: Installation Requirements
 kind: reference
 sidebar:
   order: 300
+  label: Installation
 description: How to install the Hapbeat Unity SDK into a Unity project via UPM.
 ---
 
@@ -10,7 +11,7 @@ The Hapbeat Unity SDK can be installed **directly from a Git URL** via the Unity
 
 ## Requirements
 
-- **Unity 2022.3 LTS or later** (tested on Unity 6000.3.12f1)
+- **Unity 6 (6000.0) or later** (tested on Unity 6000.3.12f1)
 - **Git** installed on your PC and available on PATH (required because Unity runs `git clone` internally)
 - A network environment where Wi-Fi UDP broadcast can reach devices on the same network
 - Active Input Handling: **"Both"** / "Old" / "Input System Package" — all are supported
@@ -97,4 +98,4 @@ If the UI shows `Pong: RTT=...ms`, the SDK ↔ device connection is established.
 - [](/en/docs/sdk-integration/unity-sdk/streaming/) — Tuning the StreamClip buffer
 - [](/en/docs/sdk-integration/unity-sdk/ai-assisted-workflow/) — Practical workflow for retrofitting haptics to existing scenes using Claude Code or similar
 - [](/en/docs/sdk-integration/unity-sdk/editor-menus/) — Quick reference for all Hapbeat menu items
-- [](/en/docs/sdk-integration/unity-sdk/multi-app/) — Guidelines for connecting multiple apps to one device (LAN isolation / group ID separation)
+- [](/en/docs/sdk-integration/unity-sdk/targeting/) — How to decide which devices fire (splitting by player / position / group per setup)

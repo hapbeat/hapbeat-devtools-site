@@ -4,6 +4,7 @@ kind: explanation
 description: Decision criteria, development workflow impact, and implementation patterns for Fire (command) and Clip (stream_clip) from a Unity SDK perspective.
 sidebar:
   order: 200
+  label: Fire vs Clip
 ---
 
 The `Mode` field on an EventMap entry (Fire / Clip) has a significant impact on your Unity integration approach, where haptic assets live, and the iteration loop. This page clarifies how to choose between the two and how to implement each — from a Unity developer's perspective.

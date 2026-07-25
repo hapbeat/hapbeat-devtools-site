@@ -10,7 +10,7 @@ Hapbeat Unity SDK は Unity Package Manager (UPM) 経由で **Git URL から直�
 
 ## 動作環境
 
-- **Unity 2022.3 LTS 以上**（動作確認済み: Unity 6000.3.12f1）
+- **Unity 6 (6000.0) 以上**（動作確認済み: Unity 6000.3.12f1）
 - **Git** が PC にインストール済み・PATH 通り済み (Unity が裏で `git clone` するため必須)
 - Wi-Fi UDP broadcast でデバイスと同一ネットワークに接続できる環境
 - Active Input Handling は **"Both"** / "Old" / "Input System Package" いずれでも動作します
@@ -97,4 +97,4 @@ UI に `Pong: RTT=...ms` が表示されれば SDK ↔ デバイスの通信は�
 - [](/docs/sdk-integration/unity-sdk/streaming/) — StreamClip 用バッファの調整
 - [](/docs/sdk-integration/unity-sdk/ai-assisted-workflow/) — Claude Code 等で既存シーンに触覚を後付けする実践フロー
 - [](/docs/sdk-integration/unity-sdk/editor-menus/) — Hapbeat メニュー全項目の使い方逆引き
-- [](/docs/sdk-integration/unity-sdk/multi-app/) — 1 デバイスに複数アプリを繋ぐ場合の運用指針 (LAN 分離 / group ID 切り分け)
+- [](/docs/sdk-integration/unity-sdk/targeting/) — どのデバイスを鳴らすかの決め方 (構成に応じた player / position / group の分け方)

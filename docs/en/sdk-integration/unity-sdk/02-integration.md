@@ -4,6 +4,7 @@ kind: tutorial
 description: An overview of how to add the Hapbeat SDK to an existing Unity scene — wiring and tuning in two stages.
 sidebar:
   order: 2
+  label: Integration
 ---
 
 Once you have completed [](/en/docs/sdk-integration/unity-sdk/getting-started/), you are ready to integrate the SDK into your own project.
@@ -143,4 +144,4 @@ Details and guidance: [](/en/docs/sdk-integration/unity-sdk/parameter-binding/)
 - [](/en/docs/sdk-integration/unity-sdk/parameter-binding/) — Dynamically map game state to gain / pan
 - [](/en/docs/sdk-integration/unity-sdk/ai-assisted-workflow/) — Practical workflow for retrofitting haptics onto an existing scene
 - [](/en/docs/sdk-integration/unity-sdk/editor-menus/) — Quick reference for all Hapbeat menu items
-- [](/en/docs/sdk-integration/unity-sdk/multi-app/) — LAN isolation / group ID separation
+- [](/en/docs/sdk-integration/unity-sdk/targeting/) — How to split by player / position / group for your setup

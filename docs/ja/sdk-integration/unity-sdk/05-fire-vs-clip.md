@@ -4,6 +4,7 @@ kind: explanation
 description: Unity SDK 視点で Fire (command) と Clip (stream_clip) の判断基準・開発フローへの影響・実装パターンを整理。
 sidebar:
   order: 200
+  label: Fire と Clip の使い分け
 ---
 
 EventMap entry の `Mode` フィールドの値（Fire / Clip）は、Unity への組み込み方針・触覚素材の置き場・反復作業のフローに大きく影響します。本ページは Unity 開発者の視点で「どちらを選ぶか」と「どう書くか」を整理します。

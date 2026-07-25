@@ -7,79 +7,84 @@ sidebar:
   label: Add haptics to XRI demo
 ---
 
-Add Hapbeat haptics to **"Hands Interaction Demo"**, the official **XR Interaction Toolkit (XRI)** sample from Unity. Grabbing, poking, snapping and scrubbing all get haptic feedback.
+Add Hapbeat haptics to "Hands Interaction Demo", the official **XR Interaction Toolkit (XRI)** sample from Unity. Grabbing, poking, snapping and scrubbing all get haptic feedback.
 
-:::tip[You don't need Unity just to try it]
-We distribute a prebuilt APK → [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-apk/)
+:::tip[No Unity needed just to try it]
+A prebuilt APK is available → [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-apk/)
 :::
 
 ## What you need
 
-- Unity Editor (per the requirements in [](/en/docs/sdk-integration/unity-sdk/installation/))
-- XR Interaction Toolkit (verified with **3.3.1**)
-- Hapbeat SDK
-- A Hapbeat device (on the same Wi-Fi as the PC running Unity)
-- A hand-tracking HMD (Quest 3 / 3S etc.)
+- **Unity 6 (6000.0) or later**
+- **XR Interaction Toolkit** — verified with 3.3.1
+- **Hapbeat SDK**
+- **A Hapbeat device** — on the same Wi-Fi as the PC running Unity
+- **A hand-tracking HMD** — Quest 3 / 3S etc.
 
 ## Steps
 
 1. **Install the XR Interaction Toolkit**
-   - From Package Manager → Unity Registry. Projects created from the VR template already have it
+   - Package Manager → Unity Registry
+   - Projects created from the VR template already have it
 
 2. **From the XRI Samples, import *Starter Assets* and *Hands Interaction Demo***
    - They land in `Assets/Samples/XR Interaction Toolkit/<version>/Hands Interaction Demo/`
 
 3. **Install the Hapbeat SDK**
-   - For the Git URL procedure, see [](/en/docs/sdk-integration/unity-sdk/installation/)
+   - Package Manager → `+` → `Install package from git URL...`, then paste
+
+     ```
+     https://github.com/Hapbeat/hapbeat-unity-sdk.git
+     ```
+
+   - To pin a version, append a tag (e.g. `#v0.3.0`)
 
 4. **From the Hapbeat SDK Samples, import *XR Helpers* and *XRI Hand Demo (haptics add-on)***
    - **Both are required.** The former holds the XRI filter components, the latter the EventMap and Kit
 
-5. **Enable the Hand Interaction Profile and the Hand Tracking Subsystem in OpenXR**
-   - Configure them in `Project Settings → XR Plug-in Management → OpenXR`, under **the tab for your build target** (Android for standalone Quest, PC for Editor Play over Air Link)
-   - Without this you end up with "haptics fire but you cannot grab." Poking works from finger position alone, but grabbing is a pinch — it needs select input, and the Hand Interaction Profile is what supplies it
+5. **Open `HandsDemoScene.unity`**
 
-6. **Open `HandsDemoScene.unity`**
-
-7. **Run the menu command `Hapbeat > Samples > Augment XRI Hand Demo`**
-   - The haptic components are placed and wired into XRI's UnityEvents
+6. **Run the menu command `Hapbeat > Samples > Augment XRI Hand Demo`**
+   - Places the haptic components and wires them into XRI's UnityEvents
    - A single Undo reverts everything. Re-running never duplicates anything
-   - Counts of applied items, skipped items and warnings are logged to the Console as one line
+   - Logs counts of applied items, skipped items and warnings to the Console as one line
+
+7. **Enable the Hand Interaction Profile and the Hand Tracking Subsystem in OpenXR**
+   - Set them in `Project Settings → XR Plug-in Management → OpenXR`, under **the tab for your build target** (Android for standalone Quest, PC for Editor Play over Air Link)
+   - Without this you cannot grab. Poking works from finger position alone, but grabbing is a pinch — it needs select input, and the Hand Interaction Profile is what supplies it
 
 8. **Put the Hapbeat on the same Wi-Fi and press Play**
 
 :::tip[When you want to review the wiring points]
-Instead of step 7, run `Hapbeat > Samples > Augment XRI Hand Demo (+ diagnostic Event Logger)` to log every XRI event on the poke button to the Console.
+Instead of step 6, run `Hapbeat > Samples > Augment XRI Hand Demo (+ diagnostic Event Logger)` to log every XRI event on the poke button to the Console.
 :::
 
-## No Kit deployment required
-
-All 10 entries in the bundled EventMap are **CLIP (StreamClip)**, so the waveforms are streamed from the app. Import it, press Play, and it works as-is.
-
-`hand-demo-kit-manifest.json` is bundled so you can preview the reference intensity in the EventMap. For the difference from FIRE, see [](/en/docs/sdk-integration/unity-sdk/fire-vs-clip/).
+:::note[No Kit deployment required]
+All 10 entries in the bundled EventMap are CLIP (StreamClip), so the waveforms are streamed from the app. The bundled `hand-demo-kit-manifest.json` exists to preview the reference intensity in the EventMap. For the difference from FIRE, see [](/en/docs/sdk-integration/unity-sdk/fire-vs-clip/).
+:::
 
 ## When it doesn't work
 
 | Symptom | Fix |
 |---|---|
-| `HandsDemoEventMap.asset` not found | The *XRI Hand Demo (haptics add-on)* sample is not imported. Step 4 |
+| `HandsDemoEventMap.asset` not found | The *XRI Hand Demo (haptics add-on)* sample is not imported → step 4 |
 | The open scene is not the Hands Interaction Demo | Wrong scene, or an XRI version difference. The dialog lists the paths it could not find |
-| Console shows `GameObject '…' not found` | XRI renamed or moved it. **Wire the paths in the warning manually** ([](/en/docs/sdk-integration/unity-sdk/triggers/)) |
-| Console shows `type '…HapbeatXRGrabFilter' not found` | The *XR Helpers* sample is not imported. Step 4 |
-| Haptics fire but you cannot grab | Enable the Hand Interaction Profile and the Hand Tracking Subsystem. Step 5 |
-| No haptics at all | The connectivity entries in [](/en/docs/support/faq/) |
+| Console shows `GameObject '…' not found` | XRI renamed or moved it. Wire the paths in the warning manually ([](/en/docs/sdk-integration/unity-sdk/triggers/)) |
+| Console shows `type '…HapbeatXRGrabFilter' not found` | The *XR Helpers* sample is not imported → step 4 |
+| Cannot grab | Enable the Hand Interaction Profile and the Hand Tracking Subsystem → step 7 |
+| No haptics | See the connectivity entries in [](/en/docs/support/faq/) |
 
 ## License, and why we ship a tool
 
-The Hapbeat SDK distributes only three things — **the EventMap, the Kit, and the Editor command that applies the wiring**. It does not include the scene itself. Not a single XRI-authored asset is in it.
+The Hapbeat SDK distributes only three things — **the EventMap, the Kit, and the Editor command that applies the wiring** — and does not include the scene itself. Not a single XRI-authored asset is in it.
 
-The XRI samples are covered by the **Unity Companion License (UCL)**, which does grant reproduction, derivative works, distribution and sublicensing (exercised for creating, using and distributing Unity-engine-dependent applications and content). Even so, we do not ship the scene, for these reasons:
+The XRI samples are covered by the **Unity Companion License (UCL)**, which grants reproduction, derivative works, distribution and sublicensing (exercised for creating, using and distributing Unity-engine-dependent applications and content). Even so, we do not ship the scene, for the following reasons.
 
-- **UCL section 3.2** — derivative works of the Software (an augmented `HandsDemoScene`) are **owned by Unity**
-- **UCL section 5** — distributing a substantial portion of the Software carries an obligation to **include the copyright notice and the license text**
+- **UCL section 3.2** — derivative works of the Software (an augmented `HandsDemoScene`) are owned by Unity
+- **UCL section 5** — distributing a substantial portion of the Software carries an obligation to include the copyright notice and the license text
 - Keeping third-party assets out of the SDK sidesteps both points
 
-**Shipping a built application (an APK, say) is a different matter** — it is exactly the application the UCL contemplates, so it falls within the grant → [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-apk/)
+Shipping a built application (an APK, say) is a different matter: it is exactly the application the UCL contemplates, so it falls within the grant → [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-apk/)
 
 ## Next
 

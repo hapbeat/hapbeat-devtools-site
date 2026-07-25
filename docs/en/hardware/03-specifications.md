@@ -4,6 +4,7 @@ kind: reference
 description: Hardware specifications for Hapbeat Duo WL / Band WL and wireless certification (TELEC) information.
 sidebar:
   order: 3
+  label: Specs & certifications
 ---
 
 This page summarizes the specifications for each Hapbeat model and the certification details for the built-in wireless module.

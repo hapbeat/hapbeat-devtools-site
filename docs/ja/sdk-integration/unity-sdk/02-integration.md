@@ -143,4 +143,4 @@ StreamClip 中の gain / pan を毎フレーム書き換えて、ゲーム状態
 - [](/docs/sdk-integration/unity-sdk/parameter-binding/) — ゲーム状態を gain / pan に動的マッピング
 - [](/docs/sdk-integration/unity-sdk/ai-assisted-workflow/) — 既存シーンへの触覚後付け実践フロー
 - [](/docs/sdk-integration/unity-sdk/editor-menus/) — Hapbeat メニュー全項目の使い方逆引き
-- [](/docs/sdk-integration/unity-sdk/multi-app/) — LAN 分離 / group ID 切り分け
+- [](/docs/sdk-integration/unity-sdk/targeting/) — 構成に応じた player / position / group の分け方

@@ -424,6 +424,10 @@ export default defineConfig({
     '/docs/sdk-integration/unity-sdk/showcase': '/docs/sdk-integration/unity-sdk/showcase/overview/',
     // wifi-setup を Studio onboarding に統合 (2026-05-26)
     '/docs/hardware/wifi-setup': '/docs/tools/studio/initial-setup/',
+    // multi-app → targeting rename (2026-07-26): 「複数アプリの共存」から
+    // ターゲティング全般の explanation に再構成したため。
+    '/docs/sdk-integration/unity-sdk/multi-app': '/docs/sdk-integration/unity-sdk/targeting/',
+    '/en/docs/sdk-integration/unity-sdk/multi-app': '/en/docs/sdk-integration/unity-sdk/targeting/',
   },
   integrations: [
     // dev server 専用の /demos/ フォルダ URL フォールバック (定義は本ファイル
@@ -623,7 +627,7 @@ export default defineConfig({
                 pub('docs/sdk-integration/unity-sdk/xri-handdemo-apk'),
                 pub('docs/sdk-integration/unity-sdk/fire-vs-clip'),
                 pub('docs/sdk-integration/unity-sdk/streaming'),
-                pub('docs/sdk-integration/unity-sdk/multi-app'),
+                pub('docs/sdk-integration/unity-sdk/targeting'),
                 pub('docs/sdk-integration/unity-sdk/ai-assisted-workflow'),
                 // reference
                 pub('docs/sdk-integration/unity-sdk/triggers'),
