@@ -113,12 +113,15 @@ Setting `World Attach Mode` = `CompositionLayer` on `HapbeatAddressOverridePanel
 - **It doesn't swim** — the layer is composited *after* reprojection (TimeWarp), so fixing it to the view is stable by construction.
 - **It stays sharp** — the compositor samples the source texture directly, so the project's Render Scale no longer softens the text.
 
-Two things are required in your own project (the SDK cannot set them for you):
+Three things are required in your own project:
 
 1. Add the `com.unity.xr.compositionlayers` package via Package Manager.
 2. Enable the **Composition Layers** feature under `Project Settings > XR Plug-in Management > OpenXR` (the Android tab for Android builds).
+3. **Enable `XR > Enable Composition Layer Support` in the Hapbeat Settings window** (off by default).
 
-If either is missing — or if no layer provider comes up at runtime — the panel logs one warning and **falls back to `LazyFollow`**. The SDK still compiles without the package (this is an opt-in via the asmdef's `versionDefines`; no dependency was added to the SDK's `package.json`).
+**Step 2 alone is not enough.** The OpenXR Composition Layers feature assigns its layer provider exactly once, when the XR session begins, and only if a composition layer manager is already running at that instant. XR is initialized and the session begins before the first scene loads, so a layer created by a scene component is always too late. Step 3 makes the SDK start that manager before XR initializes (at subsystem registration), which is what allows the assignment to happen. It is off by default because it keeps one layer resident for the whole run.
+
+If any of them is missing — or if no layer provider comes up at runtime — the panel logs one warning and **falls back to `LazyFollow`**. The SDK still compiles without the package (this is an opt-in via the asmdef's `versionDefines`; no dependency was added to the SDK's `package.json`).
 
 The `VRConfigExample` sample scene still defaults to `LazyFollow`, since the two prerequisites above are project-side — switch it over explicitly if you want this mode.
 

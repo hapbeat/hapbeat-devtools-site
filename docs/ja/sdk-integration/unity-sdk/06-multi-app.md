@@ -113,12 +113,15 @@ HapbeatManager.Instance.SetAddressOverride(player: 3, group: HapbeatManager.Addr
 - **揺れない** — 再投影 (TimeWarp) の**後段**で合成されるので、視界に固定しても泳ぎません。
 - **鮮明** — アイバッファの解像度 (Render Scale) の影響を受けず、コンポジタが元テクスチャを直接サンプリングします。
 
-利用側プロジェクト側の前提が 2 つあります (SDK 側からは設定できません):
+利用側プロジェクトの前提が 3 つあります:
 
 1. `com.unity.xr.compositionlayers` パッケージを Package Manager で導入する。
 2. `Project Settings > XR Plug-in Management > OpenXR` (Android ビルドなら Android タブ) で **Composition Layers** feature を有効にする。
+3. **Hapbeat Settings ウィンドウの `XR > Enable Composition Layer Support` を有効にする** (既定は OFF)。
 
-どちらかが欠けている場合、または実行時にレイヤープロバイダが起動しなかった場合は、**警告を 1 回出して `LazyFollow` にフォールバック**します。パッケージ未導入でも SDK はそのままコンパイルできます (asmdef の `versionDefines` による opt-in で、SDK の `package.json` に依存は追加していません)。
+**2 だけでは動きません。** OpenXR の Composition Layers feature がレイヤープロバイダを割り当てるのは XR セッション開始時の一度きりで、しかも**その瞬間に composition layer マネージャが起動している場合のみ**です。XR の初期化・セッション開始は最初のシーン読み込みより前に走るため、シーン上のコンポーネントから作ったレイヤーでは間に合いません。3 を有効にすると SDK が XR 初期化前 (subsystem registration) にマネージャを起動状態にするので、この割り当てが成立します。常駐コストがあるため既定は OFF です。
+
+どれかが欠けている場合、または実行時にレイヤープロバイダが起動しなかった場合は、**警告を 1 回出して `LazyFollow` にフォールバック**します。パッケージ未導入でも SDK はそのままコンパイルできます (asmdef の `versionDefines` による opt-in で、SDK の `package.json` に依存は追加していません)。
 
 サンプルシーン (`VRConfigExample`) の既定は `LazyFollow` のままです — 上記 2 つの前提が要るため、切り替えは利用側で明示的に行ってください。
 
