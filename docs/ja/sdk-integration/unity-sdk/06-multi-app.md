@@ -93,7 +93,10 @@ LAN を分けられない (同じ展示ブースで複数アプリ・Hapbeat 多
    `persist: true` を指定すると PlayerPrefs に保存され、次回起動時も同じ値が自動的に復元されます — **これが「1 本のビルドを何台もの HMD に配り、各端末を自分の Hapbeat に紐付ける」フローの基本形**です。
 2. **`HapbeatAddressOverridePanel` コンポーネントを 1 個アタッチする**: GameObject に追加するだけで、player/group を +/- ステッパーで選び Apply する実行時 UI が自動生成されます。シーン側で UI 階層を組む必要はありません。
    - `Space` (Inspector) で `ScreenSpaceOverlay` (画面固定 HUD、既定) と `WorldSpace` (VR コントローラーや空間に貼り付ける 3D パネル) を切り替え可能。
-   - `WorldSpace` のときは `World Attach Mode` で `HeadLocked` (既定・常に視界の中央に表示) と `WorldFixed` (置いた場所に留まる) を選べます。`HeadLocked` では Canvas をカメラ Transform の子にするため、視界に対する遅れやジッターは原理的に発生しません。距離と上下位置は `Head Locked Distance` / `Head Locked Vertical Offset` で調整します。
+   - `WorldSpace` のときは `World Attach Mode` で表示の張り付き方を選べます。距離と上下位置はいずれも `Follow Distance` / `Follow Vertical Offset` で調整します。
+     - `LazyFollow` (既定) — 視界中央から `Follow Deadzone Degrees` 以内にある間はワールド固定のままにし、それを超えて見回したときだけ正面へ滑らかに移動します。カメラ Transform の子にする**ハードなヘッドロックは採用していません**: 頭に追従して動く面には XR コンポジタの再投影 (TimeWarp) が重ねて掛かるため、頭を振るたびに UI が泳いで見えます。
+     - `WorldFixed` — 置いた場所に留まります。
+     - `CompositionLayer` (opt-in) — 完全に視界固定したい / 文字をもっと鮮明にしたい場合。下記「`CompositionLayer` モード」参照。
    - Showcase サンプルの `AddressOverrideDemo` (Z4_Stream) は、この `HapbeatAddressOverridePanel` をそのまま継承しただけの薄いクラスです — 独自 UI を実装したい場合の最小の出発点として読めます。
 
 ```csharp
@@ -102,6 +105,24 @@ HapbeatManager.Instance.SetAddressOverride(player: 3, group: HapbeatManager.Addr
 ```
 
 デバイス側の対応は不要です。プロトコルやファームウェアの変更なしに動作します。各 Hapbeat 本体のボタン操作で player/group 番号を設定するだけで、SDK 側の override とデバイス側の番号を一致させれば 1:1 のペアリングが成立します。
+
+### `CompositionLayer` モード (視界固定 + 高精細)
+
+`HapbeatAddressOverridePanel` の `World Attach Mode` = `CompositionLayer` にすると、パネルを RenderTexture に描画して **OpenXR の quad composition layer** として XR コンポジタに直接渡します (Quest の起動ロゴと同じ仕組み)。アプリのアイバッファを経由しないため:
+
+- **揺れない** — 再投影 (TimeWarp) の**後段**で合成されるので、視界に固定しても泳ぎません。
+- **鮮明** — アイバッファの解像度 (Render Scale) の影響を受けず、コンポジタが元テクスチャを直接サンプリングします。
+
+利用側プロジェクト側の前提が 2 つあります (SDK 側からは設定できません):
+
+1. `com.unity.xr.compositionlayers` パッケージを Package Manager で導入する。
+2. `Project Settings > XR Plug-in Management > OpenXR` (Android ビルドなら Android タブ) で **Composition Layers** feature を有効にする。
+
+どちらかが欠けている場合、または実行時にレイヤープロバイダが起動しなかった場合は、**警告を 1 回出して `LazyFollow` にフォールバック**します。パッケージ未導入でも SDK はそのままコンパイルできます (asmdef の `versionDefines` による opt-in で、SDK の `package.json` に依存は追加していません)。
+
+サンプルシーン (`VRConfigExample`) の既定は `LazyFollow` のままです — 上記 2 つの前提が要るため、切り替えは利用側で明示的に行ってください。
+
+制約: このモードでは Canvas をシーン外に退避して撮影するため、パネルへのポインター (マウス / レイ) 操作は効きません — コントローラーのフォーカスグリッド操作 (`MoveFocus` / `ActivateFocused`) で操作してください。また撮影範囲はパネル Canvas の矩形内のみなので、`PanelCanvasTransform` の下に矩形外へオフセットして付けた UI は写りません。
 
 ### appName に \<p\>/\<g\> を埋め込むと現場で確認しやすい
 

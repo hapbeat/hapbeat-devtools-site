@@ -93,7 +93,10 @@ That means **any unit you forget to configure joins player_1 / group_1 — i.e. 
    With `persist: true`, the values are saved to PlayerPrefs and restored automatically on the next launch — **this is the basic flow for "one identical build deployed to many HMDs, each bound to its own Hapbeat."**
 2. **Attach the `HapbeatAddressOverridePanel` component**: add it to any GameObject and it builds a runtime UI with +/- steppers for player/group and an Apply button — no scene wiring required.
    - `Space` (Inspector) toggles between `ScreenSpaceOverlay` (fixed 2D HUD, default) and `WorldSpace` (a 3D panel for VR controllers or spatial attachment).
-   - In `WorldSpace`, `World Attach Mode` picks between `HeadLocked` (default — always centered in view) and `WorldFixed` (stays where it was placed). `HeadLocked` parents the Canvas to the camera Transform, so lag or jitter relative to the view is impossible by construction. Tune the placement with `Head Locked Distance` / `Head Locked Vertical Offset`.
+   - In `WorldSpace`, `World Attach Mode` picks how the panel is anchored. Placement is tuned with `Follow Distance` / `Follow Vertical Offset` in every mode.
+     - `LazyFollow` (default) — stays world-fixed while it is within `Follow Deadzone Degrees` of the view center, and glides to a new resting spot in front of the wearer once they look further away. It deliberately **does not** parent the Canvas to the camera Transform: the XR compositor's reprojection (TimeWarp) is applied on top of a surface that already moved with the head, so a hard head-lock visibly swims on every head turn.
+     - `WorldFixed` — stays where it was placed.
+     - `CompositionLayer` (opt-in) — for a genuinely view-fixed, sharper panel. See "CompositionLayer mode" below.
    - The `AddressOverrideDemo` sample in Showcase (Z4_Stream) is just a thin subclass of `HapbeatAddressOverridePanel` — a minimal starting point if you want to build your own UI on top of it.
 
 ```csharp
@@ -102,6 +105,24 @@ HapbeatManager.Instance.SetAddressOverride(player: 3, group: HapbeatManager.Addr
 ```
 
 No device-side changes are required — this works with no protocol or firmware changes. Set the player/group number on the Hapbeat itself via its physical buttons, and as long as it matches the SDK-side override, the 1:1 pairing just works.
+
+### CompositionLayer mode (view-fixed and sharper)
+
+Setting `World Attach Mode` = `CompositionLayer` on `HapbeatAddressOverridePanel` renders the panel into a RenderTexture and hands it to the XR compositor as an **OpenXR quad composition layer** — the same mechanism as the Quest boot logo. Because it never passes through the application's eye buffer:
+
+- **It doesn't swim** — the layer is composited *after* reprojection (TimeWarp), so fixing it to the view is stable by construction.
+- **It stays sharp** — the compositor samples the source texture directly, so the project's Render Scale no longer softens the text.
+
+Two things are required in your own project (the SDK cannot set them for you):
+
+1. Add the `com.unity.xr.compositionlayers` package via Package Manager.
+2. Enable the **Composition Layers** feature under `Project Settings > XR Plug-in Management > OpenXR` (the Android tab for Android builds).
+
+If either is missing — or if no layer provider comes up at runtime — the panel logs one warning and **falls back to `LazyFollow`**. The SDK still compiles without the package (this is an opt-in via the asmdef's `versionDefines`; no dependency was added to the SDK's `package.json`).
+
+The `VRConfigExample` sample scene still defaults to `LazyFollow`, since the two prerequisites above are project-side — switch it over explicitly if you want this mode.
+
+Limitations: the Canvas is parked out of the scene to be captured, so pointer (mouse / ray) interaction with the panel no longer works — drive it with the controller focus grid (`MoveFocus` / `ActivateFocused`). Only content inside the panel's own Canvas rect is captured, so UI parented to `PanelCanvasTransform` and offset outside that rect is framed out.
 
 ### Embedding \<p\>/\<g\> in appName makes pairing easy to verify on-site
 
