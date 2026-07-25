@@ -10,6 +10,12 @@ This demo adds Hapbeat haptics to **"Hands Interaction Demo"**, a sample scene s
 
 The Hapbeat SDK ships only three things: the **EventMap, the Kit, and an Editor command that applies the wiring**. The scene itself is the copy *you* import from the XRI package.
 
+:::tip[You don't need Unity just to try it]
+We distribute a prebuilt APK. If you only want to **run the demo on a Quest**, see [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-apk/) — it covers three install routes: adb, SideQuest, and a store release channel.
+
+This page is for people who want to **reproduce the demo in their own Unity project and edit the haptics**.
+:::
+
 ## Why a tool instead of a ready-made scene
 
 XRI and its samples are distributed under the **Unity Companion License**, so Hapbeat cannot redistribute a modified copy of the scene.

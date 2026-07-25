@@ -14,9 +14,25 @@ You cannot experience this demo without Hapbeat hardware. Connect the device to 
 
 If you want to build or modify it yourself as a Unity project, see [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/).
 
-## Download
+## What you need
 
-The APK is distributed via GitHub Releases.
+- **Meta Quest 3 / 3S**
+- **A Hapbeat device** (on the same Wi-Fi network as the headset)
+- Additional requirements depending on the install route (A / B / C below)
+
+## Which route to pick
+
+| | Route | Requires | APK download |
+|---|---|---|---|
+| **A** | adb | Having used Build and Run in Unity | Yes |
+| **B** | SideQuest | Meta developer registration + developer mode | Yes |
+| **C** | Release channel | A Meta account, nothing else | **No** |
+
+**If you are not a registered developer, C is the easiest** — you install it from the store like any other app.
+
+## Download (A / B only)
+
+The APK is distributed via GitHub Releases. Route C needs no download.
 
 <!-- TODO: replace this placeholder with the real GitHub Releases URL (and a download link) once the distribution repo is published -->
 
@@ -30,15 +46,7 @@ https://github.com/hapbeat/<distribution-repo>/releases/latest
 The file is named `hapbeat-handdemo.apk`.
 :::
 
-## What you need
-
-- **Meta Quest 3 / 3S**
-- **A Hapbeat device** (on the same Wi-Fi network as the headset)
-- Additional requirements depending on the install route (A / B / C below)
-
 ## Installation
-
-Pick the route that matches your situation.
 
 ### A. You have used Build and Run in Unity (fastest)
 
@@ -79,14 +87,20 @@ In the headset library, switch the source filter to **Unknown Sources** to find 
 
 ### C. You would rather not register as a developer (release channel)
 
-We upload the build to the **ALPHA channel** of the Meta Horizon Store and **invite you by email or URL**.
+We upload the build to the **ALPHA channel** of the Meta Horizon Store and **invite you by email or URL**. No APK download and no USB cable — you install it from the store like any other app.
+
+**How to get in**
+
+1. Reach out via GitHub Discussions ([](/en/docs/support/contact/)) with the email address on your Meta account
+2. We send you an invite to the ALPHA channel
+3. Accept it, and the app shows up in your headset library — install it from there
+
+**Notes**
 
 - All you need is a **Meta account** — no developer registration, no developer mode
-- Once invited, the app appears under **My Preview Apps** and in your library, ready to install
 - **ALPHA / BETA channels require no store review** (only Production is reviewed)
 - Each channel holds 200 users by default (up to 2,500 on request)
-
-If you want this route, reach out via GitHub Discussions ([](/en/docs/support/contact/)) and we will send you an invite.
+- If you have access to more than one channel, you can switch the active one from the app's **Settings** page in-headset, or from the **version dropdown** on its store page out-of-headset
 
 ## Using it (after launch)
 

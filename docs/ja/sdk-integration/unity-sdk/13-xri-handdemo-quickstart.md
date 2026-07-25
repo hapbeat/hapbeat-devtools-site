@@ -10,6 +10,12 @@ Unity 公式の **XR Interaction Toolkit (XRI)** サンプル「**Hands Interact
 
 Hapbeat SDK が配布するのは **EventMap・Kit・配線を適用する Editor コマンド** の 3 点だけです。シーン本体は皆さん自身が XRI パッケージから import したものを使います。
 
+:::tip[体験するだけなら Unity は不要です]
+ビルド済み APK を配布しています。**Quest に入れて試すだけ**なら [](/docs/sdk-integration/unity-sdk/xri-handdemo-apk/) を参照してください。adb / SideQuest / ストアのリリースチャンネルの 3 通りの入れ方を説明しています。
+
+本ページは、**このデモを自分の Unity プロジェクトで再現し、触覚を編集したい人**向けです。
+:::
+
 ## なぜ「シーン配布」ではなく「ツール方式」なのか
 
 XRI とそのサンプルは **Unity Companion License** で提供されており、改変したシーンを Hapbeat 側から再配布することはできません。

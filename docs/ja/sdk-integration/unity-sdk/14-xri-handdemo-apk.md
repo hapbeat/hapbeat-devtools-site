@@ -14,9 +14,25 @@ XR Interaction Toolkit（XRI）の **Hands Interaction Demo** に Hapbeat の触
 
 Unity プロジェクトとして自分でビルド・改造したい場合は [](/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/) を参照してください。
 
-## ダウンロード
+## 必要環境
 
-APK は GitHub Releases で配布します。
+- **Meta Quest 3 / 3S**
+- **Hapbeat 実機**（Quest と同じ Wi-Fi に接続）
+- インストール方法によって追加の要件があります（下記 A / B / C を参照）
+
+## どの方法を選ぶか
+
+| | 方法 | 必要なもの | APK のダウンロード |
+|---|---|---|---|
+| **A** | adb | Unity で Build and Run した経験 | 必要 |
+| **B** | SideQuest | Meta 開発者登録 + 開発者モード | 必要 |
+| **C** | リリースチャンネル | Meta アカウントのみ | **不要** |
+
+**開発者登録をしていないなら C が最も簡単**です。ストアから通常のアプリと同じようにインストールできます。
+
+## ダウンロード（A / B のみ）
+
+APK は GitHub Releases で配布します。方法 C ではダウンロードは不要です。
 
 <!-- TODO: 配布 repo 公開時に、下記プレースホルダを実際の GitHub Releases URL（およびダウンロードリンク）へ差し替える -->
 
@@ -30,15 +46,7 @@ https://github.com/hapbeat/<配布リポジトリ名>/releases/latest
 ファイル名は `hapbeat-handdemo.apk` です。
 :::
 
-## 必要環境
-
-- **Meta Quest 3 / 3S**
-- **Hapbeat 実機**（Quest と同じ Wi-Fi に接続）
-- インストール方法によって追加の要件があります（下記 A / B / C を参照）
-
 ## インストール方法
-
-読者の状況に応じて 3 通りあります。
 
 ### A. Unity で Build and Run したことがある人（最速）
 
@@ -79,14 +87,20 @@ adb install -r hapbeat-handdemo.apk
 
 ### C. 開発者登録をしたくない人（リリースチャンネル）
 
-配布側が Meta Horizon Store の **ALPHA チャンネル**にビルドを上げ、**メールまたは URL で招待**する方式です。
+配布側が Meta Horizon Store の **ALPHA チャンネル**にビルドを上げ、**メールまたは URL で招待**する方式です。**APK のダウンロードも USB 接続も不要**で、ストアから通常のアプリと同じようにインストールできます。
+
+**受け取る手順**
+
+1. [](/docs/support/contact/) の GitHub Discussions から、Meta アカウントのメールアドレスを添えてご連絡ください
+2. こちらから ALPHA チャンネルへの招待をお送りします
+3. 招待を承諾すると、ヘッドセットのライブラリにアプリが並びます。そのままインストールしてください
+
+**補足**
 
 - 受け取る側に必要なのは **Meta アカウントのみ**。開発者登録も開発者モードも不要です
-- 招待を受け取ると、ストアの **My Preview Apps** とライブラリにアプリが並ぶので、そのままインストールできます
 - **ALPHA / BETA チャンネルはストア審査が不要**です（審査が必要なのは Production のみ）
 - 1 チャンネルあたり既定で 200 ユーザー（申請により最大 2,500 ユーザー）まで招待できます
-
-この方式を希望する場合は [](/docs/support/contact/) の GitHub Discussions からご連絡ください。招待をお送りします。
+- 複数のチャンネルにアクセスできる場合、ヘッドセット内ではアプリの **Settings** ページから、ヘッドセット外ではストアページの **バージョン選択ドロップダウン**から、アクティブなチャンネルを切り替えられます
 
 ## 使い方（起動後）
 
