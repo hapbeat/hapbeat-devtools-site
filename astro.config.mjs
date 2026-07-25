@@ -620,6 +620,7 @@ export default defineConfig({
                 },
                 // howto (mode 判断・実装 → 拡張用途 → ワークフロー支援)
                 pub('docs/sdk-integration/unity-sdk/xri-handdemo-quickstart'),
+                pub('docs/sdk-integration/unity-sdk/xri-handdemo-apk'),
                 pub('docs/sdk-integration/unity-sdk/fire-vs-clip'),
                 pub('docs/sdk-integration/unity-sdk/streaming'),
                 pub('docs/sdk-integration/unity-sdk/multi-app'),

@@ -76,7 +76,17 @@ XRI 3.3.1 is the verified version. Other versions work as long as the scene stru
 
 ## License note
 
-Because the XRI samples are under the Unity Companion License, **you cannot redistribute the augmented `HandsDemoScene` as a modified scene**. Anyone you share this with has to follow the same steps: import the XRI sample themselves, then run the command.
+The XRI samples are covered by the **Unity Companion License (UCL)**. That license does grant the right to reproduce, create derivative works of, distribute, and sublicense the software — exercised only for creating, using, and distributing Unity-engine-dependent applications and content.
+
+Given that, the Hapbeat SDK still ships a **command rather than a scene**, for these reasons:
+
+- Under UCL section 3.2, **derivative works of the Software — an augmented `HandsDemoScene` — are owned by Unity**. Content you author yourself (your app, your event map) stays yours; a modified sample scene does not.
+- Under UCL section 5, distributing a substantial portion of the Software carries an obligation to **include the copyright notice and the license text**.
+- Keeping third-party assets out of the SDK sidesteps both points entirely.
+
+**Shipping a built application (an APK, say) is a different matter** — that is exactly the Unity-engine-dependent application the license contemplates, so it falls within the grant. See [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-apk/) for how we distribute one, including the attribution it has to carry.
+
+If you point someone else at this page, they import the XRI sample themselves and run the command as described above.
 
 ## Next
 
