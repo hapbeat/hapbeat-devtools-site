@@ -1,112 +1,99 @@
 ---
 title: Install the XRI Hand Demo APK
 kind: howto
-description: "How to install and run the prebuilt APK of the XRI Hands Interaction Demo with Hapbeat haptics on Quest 3 / 3S — three routes: adb for Unity users, SideQuest, and a release channel that needs no developer account."
+description: "How to install and run the prebuilt APK of the XRI Hands Interaction Demo with Hapbeat haptics on Quest 3 / 3S — three routes: release channel, adb, and SideQuest."
 sidebar:
   order: 200
+  label: Try the XRI demo APK
 ---
 
-We distribute a **prebuilt APK** of the XR Interaction Toolkit (XRI) **Hands Interaction Demo** with Hapbeat haptics added. Grabbing, poking, snapping into sockets and scrubbing all return haptics — without opening Unity.
+We distribute a **prebuilt APK** of the XR Interaction Toolkit **Hands Interaction Demo** with Hapbeat haptics added. You can try it without opening Unity.
 
 :::caution[A Hapbeat device is required]
-You cannot experience this demo without Hapbeat hardware. Connect the device to the **same Wi-Fi network** as the headset.
+Nothing happens in this demo without a Hapbeat. Connect the device to the **same Wi-Fi network** as the headset.
 :::
 
-If you want to build or modify it yourself as a Unity project, see [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/).
+If you want to reproduce or modify it in your own Unity project, see [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/).
 
 ## What you need
 
 - **Meta Quest 3 / 3S**
-- **A Hapbeat device** (on the same Wi-Fi network as the headset)
-- Additional requirements depending on the install route (A / B / C below)
+- **A Hapbeat device** (on the same Wi-Fi as the headset)
 
 ## Which route to pick
 
 | | Route | Requires | APK download |
 |---|---|---|---|
-| **A** | adb | Having used Build and Run in Unity | Yes |
-| **B** | SideQuest | Meta developer registration + developer mode | Yes |
-| **C** | Release channel | A Meta account, nothing else | **No** |
+| **A** | Release channel | A Meta account only | Not needed |
+| **B** | adb | PC, USB cable, developer mode | Needed |
+| **C** | SideQuest | B + SideQuest | Needed |
 
-**If you are not a registered developer, C is the easiest** — you install it from the store like any other app.
+**If you are not a registered developer, A is the easiest** — it installs from the store like any other app.
 
-## Download (A / B only)
+## A. Release channel
 
-The APK is distributed via GitHub Releases. Route C needs no download.
+You join the **ALPHA channel** on the Meta Horizon Store. No APK download and no USB connection.
 
-<!-- TODO: replace this placeholder with the real GitHub Releases URL (and a download link) once the distribution repo is published -->
+1. **Open the invite link and join**
 
-:::note[The distribution repository is not published yet]
-Once it is, the APK will be available at:
+   <!-- TODO: replace with the invite URL issued for the ALPHA channel in the dashboard -->
+   ```
+   https://…(invite link — coming soon)
+   ```
 
-```
-https://github.com/hapbeat/<distribution-repo>/releases/latest
-```
+   - All you need is a Meta account. No developer registration and no developer mode
+   - ALPHA channels require no store review, so we can distribute without waiting for a publishing approval
 
-The file is named `hapbeat-handdemo.apk`.
-:::
+2. **Install it from the headset library**
+   - Apps on invite-only channels **do not appear in store search**. They show up in your library
 
-## Installation
+## Downloading the APK (for B / C)
 
-### A. You have used Build and Run in Unity (fastest)
+<a href="https://github.com/hapbeat/hapbeat-demos/releases/latest" download>hapbeat-handdemo_all.apk</a>
 
-If Build and Run already works for you, **developer mode is already enabled**. You don't need SideQuest either — the `adb` bundled with Unity is enough.
+Run the commands below **in the directory where you put this APK**.
 
-Connect the headset to your PC over USB-C, then run:
+## B. adb
 
-```bash
-adb install -r hapbeat-handdemo.apk
-```
+1. **Enable developer mode**
+   - For the procedure, see [Meta official: Set up development environment](https://developers.meta.com/horizon/documentation/native/android/mobile-device-setup/)
+   - If Build and Run already works for you in Unity, it is **already enabled** and you can skip this step
 
-`adb` ships with Unity's Android Build Support (Android SDK). Example path: `<Unity install dir>/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/platform-tools/adb.exe`
+2. **Connect the Quest to your PC over USB-C and allow USB debugging inside the headset**
+   - The dialog only appears inside the headset. Put it on and choose **Always allow from this computer**
 
-### B. You use VR but not Unity (SideQuest)
+3. **Run this in the directory where you put the APK**
 
-:::caution[A Meta developer account is required]
-Enabling developer mode requires **Meta developer registration** (joining a developer organization plus identity verification). This is the first hurdle.
-:::
+   ```bash
+   adb install -r hapbeat-handdemo_all.apk
+   ```
 
-**Enable developer mode**
+   - `adb` ships with the [Android SDK Platform Tools](https://developer.android.com/tools/releases/platform-tools). If you have Unity's Android Build Support installed, it is also at `<Unity install dir>/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/platform-tools/`
+   - For command details, see the [official adb documentation](https://developer.android.com/tools/adb)
+   - If you get `INSTALL_FAILED_UPDATE_INCOMPATIBLE` (signature mismatch), run `adb uninstall com.Hapbeat.HapticHandDemo` first
 
-1. Open the **Meta Horizon** app on your phone
-2. Tap the headset icon and select your paired headset
-3. Turn on **Headset Settings → Developer Mode**
-4. Connect the headset to your PC over USB-C
-5. Put the headset on and enable **MTP Notification** under Quick Control → Settings → Developer
-6. When asked "Allow USB debugging?", choose **Always allow from this computer**
+4. **Launch it from Unknown Sources in the library**
+   - It does not appear under the default filter. You have to switch it
 
-**Install with SideQuest**
+## C. SideQuest
 
-1. Install **SideQuest (Advanced Installer)** on your PC
-2. Connect the headset over USB and wait for the SideQuest connection indicator to turn **green**
-3. **Drag and drop** the APK onto the SideQuest window (or use *Install APK file from folder*)
+1. **Enable developer mode**
+   - For the procedure, see [Meta official: Set up development environment](https://developers.meta.com/horizon/documentation/native/android/mobile-device-setup/)
 
-**Launch it**
+2. **Install SideQuest on your PC**
+   - [SideQuest official: Get SideQuest](https://sidequestvr.com/setup-howto) (Advanced Installer edition)
 
-In the headset library, switch the source filter to **Unknown Sources** to find the app.
+3. **Connect the Quest over USB and wait for the SideQuest connection indicator to turn green**
 
-### C. You would rather not register as a developer (release channel)
+4. **Drag and drop the APK onto the SideQuest window**
 
-We upload the build to the **ALPHA channel** of the Meta Horizon Store and **invite you by email or URL**. No APK download and no USB cable — you install it from the store like any other app.
+5. **Launch it from Unknown Sources in the library**
 
-**How to get in**
+## When you get no haptics
 
-1. Reach out via GitHub Discussions ([](/en/docs/support/contact/)) with the email address on your Meta account
-2. We send you an invite to the ALPHA channel
-3. Accept it, and the app shows up in your headset library — install it from there
-
-**Notes**
-
-- All you need is a **Meta account** — no developer registration, no developer mode
-- **ALPHA / BETA channels require no store review** (only Production is reviewed)
-- Each channel holds 200 users by default (up to 2,500 on request)
-- If you have access to more than one channel, you can switch the active one from the app's **Settings** page in-headset, or from the **version dropdown** on its store page out-of-headset
-
-## Using it (after launch)
-
-The Hapbeat **player / group can be changed from the in-app settings panel** — no Unity required. For what player / group mean, see [](/en/docs/concepts/group-player-addressing/).
-
-If you get no haptics, check the connectivity entries in [](/en/docs/support/faq/) and [](/en/docs/hardware/troubleshooting/).
+- Check that the Hapbeat and the Quest are on the **same Wi-Fi** (same subnet)
+- This build does not pin an address, so **every Hapbeat on the same network fires**. There is no setting to narrow it down to a single unit
+- If it still does not fire, see the connectivity entries in [](/en/docs/support/faq/) and [](/en/docs/hardware/troubleshooting/)
 
 ## License notice
 

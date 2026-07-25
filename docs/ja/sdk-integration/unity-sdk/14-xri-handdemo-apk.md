@@ -1,112 +1,99 @@
 ---
 title: XRI Hand Demo の APK を入れて試す
 kind: howto
-description: XRI Hands Interaction Demo に Hapbeat の触覚を載せたビルド済み APK を Quest 3 / 3S にインストールして体験する手順。Unity 経験者向け adb、SideQuest、開発者登録不要のリリースチャンネルの 3 通り。
+description: Hapbeat の触覚を載せた XRI Hands Interaction Demo のビルド済み APK を Quest 3 / 3S に入れて体験する手順。リリースチャンネル / adb / SideQuest の 3 通り。
 sidebar:
   order: 200
+  label: XRI デモを APK で試す
 ---
 
-XR Interaction Toolkit（XRI）の **Hands Interaction Demo** に Hapbeat の触覚を載せたデモの、**ビルド済み APK** を配布しています。掴む・押す・スナップする・こするといった操作に触覚が返るところを、Unity を開かずに体験できます。
+XR Interaction Toolkit の **Hands Interaction Demo** に Hapbeat の触覚を載せた、**ビルド済み APK** を配布しています。Unity を開かずに体験できます。
 
 :::caution[Hapbeat 実機が必要です]
-このデモは Hapbeat デバイスが無いと体験できません。デバイスは Quest と **同じ Wi-Fi** に接続してください。
+このデモは Hapbeat が無いと何も起きません。デバイスは Quest と**同じ Wi-Fi** に接続してください。
 :::
 
-Unity プロジェクトとして自分でビルド・改造したい場合は [](/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/) を参照してください。
+自分の Unity プロジェクトで再現・改造したい場合は [](/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/)。
 
 ## 必要環境
 
 - **Meta Quest 3 / 3S**
-- **Hapbeat 実機**（Quest と同じ Wi-Fi に接続）
-- インストール方法によって追加の要件があります（下記 A / B / C を参照）
+- **Hapbeat 実機**（Quest と同じ Wi-Fi）
 
 ## どの方法を選ぶか
 
-| | 方法 | 必要なもの | APK のダウンロード |
+| | 方法 | 必要なもの | APK の入手 |
 |---|---|---|---|
-| **A** | adb | Unity で Build and Run した経験 | 必要 |
-| **B** | SideQuest | Meta 開発者登録 + 開発者モード | 必要 |
-| **C** | リリースチャンネル | Meta アカウントのみ | **不要** |
+| **A** | リリースチャンネル | Meta アカウントのみ | 不要 |
+| **B** | adb | PC・USB ケーブル・開発者モード | 必要 |
+| **C** | SideQuest | B + SideQuest | 必要 |
 
-**開発者登録をしていないなら C が最も簡単**です。ストアから通常のアプリと同じようにインストールできます。
+**開発者登録をしていないなら A** が最も簡単です。ストアから通常のアプリと同じように入ります。
 
-## ダウンロード（A / B のみ）
+## A. リリースチャンネル
 
-APK は GitHub Releases で配布します。方法 C ではダウンロードは不要です。
+Meta Horizon Store の **ALPHA チャンネル**に参加していただく方式です。APK のダウンロードも USB 接続も不要です。
 
-<!-- TODO: 配布 repo 公開時に、下記プレースホルダを実際の GitHub Releases URL（およびダウンロードリンク）へ差し替える -->
+1. **招待リンクを開いて参加する**
 
-:::note[配布リポジトリは準備中です]
-公開後、以下の URL からダウンロードできるようになります。
+   <!-- TODO: ダッシュボードの ALPHA チャンネルで発行した招待 URL に差し替える -->
+   ```
+   https://…（招待リンク・準備中）
+   ```
 
-```
-https://github.com/hapbeat/<配布リポジトリ名>/releases/latest
-```
+   - 必要なのは Meta アカウントだけです。開発者登録も開発者モードも不要です
+   - ALPHA チャンネルはストア審査が不要なため、公開申請を待たずに配布できます
 
-ファイル名は `hapbeat-handdemo.apk` です。
-:::
+2. **ヘッドセットのライブラリからインストールする**
+   - 招待制チャンネルのアプリは**ストア検索には出ません**。ライブラリに並びます
 
-## インストール方法
+## APK のダウンロード（B / C 用）
 
-### A. Unity で Build and Run したことがある人（最速）
+<a href="https://github.com/hapbeat/hapbeat-demos/releases/latest" download>hapbeat-handdemo_all.apk</a>
 
-Build and Run が通っている時点で **開発者モードは既に有効**です。SideQuest も不要で、Unity に同梱されている `adb` がそのまま使えます。
+以降のコマンドは、**この APK を置いたディレクトリで実行**してください。
 
-Quest を USB-C で PC に接続してから、次を実行します。
+## B. adb
 
-```bash
-adb install -r hapbeat-handdemo.apk
-```
+1. **開発者モードを有効にする**
+   - 手順は [Meta 公式: Set up development environment](https://developers.meta.com/horizon/documentation/native/android/mobile-device-setup/)
+   - Unity で Build and Run が通っている人は**すでに有効**なので、この手順は不要です
 
-`adb` は Unity の Android Build Support（Android SDK）に同梱されています。例: `<Unity インストール先>/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/platform-tools/adb.exe`
+2. **Quest を USB-C で PC に接続し、ヘッドセット内で USB デバッグを許可する**
+   - ダイアログはヘッドセット内にしか出ません。装着して **Always allow from this computer** を選びます
 
-### B. VR は使うが Unity は使わない人（SideQuest）
+3. **APK を置いたディレクトリで実行する**
 
-:::caution[Meta 開発者登録が必要です]
-開発者モードを有効にするには、**Meta の開発者登録（開発者組織への所属と本人確認）** が必要です。ここが最初の壁になります。
-:::
+   ```bash
+   adb install -r hapbeat-handdemo_all.apk
+   ```
 
-**開発者モードを有効にする**
+   - `adb` は [Android SDK Platform Tools](https://developer.android.com/tools/releases/platform-tools) に含まれます。Unity の Android Build Support を入れている場合は `<Unity インストール先>/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/platform-tools/` にもあります
+   - コマンドの詳細は [adb 公式ドキュメント](https://developer.android.com/tools/adb)
+   - `INSTALL_FAILED_UPDATE_INCOMPATIBLE`（署名不一致）が出たら、先に `adb uninstall com.Hapbeat.HapticHandDemo` を実行します
 
-1. スマホの **Meta Horizon** アプリを開く
-2. ヘッドセットのアイコンから、ペアリング済みの端末を選択する
-3. **Headset Settings → Developer Mode** をオンにする
-4. ヘッドセットを USB-C で PC に接続する
-5. ヘッドセットを装着し、Quick Control → Settings → Developer タブで **MTP Notification** を有効化する
-6. 「USB デバッグを許可しますか」のダイアログで **Always allow from this computer** を選ぶ
+4. **ライブラリの「提供元不明のアプリ（Unknown Sources）」から起動する**
+   - 既定のフィルタには出ません。切り替えが必要です
 
-**SideQuest でインストールする**
+## C. SideQuest
 
-1. PC に **SideQuest（Advanced Installer）** をインストールする
-2. Quest を USB 接続し、SideQuest の接続インジケータが**緑**になるのを確認する
-3. APK を SideQuest のウィンドウに**ドラッグ&ドロップ**する（または *Install APK file from folder* を使う）
+1. **開発者モードを有効にする**
+   - 手順は [Meta 公式: Set up development environment](https://developers.meta.com/horizon/documentation/native/android/mobile-device-setup/)
 
-**起動する**
+2. **PC に SideQuest をインストールする**
+   - [SideQuest 公式: Get SideQuest](https://sidequestvr.com/setup-howto)（Advanced Installer 版）
 
-ヘッドセットのライブラリを開き、提供元のフィルタを **「提供元不明のアプリ（Unknown Sources）」** に切り替えるとアプリが表示されます。
+3. **Quest を USB 接続し、SideQuest の接続インジケータが緑になるのを確認する**
 
-### C. 開発者登録をしたくない人（リリースチャンネル）
+4. **APK を SideQuest のウィンドウにドラッグ&ドロップする**
 
-配布側が Meta Horizon Store の **ALPHA チャンネル**にビルドを上げ、**メールまたは URL で招待**する方式です。**APK のダウンロードも USB 接続も不要**で、ストアから通常のアプリと同じようにインストールできます。
+5. **ライブラリの「提供元不明のアプリ（Unknown Sources）」から起動する**
 
-**受け取る手順**
+## 触覚が鳴らないとき
 
-1. [](/docs/support/contact/) の GitHub Discussions から、Meta アカウントのメールアドレスを添えてご連絡ください
-2. こちらから ALPHA チャンネルへの招待をお送りします
-3. 招待を承諾すると、ヘッドセットのライブラリにアプリが並びます。そのままインストールしてください
-
-**補足**
-
-- 受け取る側に必要なのは **Meta アカウントのみ**。開発者登録も開発者モードも不要です
-- **ALPHA / BETA チャンネルはストア審査が不要**です（審査が必要なのは Production のみ）
-- 1 チャンネルあたり既定で 200 ユーザー（申請により最大 2,500 ユーザー）まで招待できます
-- 複数のチャンネルにアクセスできる場合、ヘッドセット内ではアプリの **Settings** ページから、ヘッドセット外ではストアページの **バージョン選択ドロップダウン**から、アクティブなチャンネルを切り替えられます
-
-## 使い方（起動後）
-
-Hapbeat の **player / group はアプリ内の設定パネルから変更**できます。Unity を開く必要はありません。player / group の考え方は [](/docs/concepts/group-player-addressing/) を参照してください。
-
-触覚が鳴らない場合は [](/docs/support/faq/) の接続関連、および [](/docs/hardware/troubleshooting/) を確認してください。
+- Hapbeat と Quest が**同じ Wi-Fi**（同一サブネット）にいるか確認してください
+- このビルドはアドレスを固定していないため、**同じネットワーク上の Hapbeat はすべて鳴ります**。特定の 1 台だけに絞る設定は入っていません
+- それでも鳴らない場合は [](/docs/support/faq/) の接続関連と [](/docs/hardware/troubleshooting/) を参照してください
 
 ## ライセンス表記
 
