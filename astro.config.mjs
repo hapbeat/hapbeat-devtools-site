@@ -614,17 +614,20 @@ export default defineConfig({
                 pub('docs/sdk-integration/unity-sdk/getting-started'),
                 pub('docs/sdk-integration/unity-sdk/integration'),
                 {
-                  label: 'Showcase',
+                  // サンプルシーン関連は 1 グループに集約する。ファイルの物理配置
+                  // (showcase/ 配下と unity-sdk/ 直下) は URL 温存のため変えていない。
+                  label: 'Samples',
                   items: [
                     pub('docs/sdk-integration/unity-sdk/showcase/overview'),
                     pub('docs/sdk-integration/unity-sdk/showcase/walkthrough'),
                     pub('docs/sdk-integration/unity-sdk/showcase/wiring'),
                     pub('docs/sdk-integration/unity-sdk/showcase/method-choice'),
+                    pub('docs/sdk-integration/unity-sdk/vr-config-example'),
+                    pub('docs/sdk-integration/unity-sdk/xri-handdemo-quickstart'),
+                    pub('docs/sdk-integration/unity-sdk/xri-handdemo-apk'),
                   ].filter(Boolean),
                 },
                 // howto (mode 判断・実装 → 拡張用途 → ワークフロー支援)
-                pub('docs/sdk-integration/unity-sdk/xri-handdemo-quickstart'),
-                pub('docs/sdk-integration/unity-sdk/xri-handdemo-apk'),
                 pub('docs/sdk-integration/unity-sdk/fire-vs-clip'),
                 pub('docs/sdk-integration/unity-sdk/streaming'),
                 pub('docs/sdk-integration/unity-sdk/targeting'),

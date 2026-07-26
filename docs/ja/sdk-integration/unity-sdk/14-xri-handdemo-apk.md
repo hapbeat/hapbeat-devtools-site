@@ -17,7 +17,7 @@ sidebar:
 
 ## 必要環境
 
-- **Meta Quest 3 / 3S**
+- **Meta Quest** — 動作確認済みは **Quest 3 / 3S**。ハンドトラッキング対応機であれば **Quest 2 / Quest Pro** も配布対象に含む（未検証）
 - **Hapbeat 実機** — Quest と同じ Wi-Fi
 
 ## どの方法を選ぶか
@@ -44,9 +44,9 @@ Meta Horizon Store の **ALPHA チャンネル**に招待する方式。APK の�
 
 ## APK のダウンロード（B / C 用）
 
-<a href="https://github.com/hapbeat/hapbeat-demos/releases/latest" download>hapbeat-handdemo_all.apk</a>
+<a href="https://github.com/hapbeat/hapbeat-demos/releases/latest/download/hapbeat-handdemo_all.apk" download>hapbeat-handdemo_all.apk をダウンロード</a>
 
-以降のコマンドは、**この APK を置いたディレクトリで実行**する。
+過去のビルドは [hapbeat-demos の Releases](https://github.com/hapbeat/hapbeat-demos/releases) にある。以降のコマンドは、**この APK を置いたディレクトリで実行**する。
 
 ## B. CLI（adb）
 

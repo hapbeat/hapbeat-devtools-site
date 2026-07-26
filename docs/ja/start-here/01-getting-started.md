@@ -20,7 +20,7 @@ Hapbeat Studio と hapbeat-helper を使います。https://raw.githubuserconten
 
 Hapbeat SDK には **設定・デザインフロー**（Studio + Helper）と、**ゲーム / アプリ実行フロー**（SDK 直結）の 2 系統があります。
 
-![Hapbeat の構成図。左側が設定・デザインフロー（Studio → Helper → Hapbeat デバイス、PC 経由）、右側がゲーム / アプリ実行フロー（Unity SDK / Quest / PC / スマートフォン → Wi-Fi UDP unicast → Hapbeat デバイス、直結）](@assets/architecture/hapbeat-sdk-architecture.svg)
+![Hapbeat の構成図。左側が設定・デザインフロー（Studio → Helper → Hapbeat デバイス、PC 経由）、右側がゲーム / アプリ実行フロー（Unity SDK / Quest / PC / スマートフォン → Wi-Fi UDP → Hapbeat デバイス、直結）](@assets/architecture/hapbeat-sdk-architecture.svg)
 
 ### 設定・デザインフロー（このページ）
 
