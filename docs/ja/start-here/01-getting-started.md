@@ -20,7 +20,7 @@ Hapbeat Studio と hapbeat-helper を使います。https://raw.githubuserconten
 
 Hapbeat SDK には **設定・デザインフロー**（Studio + Helper）と、**ゲーム / アプリ実行フロー**（SDK 直結）の 2 系統があります。
 
-![Hapbeat の構成図。左側が設定・デザインフロー（Studio → Helper → Hapbeat デバイス、PC 経由）、右側がゲーム / アプリ実行フロー（Unity SDK / Quest / PC / スマートフォン → Wi-Fi UDP broadcast → Hapbeat デバイス、直結）](@assets/architecture/hapbeat-sdk-architecture.svg)
+![Hapbeat の構成図。左側が設定・デザインフロー（Studio → Helper → Hapbeat デバイス、PC 経由）、右側がゲーム / アプリ実行フロー（Unity SDK / Quest / PC / スマートフォン → Wi-Fi UDP unicast → Hapbeat デバイス、直結）](@assets/architecture/hapbeat-sdk-architecture.svg)
 
 ### 設定・デザインフロー（このページ）
 
@@ -30,7 +30,7 @@ Hapbeat SDK には **設定・デザインフロー**（Studio + Helper）と、
 
 ### ゲーム / アプリ実行フロー
 
-- **Unity SDK** 等の SDKによって、Quest / PC / スマートフォン等から Wi-Fi UDP broadcast で触覚イベントをHapbeat に Wi-Fi 経由で送信
+- **Unity SDK** 等の SDKによって、Quest / PC / スマートフォン等から Wi-Fi UDP で触覚イベントを Hapbeat に送信（既定は検出済みデバイスへの unicast。まだ 1 台も検出できていない間だけ broadcast にフォールバック）
 - onClick / OnCollisionEnter などのイベントを触覚に紐づけるだけで動作
 - ※Studio や Helper はアプリ実行時には **不要**
 
@@ -163,7 +163,7 @@ Unreal SDK / Creative Kit 等は [](/docs/support/coming-soon/) を参照して�
 設計を深く理解したい人向け:
 
 - [](/docs/concepts/architecture/) — Studio / Helper / SDK / Firmware の役割分担
-- [](/docs/concepts/communication-model/) — Wi-Fi UDP broadcast と ESP-NOW
+- [](/docs/concepts/communication-model/) — Wi-Fi UDP unicast と ESP-NOW
 - [](/docs/concepts/gain-architecture/) — Studio と SDK の責務分離
 
 リファレンス・トラブル対応:

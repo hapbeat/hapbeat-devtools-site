@@ -36,7 +36,7 @@ Hapbeat の触覚を Unity に組み込む方法は大きく 2 通りありま�
 理由:
 - gain / target / curve のチューニングが 1 箇所に集まる
 - ロジックが game logic から分離して保守しやすい
-- Showcase の `ShowcaseBridge` がこの形 ([Scripts/ShowcaseBridge.cs](https://github.com/yus988/hapbeat-unity-sdk/blob/master/Samples~/Showcase/Scripts/ShowcaseBridge.cs))
+- Showcase の `ShowcaseBridge` がこの形 ([Scripts/ShowcaseBridge.cs](https://github.com/Hapbeat/hapbeat-unity-sdk/blob/master/Samples~/Showcase/Scripts/ShowcaseBridge.cs))
 
 ### 両方を組み合わせる
 

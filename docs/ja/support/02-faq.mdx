@@ -17,7 +17,7 @@ import Faq from '../../../../components/Faq.astro';
 
 - ファームウェアが書き込まれ、Wi-Fi 設定が済んでいるか確認
 - PC とデバイスが同じネットワークに繋がっているか
-- ファイアウォールで UDP broadcast と mDNS がブロックされていないか
+- ファイアウォールで UDP と mDNS がブロックされていないか
 - Helper が起動しているか（Studio 上部の「Helper 接続中」インジケータ）
 - Helper のログを確認: `hapbeat-helper log`（[](/docs/tools/helper/getting-started/)）
 
@@ -32,7 +32,7 @@ import Faq from '../../../../components/Faq.astro';
 
 <Faq question="VR HMD（Quest 等）から直接使いたい">
 
-- Wi-Fi UDP broadcast 方式なので HMD が同じネットワークにあれば動く
+- Wi-Fi UDP 方式なので HMD が同じネットワークにあれば動く
 - HMD が AP 機能を持たないためルーターなしでは Hapbeat を AP にする必要あり
 
 </Faq>
@@ -44,11 +44,11 @@ HMD ごとに Hapbeat を紐付ける場合も、**player 番号** で分けま�
 1. 各 Hapbeat に別々の player 番号を設定する（本体のボタン操作、または Studio から）
 2. 各 HMD のアプリから、対応する player 番号を指定して送信する
 
-通信はネットワーク全体へのブロードキャストで、どのデバイスが反応するかは player 番号の一致で決まります。**番号が重複していると複数台が同時に反応する**ため、割り当てが重複していないかご確認ください。
+どのデバイスが反応するかは、**送信側が指定したアドレス（player / group / position）とデバイス側の設定が一致するか**で決まります。**番号が重複していると複数台が同時に反応する**ため、割り当てが重複していないかご確認ください。
 
 確実に分離したい場合は、ペアごとにネットワーク（アクセスポイント）を分ける方法が最も確実です。
 
-詳細: [](/docs/concepts/group-player-addressing/)
+詳細: [](/docs/concepts/group-player-addressing/) / [](/docs/sdk-integration/unity-sdk/targeting/)
 
 </Faq>
 
@@ -56,7 +56,7 @@ HMD ごとに Hapbeat を紐付ける場合も、**player 番号** で分けま�
 
 別途センサーなどを有線 LAN（イーサネット）で繋ぎ、Hapbeat を Wi-Fi で使う構成で起こります。
 
-**原因**: Hapbeat の通信は UDP broadcast を使います。PC を Wi-Fi と有線 LAN の **2 つの別ネットワーク**に同時接続すると、Windows は通常**有線を優先**するため、broadcast が有線側（センサーのネットワーク）にのみ送出され、Wi-Fi 上の Hapbeat に届きません。Studio がオフライン表示になるだけでなく、同じ PC からの触覚再生にも影響します。
+**原因**: Hapbeat の**デバイス探索**は UDP broadcast と mDNS を使います。PC を Wi-Fi と有線 LAN の **2 つの別ネットワーク**に同時接続すると、Windows は通常**有線を優先**するため、探索パケットが有線側（センサーのネットワーク）にのみ送出され、Wi-Fi 上の Hapbeat に届きません。結果としてデバイスが 1 台も見つからず、Studio がオフライン表示になります。触覚の送信は本来「見つかったデバイスへの宛先指定（unicast）」ですが、1 台も見つかっていない状態では broadcast にフォールバックするため、同じ理由で Wi-Fi 側に届かず、同じ PC からの触覚再生にも影響します。
 
 **対処**: Wi-Fi アダプターの**インターフェイスメトリック**を有線より小さく（優先度を高く）します。センサーへの通信は宛先指定（unicast）のため、変更後も問題なく動作します。
 
@@ -119,7 +119,7 @@ GUI の場合: アダプター設定 → Wi-Fi の IPv4 プロパティ → 詳�
 
 <Faq question="何台まで同時に使える？ 台数が多いときの注意点">
 
-10 台程度までは、標準の Wi-Fi UDP broadcast のままで問題なくご利用いただけます。特別な構成は必要ありません。
+20 台程度までは、標準の Wi-Fi UDP（既定の unicast）のままで問題なくご利用いただけます。特別な構成は必要ありません。
 
 台数が増えるときは **再生方式** にご注意ください。Hapbeat には、デバイスに事前登録した波形をコマンドで呼び出す **FIRE 方式** と、音声データをリアルタイムに送信する **CLIP 方式** があります。CLIP 方式は音声データを送り続けるため、**台数が増えるほど通信量が増え、動作が不安定になることがあります**。
 

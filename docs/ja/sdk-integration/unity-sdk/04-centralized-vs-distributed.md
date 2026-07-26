@@ -45,7 +45,7 @@ public class ChargeShooter : MonoBehaviour
 
 ## Manager.Play パターン（集約）
 
-`HapbeatManager.Instance.Play(eventId, target, gain)` を直接呼ぶ。Trigger コンポーネントを使わない。
+`HapbeatManager.Instance.Play(eventId, gain, displayName, target)` を直接呼ぶ。Trigger コンポーネントを使わない。
 
 ```csharp
 public class GameHapticRouter : MonoBehaviour
@@ -57,7 +57,7 @@ public class GameHapticRouter : MonoBehaviour
 
     public void Play(string eventId, float gain = 1f, string target = null)
     {
-        HapbeatManager.Instance.Play(eventId, target ?? "", gain);
+        HapbeatManager.Instance.Play(eventId, gain, target: target ?? "");
     }
 
     public void OnEnemyHit() => Play("game.enemy_hit");

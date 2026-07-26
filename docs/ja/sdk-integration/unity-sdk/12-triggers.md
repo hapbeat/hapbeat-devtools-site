@@ -89,9 +89,9 @@ Slider / ScrollRect などの連続値の変化量に応じて、スナップア
 
 ## デバッグ
 
-メニューバー → `Hapbeat` → `Debug` → `Attach Event Logger to Selected` を実行すると、選択中 GameObject の UnityEvent 発火をコンソールにログ出力できます。XRI のイベント発火順序の可視化に有効です。
+メニューバー → `Hapbeat` → `Attach Event Logger to Selected` を実行すると、選択中 GameObject の UnityEvent 発火をコンソールにログ出力できます。XRI のイベント発火順序の可視化に有効です。
 
-詳細ログを記録する場合: `Hapbeat → Debug → Logs → Start Recording`
+詳細ログを記録する場合: `Hapbeat → Logs → Start Recording`
 
 ## 次のステップ
 

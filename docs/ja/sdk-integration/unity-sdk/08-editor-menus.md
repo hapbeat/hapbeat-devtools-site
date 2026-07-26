@@ -12,7 +12,11 @@ Hapbeat SDK は Unity Editor のトップレベルメニュー **`Hapbeat`** に
 Hapbeat/
   Open Event Map                           ← Window (Event ID + Wiring 管理メイン画面)
   Open Batch Setup                         ← Window (複数 GO に Trigger を一括設定)
-  Open Settings                            ← Window (接続設定 / Group / Bridge UI)
+  Open Settings                            ← Window (接続設定 / Bridge / Override Addressing)
+  Open Runtime Status                      ← Window (実行中の override / appName の解決結果)
+  ─────────────────────────────
+  Samples/Augment XRI Hand Demo            ← XRI サンプルシーンに haptics 配線を適用
+  Samples/Augment XRI Hand Demo (+ diagnostic Event Logger)
   ─────────────────────────────
   Create Event Router                      ← シーンに [Hapbeat Event Router] を配置
   Create Event Map                         ← EventMap .asset だけを作成
@@ -33,6 +37,7 @@ Hapbeat/
   Logs/Dump Last Recording to Console      ← 直近のログを Console に流す
   Close Edit-mode Transport                ← Edit-mode の UDP 接続を強制クローズ
   Disable Verbose Log on All Hapbeat Components ← _verboseLog / _debugLog 一括 off
+  Diagnostics/Check Sample Versions        ← Import 済みサンプルと SDK 版の整合を確認
   ─────────────────────────────
   Developer/Build Basic Example            ← Basic サンプル一式の scaffold (Local/Embedded install のみ)
   Developer/Sync HapbeatSDK → Samples~ (Showcase)
@@ -42,7 +47,8 @@ Hapbeat/
 セクションの分け方:
 
 1. **Window 系** (top): ウィンドウを開く操作。よく使うので最上段に配置。
-2. **Create 系**: 日常的な author 操作。Event Router / Event Map を個別に作成。
+2. **Samples**: Import 済みサンプルに対して配線を適用するコマンド。
+3. **Create 系**: 日常的な author 操作。Event Router / Event Map を個別に作成。
 3. **Initial / 1 回限り**: 初期セットアップや特殊ケースで実行するもの。Initial Scene Setup は (Router + EventMap + フォルダ) の一括コマンド、Deploy Imported Sample は Samples フォルダから HapbeatSDK/ への展開。
 4. **Authoring tools**: EventMap export / Audio フォーマット変換 (アセット成果物の加工)。
 5. **Diagnostics**: 配線テスト・ログ記録・transport 緊急クローズ・冗長ログ一括 OFF。デバッグ目的。
@@ -65,12 +71,25 @@ Hapbeat/
 | 設定 | 用途 |
 |---|---|
 | Port | UDP ポート (デフォルト 7700) |
-| Group | 送信先デバイスのグループ ID (0 = 全デバイス) |
-| アプリ名 | Hapbeat デバイスのディスプレイに表示するクライアントアプリ名。**Max 16 文字** (display grid 幅)。デフォルトの `app_name` 要素 (8x1) では先頭 8 文字のみ表示。空欄なら `Application.productName` が自動使用 (16 文字超過時は切り詰め) |
-| Use Bridge | ESP-NOW 経由 (上位構成) を使う場合のみ ON |
+| アプリ名 | Hapbeat デバイスのディスプレイに表示するクライアントアプリ名。**Max 16 文字** (display grid 幅)。デフォルトの `app_name` 要素 (8x1) では先頭 8 文字のみ表示。空欄なら `Application.productName` が自動使用 (16 文字超過時は切り詰め)。`<p>` / `<g>` は送信直前に override 値へ置換 |
+| **Override Addressing (this build)** | ビルド全体で固定する player / group。空欄 (無効) なら EventMap のターゲットをそのまま使用 → [](/docs/sdk-integration/unity-sdk/targeting/) |
+| Use Bridge / Bridge Host | ESP-NOW 経由 (上位構成) を使う場合のみ ON |
 | Ping Interval | キープアライブ送信間隔 (秒) |
+| Haptic Delay | 全発火に一律で足す遅延 (ms)。映像との同期合わせ用 |
+| Stream Send Ahead | CLIP 送信の先行時間 (秒) |
+| Stream / Command Unicast | 既知デバイスへ unicast で送る (既定 ON) → [](/docs/concepts/communication-model/) |
+| Enable / Verbose Logging | Console ログの出力量 |
 
 実機との Ping テストや、シーン外からの設定編集に使います。`Assets/Create/Hapbeat/Config` で生成した `HapbeatConfig` ScriptableObject の Inspector と内容は同じ。
+
+### Runtime Status
+
+Play モード中の**解決結果**を確認する Window。設定値そのものではなく「いま実際に何が送られているか」を表示します。
+
+- **Override Addressing (this device)** — 実行時 API / 設定パネルで設定された player / group の現在値
+- **App Name** — `appName` のテンプレートと、`<p>` / `<g>` 置換後の実際の送信文字列
+
+override が効いているか、OLED に出るはずの文字列が想定どおりかを、実機を見ずに確認できます。
 
 ### Event Map
 
@@ -93,6 +112,18 @@ Hapbeat/
 
 - ボウリングのピン 6 個に同じ `HapbeatCollisionTrigger` を配るとき
 - XR インタラクタブル多数に `HapbeatUnityEventTrigger` を配るとき
+
+---
+
+## サンプル
+
+### Samples/Augment XRI Hand Demo
+
+XR Interaction Toolkit のサンプルシーン `HandsDemoScene` に、Hapbeat の触覚コンポーネントと UnityEvent 配線を適用します。開いているシーンに対して動作し、Undo 1 回で全て取り消せます。冪等なので再実行しても重複しません。
+
+`(+ diagnostic Event Logger)` 付きの方は、加えて Poke ボタンの XRI イベントをすべて Console に流します。配線先を検討するとき用。
+
+手順の全体は [](/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/) を参照。
 
 ---
 

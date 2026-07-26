@@ -14,7 +14,7 @@ Hapbeat 各モデルの仕様と、内蔵無線モジュールの認証情報を
 |---|---|---|
 | MCU | ESP32-S3 (Wi-Fi 2.4 GHz / Bluetooth) | ESP32-S3 (Wi-Fi 2.4 GHz / Bluetooth) |
 | 無線モジュール | ESP32-S3-MINI-1 (Espressif) | ESP32-S3-MINI-1 (Espressif) |
-| 通信 | Wi-Fi UDP broadcast (主経路) / ESP-NOW (オプション) | Wi-Fi UDP broadcast (主経路) / ESP-NOW (オプション) |
+| 通信 | Wi-Fi UDP (主経路・既定 unicast) / ESP-NOW (オプション) | Wi-Fi UDP (主経路・既定 unicast) / ESP-NOW (オプション) |
 | 触覚出力 | 2 ch (左右独立) / 振動素子 | 1 ch / 振動素子 |
 | 表示 | OLED (128×32, SSD1306) + LED | OLED (128×32, SSD1306) + LED |
 | 操作 | 物理ボタン × 5 + アナログボリュームノブ | 物理ボタン × 3 |
@@ -35,7 +35,7 @@ Hapbeat 各モデルの仕様と、内蔵無線モジュールの認証情報を
 | 項目 | 値 |
 |---|---|
 | Wi-Fi 規格 | IEEE 802.11 b/g/n (2.4 GHz 帯のみ、5 GHz 非対応) |
-| 受信ポート | UDP 7700 (broadcast) / TCP 7701 (制御 / OTA) |
+| 受信ポート | UDP 7700 / TCP 7701 (制御 / OTA) |
 | アドバタイズ | mDNS `_hapbeat._udp` |
 | ESP-NOW | チャネル設定: Bridge と同期 |
 | 暗号化 | WPA2 (STA) / WPA2 または open (SoftAP) |

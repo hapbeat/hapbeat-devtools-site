@@ -140,7 +140,7 @@ streamClip 変更時、所属 Kit の `*-manifest.json` を `manifestOverride` �
 
 | フィールド | 型 | 例 |
 |---|---|---|
-| `target` | `string` | `""` (broadcast) / `player_1` / `*/pos_neck` / `player_1/pos_chest` / `team_red/player_1/pos_chest/group_3` |
+| `target` | `string` | `""`（全デバイス） / `player_1` / `*/pos_neck` / `player_1/pos_chest` / `team_red/player_1/pos_chest/group_3` |
 
 `HasTarget` (getter): `!string.IsNullOrEmpty(target)`。
 
@@ -171,7 +171,7 @@ target 文字列を組み立てる static ヘルパー:
 | `> 0` | non-empty | `player_<N>/<position>` |
 | `> 0` | null/empty | `player_<N>` |
 | `-1` | non-empty | `*/<position>` |
-| `-1` | null/empty | `""` (broadcast) |
+| `-1` | null/empty | `""`（全デバイス） |
 
 window UI ではさらに **Prefix** (例: `team_red`) と **Group** (`group_<N>` suffix) を加えて 4 セグメント (`prefix/player_N/position/group_N`) を構築できる。
 

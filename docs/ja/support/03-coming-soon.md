@@ -14,7 +14,7 @@ Unreal Engine から Hapbeat を制御する薄いアダプタ SDK。Unity SDK �
 
 **予定機能**
 
-- Wi-Fi UDP broadcast による直接通信
+- Wi-Fi UDP による直接通信
 - Blueprint 対応の Trigger コンポーネント
 - C++ API（`HapbeatBridge` / `HapbeatEventTrigger` 相当）
 - EventMap 風の Editor ツール

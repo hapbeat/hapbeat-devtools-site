@@ -22,7 +22,7 @@ XR デバイス不要・キーマウスだけで完結します。
 | **Z1 Bowling Lane** | Collision Trigger (velocity-scaled) | LMB で球を発射、Pin に衝突 |
 | **Z2 Swing Door** | Animator State Behaviour | F キーで Animator state Open / Close |
 | **Z3 Fishing Rod** | Sequence Trigger + Parameter Binding | LMB hold で物体 attach、振り回すと gain が変化 |
-| **Z4 Stream Console** | UnityEvent Trigger (loop) + Tick Emitter | Space で stream、Slider で gain / pan 動的変調 |
+| **Z4 Stream Console** | UnityEvent Trigger (loop) + Tick Emitter | Space で stream、Slider で gain / pan 動的変調。`AddressOverrideDemo` で override の実行時設定も確認可 → [](/docs/sdk-integration/unity-sdk/targeting/) |
 | **Z5 Charge & Shoot** | UnityEvent Trigger + curve-driven GainMultiplier | LMB hold でチャージ、release で発射、命中で別 trigger |
 
 各 Zone の wire 詳細 (どの GameObject にどの Trigger が貼られているか) は [Wiring Reference](./wiring/) を参照。

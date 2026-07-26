@@ -1,16 +1,16 @@
 ---
 title: XRI Hand Demo の APK を入れて試す
 kind: howto
-description: Hapbeat の触覚を載せた XRI Hands Interaction Demo のビルド済み APK を Quest 3 / 3S に入れて体験する手順。リリースチャンネル / CLI / SideQuest の 3 通り。
+description: Hapbeat の触覚フィードバックを追加した XRI Hands Interaction Demo のビルド済み APK を Quest 3 / 3S に入れて体験する手順。リリースチャンネル / CLI / SideQuest の 3 通り。
 sidebar:
   order: 200
   label: XRI デモを APK で試す
 ---
 
-XR Interaction Toolkit の **Hands Interaction Demo** に Hapbeat の触覚を載せた、**ビルド済み APK** を配布している。Unity を開かずに体験できる。
+[XR Interaction Toolkit](https://docs.unity3d.com/Packages/com.unity.xr.interaction.toolkit@3.3/manual/index.html) の **Hands Interaction Demo** に Hapbeat の触覚フィードバックを追加した、**ビルド済み APK** を配布中。Unity を開かずに体験可能。
 
-:::caution[Hapbeat 実機が必要]
-このデモは Hapbeat が無いと何も起きない。デバイスは Quest と**同じ Wi-Fi** に接続すること。
+:::caution[Hapbeat 実機が必要です]
+このデモは Hapbeat が無いと何も起きません。デバイスは Quest と**同じ Wi-Fi** に接続してください。
 :::
 
 自分の Unity プロジェクトで再現・改造したい場合は [](/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/) を参照。
@@ -92,7 +92,7 @@ Meta Horizon Store の **ALPHA チャンネル**に招待する方式。APK の�
 
 ## ライセンス表記
 
-本デモには Unity 製の **XR Interaction Toolkit** のサンプルアセットが含まれる。
+本デモには Unity 製の [XR Interaction Toolkit](https://docs.unity3d.com/Packages/com.unity.xr.interaction.toolkit@3.3/manual/index.html) のサンプルアセットを含む。
 
 - XR Interaction Toolkit copyright © Unity Technologies
 - ライセンス: [Unity Companion License](http://www.unity3d.com/legal/licenses/Unity_Companion_License)

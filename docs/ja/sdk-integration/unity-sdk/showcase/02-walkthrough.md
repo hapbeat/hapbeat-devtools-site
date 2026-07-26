@@ -35,7 +35,7 @@ Showcase は読むだけのカタログではなく、**Inspector を書き換�
 - 既存の Slider → `playback.Gain` の代わりに `HapbeatParameterBinding` を Slider に attach → script レス化 (declarative path)
 - `HapbeatTickEmitter` の `Tick Threshold` を 0.05 → 0.2 にすると **段階数が減って粗いフィードバック**
 - StreamClip の `loop` チェックを外して 1 発もの化 → ambient loop と single shot の違い
-- `target` を broadcast → `*/pos_r_arm` 固定にして「特定 position だけ受ける」挙動確認
+- `target` を空（全デバイス） → `*/pos_r_arm` 固定にして「特定 position だけ受ける」挙動確認
 
 ### Z5 Charge & Shoot — curve の形状を変える
 

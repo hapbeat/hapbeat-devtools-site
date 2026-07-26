@@ -12,7 +12,7 @@ Hapbeat Unity SDK は Unity Package Manager (UPM) 経由で **Git URL から直�
 
 - **Unity 6 (6000.0) 以上**（動作確認済み: Unity 6000.3.12f1）
 - **Git** が PC にインストール済み・PATH 通り済み (Unity が裏で `git clone` するため必須)
-- Wi-Fi UDP broadcast でデバイスと同一ネットワークに接続できる環境
+- デバイスと同一ネットワーク（同一サブネット）に接続できる環境
 - Active Input Handling は **"Both"** / "Old" / "Input System Package" いずれでも動作します
 
 ## インストール
@@ -60,6 +60,8 @@ Package Manager で Hapbeat SDK を選択 → 右パネル **Samples** タブか
 | **Basic Example** | Trigger × 3 + Helper + Dispatcher + StatusOverlay の最小組合せ。Space/R/F/S/C キーで動作確認 | デバイス + Studio または Helper 起動 |
 | **Showcase** | 5 ゾーン構成の SDK 全機能ショーケース (Bowling / Door / Fishing / Stream Console / Target Range)。キーマウスで完結、XR 不要 | 同上 |
 | **XR Helpers** | XR Interaction Toolkit 連携フィルター (XRGrabFilter / XRSocketFilter) | XRI パッケージが入っているプロジェクトのみ |
+| **XRI Hand Demo (haptics add-on)** | XRI の Hands Interaction Demo に haptics を追加する EventMap + Kit。シーンは非同梱で、Editor コマンドで配線を適用 → [](/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/) | XRI + XR Helpers + ハンドトラッキング HMD |
+| **VR Config Example** | VR 実機での確認用の最小シーン。override の設定とテスト発火のみ。XRI 非依存 → [](/docs/sdk-integration/unity-sdk/targeting/) | Quest 等の VR 実機 |
 
 Sample は `Assets/Samples/Hapbeat SDK/<version>/<sample>/` に展開されます。Import 直後にシーン (`Scenes/*.unity`) を開いて Play すれば動作確認できます — 追加のビルド手順は不要です。
 
@@ -83,8 +85,8 @@ UI に `Pong: RTT=...ms` が表示されれば SDK ↔ デバイスの通信は�
 | 症状 | 対処 |
 |---|---|
 | `Package Manager` で URL を貼っても進まない | Git が PATH に通っているか確認 (`git --version` がコマンドラインで通る必要あり) |
-| `Hapbeat → Build Samples → ...` が出ない | 該当 Sample が Import 済みか確認。古い Sample を再 Import すると最新の Editor スクリプトが反映される |
-| Play しても触覚が来ない | Studio/Helper が起動・デバイスがオンラインか / `HapbeatConfig` の Group 設定がデバイスと一致するか |
+| サンプルのシーンが見つからない | Package Manager → Hapbeat SDK → **Samples** タブから該当サンプルを Import 済みか確認。古い Sample を再 Import すると最新のシーン・Editor スクリプトが反映される |
+| Play しても触覚が来ない | Studio/Helper が起動・デバイスがオンラインか / EventMap のターゲット、または Override Addressing の設定がデバイス側のアドレスと一致するか（[](/docs/sdk-integration/unity-sdk/targeting/)） |
 | Space / R / F キーに反応しない | `Edit → Project Settings → Player → Active Input Handling` が `Input Manager (Old)` のみになっていないか確認。`Both` または `Input System Package` に変更（Unity 6 のデフォルトは `Both`） |
 | `'InputSystem' does not exist` 等のコンパイルエラー | 古い import が残っている可能性。`Assets/Samples/Hapbeat SDK/` 配下の該当 Sample を削除して再 Import |
 
