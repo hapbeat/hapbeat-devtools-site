@@ -1,0 +1,168 @@
+---
+title: Q&A
+kind: reference
+sidebar:
+  order: 2
+  label: Q&A
+description: Frequently asked questions (FAQ) and troubleshooting cases found in real-world use.
+---
+
+{/* The EN locale lands in src/content/docs/en/docs/..., one level deeper than JA. */}
+import Faq from '../../../../../components/Faq.astro';
+
+This page collects **frequently asked questions (FAQ)** and **troubleshooting cases** found in real-world use (further down the page). We will keep adding to it over time.
+
+## Connectivity
+
+<Faq question="Studio cannot find my device">
+
+- Check that the firmware is flashed and Wi-Fi setup is complete
+- Check that your PC and the device are on the same network
+- Check that UDP and mDNS are not blocked by a firewall
+- Check that Helper is running (the "Helper connected" indicator at the top of Studio)
+- Check the Helper log: `hapbeat-helper log` ([](/en/docs/tools/helper/getting-started/))
+
+</Faq>
+
+<Faq question="Cannot connect to Wi-Fi">
+
+- Hapbeat supports the 2.4 GHz band only; it does not work with 5 GHz-only routers
+- Reconfigure Wi-Fi from the Manage tab in Studio: [](/en/docs/tools/studio/initial-setup/)
+
+</Faq>
+
+<Faq question="I want to use it directly from a VR HMD (Quest, etc.)">
+
+- It uses Wi-Fi UDP, so it works as long as the HMD is on the same network
+- HMDs have no AP capability, so without a router you need to make the Hapbeat act as the AP
+
+</Faq>
+
+<Faq question="I want to pair multiple VR HMDs and Hapbeats one-to-one">
+
+Even when pairing one Hapbeat per HMD, you separate them with **player numbers**.
+
+1. Assign a different player number to each Hapbeat (via the buttons on the device, or from Studio)
+2. From each HMD's app, send to the corresponding player number
+
+Which device responds is determined by **whether the address specified by the sender (player / group / position) matches the device's own settings**. **If numbers are duplicated, multiple devices will respond at the same time**, so make sure your assignments do not overlap.
+
+If you need guaranteed separation, splitting each pair onto its own network (access point) is the most reliable approach.
+
+Details: [](/en/docs/concepts/group-player-addressing/) / [](/en/docs/sdk-integration/unity-sdk/targeting/)
+
+</Faq>
+
+<Faq question="Devices go offline when the PC is connected to both Wi-Fi and wired LAN">
+
+This happens in setups where a separate sensor or similar is connected over wired LAN (Ethernet) while Hapbeat is used over Wi-Fi.
+
+**Cause**: Hapbeat's **device discovery** uses UDP broadcast and mDNS. When a PC is connected to **two separate networks** — Wi-Fi and wired LAN — at the same time, Windows normally **prefers the wired interface**, so discovery packets are sent only to the wired side (the sensor's network) and never reach the Hapbeat on Wi-Fi. As a result no devices are found at all, and Studio shows them as offline. Haptic transmission is normally "addressed to the devices that were found (unicast)", but while no device has been found it falls back to broadcast, so for the same reason it does not reach the Wi-Fi side either — which also affects haptic playback from that same PC.
+
+**Fix**: Set the **interface metric** of the Wi-Fi adapter lower than the wired one (i.e. give it higher priority). Communication with the sensor is unicast, so it keeps working after the change.
+
+In PowerShell with administrator privileges:
+
+```powershell
+# Note the values before changing them
+Get-NetIPInterface -AddressFamily IPv4 | ft InterfaceAlias,InterfaceMetric
+
+# Prefer Wi-Fi (adjust the alias names to your environment)
+Set-NetIPInterface -InterfaceAlias "Wi-Fi" -InterfaceMetric 10
+Set-NetIPInterface -InterfaceAlias "Ethernet" -InterfaceMetric 60
+```
+
+To revert:
+
+```powershell
+Set-NetIPInterface -InterfaceAlias "Wi-Fi" -AutomaticMetric Enabled
+Set-NetIPInterface -InterfaceAlias "Ethernet" -AutomaticMetric Enabled
+```
+
+Using the GUI: Adapter settings → IPv4 properties of Wi-Fi → Advanced → uncheck "Automatic metric" and set a smaller value for Wi-Fi (re-check the box to revert).
+
+> Please configure the wired network (sensor) and the Wi-Fi network (Hapbeat) as separate subnets. In the future we plan to let you choose the outgoing interface from Studio / Helper / the SDKs.
+
+</Faq>
+
+## Kit / Content
+
+<Faq question="A Kit built in Studio cannot be transferred">
+
+- Check that Helper is running and that the WebSocket (`localhost:7703`) is reachable
+- Check the "Helper connected" indicator at the top of Studio
+- Check that the target device is online and visible from Studio
+
+</Faq>
+
+<Faq question="No vibration">
+
+- Check that the Kit has been transferred (verify the transfer status for the target device in Studio's Kit tab)
+- Check that the Event ID is correct
+- Check that the device volume is high enough
+
+</Faq>
+
+## Other
+
+<Faq question="I want different vibrations on multiple devices at the same time">
+
+The basic approach is to separate them with **player numbers**. Assign a player number (`player_1`, `player_2`, …) to each device and specify the target player on the sending side, and only the device with that number vibrates.
+
+- Device side: set the player number via the buttons on the device, or from Studio (the number is shown on the device display)
+- Sender side (Unity): specify Player under Targeting in the EventMap
+
+**Group ID** can be specified with the same mechanism, and combining it with player numbers lets you do things like "fire all devices in a team at once".
+
+Details: [](/en/docs/concepts/group-player-addressing/)
+
+</Faq>
+
+<Faq question="How many devices can I use at once? Things to watch out for with many devices">
+
+Up to around 20 devices, you can use the standard Wi-Fi UDP setup (unicast by default) with no problems. No special configuration is required.
+
+As the device count grows, pay attention to the **playback method**. Hapbeat offers the **FIRE method**, which calls up waveforms pre-registered on the device via a command, and the **CLIP method**, which streams audio data in real time. Because the CLIP method keeps sending audio data, **traffic grows with the number of devices and behavior can become unstable**.
+
+- Start by testing with the **CLIP method**, which is easy to try out
+- For production use we recommend switching to the **FIRE method** (the more devices, the bigger the advantage)
+
+Details: [](/en/docs/concepts/fire-vs-clip/)
+
+If you are considering deployments of several dozen devices, there is also a configuration that uses a dedicated wireless method (ESP-NOW): [](/en/docs/concepts/communication-model/)
+
+</Faq>
+
+## Cases (Troubleshooting Cases)
+
+Cases and their fixes, generalized from actual support inquiries.
+
+<Faq question="Power cuts out during battery operation and only recovers with USB power (Band)">
+
+**Symptom**: After firing vibrations a few times on battery power, the OLED goes dark and the device stops working. Toggling the power switch does not bring it back, but connecting USB Type-C does. It does not happen while connected to power.
+
+**Cause**: Playing a strong vibration draws a large current for an instant, which momentarily drops the battery voltage. If the battery's protection circuit interprets this as over-discharge, it cuts the power. This protection is only released by applying a charge (USB), so the power switch does not recover it and only USB does. Strong vibrations, low-frequency vibrations, a low charge level, and battery degradation are all factors that make this voltage drop more likely.
+
+**Fix**:
+
+- Do not make the vibrations you play too strong (lower the playback intensity / volume — this is the most effective step)
+- Avoid strong vibrations at low frequencies
+- Charge early; if you use the device continuously and frequently, run it with USB power connected
+- Treat the battery level indicator as an estimate (it can read higher than the actual charge)
+- If the above still leaves practical problems, the battery may be degraded — please contact us about a replacement
+
+</Faq>
+
+<Faq question="An installed Kit shows 'no events' (restarting fixes it)">
+
+**Symptom**: After deploying a Kit to a device, the Kit appears in Manage (installed Kits) but shows "no events" (0 events). Meanwhile, entering the Event ID by hand in Manage's playback test does play the vibration. Restarting Helper and Studio sometimes fixes it.
+
+**Cause**: If the Helper running on your PC is an old version, communication with the device (fetching the Kit's event list) can become temporarily unstable while Studio's log view is open. Vibration playback (the manual playback test) uses a different communication path and is unaffected, resulting in a state where "the list is empty but playback works". Restarting Helper / Studio resets the communication state and temporarily resolves it. This bug is fixed in newer Helper versions (v0.1.4 and later).
+
+**Fix**:
+
+- Update Helper to the latest version (run `pipx upgrade hapbeat-helper` in a terminal, then restart Helper)
+- You can check the Helper version from the Helper display at the top of Studio, or with `pipx list` in a terminal
+- After updating, the restart workaround is no longer necessary
+
+</Faq>
