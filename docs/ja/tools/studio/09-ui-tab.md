@@ -74,7 +74,7 @@ OLED を **16 文字 × 2 行の文字グリッド**（1 文字 = 8×16px）と�
 | **グループ ID**（group_id） | 5 | — | `Gr:01` |
 | **ページ番号**（page_indicator） | 3 | — | `1/2`（現在 / 総数） |
 | **デバイス名**（device_name） | 5 | compact=4 / medium=8 / wide=16 | NVS `dev_name`。左から N 文字 |
-| **アプリ名**（app_name） | 8 | compact=4 / wide=16 | 接続アプリ名 |
+| **アプリ名**（app_name） | 8 | compact=4 / wide=16 | 接続アプリ名。同一ネットワークに複数のアプリがいる場合は最後に接続したものが表示される（下記） |
 | **装着位置**（position） | 8 | compact=4 / wide=16 | NVS の `pos_xxx` 名（数値ではない） |
 | **アドレス**（address） | 8 | compact=4 / wide=16 | address の prefix 部分のみ |
 | **固定テキスト**（custom_text） | 8 | compact=4 / wide=16 | 任意の静的ラベル |
@@ -85,6 +85,14 @@ OLED を **16 文字 × 2 行の文字グリッド**（1 文字 = 8×16px）と�
 | **MQTT**（mqtt_status） | 4 | — | `[OK]` / `[NG]`（受信機・ブローカー接続時のみ） |
 | **アラートモード**（alert_limit_mode） | 10 | compact=4 | 制限モード / 全て再生（受信機） |
 | **FW バージョン**（firmware_version） | 8 | compact=6 | `v0.1.0` |
+
+#### アプリ名の表示は接続元ごとに分けられない
+
+`app_name` に出るのは、そのデバイスが最後に受け取った接続通知（`CONNECT_STATUS`）のアプリ名です。この通知はアドレスによる絞り込みを受けないため、**player / group でデバイスを分けていても、同一ネットワーク上の別アプリが接続すると表示が上書きされます**。
+
+触覚の送信先は正しく分離されるので動作には影響しませんが、「表示されているアプリ名 = いま自分のアプリと繋がっている証拠」としては使えません。接続の確認には接続状態（`connection_status`）を使ってください。
+
+送信側のアプリ名の決め方は各 SDK 側の設定です（Unity の場合は `HapbeatConfig.appName`）。
 
 ### ページ
 

@@ -96,6 +96,12 @@ Wi-Fi の broadcast（group-addressed フレーム）には、送信側では回
 
 したがって「専用 AP なら broadcast で十分」ではなく、**どの環境でも unicast が最良**となる。
 
+**大規模なら broadcast が有利ではないか** — 電波の占有時間だけを見れば、台数が増えるほど broadcast が効率的（unicast は台数分の O(N)、broadcast は O(1)）。ただしその効率と引き換えに、上記の DTIM 遅延と再送なしの取りこぼしを受け入れることになる。「多数へ同時に確実に」を狙う場面ほど、この 2 つが致命的になる。ESP-NOW が推奨になるのは、**AP を介さないため DTIM が構造上存在せず、かつ 1 回の送信で全台に届く**から。broadcast の利点だけを取り、欠点を捨てた形になっている。
+
+**AP の性能では解決しない** — DTIM 保留は帯域や処理能力の問題ではなく、省電力端末を起こさないための規格上の動作である。省電力の端末を 1 台も入れず、ビーコン間隔と DTIM 周期を詰められる完全な管理下のネットワークなら保留は避けられるが、そこまで管理できるなら AP を挟まない ESP-NOW の方が構成も単純で有利。
+
+このため broadcast は**選択肢ではなくフォールバック**として扱う。SDK も、既知デバイスが 0 台のときだけ自動で broadcast に落ちる。
+
 ```mermaid
 %%{init: {'flowchart': {'useMaxWidth': false, 'htmlLabels': true, 'nodeSpacing': 60, 'rankSpacing': 90}}}%%
 flowchart LR
