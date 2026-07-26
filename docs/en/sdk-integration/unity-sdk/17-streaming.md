@@ -1,8 +1,8 @@
 ---
 title: Adjusting the Streaming Buffer
-kind: howto
+kind: explanation
 sidebar:
-  order: 200
+  order: 300
   label: Streaming buffer
 description: How the StreamClip send buffer (streamSendAheadSeconds) works, its tradeoffs, and recommended values.
 ---
@@ -22,16 +22,10 @@ Just as a DAW engineer might use 64 samples for a live session and 1024 samples 
 
 ## How It Works
 
-`HapbeatManager.StreamAudioClip(clip, ...)` launches a coroutine that does the following every frame:
-
-1. Converts the next chunk of AudioClip data to PCM16
-2. Sends it via UDP
-3. **Waits until the next frame if total sent time exceeds "real time + sendAhead"**
-
-This keeps the SDK continuously ahead of real time by `sendAhead` seconds. The device consumes this pre-sent buffer as it plays back.
+The SDK continuously keeps samples sent up to `sendAhead` seconds ahead of real time, and the device consumes that pre-sent buffer as it plays back. Sending is handled by a dedicated thread rather than Unity's frame clock, so it is **unaffected by frame rate or GC spikes**.
 
 When `StopStream()` is called:
-- The SDK stops the coroutine and immediately sends a `STREAM_END` packet
+- The SDK stops the send thread and immediately sends a `STREAM_END` packet
 - However, the device **plays out any already-received samples** (up to `sendAhead` seconds) before stopping
 - In practice, the perceived delay from pressing Stop to silence is approximately equal to `sendAhead`
 
@@ -65,7 +59,7 @@ Range: 10ms to 200ms.
 
 `HapbeatActionHelper.StopEverything()` sends stop instructions to both modes — Command audio stops instantly, while Stream audio has ~sendAhead seconds of residual playback.
 
-## :warning: Clip Format Must Be Consistent (Simultaneous StreamClip Playback)
+## Clip Format Consistency (Simultaneous StreamClip Playback)
 
 A Hapbeat stream session is **locked to a single format**. Only clips with the **same sample rate and channel count** can be streamed simultaneously within one session. A second clip with a different format will be rejected by the SDK:
 

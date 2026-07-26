@@ -13,7 +13,7 @@ The Hapbeat Unity SDK can be installed **directly from a Git URL** via the Unity
 
 - **Unity 6 (6000.0) or later** (tested on Unity 6000.3.12f1)
 - **Git** installed on your PC and available on PATH (required because Unity runs `git clone` internally)
-- A network environment where Wi-Fi UDP broadcast can reach devices on the same network
+- A network environment where you can connect to the devices on the same network (the same subnet)
 - Active Input Handling: **"Both"** / "Old" / "Input System Package" — all are supported
 
 ## Installation
@@ -61,6 +61,8 @@ Select Hapbeat SDK in Package Manager → **Import** from the **Samples** tab in
 | **Basic Example** | Minimal combination of Trigger × 3 + Helper + Dispatcher + StatusOverlay. Test with Space/R/F/S/C keys | Device + Studio or Helper running |
 | **Showcase** | Full SDK feature showcase with 5 zones (Bowling / Door / Fishing / Stream Console / Target Range). Works with keyboard and mouse — no XR required | Same |
 | **XR Helpers** | Filters for XR Interaction Toolkit integration (XRGrabFilter / XRSocketFilter) | Only for projects with XRI installed |
+| **XRI Hand Demo (haptics add-on)** | EventMap + Kit that add haptics to the XRI Hands Interaction Demo. The scene is not bundled — the wiring is applied by an Editor command → [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/) | XRI + XR Helpers + a hand-tracking HMD |
+| **VR Config Example** | A minimal scene for checking things on a VR headset. Override settings and test firing only. No XRI dependency → [](/en/docs/sdk-integration/unity-sdk/targeting/) | A VR headset such as Quest |
 
 Samples are unpacked to `Assets/Samples/Hapbeat SDK/<version>/<sample>/`. Open the scene (`Scenes/*.unity`) immediately after import and hit Play to verify — no additional build steps required.
 
@@ -84,8 +86,8 @@ If the UI shows `Pong: RTT=...ms`, the SDK ↔ device connection is established.
 | Symptom | Solution |
 |---|---|
 | Pasting the URL in Package Manager does nothing | Verify Git is on PATH (`git --version` must work from the command line) |
-| `Hapbeat → Build Samples → ...` does not appear | Check that the corresponding Sample has been imported. Re-importing an older Sample applies the latest Editor scripts |
-| No haptic feedback during Play | Check that Studio/Helper is running and the device is online; verify that the `Group` setting in `HapbeatConfig` matches the device |
+| A sample scene cannot be found | Check that the sample has been imported from Package Manager → Hapbeat SDK → the **Samples** tab. Re-importing an older Sample applies the latest scenes and Editor scripts |
+| No haptic feedback during Play | Check that Studio/Helper is running and the device is online; verify that the EventMap target, or the Override Addressing setting, matches the device-side address ([](/en/docs/sdk-integration/unity-sdk/targeting/)) |
 | Space / R / F keys have no effect | Check `Edit → Project Settings → Player → Active Input Handling` — if set to `Input Manager (Old)` only, change it to `Both` or `Input System Package` (Unity 6 default is `Both`) |
 | Compile errors like `'InputSystem' does not exist` | A stale import may remain. Delete the relevant Sample under `Assets/Samples/Hapbeat SDK/` and re-import |
 

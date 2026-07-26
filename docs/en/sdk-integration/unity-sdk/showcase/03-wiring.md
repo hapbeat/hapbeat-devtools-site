@@ -122,3 +122,22 @@ Q and P keys are wired via UnityEvent. Scripts handle only HUD display.
   - Q → `HapbeatUnityEventTrigger.Fire()` (entry: `manual_fire`)
   - P → `HapbeatActionHelper.Ping()`
 - `GlobalHotkeys` (script) only updates the HUD text when a Pong is received
+
+## Handling the WASD vs UI nav conflict
+
+Unity's **`InputSystemUIInputModule`** binds **WASD** to the default `UI/Navigate` action. When a Slider has focus, pressing WASD moves the player and changes the Slider value at the same time.
+
+Showcase touches the stream gain Slider in Z4, so it applies a two-pronged workaround.
+
+1. **`SimpleFPSController.HandleMove` only runs while the cursor is locked** — Z4 enters with `unlockCursorOnEnter=true`, so the player does not move with WASD
+2. **`UiDeselectOnPointerUp` is attached to each Slider** — clears the EventSystem selection on mouse-button release, so subsequent WASD presses no longer reach the Slider
+
+### The proper fix in a real project
+
+Showcase takes the workaround above to prioritise zero-config setup, but **the proper fix in a real project is to remove WASD from the UI Input Module**.
+
+1. Copy `Packages/Input System/.../DefaultInputActions.inputactions` into `Assets/`
+2. Open the copy in the Input Actions Editor and delete the four bindings for `<Keyboard>/w`, `<Keyboard>/a`, `<Keyboard>/s` and `<Keyboard>/d` under **UI / Navigate / 2D Vector Composite** (keep the Arrow keys)
+3. Replace the **EventSystem → Input System UI Input Module → Actions Asset** with the copy
+
+This makes `UiDeselectOnPointerUp` unnecessary and eliminates WASD interference for the UI elements (Sliders, Dropdowns, etc.) across the whole project.

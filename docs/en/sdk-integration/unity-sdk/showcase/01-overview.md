@@ -22,7 +22,7 @@ Five zones are packed into one scene, with **keys 1–5 switching between zones*
 | **Z1 Bowling Lane** | Collision Trigger (velocity-scaled) | LMB launches a ball; hitting a pin triggers haptics |
 | **Z2 Swing Door** | Animator State Behaviour | F key toggles Animator state Open / Close |
 | **Z3 Fishing Rod** | Sequence Trigger + Parameter Binding | LMB hold attaches an object; swinging changes gain dynamically |
-| **Z4 Stream Console** | UnityEvent Trigger (loop) + Tick Emitter | Space toggles streaming; Slider modulates gain / pan in real time |
+| **Z4 Stream Console** | UnityEvent Trigger (loop) + Tick Emitter | Space toggles streaming; Slider modulates gain / pan in real time. `AddressOverrideDemo` also lets you try setting the override at runtime → [](/en/docs/sdk-integration/unity-sdk/targeting/) |
 | **Z5 Charge & Shoot** | UnityEvent Trigger + curve-driven GainMultiplier | LMB hold to charge, release to fire, hit triggers a separate event |
 
 For wiring details of each zone (which GameObject holds which Trigger), see the [Wiring Reference](/en/docs/sdk-integration/unity-sdk/showcase/wiring/).

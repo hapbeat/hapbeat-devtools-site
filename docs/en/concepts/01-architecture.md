@@ -10,7 +10,7 @@ This page explains the **design decisions and role boundaries** across the Hapbe
 
 ## System Diagram
 
-![Hapbeat system diagram. Left side shows the setup/design flow (Studio → Helper → Hapbeat device, via PC); right side shows the game/app runtime flow (Unity SDK / Quest / PC / smartphone → Wi-Fi UDP broadcast → Hapbeat device, direct connection).](@assets/architecture/hapbeat-sdk-architecture.svg)
+![Hapbeat system diagram. Left side shows the setup/design flow (Studio → Helper → Hapbeat device, via PC); right side shows the game/app runtime flow (Unity SDK / Quest / PC / smartphone → Wi-Fi UDP → Hapbeat device, direct connection).](@assets/architecture/hapbeat-sdk-architecture.svg)
 
 Hapbeat has **two independent flows**:
 

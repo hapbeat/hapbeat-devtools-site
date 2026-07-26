@@ -12,7 +12,7 @@ This page walks you through **playing vibration from a wireless Hapbeat (Duo WL 
 
 The Hapbeat SDK has two flows: the **Setup & Design flow** (Studio + Helper) and the **Game / App Runtime flow** (direct SDK connection).
 
-![Hapbeat architecture diagram. Left side: Setup & Design flow (Studio → Helper → Hapbeat device, via PC). Right side: Game / App Runtime flow (Unity SDK / Quest / PC / smartphone → Wi-Fi UDP broadcast → Hapbeat device, direct).](@assets/architecture/hapbeat-sdk-architecture.svg)
+![Hapbeat architecture diagram. Left side: Setup & Design flow (Studio → Helper → Hapbeat device, via PC). Right side: Game / App Runtime flow (Unity SDK / Quest / PC / smartphone → Wi-Fi UDP → Hapbeat device, direct).](@assets/architecture/hapbeat-sdk-architecture.svg)
 
 ### Setup & Design Flow (this page)
 
@@ -22,7 +22,7 @@ The Hapbeat SDK has two flows: the **Setup & Design flow** (Studio + Helper) and
 
 ### Game / App Runtime Flow
 
-- SDKs such as the **Unity SDK** send haptic events from Quest / PC / smartphone to Hapbeat over Wi-Fi UDP broadcast.
+- SDKs such as the **Unity SDK** send haptic events from Quest / PC / smartphone to Hapbeat over Wi-Fi UDP (unicast to discovered devices by default; it falls back to broadcast only while no device has been discovered yet).
 - Simply bind events like `onClick` or `OnCollisionEnter` to haptics — no extra configuration needed at runtime.
 - Studio and Helper are **not required** during app execution.
 
@@ -152,7 +152,7 @@ For Unreal SDK, Creative Kit, and other upcoming integrations, see [](/en/docs/s
 For a deeper understanding of the architecture:
 
 - [](/en/docs/concepts/architecture/) — Roles of Studio / Helper / SDK / Firmware
-- [](/en/docs/concepts/communication-model/) — Wi-Fi UDP broadcast and ESP-NOW
+- [](/en/docs/concepts/communication-model/) — Wi-Fi UDP unicast and ESP-NOW
 - [](/en/docs/concepts/gain-architecture/) — Responsibility split between Studio and SDK
 
 Reference & troubleshooting:

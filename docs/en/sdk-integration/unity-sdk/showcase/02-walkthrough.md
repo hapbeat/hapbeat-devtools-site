@@ -35,7 +35,7 @@ Showcase is not a read-only catalog — it is a **playground where you tweak the
 - Instead of the existing Slider → `playback.Gain` script path, attach `HapbeatParameterBinding` to the Slider → achieve the same result without any script (declarative path)
 - Raise `HapbeatTickEmitter` `Tick Threshold` from 0.05 → 0.2 → **fewer ticks, coarser feedback**
 - Uncheck `loop` on the StreamClip to make it a one-shot → notice the difference between an ambient loop and a single shot
-- Change `target` from broadcast to `*/pos_r_arm` fixed → verify "only a specific position receives" behaviour
+- Change `target` from empty (all devices) to `*/pos_r_arm` fixed → verify "only a specific position receives" behaviour
 
 ### Z5 Charge & Shoot — Change the curve shape
 
@@ -83,29 +83,11 @@ Showcase is designed to be fully self-contained using **StreamClip only**. As a 
 
 Playing with both side-by-side lets you feel the difference between Command's fast response and StreamClip's expressive flexibility.
 
-## WASD and UI Navigation Conflict (Showcase's Approach)
-
-Unity's **`InputSystemUIInputModule`** binds **WASD** to `UI/Navigate` by default. When a Slider has focus, pressing WASD both moves the player and changes the Slider value (UI navigation).
-
-Zone 4 involves interacting with the stream gain Slider, so Showcase uses a two-pronged workaround:
-
-1. **`SimpleFPSController.HandleMove` only runs while the cursor is locked** — Z4 enters with `unlockCursorOnEnter=true`, so the player does not move with WASD while the cursor is free
-2. **`UiDeselectOnPointerUp` is attached to each Slider** — clears the EventSystem selection on mouse-button release, so subsequent WASD presses no longer reach the Slider
-
-### Recommended fix for production projects
-
-Showcase uses the above workaround to prioritise zero-config setup, but **the proper fix for a real project is to remove WASD from the UI Input Module**:
-
-1. Copy `Packages/Input System/.../DefaultInputActions.inputactions` into `Assets/`
-2. Open the copy in the Input Actions Editor → under **UI / Navigate / 2D Vector Composite**, delete the four bindings for `<Keyboard>/w`, `<Keyboard>/a`, `<Keyboard>/s`, and `<Keyboard>/d` (keep Arrow keys)
-3. On the **EventSystem → Input System UI Input Module → Actions Asset**, assign the copied asset
-
-This makes `UiDeselectOnPointerUp` unnecessary and eliminates WASD interference for all UI elements (Sliders, Dropdowns, etc.) project-wide.
-
 ## Troubleshooting
 
 | Symptom | Cause / Fix |
 |---|---|
+| The Slider value moves with WASD after you touch it | Unity's standard UI navigation binds WASD. Showcase already works around it. For the proper fix in a real project, see [](/en/docs/sdk-integration/unity-sdk/showcase/wiring/#handling-the-wasd-vs-ui-nav-conflict) |
 | No haptic output at all | Hapbeat device is offline — check connection in Studio / Helper |
 | Connected but no output | `HapbeatManager` missing from `[Hapbeat Event Router]`, or a Trigger has no `EventMap` assigned |
 | `[Hapbeat] Entry not found` in the log | Mismatch between the EventMap entry display name and the Trigger's selected entry. Check the Entry dropdown in the Inspector |

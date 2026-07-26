@@ -89,9 +89,9 @@ Details: [](/en/docs/sdk-integration/unity-sdk/parameter-binding/)
 
 ## Debugging
 
-Menu bar → `Hapbeat` → `Debug` → `Attach Event Logger to Selected` logs UnityEvent invocations on the selected GameObject to the Console. Useful for visualizing XRI event firing order.
+Menu bar → `Hapbeat` → `Attach Event Logger to Selected` logs UnityEvent invocations on the selected GameObject to the Console. Useful for visualizing XRI event firing order.
 
-To record detailed logs: `Hapbeat → Debug → Logs → Start Recording`
+To record detailed logs: `Hapbeat → Logs → Start Recording`
 
 ## Next Steps
 

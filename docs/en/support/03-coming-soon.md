@@ -14,7 +14,7 @@ A thin adapter SDK for controlling Hapbeat from Unreal Engine. It will use the s
 
 **Planned features**
 
-- Direct communication via Wi-Fi UDP broadcast
+- Direct communication via Wi-Fi UDP
 - Blueprint-compatible Trigger component
 - C++ API (equivalent to `HapbeatBridge` / `HapbeatEventTrigger`)
 - EventMap-style Editor tooling

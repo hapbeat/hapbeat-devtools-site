@@ -1,13 +1,13 @@
 ---
 title: Install the XRI Hand Demo APK
 kind: howto
-description: "How to install and run the prebuilt APK of the XRI Hands Interaction Demo with Hapbeat haptics on Quest 3 / 3S — three routes: release channel, CLI, and SideQuest."
+description: "How to install and run the prebuilt APK of the XRI Hands Interaction Demo with Hapbeat haptic feedback added on Quest 3 / 3S — three routes: release channel, CLI, and SideQuest."
 sidebar:
   order: 200
   label: Try the XRI demo APK
 ---
 
-A **prebuilt APK** of the XR Interaction Toolkit **Hands Interaction Demo** with Hapbeat haptics added is available. You can try it without opening Unity.
+A **prebuilt APK** of the [XR Interaction Toolkit](https://docs.unity3d.com/Packages/com.unity.xr.interaction.toolkit@3.3/manual/index.html) **Hands Interaction Demo** with Hapbeat haptic feedback added is being distributed. You can try it without opening Unity.
 
 :::caution[A Hapbeat device is required]
 Nothing happens in this demo without a Hapbeat. Connect the device to the **same Wi-Fi** as the Quest.
@@ -17,7 +17,7 @@ To reproduce or modify it in your own Unity project, see [](/en/docs/sdk-integra
 
 ## What you need
 
-- **Meta Quest 3 / 3S**
+- **Meta Quest** — verified on **Quest 3 / 3S**. Hand-tracking-capable **Quest 2 / Quest Pro** are also covered by the distribution (unverified)
 - **A Hapbeat device** — on the same Wi-Fi as the Quest
 
 ## Which route to pick
@@ -44,9 +44,9 @@ Invitations are sent individually, so get in touch via [](/en/docs/support/conta
 
 ## Downloading the APK (for B / C)
 
-<a href="https://github.com/hapbeat/hapbeat-demos/releases/latest" download>hapbeat-handdemo_all.apk</a>
+<a href="https://github.com/hapbeat/hapbeat-demos/releases/latest/download/hapbeat-handdemo_all.apk" download>Download hapbeat-handdemo_all.apk</a>
 
-Run the commands below **in the directory where you put this APK**.
+Past builds are on [the hapbeat-demos Releases page](https://github.com/hapbeat/hapbeat-demos/releases). Run the commands below **in the directory where you put this APK**.
 
 ## B. CLI (adb)
 
@@ -92,7 +92,7 @@ Run the commands below **in the directory where you put this APK**.
 
 ## License notice
 
-This demo includes sample assets from Unity's **XR Interaction Toolkit**.
+This demo includes sample assets from Unity's [XR Interaction Toolkit](https://docs.unity3d.com/Packages/com.unity.xr.interaction.toolkit@3.3/manual/index.html).
 
 - XR Interaction Toolkit copyright © Unity Technologies
 - License: [Unity Companion License](http://www.unity3d.com/legal/licenses/Unity_Companion_License)

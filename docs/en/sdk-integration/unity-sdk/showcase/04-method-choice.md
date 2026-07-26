@@ -36,7 +36,7 @@ Even when scripting, calling `HapbeatManager.Instance.Play()` directly everywher
 Why:
 - Gain / target / curve tuning stays in one place
 - Haptic logic is decoupled from game logic, making it easier to maintain
-- Showcase's `ShowcaseBridge` follows this pattern ([Scripts/ShowcaseBridge.cs](https://github.com/yus988/hapbeat-unity-sdk/blob/master/Samples~/Showcase/Scripts/ShowcaseBridge.cs))
+- Showcase's `ShowcaseBridge` follows this pattern ([Scripts/ShowcaseBridge.cs](https://github.com/Hapbeat/hapbeat-unity-sdk/blob/master/Samples~/Showcase/Scripts/ShowcaseBridge.cs))
 
 ### Combine both approaches
 

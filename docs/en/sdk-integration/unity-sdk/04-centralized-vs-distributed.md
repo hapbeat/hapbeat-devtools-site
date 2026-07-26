@@ -45,7 +45,7 @@ public class ChargeShooter : MonoBehaviour
 
 ## Manager.Play pattern (centralized)
 
-Call `HapbeatManager.Instance.Play(eventId, target, gain)` directly. No Trigger components required.
+Call `HapbeatManager.Instance.Play(eventId, gain, displayName, target)` directly. No Trigger components required.
 
 ```csharp
 public class GameHapticRouter : MonoBehaviour
@@ -57,7 +57,7 @@ public class GameHapticRouter : MonoBehaviour
 
     public void Play(string eventId, float gain = 1f, string target = null)
     {
-        HapbeatManager.Instance.Play(eventId, target ?? "", gain);
+        HapbeatManager.Instance.Play(eventId, gain, target: target ?? "");
     }
 
     public void OnEnemyHit() => Play("game.enemy_hit");

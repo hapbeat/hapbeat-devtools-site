@@ -12,7 +12,11 @@ The Hapbeat SDK consolidates all operations under the top-level Unity Editor men
 Hapbeat/
   Open Event Map                           ← Window (main screen for Event ID + Wiring management)
   Open Batch Setup                         ← Window (bulk Trigger setup for multiple GameObjects)
-  Open Settings                            ← Window (connection settings / Group / Bridge UI)
+  Open Settings                            ← Window (connection settings / Bridge / Override Addressing)
+  Open Runtime Status                      ← Window (resolved override / appName at runtime)
+  ─────────────────────────────
+  Samples/Augment XRI Hand Demo            ← Apply haptic wiring to the XRI sample scene
+  Samples/Augment XRI Hand Demo (+ diagnostic Event Logger)
   ─────────────────────────────
   Create Event Router                      ← Place [Hapbeat Event Router] in the scene
   Create Event Map                         ← Create a standalone EventMap .asset
@@ -33,6 +37,7 @@ Hapbeat/
   Logs/Dump Last Recording to Console      ← Print the most recent log to the Console
   Close Edit-mode Transport                ← Force-close the Edit-mode UDP connection
   Disable Verbose Log on All Hapbeat Components ← Bulk-disable _verboseLog / _debugLog
+  Diagnostics/Check Sample Versions        ← Check imported samples against the SDK version
   ─────────────────────────────
   Developer/Build Basic Example            ← Scaffold the Basic Example sample (Local/Embedded install only)
   Developer/Sync HapbeatSDK → Samples~ (Showcase)
@@ -42,7 +47,8 @@ Hapbeat/
 Section breakdown:
 
 1. **Window** (top): Opens editor windows. Placed first because they are used frequently.
-2. **Create**: Day-to-day authoring operations. Create Event Router or Event Map individually.
+2. **Samples**: Commands that apply wiring to imported samples.
+3. **Create**: Day-to-day authoring operations. Create Event Router or Event Map individually.
 3. **Initial / One-time**: For initial setup or special cases. Initial Scene Setup is an all-in-one command (Router + EventMap + folder); Deploy Imported Sample deploys from the Samples folder to HapbeatSDK/.
 4. **Authoring tools**: EventMap export / audio format conversion (asset processing).
 5. **Diagnostics**: Wiring tests, log recording, emergency transport close, bulk verbose log disable. For debugging purposes.
@@ -65,12 +71,25 @@ A window for editing connection settings.
 | Setting | Purpose |
 |---|---|
 | Port | UDP port (default 7700) |
-| Group | Group ID for target devices (0 = all devices) |
-| App Name | Client app name displayed on the Hapbeat device's display. **Max 16 characters** (display grid width). The default `app_name` element (8×1) shows only the first 8 characters. If left blank, `Application.productName` is used automatically (truncated if over 16 characters) |
-| Use Bridge | Enable only when using ESP-NOW routing (advanced setup) |
+| App Name | Client app name displayed on the Hapbeat device's display. **Max 16 characters** (display grid width). The default `app_name` element (8×1) shows only the first 8 characters. If left blank, `Application.productName` is used automatically (truncated if over 16 characters). `<p>` / `<g>` are replaced with the override values just before sending |
+| **Override Addressing (this build)** | The player / group pinned for the whole build. When blank (disabled), the EventMap's own target is used as-is → [](/en/docs/sdk-integration/unity-sdk/targeting/) |
+| Use Bridge / Bridge Host | Enable only when using ESP-NOW routing (advanced setup) |
 | Ping Interval | Keepalive send interval (seconds) |
+| Haptic Delay | A uniform delay added to every firing (ms). For syncing with visuals |
+| Stream Send Ahead | How far ahead CLIP data is sent (seconds) |
+| Stream / Command Unicast | Send to known devices by unicast (ON by default) → [](/en/docs/concepts/communication-model/) |
+| Enable / Verbose Logging | How much is written to the Console |
 
 Use this for ping testing with a physical device or editing settings outside a scene. The content is the same as the Inspector for a `HapbeatConfig` ScriptableObject created via `Assets/Create/Hapbeat/Config`.
+
+### Runtime Status
+
+A window for checking the **resolved values** during Play mode. It shows not the settings themselves, but "what is actually being sent right now."
+
+- **Override Addressing (this device)** — the current player / group set by the runtime API or the settings panel
+- **App Name** — the `appName` template, and the actual string sent after `<p>` / `<g>` substitution
+
+It lets you confirm whether the override is in effect, and whether the string that should appear on the OLED is what you expect, without looking at a device.
 
 ### Event Map
 
@@ -93,6 +112,18 @@ Use cases:
 
 - Adding the same `HapbeatCollisionTrigger` to 6 bowling pins
 - Wiring `HapbeatUnityEventTrigger` to many XR interactables
+
+---
+
+## Samples
+
+### Samples/Augment XRI Hand Demo
+
+Applies Hapbeat's haptic components and UnityEvent wiring to `HandsDemoScene`, the XR Interaction Toolkit sample scene. It works on the open scene, and a single Undo reverts everything. It is idempotent, so re-running never duplicates anything.
+
+The `(+ diagnostic Event Logger)` variant additionally logs every XRI event on the poke button to the Console. For use while reviewing where to wire things.
+
+For the whole procedure, see [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/).
 
 ---
 

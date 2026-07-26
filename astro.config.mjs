@@ -627,16 +627,16 @@ export default defineConfig({
                     pub('docs/sdk-integration/unity-sdk/xri-handdemo-apk'),
                   ].filter(Boolean),
                 },
-                // howto (mode 判断・実装 → 拡張用途 → ワークフロー支援)
+                // howto / explanation (mode 判断 → 送信先の決め方 → ワークフロー支援)
                 pub('docs/sdk-integration/unity-sdk/fire-vs-clip'),
-                pub('docs/sdk-integration/unity-sdk/streaming'),
                 pub('docs/sdk-integration/unity-sdk/targeting'),
                 pub('docs/sdk-integration/unity-sdk/ai-assisted-workflow'),
-                // reference
+                // reference: コンポーネント類をまとめ、その後に画面 / 仕様
                 pub('docs/sdk-integration/unity-sdk/triggers'),
-                pub('docs/sdk-integration/unity-sdk/event-map'),
                 pub('docs/sdk-integration/unity-sdk/parameter-binding'),
                 pub('docs/sdk-integration/unity-sdk/components'),
+                pub('docs/sdk-integration/unity-sdk/event-map'),
+                pub('docs/sdk-integration/unity-sdk/streaming'),
                 pub('docs/sdk-integration/unity-sdk/editor-menus'),
                 pub('docs/sdk-integration/unity-sdk/installation'),
                 pub('docs/sdk-integration/unity-sdk/changelog'),

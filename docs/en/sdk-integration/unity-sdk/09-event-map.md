@@ -140,7 +140,7 @@ When `streamClip` changes, the owning Kit's `*-manifest.json` is **auto-attached
 
 | Field | Type | Example |
 |---|---|---|
-| `target` | `string` | `""` (broadcast) / `player_1` / `*/pos_neck` / `player_1/pos_chest` / `team_red/player_1/pos_chest/group_3` |
+| `target` | `string` | `""` (all devices) / `player_1` / `*/pos_neck` / `player_1/pos_chest` / `team_red/player_1/pos_chest/group_3` |
 
 `HasTarget` (getter): `!string.IsNullOrEmpty(target)`.
 
@@ -171,7 +171,7 @@ Static helper to construct a target string:
 | `> 0` | non-empty | `player_<N>/<position>` |
 | `> 0` | null/empty | `player_<N>` |
 | `-1` | non-empty | `*/<position>` |
-| `-1` | null/empty | `""` (broadcast) |
+| `-1` | null/empty | `""` (all devices) |
 
 The window UI also supports adding a **Prefix** (e.g. `team_red`) and **Group** (`group_<N>` suffix) to build a 4-segment target string (`prefix/player_N/position/group_N`).
 

@@ -15,7 +15,7 @@ This page summarizes the specifications for each Hapbeat model and the certifica
 |---|---|---|
 | MCU | ESP32-S3 (Wi-Fi 2.4 GHz / Bluetooth) | ESP32-S3 (Wi-Fi 2.4 GHz / Bluetooth) |
 | Wireless Module | ESP32-S3-MINI-1 (Espressif) | ESP32-S3-MINI-1 (Espressif) |
-| Communication | Wi-Fi UDP broadcast (primary) / ESP-NOW (optional) | Wi-Fi UDP broadcast (primary) / ESP-NOW (optional) |
+| Communication | Wi-Fi UDP (primary, unicast by default) / ESP-NOW (optional) | Wi-Fi UDP (primary, unicast by default) / ESP-NOW (optional) |
 | Haptic Output | 2 ch (left/right independent) / vibration actuators | 1 ch / vibration actuator |
 | Display | OLED (128×32, SSD1306) + LED | OLED (128×32, SSD1306) + LED |
 | Controls | 5 physical buttons + analog volume knob | 3 physical buttons |
@@ -36,7 +36,7 @@ This page summarizes the specifications for each Hapbeat model and the certifica
 | Item | Value |
 |---|---|
 | Wi-Fi Standard | IEEE 802.11 b/g/n (2.4 GHz band only — 5 GHz not supported) |
-| Receive Ports | UDP 7700 (broadcast) / TCP 7701 (control / OTA) |
+| Receive Ports | UDP 7700 / TCP 7701 (control / OTA) |
 | Advertise | mDNS `_hapbeat._udp` |
 | ESP-NOW | Channel configuration: synchronized with Bridge |
 | Encryption | WPA2 (STA) / WPA2 or open (SoftAP) |

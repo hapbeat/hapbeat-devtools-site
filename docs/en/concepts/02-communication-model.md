@@ -96,6 +96,12 @@ Wi-Fi broadcast (group-addressed frames) carries delay factors the sender cannot
 
 So it is not the case that "broadcast is fine on a dedicated AP" — **unicast is the best choice in every environment**.
 
+**Isn't broadcast better at scale?** — Looking only at airtime, broadcast does get more efficient as the device count grows (unicast is O(N) in the number of devices, broadcast is O(1)). But that efficiency is bought by accepting the DTIM delay and the un-retransmitted losses described above. The more you aim to "reach many devices at once, reliably," the more fatal those two become. ESP-NOW is the recommendation because **it involves no AP, so DTIM structurally does not exist, and one send reaches every device**. It takes the advantage of broadcast and discards the drawbacks.
+
+**A better AP does not solve it** — DTIM buffering is not a matter of bandwidth or processing power; it is behaviour mandated by the standard so that power-saving stations are not woken. On a fully controlled network with not a single power-saving station, where the beacon interval and DTIM period can be tightened, the buffering can be avoided — but if you can control things to that degree, ESP-NOW without an AP is simpler and better anyway.
+
+For these reasons broadcast is treated as **a fallback rather than an option**. The SDK too falls back to broadcast automatically only while zero devices are known.
+
 ```mermaid
 %%{init: {'flowchart': {'useMaxWidth': false, 'htmlLabels': true, 'nodeSpacing': 60, 'rankSpacing': 90}}}%%
 flowchart LR

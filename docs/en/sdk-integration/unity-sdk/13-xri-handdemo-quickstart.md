@@ -1,13 +1,13 @@
 ---
 title: Add Haptics to the XRI Hand Demo
 kind: howto
-description: How to bolt Hapbeat haptics onto the XR Interaction Toolkit "Hands Interaction Demo" with a single Editor menu command.
+description: How to add Hapbeat haptic feedback to the XR Interaction Toolkit "Hands Interaction Demo" with a single Editor menu command.
 sidebar:
   order: 200
   label: Add haptics to XRI demo
 ---
 
-Add Hapbeat haptics to "Hands Interaction Demo", the official **XR Interaction Toolkit (XRI)** sample from Unity. Grabbing, poking, snapping and scrubbing all get haptic feedback.
+Add Hapbeat haptic feedback to "Hands Interaction Demo", the official [XR Interaction Toolkit (XRI)](https://docs.unity3d.com/Packages/com.unity.xr.interaction.toolkit@3.3/manual/index.html) sample from Unity. Grabbing, poking, snapping and scrubbing all get haptics.
 
 :::tip[No Unity needed just to try it]
 A prebuilt APK is available → [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-apk/)
@@ -16,7 +16,7 @@ A prebuilt APK is available → [](/en/docs/sdk-integration/unity-sdk/xri-handde
 ## What you need
 
 - **Unity 6 (6000.0) or later**
-- **XR Interaction Toolkit** — verified with 3.3.1
+- **[XR Interaction Toolkit](https://docs.unity3d.com/Packages/com.unity.xr.interaction.toolkit@3.3/manual/index.html)** — verified with 3.3.1
 - **Hapbeat SDK**
 - **A Hapbeat device** — on the same Wi-Fi as the PC running Unity
 - **A hand-tracking HMD** — Quest 3 / 3S etc.
@@ -72,17 +72,13 @@ All 10 entries in the bundled EventMap are CLIP (StreamClip), so the waveforms a
 | Console shows `GameObject '…' not found` | XRI renamed or moved it. Wire the paths in the warning manually ([](/en/docs/sdk-integration/unity-sdk/triggers/)) |
 | Console shows `type '…HapbeatXRGrabFilter' not found` | The *XR Helpers* sample is not imported → step 4 |
 | Cannot grab | Enable the Hand Interaction Profile and the Hand Tracking Subsystem → step 7 |
-| No haptics | See the connectivity entries in [](/en/docs/support/faq/) |
+| No haptic feedback | See the connectivity entries in [](/en/docs/support/faq/) |
 
 ## License, and why we ship a tool
 
 The Hapbeat SDK distributes only three things — **the EventMap, the Kit, and the Editor command that applies the wiring** — and does not include the scene itself. Not a single XRI-authored asset is in it.
 
-The XRI samples are covered by the **Unity Companion License (UCL)**, which grants reproduction, derivative works, distribution and sublicensing (exercised for creating, using and distributing Unity-engine-dependent applications and content). Even so, we do not ship the scene, for the following reasons.
-
-- **UCL section 3.2** — derivative works of the Software (an augmented `HandsDemoScene`) are owned by Unity
-- **UCL section 5** — distributing a substantial portion of the Software carries an obligation to include the copyright notice and the license text
-- Keeping third-party assets out of the SDK sidesteps both points
+The XRI samples are covered by the [Unity Companion License (UCL)](http://www.unity3d.com/legal/licenses/Unity_Companion_License). Because ownership of an augmented scene and the obligation to include a copyright notice both come into play, we keep third-party assets out of the SDK.
 
 Shipping a built application (an APK, say) is a different matter: it is exactly the application the UCL contemplates, so it falls within the grant → [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-apk/)
 

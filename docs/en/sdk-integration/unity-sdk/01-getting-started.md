@@ -18,7 +18,7 @@ For adding the SDK to an existing project, see [](/en/docs/sdk-integration/unity
 
 > Skip this step if a supported version of the Editor is already installed.
 
-**Supported versions**: Unity 2022.3 LTS or later (verified: **Unity 6.3 LTS 6000.3.15f1**)
+**Supported versions**: Unity 6000.0 or later (the Unity 6 line) (verified: **Unity 6.3 LTS 6000.3.15f1**)
 
 Install a supported version from [Unity Hub](https://unity.com/download).
 

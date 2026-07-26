@@ -1,8 +1,8 @@
 ---
 title: Streaming buffer を調整する
-kind: howto
+kind: explanation
 sidebar:
-  order: 200
+  order: 300
   label: Streaming buffer 調整
 description: StreamClip モードの送信バッファ (streamSendAheadSeconds) の意味、トレードオフ、設定指針。
 ---
