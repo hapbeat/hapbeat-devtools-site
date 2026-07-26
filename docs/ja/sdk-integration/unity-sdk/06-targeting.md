@@ -106,11 +106,9 @@ HapbeatManager.Instance.SetAddressOverride(player: 3, group: HapbeatManager.Addr
 
 ### 設定パネルを置く
 
-`HapbeatAddressOverridePanel` を GameObject に 1 個追加するだけで、player / group を選んで Apply する実行時 UI が生成される。シーン側で UI 階層を組む必要はない。
+`HapbeatAddressOverridePanel` を GameObject に 1 個追加するだけで、player / group を選んで Apply する実行時 UI が生成される。シーン側で UI 階層を組む必要はない。画面固定の HUD としても、VR 用の 3D パネルとしても置ける。
 
-- `Space` で `ScreenSpaceOverlay`（画面固定 HUD・既定）と `WorldSpace`（VR 用 3D パネル）を切り替え
-- `WorldSpace` では `World Attach Mode` に `LazyFollow`（既定・視界から外れたときだけ正面へ移動）と `WorldFixed`（置いた場所に固定）
-- 実機だけ文字が滲む場合は、Android 側の URP アセットの Render Scale（VR テンプレート既定は 0.8）と、パネルの `World Pixel Density`（既定 3）を上げる
+設定項目とコントローラー操作の受け付け方は [](/docs/sdk-integration/unity-sdk/components/) を参照。
 
 ### 実例
 

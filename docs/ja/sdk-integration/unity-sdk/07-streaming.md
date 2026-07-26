@@ -22,15 +22,7 @@ DAW では「この曲では 64 sample で攻める / マスタリングでは 1
 
 ## 仕組み
 
-`HapbeatManager.StreamAudioClip(clip, ...)` は **専用のバックグラウンドスレッド** (`HapbeatStreamMixer`) を起動し、`Stopwatch` を基準に **約 10ms 間隔** で以下を繰り返します:
-
-1. 再生中の全ソースを 1 チャンク分ミックスして PCM16 に変換
-2. UDP で送信
-3. **送信済み総時間が「実時間 + sendAhead」を超えていればその分だけ sleep**
-
-Unity のフレームクロックではなく `Stopwatch` で送信タイミングを決めるため、**送信間隔がフレームレートに依存しません**。GC スパイクやレンダリングのヒッチが起きても送信の空白にならず、デバイス側のリングバッファが枯渇して音が途切れる、という事象を避けられます。
-
-ペーシングは 1 チャンクごとの固定 sleep ではなく、**累積送信バイト数と実経過時間の差** から計算されます。そのため 1 回の送信が遅れても次の周回で自動的に補正され、SDK は常に「実時間より sendAhead 秒先まで」のサンプルを送信済みにキープします。デバイス側はその先送り分を内部バッファとして消費しながら再生する形です。
+SDK は常に「実時間より sendAhead 秒先まで」のサンプルを送信済みにキープし、デバイスはその先送り分を内部バッファとして消費しながら再生します。送信は Unity のフレームクロックではなく専用スレッドが担当するため、**フレームレートや GC スパイクの影響を受けません**。
 
 `StopStream()` を呼んだ時:
 - SDK は送信スレッドを止めて即座に `STREAM_END` パケットを送る
@@ -67,7 +59,7 @@ HapbeatConfig
 
 `HapbeatActionHelper.StopEverything()` は両方に対して停止指示を送るので、Command の音は瞬時に止まり、Stream の音だけ ~sendAhead 秒の残響があります。
 
-## :warning: clip フォーマットの統一が必要 (StreamClip 同時再生)
+## clip フォーマットの統一 (StreamClip 同時再生)
 
 Hapbeat の stream session は **単一フォーマットで固定** されます。つまり 1 つの session 中で **sample rate / channel count が同一の clip しか同時 stream できません**。フォーマットが違う 2 つ目以降の clip は SDK で reject されます:
 

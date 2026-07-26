@@ -636,6 +636,7 @@ export default defineConfig({
                 pub('docs/sdk-integration/unity-sdk/triggers'),
                 pub('docs/sdk-integration/unity-sdk/event-map'),
                 pub('docs/sdk-integration/unity-sdk/parameter-binding'),
+                pub('docs/sdk-integration/unity-sdk/components'),
                 pub('docs/sdk-integration/unity-sdk/editor-menus'),
                 pub('docs/sdk-integration/unity-sdk/installation'),
                 pub('docs/sdk-integration/unity-sdk/changelog'),

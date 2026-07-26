@@ -83,29 +83,11 @@ Showcase は **StreamClip だけで完結する** ように設計しています
 
 実機で両方触ってみると、Command の応答の速さと StreamClip の表現の自由度の違いが体感できます。
 
-## WASD と UI nav の衝突 (Showcase の対処)
-
-Unity の **`InputSystemUIInputModule`** のデフォルト `UI/Navigate` action には **WASD がバインド**されています。Slider にフォーカスがある状態で WASD を押すと、Player 移動と同時に Slider 値も変化してしまう (UI nav として動く)。
-
-Showcase では Zone 4 で stream gain slider を触る局面があるため、以下の二重対策を入れています:
-
-1. **`SimpleFPSController.HandleMove` は cursor lock 中のみ動作** — Z4 は `unlockCursorOnEnter=true` で cursor unlock 中なので player は WASD で動かない
-2. **`UiDeselectOnPointerUp` script を各 Slider に attach** — マウスドラッグ離した時点で EventSystem の selection を解除 → 以降 WASD は Slider に届かない
-
-### Production project では根本治療推奨
-
-zero-config を優先する Showcase では上記対症療法を採用していますが、**実プロジェクトでは UI Input Module 側で WASD を外す**のが筋:
-
-1. `Packages/Input System/.../DefaultInputActions.inputactions` を `Assets/` 配下にコピー
-2. コピーを Input Actions Editor で開く → **UI / Navigate / 2D Vector Composite** から `<Keyboard>/w` `<Keyboard>/a` `<Keyboard>/s` `<Keyboard>/d` の 4 binding を削除 (Arrow キーは残す)
-3. シーンの **EventSystem → Input System UI Input Module → Actions Asset** に作ったコピーを差し替え
-
-これで `UiDeselectOnPointerUp` が不要になり、project 全体の UI element (Slider / Dropdown 等) で WASD が干渉しなくなる。
-
 ## トラブルシューティング
 
 | 症状 | 原因 / 対処 |
 |---|---|
+| Slider を触った後に WASD で値が動く | Unity 標準の UI ナビゲーションに WASD がバインドされているため。Showcase 側では対策済み。実プロジェクトでの根治手順は [](/docs/sdk-integration/unity-sdk/showcase/wiring/#wasd-と-ui-nav-の衝突への対処) |
 | 何も鳴らない | Hapbeat デバイスがオフライン → Studio / Helper で接続確認 |
 | 接続済みなのに鳴らない | `[Hapbeat Event Router]` の `HapbeatManager` が無い、または各 Trigger の `EventMap` 未割当 |
 | `[Hapbeat] Entry not found` ログが出る | EventMap entry の displayName と Trigger 側 entry 選択がミスマッチ。Inspector の Entry ドロップダウンを確認 |

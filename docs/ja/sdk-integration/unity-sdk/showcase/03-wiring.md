@@ -122,3 +122,22 @@ Q / P キーは UnityEvent ベースで wire。script はログ表示のみ。
   - Q → `HapbeatUnityEventTrigger.Fire()` (entry: `manual_fire`)
   - P → `HapbeatActionHelper.Ping()`
 - `GlobalHotkeys` (script) は Pong 受信時に HUD テキストを更新するだけ
+
+## WASD と UI nav の衝突への対処
+
+Unity の **`InputSystemUIInputModule`** の既定 `UI/Navigate` action には **WASD がバインド**されている。Slider にフォーカスがある状態で WASD を押すと、Player 移動と同時に Slider 値も変化する。
+
+Showcase は Z4 で stream gain slider を触るため、以下の二重対策を入れている。
+
+1. **`SimpleFPSController.HandleMove` は cursor lock 中のみ動作** — Z4 は `unlockCursorOnEnter=true` で cursor unlock 中のため、player は WASD で動かない
+2. **`UiDeselectOnPointerUp` を各 Slider に attach** — マウスドラッグを離した時点で EventSystem の selection を解除し、以降 WASD が Slider に届かないようにする
+
+### 実プロジェクトでの根治
+
+zero-config を優先する Showcase では上記の対症療法を採っているが、**実プロジェクトでは UI Input Module 側で WASD を外す**のが筋。
+
+1. `Packages/Input System/.../DefaultInputActions.inputactions` を `Assets/` 配下にコピー
+2. コピーを Input Actions Editor で開き、**UI / Navigate / 2D Vector Composite** から `<Keyboard>/w` `<Keyboard>/a` `<Keyboard>/s` `<Keyboard>/d` の 4 binding を削除（Arrow キーは残す）
+3. シーンの **EventSystem → Input System UI Input Module → Actions Asset** をコピーに差し替え
+
+これで `UiDeselectOnPointerUp` が不要になり、プロジェクト全体の UI 要素（Slider / Dropdown 等）で WASD が干渉しなくなる。

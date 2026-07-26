@@ -78,11 +78,7 @@ Unity 公式の [XR Interaction Toolkit (XRI)](https://docs.unity3d.com/Packages
 
 Hapbeat SDK が配布するのは **EventMap・Kit・配線を適用する Editor コマンド**の 3 点のみで、シーン本体は非同梱。XRI 由来のアセットは 1 つも含まない。
 
-XRI のサンプルは [Unity Companion License (UCL)](http://www.unity3d.com/legal/licenses/Unity_Companion_License) 下にあり、複製・派生物の作成・配布・サブライセンスは許諾されている（Unity エンジンに依存するアプリ / コンテンツの作成・使用・配布の範囲で）。そのうえでシーンを配らないのは次の理由による。
-
-- **UCL 第 3.2 条** — Software の派生物（＝改変した `HandsDemoScene`）の権利は Unity に帰属
-- **UCL 第 5 条** — Software を実質的に含めて配布する場合、著作権表示とライセンス条文を添える義務が発生
-- SDK に第三者アセットを含めなければ、この 2 点を回避可能
+XRI のサンプルは [Unity Companion License (UCL)](http://www.unity3d.com/legal/licenses/Unity_Companion_License) 下にある。改変したシーンの権利の帰属や著作権表示の義務が絡むため、SDK に第三者アセットを含めない形にしている。
 
 ビルド済みアプリ（APK など）の配布は別で、UCL が想定するアプリケーションそのものであり許諾範囲に収まる → [](/docs/sdk-integration/unity-sdk/xri-handdemo-apk/)
 
