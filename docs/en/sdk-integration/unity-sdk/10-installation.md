@@ -39,7 +39,7 @@ https://github.com/Hapbeat/hapbeat-unity-sdk.git#v0.3.0
 - Package Manager → Select Hapbeat SDK → Click **Update** if shown in the right panel
 - For tag-pinned URLs: edit `#vX.Y.Z` in `Packages/manifest.json` and save — Unity auto-reimports
 
-When a newer release exists, the Editor logs a single line to the Console at startup. **The same version is never announced twice** — so pinning a version while you work doesn't mean dismissing the same message every session.
+When a newer release exists, the Editor logs a single line to the Console at startup — **once per Editor session**, and never repeated on script recompiles (domain reloads).
 
 - Check on demand: `Hapbeat` → `Diagnostics` → `Check for SDK Updates`
 - Turn the automatic check off: `Hapbeat` → `Diagnostics` → `Check for SDK Updates on Startup`

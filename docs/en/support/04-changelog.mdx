@@ -18,16 +18,19 @@ Device firmware is not listed here. Studio's **Manage → Firmware** tab always 
 
 ## How you find out about updates
 
-You don't have to come here — each tool tells you while you use it. **Once you dismiss a notice it is not shown again until an even newer version appears**, so pinning a version while you work never means dismissing the same message every session.
+You don't have to come here — each tool tells you while you use it. How often depends on the kind of notice:
 
-| Tool | How it tells you |
-|---|---|
-| **Studio** | A chip in the header when the connected Helper has a newer release; a chip in the device detail when a device has newer firmware |
-| **hapbeat-helper** | One line at startup. `hapbeat-helper version` checks on demand (`--no-update-check` disables it) |
-| **Unity SDK** | One Console line at Editor startup. `Hapbeat → Diagnostics → Check for SDK Updates` checks on demand |
-| **Python SDK** | One line when you run the `hapbeat` command (`HAPBEAT_NO_UPDATE_CHECK=1` disables it) |
-| **JavaScript SDK** | `npm outdated @hapbeat/sdk` |
-| **Arduino** | The library update indicator in PlatformIO / Arduino IDE |
+- **Notices you have to dismiss** (banners, chips) appear **once per version**. Dismiss one and it stays gone until an even newer release appears — pinning a version while you work never means closing the same thing every session.
+- **Notices that just scroll past** (a Console or log line) cost nothing to ignore, so they appear once per run. Never seeing them again after one missed glance would be worse.
+
+| Tool | How it tells you | How often |
+|---|---|---|
+| **Studio** | A header chip when the connected Helper has a newer release; a chip in the device detail when a device has newer firmware | Chip: once per version (device detail is always shown) |
+| **hapbeat-helper** | One line at startup. `hapbeat-helper version` checks on demand (`--no-update-check` disables it) | Every start |
+| **Unity SDK** | One Console line at Editor startup. `Hapbeat → Diagnostics → Check for SDK Updates` checks on demand | Once per Editor session |
+| **Python SDK** | One line when you run the `hapbeat` command (`HAPBEAT_NO_UPDATE_CHECK=1` disables it) | Once a day (immediately for a new version) |
+| **JavaScript SDK** | `npm outdated @hapbeat/sdk` | Manual |
+| **Arduino** | The library update indicator in PlatformIO / Arduino IDE | Manual |
 
 ## Change history
 

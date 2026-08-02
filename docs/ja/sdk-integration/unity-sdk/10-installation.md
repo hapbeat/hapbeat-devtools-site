@@ -38,7 +38,7 @@ https://github.com/Hapbeat/hapbeat-unity-sdk.git#v0.3.0
 - Package Manager → Hapbeat SDK を選択 → 右ペインに **Update** が出ていればクリック
 - Tag 固定 URL の場合は `Packages/manifest.json` の `#vX.Y.Z` を書き換えて保存 → Unity が自動 reimport
 
-新しい版が出ると、Editor 起動時に Console へ 1 行だけお知らせが出ます。**同じ版について再表示はされません**（版を固定して開発している間、毎回閉じる手間が出ないようにするため）。
+新しい版が出ると、Editor 起動時に Console へ 1 行だけお知らせが出ます。表示は **Editor セッションごとに 1 回**で、スクリプト再コンパイル（domain reload）では重複しません。
 
 - いま最新かどうかを確かめる: `Hapbeat` → `Diagnostics` → `Check for SDK Updates`
 - 自動確認を止める: `Hapbeat` → `Diagnostics` → `Check for SDK Updates on Startup`

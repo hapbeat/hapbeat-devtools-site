@@ -18,16 +18,19 @@ import ReleaseTable from '../../../../components/ReleaseTable.astro';
 
 ## 更新にどう気付くか
 
-見に来なくても、それぞれのツールが使用時に知らせます。**一度閉じたお知らせは、さらに新しい版が出るまで再表示されません**（版を固定して開発している間、毎回閉じる手間が出ないようにするため）。
+見に来なくても、それぞれのツールが使用時に知らせます。頻度は表示の種類で分けています。
 
-| ツール | 気付き方 |
-|---|---|
-| **Studio** | 接続中の Helper に新しい版があるとヘッダにチップ。デバイスに新しいファームがあるとデバイス詳細にチップ |
-| **hapbeat-helper** | 起動時に 1 行。`hapbeat-helper version` でいつでも確認（`--no-update-check` で無効化） |
-| **Unity SDK** | Editor 起動時に Console へ 1 行。`Hapbeat → Diagnostics → Check for SDK Updates` でいつでも確認 |
-| **Python SDK** | `hapbeat` コマンド実行時に 1 行（`HAPBEAT_NO_UPDATE_CHECK=1` で無効化） |
-| **JavaScript SDK** | `npm outdated @hapbeat/sdk` |
-| **Arduino** | PlatformIO / Arduino IDE のライブラリ更新表示 |
+- **閉じる操作があるもの**（バナー・チップ）は **1 版につき 1 回**。閉じたら、さらに新しい版が出るまで再表示しません（版を固定して作業している間、毎回閉じる手間を出さないため）。
+- **閉じる操作が無いもの**（Console やログの 1 行）は流れて消えるだけなので、実行単位で 1 回出します。一度見逃したら二度と出ない方が不便なためです。
+
+| ツール | 気付き方 | 頻度 |
+|---|---|---|
+| **Studio** | 接続中の Helper に新版があるとヘッダにチップ。デバイスに新しいファームがあるとデバイス詳細にチップ | チップは 1 版 1 回（デバイス詳細は常時表示） |
+| **hapbeat-helper** | 起動時に 1 行。`hapbeat-helper version` でいつでも確認（`--no-update-check` で無効化） | 起動ごと |
+| **Unity SDK** | Editor 起動時に Console へ 1 行。`Hapbeat → Diagnostics → Check for SDK Updates` でいつでも確認 | Editor セッションごと |
+| **Python SDK** | `hapbeat` コマンド実行時に 1 行（`HAPBEAT_NO_UPDATE_CHECK=1` で無効化） | 24 時間に 1 回（新版が出たら即） |
+| **JavaScript SDK** | `npm outdated @hapbeat/sdk` | 手動 |
+| **Arduino** | PlatformIO / Arduino IDE のライブラリ更新表示 | 手動 |
 
 ## 変更履歴
 
