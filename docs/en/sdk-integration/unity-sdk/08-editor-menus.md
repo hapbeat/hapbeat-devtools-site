@@ -38,6 +38,8 @@ Hapbeat/
   Close Edit-mode Transport                ← Force-close the Edit-mode UDP connection
   Disable Verbose Log on All Hapbeat Components ← Bulk-disable _verboseLog / _debugLog
   Diagnostics/Check Sample Versions        ← Check imported samples against the SDK version
+  Diagnostics/Check for SDK Updates        ← Check for a newer SDK release right now
+  Diagnostics/Check for SDK Updates on Startup ← Toggle the automatic check at Editor startup
   ─────────────────────────────
   Developer/Build Basic Example            ← Scaffold the Basic Example sample (Local/Embedded install only)
   Developer/Sync HapbeatSDK → Samples~ (Showcase)

@@ -1,0 +1,52 @@
+---
+title: Changelog
+kind: reference
+description: Latest release and change history for each tool and SDK.
+sidebar:
+  order: 200
+---
+
+import ReleaseTable from '../../../../../components/ReleaseTable.astro';
+
+## Latest releases
+
+Versions that are **actually published** on each distribution channel (PyPI / npm / PlatformIO / GitHub). Click a tool name to open its change history.
+
+<ReleaseTable lang="en" />
+
+Device firmware is not listed here. Studio's **Manage → Firmware** tab always shows the latest release plus the archived ones.
+
+## How you find out about updates
+
+You don't have to come here — each tool tells you while you use it. **Once you dismiss a notice it is not shown again until an even newer version appears**, so pinning a version while you work never means dismissing the same message every session.
+
+| Tool | How it tells you |
+|---|---|
+| **Studio** | A chip in the header when the connected Helper has a newer release; a chip in the device detail when a device has newer firmware |
+| **hapbeat-helper** | One line at startup. `hapbeat-helper version` checks on demand (`--no-update-check` disables it) |
+| **Unity SDK** | One Console line at Editor startup. `Hapbeat → Diagnostics → Check for SDK Updates` checks on demand |
+| **Python SDK** | One line when you run the `hapbeat` command (`HAPBEAT_NO_UPDATE_CHECK=1` disables it) |
+| **JavaScript SDK** | `npm outdated @hapbeat/sdk` |
+| **Arduino** | The library update indicator in PlatformIO / Arduino IDE |
+
+## Change history
+
+### Tools
+
+- [Hapbeat Studio](/docs/tools/studio/changelog/)
+- [hapbeat-helper](/docs/tools/helper/changelog/)
+
+### SDKs
+
+- [Unity SDK](/docs/sdk-integration/unity-sdk/changelog/)
+- [Python SDK](/docs/sdk-integration/python-sdk/changelog/)
+- [JavaScript SDK](/docs/sdk-integration/js-sdk/changelog/)
+- [Arduino](/docs/sdk-integration/arduino-sdk/changelog/)
+
+### Firmware
+
+- [Device firmware](/docs/hardware/device-firmware/changelog/)
+
+### Specification
+
+- [Contracts releases](https://github.com/Hapbeat/hapbeat-contracts/releases)

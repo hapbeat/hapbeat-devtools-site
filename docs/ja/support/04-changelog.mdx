@@ -1,0 +1,52 @@
+---
+title: Changelog
+kind: reference
+description: 各ツール・SDK の最新版と変更履歴。
+sidebar:
+  order: 200
+---
+
+import ReleaseTable from '../../../../components/ReleaseTable.astro';
+
+## 最新版
+
+各配布チャネル（PyPI / npm / PlatformIO / GitHub）に**実際に公開されている**版です。ツール名をクリックすると変更履歴に移動します。
+
+<ReleaseTable lang="ja" />
+
+デバイスファームウェアはここには載りません。Studio の「Manage → ファームウェア」タブが最新版とアーカイブ版を常に表示します。
+
+## 更新にどう気付くか
+
+見に来なくても、それぞれのツールが使用時に知らせます。**一度閉じたお知らせは、さらに新しい版が出るまで再表示されません**（版を固定して開発している間、毎回閉じる手間が出ないようにするため）。
+
+| ツール | 気付き方 |
+|---|---|
+| **Studio** | 接続中の Helper に新しい版があるとヘッダにチップ。デバイスに新しいファームがあるとデバイス詳細にチップ |
+| **hapbeat-helper** | 起動時に 1 行。`hapbeat-helper version` でいつでも確認（`--no-update-check` で無効化） |
+| **Unity SDK** | Editor 起動時に Console へ 1 行。`Hapbeat → Diagnostics → Check for SDK Updates` でいつでも確認 |
+| **Python SDK** | `hapbeat` コマンド実行時に 1 行（`HAPBEAT_NO_UPDATE_CHECK=1` で無効化） |
+| **JavaScript SDK** | `npm outdated @hapbeat/sdk` |
+| **Arduino** | PlatformIO / Arduino IDE のライブラリ更新表示 |
+
+## 変更履歴
+
+### ツール
+
+- [Hapbeat Studio](/docs/tools/studio/changelog/)
+- [hapbeat-helper](/docs/tools/helper/changelog/)
+
+### SDK
+
+- [Unity SDK](/docs/sdk-integration/unity-sdk/changelog/)
+- [Python SDK](/docs/sdk-integration/python-sdk/changelog/)
+- [JavaScript SDK](/docs/sdk-integration/js-sdk/changelog/)
+- [Arduino](/docs/sdk-integration/arduino-sdk/changelog/)
+
+### ファームウェア
+
+- [デバイスファームウェア](/docs/hardware/device-firmware/changelog/)
+
+### 仕様
+
+- [Contracts releases](https://github.com/Hapbeat/hapbeat-contracts/releases)

@@ -38,6 +38,8 @@ Hapbeat/
   Close Edit-mode Transport                ← Edit-mode の UDP 接続を強制クローズ
   Disable Verbose Log on All Hapbeat Components ← _verboseLog / _debugLog 一括 off
   Diagnostics/Check Sample Versions        ← Import 済みサンプルと SDK 版の整合を確認
+  Diagnostics/Check for SDK Updates        ← 新しい SDK が出ていないか今すぐ確認
+  Diagnostics/Check for SDK Updates on Startup ← 起動時の自動確認の ON/OFF
   ─────────────────────────────
   Developer/Build Basic Example            ← Basic サンプル一式の scaffold (Local/Embedded install のみ)
   Developer/Sync HapbeatSDK → Samples~ (Showcase)

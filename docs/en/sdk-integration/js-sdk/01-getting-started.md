@@ -51,6 +51,18 @@ pip install hapbeat-helper   # install once
 hapbeat-helper               # and keep it running
 ```
 
+### Checking for updates
+
+Use npm's own tooling. The library never contacts the network on `import` — that
+would be an unwanted side effect in CI and offline environments.
+
+```bash
+npm outdated @hapbeat/sdk    # is there a newer release?
+npm install @hapbeat/sdk@latest
+```
+
+The latest version of every tool is listed on [](/en/docs/support/changelog/).
+
 ## Your first event (Node)
 
 ```ts

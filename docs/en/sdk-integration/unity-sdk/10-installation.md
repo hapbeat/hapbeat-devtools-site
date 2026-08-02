@@ -28,16 +28,23 @@ The Hapbeat Unity SDK can be installed **directly from a Git URL** via the Unity
 https://github.com/Hapbeat/hapbeat-unity-sdk.git
 ```
 
-To pin a specific version, append a tag:
+To pin a specific version, append a tag. See [Releases](https://github.com/Hapbeat/hapbeat-unity-sdk/releases) for the available tags:
 
 ```
-https://github.com/Hapbeat/hapbeat-unity-sdk.git#v0.1.0
+https://github.com/Hapbeat/hapbeat-unity-sdk.git#v0.3.0
 ```
 
 ### 2. Updating
 
 - Package Manager → Select Hapbeat SDK → Click **Update** if shown in the right panel
 - For tag-pinned URLs: edit `#vX.Y.Z` in `Packages/manifest.json` and save — Unity auto-reimports
+
+When a newer release exists, the Editor logs a single line to the Console at startup. **The same version is never announced twice** — so pinning a version while you work doesn't mean dismissing the same message every session.
+
+- Check on demand: `Hapbeat` → `Diagnostics` → `Check for SDK Updates`
+- Turn the automatic check off: `Hapbeat` → `Diagnostics` → `Check for SDK Updates on Startup`
+
+Package Manager cannot detect updates for tag-pinned Git URLs, so this check is effectively the only way to notice a new release.
 
 ### 3. Create the SDK Folder (optional, convenient on first setup)
 

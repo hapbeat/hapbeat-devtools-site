@@ -5,13 +5,15 @@ on:
     branches:
       - master
   workflow_dispatch:
-  # 他リポジトリの docs/ 変更通知で起動するためのフック。
-  # 各サブ repo (hapbeat-helper / hapbeat-studio / ...) は
-  # docs/** を含む push 時に repository_dispatch (event_type: docs-updated)
-  # でこのワークフローを叩いて、Astro 側の fetch-docs を再走させる。
+  # 他リポジトリからの通知で起動するためのフック。
+  #  - docs-updated:     docs/** or CHANGELOG.md を含む push。fetch-docs を再走させる。
+  #  - release-published: 各 repo が新版を publish した直後。gen-release-feed を
+  #                       走らせて public/releases.json を最新化する (DEC-053)。
+  #                       publish 直後は registry への反映に数十秒かかることがあり、
+  #                       取り逃した場合も次の deploy で拾える (feed は毎ビルド再生成)。
   # PAT は各サブ repo の secret `DOCS_SITE_DISPATCH_TOKEN` に格納。
   repository_dispatch:
-    types: [docs-updated]
+    types: [docs-updated, release-published]
 
 jobs:
   build-and-deploy:

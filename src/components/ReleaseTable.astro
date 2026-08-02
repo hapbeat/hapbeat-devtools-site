@@ -1,0 +1,137 @@
+---
+/**
+ * ReleaseTable
+ *
+ * 全ツール・SDK の最新版一覧。ビルド時に `public/releases.json`
+ * (scripts/gen-release-feed.mjs が各配布チャネルから集約) を読んで描画する。
+ *
+ * 各ツールは使用時に自分で更新を知らせてくれる (Studio のチップ / helper の
+ * 起動ログ / Unity の Console)。このページはその**受け皿**で、
+ * 「いま何が最新か」をまとめて確認したいときに見に来る場所。
+ *
+ * feed が無い / 空の場合はテーブルを出さずに変更履歴リンクだけに任せる
+ * (「取得できませんでした」を大きく出しても読者にできることは無い)。
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+
+interface Props {
+  /** 'ja' | 'en' — 見出し語の切り替えだけに使う */
+  lang?: 'ja' | 'en';
+}
+const { lang = 'ja' } = Astro.props;
+
+const LABELS = {
+  ja: {
+    product: 'ツール / SDK',
+    channel: '配布',
+    latest: '最新版',
+    published: 'リリース日',
+    upgrade: '更新方法',
+    generated: 'この一覧の取得時刻',
+  },
+  en: {
+    product: 'Tool / SDK',
+    channel: 'Distribution',
+    latest: 'Latest',
+    published: 'Released',
+    upgrade: 'How to update',
+    generated: 'Snapshot taken',
+  },
+} as const;
+const t = LABELS[lang];
+
+const CHANNEL_LABEL: Record<string, string> = {
+  pypi: 'PyPI',
+  npm: 'npm',
+  'upm-git': 'UPM (Git URL)',
+  platformio: 'PlatformIO',
+  web: 'Web',
+};
+
+interface Entry {
+  name: string;
+  channel: string;
+  latest: string;
+  published_at?: string;
+  upgrade?: string;
+  notes?: string;
+}
+
+let feed: { generated_at?: string; products?: Record<string, Entry> } | null = null;
+try {
+  const p = path.resolve('public/releases.json');
+  feed = JSON.parse(fs.readFileSync(p, 'utf8'));
+} catch {
+  feed = null; // dev で未生成 / 生成失敗 — テーブルを出さないだけ
+}
+
+const rows = Object.entries(feed?.products ?? {});
+const fmtDate = (iso?: string) =>
+  iso ? new Date(iso).toISOString().slice(0, 10) : '—';
+---
+
+{rows.length > 0 && (
+  <div class="release-table-wrap">
+    <table class="release-table">
+      <thead>
+        <tr>
+          <th>{t.product}</th>
+          <th>{t.channel}</th>
+          <th>{t.latest}</th>
+          <th>{t.published}</th>
+          <th>{t.upgrade}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(([id, e]) => (
+          <tr>
+            <td>
+              {e.notes ? <a href={e.notes}>{e.name}</a> : e.name}
+            </td>
+            <td>{CHANNEL_LABEL[e.channel] ?? e.channel}</td>
+            <td><strong>{e.latest}</strong></td>
+            <td>{fmtDate(e.published_at)}</td>
+            <td>
+              {e.upgrade
+                ? (e.upgrade.startsWith('http')
+                    ? <a href={e.upgrade}>{e.upgrade}</a>
+                    : <code>{e.upgrade}</code>)
+                : '—'}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <p class="release-table-meta">
+      {t.generated}: {fmtDate(feed?.generated_at)}
+    </p>
+  </div>
+)}
+
+<style>
+  /* 横幅が足りない端末では表だけ横スクロールさせる (ページ本体は動かさない) */
+  .release-table-wrap {
+    overflow-x: auto;
+  }
+  .release-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .release-table th,
+  .release-table td {
+    text-align: left;
+    padding: 0.4rem 0.7rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    white-space: nowrap;
+  }
+  .release-table code {
+    font-size: 0.85em;
+  }
+  .release-table-meta {
+    margin-top: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-3);
+  }
+</style>

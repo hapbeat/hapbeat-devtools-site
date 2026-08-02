@@ -51,6 +51,18 @@ pip install hapbeat-helper   # 一度入れて
 hapbeat-helper               # 起動しておく
 ```
 
+### 更新の確認
+
+SDK 本体は npm の標準的な方法で確認・更新します。ライブラリの `import` 時に外部へ
+問い合わせることはありません（CI やオフライン環境での副作用を避けるため）。
+
+```bash
+npm outdated @hapbeat/sdk    # 新しい版が出ているか確認
+npm install @hapbeat/sdk@latest
+```
+
+全ツールの最新版は [](/docs/support/changelog/) にまとまっています。
+
 ## 最初のイベント（Node）
 
 ```ts

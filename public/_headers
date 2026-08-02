@@ -1,0 +1,12 @@
+# Cloudflare Workers/Pages _headers
+#
+# assets ディレクトリ (= ./dist) 直下に置くと適用される。
+# 公式: https://developers.cloudflare.com/workers/static-assets/
+
+# release feed (scripts/gen-release-feed.mjs が生成)。
+# Studio (studio.hapbeat.com) など別オリジンのブラウザから読むため CORS が必須。
+# 再生成は deploy 単位なので 30 分の陳腐化は許容する
+# (hapbeat-contracts specs/release-feed.md §2)。
+/releases.json
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=1800

@@ -45,6 +45,11 @@ instructions/
 # source of truth は hapbeat-js-sdk/examples/games/ 側。
 public/demos/
 
+# release feed (regenerated on build by scripts/gen-release-feed.mjs).
+# 各配布チャネル (PyPI / npm / PlatformIO / GitHub) への問い合わせ結果なので
+# ソースではなく生成物。CORS ヘッダは public/_headers 側で付与。
+public/releases.json
+
 # fetched @hapbeat/sdk browser vendor bundle (regenerated on build by
 # scripts/fetch-demos.mjs). public/tools/metronome/ (手書きアプリ本体) は
 # 対象外 — git 管理される通常のソースファイル。

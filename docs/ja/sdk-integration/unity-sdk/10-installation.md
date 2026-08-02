@@ -27,16 +27,23 @@ Hapbeat Unity SDK は Unity Package Manager (UPM) 経由で **Git URL から直�
 https://github.com/Hapbeat/hapbeat-unity-sdk.git
 ```
 
-特定バージョンを固定する場合は末尾にタグ:
+特定バージョンを固定する場合は末尾にタグを付けます。指定できるタグは [Releases](https://github.com/Hapbeat/hapbeat-unity-sdk/releases) を参照してください:
 
 ```
-https://github.com/Hapbeat/hapbeat-unity-sdk.git#v0.1.0
+https://github.com/Hapbeat/hapbeat-unity-sdk.git#v0.3.0
 ```
 
 ### 2. 更新
 
 - Package Manager → Hapbeat SDK を選択 → 右ペインに **Update** が出ていればクリック
 - Tag 固定 URL の場合は `Packages/manifest.json` の `#vX.Y.Z` を書き換えて保存 → Unity が自動 reimport
+
+新しい版が出ると、Editor 起動時に Console へ 1 行だけお知らせが出ます。**同じ版について再表示はされません**（版を固定して開発している間、毎回閉じる手間が出ないようにするため）。
+
+- いま最新かどうかを確かめる: `Hapbeat` → `Diagnostics` → `Check for SDK Updates`
+- 自動確認を止める: `Hapbeat` → `Diagnostics` → `Check for SDK Updates on Startup`
+
+タグ固定の URL は Package Manager が更新を検出できないため、この自動確認が実質的な唯一の気付き手段になります。
 
 ### 3. SDK フォルダを作成 (任意・初回のみ便利)
 
