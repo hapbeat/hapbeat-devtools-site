@@ -40,8 +40,11 @@ hb.play("sample-kit.sine_100hz", gain=0.5)
 hb.close()
 ```
 
-- `connect()` opens a UDP broadcast socket and sends a keep-alive so the app
-  name appears on the device OLED.
+- `connect()` opens a UDP socket and sends a keep-alive (a PING every 5 s, plus
+  CONNECT_STATUS with the app name) so the app name appears on the device OLED.
+  Sending is **unicast** to devices that answered a PING, and broadcast only
+  while none has replied yet (APs hold broadcast frames up to one beacon
+  interval — 100–300 ms).
 - `play(event_id, gain)` sends a play instruction. `gain` is 0..1; if omitted, the
   EventMap described below supplies the default (the kit's intensity).
 
@@ -79,7 +82,7 @@ For details, see [](/en/docs/sdk-integration/python-sdk/event-map/).
 ```python
 hb.play("sample-kit.sine_100hz", target="player_1/chest")  # one device
 hb.play("sample-kit.sine_100hz", target="*/chest")         # all chest devices
-hb.play("sample-kit.sine_100hz")                            # broadcast to all
+hb.play("sample-kit.sine_100hz")                            # every device
 ```
 
 ## Hand it to an AI coding agent

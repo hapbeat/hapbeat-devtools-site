@@ -49,9 +49,11 @@ void onPressUp() {
 合成 sine は UDP で送るため、Wi-Fi の状況で途切れることがあります。対策:
 
 - **`WiFi.setSleep(false)`** を WiFi 接続後に呼ぶ（ESP32 の modem-sleep ジッタを排除）。
-- **unicast を使う**: ブロードキャスト UDP は MAC 層の ACK / 再送が無く、ロスがそのまま
-  途切れになります。`discover()` で 1 台を見つけて unicast すると、MAC ACK + 再送で
-  大幅に滑らかになります（[](/docs/sdk-integration/arduino-sdk/discovery/) 参照）。
+- **デバイスを見つけておく**: `discover()` 済みなら送信は unicast になり、MAC ACK +
+  再送が効いて大幅に滑らかになります。1 台も見つかっていないとブロードキャストに
+  なり、ACK / 再送が無いうえ AP の DTIM 保留（100〜300 ms）も受けます
+  （[](/docs/sdk-integration/arduino-sdk/discovery/) 参照）。`loop()` から数秒おきに
+  `ping()` を呼んで宛先表を維持してください。
 - **`pumpSine()` を `loop()` で頻繁に呼ぶ**。重い処理で `loop()` が長く止まると、
   デバイス側のリング（約 256ms）が枯渇して途切れます。
 

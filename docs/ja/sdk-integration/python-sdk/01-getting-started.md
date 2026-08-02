@@ -40,8 +40,11 @@ hb.play("sample-kit.sine_100hz", gain=0.5)
 hb.close()
 ```
 
-- `connect()` が UDP ブロードキャストソケットを開き、keep-alive を送ってデバイス
-  OLED にアプリ名を表示します。
+- `connect()` が UDP ソケットを開き、keep-alive（5 秒間隔の PING + アプリ名の
+  CONNECT_STATUS）を送ってデバイス OLED にアプリ名を表示します。送信は PING に
+  応答したデバイスへの **unicast** が標準で、1 台も応答していない間だけ
+  ブロードキャストになります（Wi-Fi の AP がブロードキャストを最大 1 ビーコン
+  間隔＝100〜300 ms 保留するため）。
 - `play(event_id, gain)` は再生指示を送ります。`gain` は 0..1 で、省略すると後述の
   EventMap が既定値（kit の intensity）を補います。
 
@@ -77,7 +80,7 @@ with hapbeat.connect(event_map=em) as hb:
 ```python
 hb.play("sample-kit.sine_100hz", target="player_1/chest")  # 1 台
 hb.play("sample-kit.sine_100hz", target="*/chest")         # chest の全台
-hb.play("sample-kit.sine_100hz")                            # 全台ブロードキャスト
+hb.play("sample-kit.sine_100hz")                            # 全台
 ```
 
 ## AI コーディングエージェントに渡す

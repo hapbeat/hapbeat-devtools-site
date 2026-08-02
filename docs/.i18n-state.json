@@ -4,13 +4,13 @@
   "pages": {
     "docs/en/sdk-integration/js-sdk/01-getting-started.md": {
       "source": "docs/ja/sdk-integration/js-sdk/01-getting-started.md",
-      "source_sha": "e7784858534d56a6477c54f7e0a1baa83e48b121",
-      "translated_at": "2026-06-27T11:38:05.417Z"
+      "source_sha": "49262412b02aea90657d24a1fb442d70e19fdefd",
+      "translated_at": "2026-08-02T14:34:48.457Z"
     },
     "docs/en/sdk-integration/js-sdk/02-transports.md": {
       "source": "docs/ja/sdk-integration/js-sdk/02-transports.md",
-      "source_sha": "f0d15cc7f6061cf032948181a723918b9ed3b66d",
-      "translated_at": "2026-06-27T11:38:05.656Z"
+      "source_sha": "06a5d3a01ae1b4257de5e6314db39cc5012db877",
+      "translated_at": "2026-08-02T14:34:48.657Z"
     },
     "docs/en/sdk-integration/js-sdk/03-command-vs-clip.md": {
       "source": "docs/ja/sdk-integration/js-sdk/03-command-vs-clip.md",
@@ -44,8 +44,8 @@
     },
     "docs/en/sdk-integration/python-sdk/01-getting-started.md": {
       "source": "docs/ja/sdk-integration/python-sdk/01-getting-started.md",
-      "source_sha": "0f455116814c44d9eab01510626d6f4a062165c8",
-      "translated_at": "2026-06-25T20:42:51Z"
+      "source_sha": "3f2fee875e0cc3f3296f9f2140385bc2e758445d",
+      "translated_at": "2026-08-02T14:34:48.921Z"
     },
     "docs/en/sdk-integration/python-sdk/02-command-vs-clip.md": {
       "source": "docs/ja/sdk-integration/python-sdk/02-command-vs-clip.md",

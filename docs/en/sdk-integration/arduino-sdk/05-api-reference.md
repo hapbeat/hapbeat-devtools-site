@@ -41,11 +41,18 @@ source of truth.
 
 | Method | Description |
 |---|---|
-| `bool discover(uint32_t timeoutMs = 1500)` | broadcast PING → PONG to learn the device IP; streaming then unicasts |
-| `IPAddress deviceIp()` | the discovered device IP |
-| `void setDeviceIp(IPAddress ip)` | set the device IP manually |
+| `bool discover(uint32_t timeoutMs = 1500)` | broadcast PING → register every device that replies (blocks the full timeout); sends then unicast |
+| `void poll()` | consume arrived PONGs (optional — sends do it too) |
+| `uint8_t deviceCount()` | live known devices (0 = sends broadcast) |
+| `IPAddress deviceIp()` | first known device IP |
+| `void setDeviceIp(IPAddress ip)` | pin an IP (never expires); `0.0.0.0` clears |
+| `void setDeviceTimeout(uint32_t ms)` | liveness window (default 15000) |
+| `void setBroadcastOnly(bool on)` | always broadcast |
 
-`target`: `""` (broadcast to all) / `"player_1/chest"` / `"*/chest"` / `"group_<N>"`.
+`target`: `""` (every device) / `"player_1/pos_neck"` / `"*/pos_neck"` / `"*/*/group_2"`.
+Matching is **positional**, so `"group_2"` on its own is compared with the player
+slot and never matches, and `*` is only a wildcard as a whole segment (`"pos_*"`
+does not match).
 
 ## level-1 notes
 

@@ -40,11 +40,17 @@ sidebar:
 
 | メソッド | 説明 |
 |---|---|
-| `bool discover(uint32_t timeoutMs = 1500)` | ブロードキャスト PING → PONG でデバイス IP を取得。以降のストリーミングを unicast 化 |
-| `IPAddress deviceIp()` | 検出したデバイス IP |
-| `void setDeviceIp(IPAddress ip)` | デバイス IP を手動指定 |
+| `bool discover(uint32_t timeoutMs = 1500)` | ブロードキャスト PING → 応答した全デバイスを宛先表に登録（タイムアウトまでブロック）。以降の送信は unicast |
+| `void poll()` | 届いた PONG を取り込む（送信時にも自動で行うため任意） |
+| `uint8_t deviceCount()` | 生存している既知デバイス数（0 ならブロードキャスト送信） |
+| `IPAddress deviceIp()` | 最初の既知デバイス IP |
+| `void setDeviceIp(IPAddress ip)` | IP を直接指定（期限切れしない）。`0.0.0.0` で解除 |
+| `void setDeviceTimeout(uint32_t ms)` | 生存判定の窓（既定 15000） |
+| `void setBroadcastOnly(bool on)` | 常にブロードキャストで送る |
 
-`target`: `""`（全機ブロードキャスト）/ `"player_1/chest"` / `"*/chest"` / `"group_<N>"`。
+`target`: `""`（全機）/ `"player_1/pos_neck"` / `"*/pos_neck"` / `"*/*/group_2"`。
+照合は**位置ベース**なので、`"group_2"` 単独は player スロットと比較され一致しません。
+`*` はセグメント全体のときだけワイルドカードです（`"pos_*"` は不一致）。
 
 ## level-1 の注意
 

@@ -1,7 +1,7 @@
 ---
 title: Transports — Node UDP / React Native UDP / Browser helper
 kind: explanation
-description: One API, three transports. Node and React Native broadcast Wi-Fi UDP directly; the browser relays through hapbeat-helper over WebSocket. How the package's exports map switches automatically based on the runtime, and how the paths differ in capability.
+description: One API, three transports. Node and React Native send Wi-Fi UDP directly; the browser relays through hapbeat-helper over WebSocket. How the package's exports map switches automatically based on the runtime, and how the paths differ in capability.
 sidebar:
   order: 2
   label: Transports
@@ -12,32 +12,32 @@ Even though you call `connect()` the same way, the internal send method differs 
 Node, React Native, and the browser.
 
 - **Node** (Electron / server / CLI / creative coding) → sends a Wi-Fi
-  **UDP broadcast** directly to the device.
-- **React Native** (Android / iOS phone apps) → sends a Wi-Fi **UDP broadcast** directly
+  **UDP** directly to the device.
+- **React Native** (Android / iOS phone apps) → sends Wi-Fi **UDP** directly
   from the phone via the optional `react-native-udp`. Because a phone is not sandboxed
   like a browser, it can open a real UDP socket, so **no hapbeat-helper is needed**.
 - **Browser** (WebXR / three.js / p5.js / jsPsych, etc.) → relays over
   **WebSocket** (`ws://localhost:7703`) to the locally running **hapbeat-helper**.
-  Since browsers cannot open a raw UDP socket, the helper broadcasts on its behalf.
+  Since browsers cannot open a raw UDP socket, the helper sends on its behalf.
 
 You **don't need to choose** which one to use. The package's `exports` map looks at the
 runtime / bundler and automatically picks the correct build.
 
 ## Why three builds are needed
 
-Hapbeat devices receive **UDP broadcasts** on the LAN and self-filter
+Hapbeat devices receive **UDP** on the LAN and self-filter on the in-packet target,
 (details in [](/en/docs/concepts/group-player-addressing/)). Node can send UDP directly with
 `node:dgram` and React Native with `react-native-udp`, but **the browser sandbox does not
 permit raw UDP**.
 So the browser side hands instructions to the local helper daemon over WebSocket, and the
-helper performs the UDP broadcast in its place.
+helper performs the UDP send in its place.
 
 To absorb this difference, the SDK has three entry points with different internals.
 
 | Build | Entry | Dependency | Send path |
 |---|---|---|---|
-| Node | `dist/node.js` | `node:dgram` | UDP broadcast (direct) |
-| React Native | `dist/react-native.js` | `react-native-udp` | UDP broadcast (direct) |
+| Node | `dist/node.js` | `node:dgram` | direct UDP (unicast by default) |
+| React Native | `dist/react-native.js` | `react-native-udp` | direct UDP (unicast by default) |
 | Browser | `dist/browser.js` | `WebSocket` | via hapbeat-helper |
 
 The transport implementations are split per entry so that `node:dgram` does not leak into
@@ -70,17 +70,19 @@ import { connect } from "@hapbeat/sdk"; // exports decides which build
 const hb = await connect({ appName: "MyApp" });
 ```
 
-## Node — UDP broadcast
+## Node — direct UDP
 
-The Node build opens a UDP4 socket with `node:dgram` and broadcasts packets such as
+The Node build opens a UDP4 socket with `node:dgram` and sends packets such as
 `PLAY` / `STOP` / `CONNECT_STATUS` directly.
 
 ```ts
 const hb = await connect({
   appName: "MyApp",          // OLED display name (up to 16 characters)
   port: 7700,                // default 7700 (command destination port)
-  broadcastAddr: "255.255.255.255", // default
+  broadcastAddr: "255.255.255.255", // default (used when falling back)
   keepalive: true,           // default true
+  unicast: true,             // default true (see below)
+  // deviceTtlMs: 15000,     // how long a PONG keeps a device as a unicast destination
   // bindPort: 7700,         // opt-in: bind the well-known receive port (default: ephemeral)
 });
 ```
@@ -92,9 +94,30 @@ const hb = await connect({
 - Pass `bindPort: 7700` to opt in to binding the well-known receive port (a
   daemon-style listener that wants unsolicited broadcasts); it falls back to an
   ephemeral port if 7700 is busy.
-- Only when `keepalive` is enabled and `appName` is set does it send
-  `CONNECT_STATUS` every 5 seconds to show the app name on the device OLED
-  (`hb.close()` sends an "app has left" notification to clear it).
+- `keepalive` (default true) sends a **PING** every 5 seconds. Devices reply
+  PONG only to a PING, so this is what keeps the unicast destination table
+  alive. When `appName` is set it also sends `CONNECT_STATUS`, showing the app
+  name on the device OLED (`hb.close()` sends an "app has left" notification to
+  clear it).
+
+### Sending is unicast by default
+
+`PLAY` / `STOP` / `STOP_ALL` and streams are **unicast to every device that
+answered a PING**, and broadcast only while none has replied yet (never both).
+
+Whenever a single power-saving client is associated with the AP, the AP buffers
+group-addressed frames until its next DTIM beacon (100–300 ms). That is what a
+late one-shot haptic and a periodically stuttering stream come from. Nothing on
+the device can avoid it — the cause is an unrelated client — so the sender
+unicasts instead.
+
+- To fire many devices in **lockstep**, pass `unicast: false` to pin sending to
+  broadcast (one send reaches them all, while unicast goes out device by device).
+- Devices whose address does not match `target` are dropped from the
+  destination set. If *every* known device mismatches, commands fall back to
+  broadcast — the device applies the same filter on receipt so nothing misfires,
+  whereas skipping would swallow a STOP whenever the cached address is stale.
+- The keep-alive PING above is what keeps the destination table current.
 
 ### Multi-NIC (multi-homed) caveat
 
@@ -104,9 +127,10 @@ Hapbeat**. If devices are not found or do not fire, check that the NIC connected
 LAN as the Hapbeat has a route. To send to a specific segment, set `broadcastAddr` to that
 subnet's broadcast address (e.g. `192.168.1.255`).
 
-## React Native — UDP broadcast (helper-free)
+## React Native — direct UDP (helper-free)
 
-The React Native build sends a **UDP broadcast directly** from the phone using the optional
+The React Native build sends **UDP directly** from the phone (unicast by default,
+same as Node) using the optional
 peer dependency `react-native-udp`. A phone is not sandboxed like a browser, so it can open a
 real UDP socket. That means **no hapbeat-helper is needed**, and the wire format is identical
 to Node. The `react-native` condition in `exports` resolves `dist/react-native.js`.
@@ -201,7 +225,8 @@ Node and React Native both send UDP directly and match in capability; only the b
 | `targetTimeUs` (synced playback) | ✅ carried in the packet | ✅ carried in the packet | ⚠️ **ignored** (immediate playback only) |
 | clip / live streaming | ✅ | ✅ | ✅ |
 | per-device targeting of clip / stream | ✅ scoped by in-packet address | ✅ scoped by in-packet address | ⚠️ reaches **every device** the helper knows |
-| keep-alive (OLED app name display) | ✅ `CONNECT_STATUS` every 5 s | ✅ `CONNECT_STATUS` every 5 s | — |
+| send path | ✅ unicast by default (broadcast only until a device is found) | ✅ unicast by default (broadcast only until a device is found) | decided by the helper |
+| keep-alive | ✅ PING every 5 s (+ `CONNECT_STATUS`) | ✅ PING every 5 s (+ `CONNECT_STATUS`) | — |
 | device discovery `discover()` | ✅ broadcast PING/PONG | ✅ broadcast PING/PONG | ✅ via the helper's `rescan` |
 
 Why the browser-side constraints exist:
@@ -228,7 +253,9 @@ These relate to [](/en/docs/sdk-integration/js-sdk/command-vs-clip/) /
 ## Summary
 
 - One API, three transports. The selection is made automatically by the `exports` map.
-- Node = direct UDP (sends to 7700; receive bind is ephemeral by default, `bindPort` to opt in; keep-alive; mind multi-NIC).
+- Node = direct UDP (sends to 7700; unicast to known devices by default and broadcast only
+  until one is found; receive bind is ephemeral by default, `bindPort` to opt in; keep-alive;
+  mind multi-NIC).
 - React Native = direct UDP (requires `react-native-udp` + the `fast-text-encoding` polyfill,
   a `metro.config.js` resolver, polyfill as the first import; no helper needed).
 - Browser = via hapbeat-helper (requires `pip install hapbeat-helper`; constraints on

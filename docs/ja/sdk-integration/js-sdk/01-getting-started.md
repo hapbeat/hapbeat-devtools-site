@@ -26,10 +26,10 @@ WebXR・three.js / Babylon.js・p5.js・jsPsych 実験・Electron・Node サー�
 （パッケージの `exports` マップで判定）。
 
 - **Node**（Electron / サーバー / CLI / クリエイティブコーディング）→ Wi-Fi **UDP**
-  ブロードキャストを直接送ります。
+  を直接送ります。
 - **React Native**（Android / iOS のモバイルアプリ）→ スマホはブラウザのように
   サンドボックス化されていないため、実 UDP ソケットを開けます。`react-native-udp`
-  経由で Wi-Fi **UDP** ブロードキャストを直接送り、**hapbeat-helper は不要**です。
+  経由で Wi-Fi **UDP** を直接送り、**hapbeat-helper は不要**です。
 - **Browser**（WebXR / three.js / p5.js / React / jsPsych）→ ブラウザは生の UDP
   ソケットを開けないため、ローカルで動く [hapbeat-helper](https://github.com/hapbeat/hapbeat-helper)
   に **WebSocket**（`ws://localhost:7703`）で中継します。
@@ -56,15 +56,18 @@ hapbeat-helper               # 起動しておく
 ```ts
 import { connect } from "@hapbeat/sdk";
 
-const hb = await connect({ appName: "MyApp" }); // UDP ブロードキャスト + keep-alive
+const hb = await connect({ appName: "MyApp" }); // UDP ソケット + keep-alive
 hb.play("sample-kit.sine_100hz", { gain: 0.3 });           // event id で発火（gain は 0..1）
 hb.play("sample-kit.sine_100hz");                          // gain 省略 → kit / EventMap の既定値
 hb.stopAll();
 await hb.close();
 ```
 
-- `connect()` が UDP ブロードキャストソケットを開き、keep-alive を送ってデバイス
-  OLED にアプリ名（`appName`、最大 16 文字）を表示します。
+- `connect()` が UDP ソケットを開き、keep-alive（5 秒間隔の PING + アプリ名の
+  CONNECT_STATUS）を送ってデバイス OLED にアプリ名（`appName`、最大 16 文字）を
+  表示します。送信は PING に応答したデバイスへの **unicast** が標準で、1 台も応答
+  していない間だけブロードキャストになります（詳細は
+  [](/docs/sdk-integration/js-sdk/transports/)）。
 - `play(eventId, opts)` は再生指示を送る fire-and-forget な呼び出しです。`gain` は
   0..1（SDK 側で clamp）。省略すると後述の EventMap が既定値（kit の intensity）を
   補います。
@@ -88,7 +91,7 @@ const hb = await connect({ appName: "MyWebXR" }); // → ws://localhost:7703 (he
 hb.play("sample-kit.sine_100hz", { gain: 0.5 });
 ```
 
-バンドラーが browser ビルドを自動で選び、UDP ブロードキャストは helper が代わりに
+バンドラーが browser ビルドを自動で選び、UDP 送信は helper が代わりに
 行います。helper が落ちたときに反応するには `onConnectionLost` を渡します。ブラウザ
 固有の制約（clip 再生は helper が知る全台に届く・`targetTimeUs` は無視）は
 [](/docs/sdk-integration/js-sdk/transports/) にまとめてあります。
@@ -140,13 +143,16 @@ hb.play("sample-kit.sine_100hz"); // kit manifest の intensity で発火
 ## ターゲットを指定する
 
 ```ts
-hb.play("sample-kit.sine_100hz", { target: "player_1/chest" }); // 1 台
-hb.play("sample-kit.sine_100hz", { target: "*/chest" });        // chest の全台
-hb.play("sample-kit.sine_100hz", { target: "" });               // 全台ブロードキャスト（既定）
+hb.play("sample-kit.sine_100hz", { target: "player_1/pos_neck" }); // 1 台
+hb.play("sample-kit.sine_100hz", { target: "*/pos_neck" });        // 同じ位置の全台
+hb.play("sample-kit.sine_100hz", { target: "*/*/group_2" });       // group 2
+hb.play("sample-kit.sine_100hz", { target: "" });                  // 全台（既定）
 ```
 
 ターゲットの解決順は「呼び出し時の `target`」→「`connect()` の `defaultTarget`」。
-`""` はブロードキャストです。記法（`player_1/chest` / `*/chest` / `group_<N>`）は
+`""` は全台です。照合は**位置ベース**なので、group だけを指定するときは
+`"*/*/group_2"` のように前のスロットを `*` で埋めます（`"group_2"` 単独は player
+スロットと比較され一致しません）。詳細は
 [](/docs/concepts/group-player-addressing/) を参照。
 
 ## 次に読む

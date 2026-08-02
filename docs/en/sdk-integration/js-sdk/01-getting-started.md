@@ -26,9 +26,9 @@ There is a single `connect()`, but the transport switches automatically dependin
 the runtime (determined by the package's `exports` map).
 
 - **Node** (Electron / server / CLI / creative coding) → sends Wi-Fi **UDP**
-  broadcasts directly.
+  directly.
 - **React Native** (Android / iOS mobile apps) → a phone is not sandboxed like a browser,
-  so it can open a real UDP socket. It sends Wi-Fi **UDP** broadcasts directly through
+  so it can open a real UDP socket. It sends Wi-Fi **UDP** directly through
   `react-native-udp`, so **no hapbeat-helper is needed**.
 - **Browser** (WebXR / three.js / p5.js / React / jsPsych) → since browsers cannot open
   a raw UDP socket, it relays over **WebSocket** (`ws://localhost:7703`) to the locally
@@ -56,15 +56,18 @@ hapbeat-helper               # and keep it running
 ```ts
 import { connect } from "@hapbeat/sdk";
 
-const hb = await connect({ appName: "MyApp" }); // UDP broadcast + keep-alive
+const hb = await connect({ appName: "MyApp" }); // UDP socket + keep-alive
 hb.play("sample-kit.sine_100hz", { gain: 0.3 });           // fire by event id (gain is 0..1)
 hb.play("sample-kit.sine_100hz");                          // gain omitted → kit / EventMap default
 hb.stopAll();
 await hb.close();
 ```
 
-- `connect()` opens a UDP broadcast socket and sends keep-alives to show the app name
-  (`appName`, up to 16 characters) on the device OLED.
+- `connect()` opens a UDP socket and sends keep-alives (a PING every 5 s, plus
+  CONNECT_STATUS with the app name) to show the app name (`appName`, up to 16
+  characters) on the device OLED. Sending is **unicast** to devices that answered
+  a PING, and broadcast only while none has replied yet — see
+  [](/en/docs/sdk-integration/js-sdk/transports/).
 - `play(eventId, opts)` is a fire-and-forget call that sends a playback instruction. `gain` is
   0..1 (clamped by the SDK). If omitted, the EventMap described below supplies the default
   (the kit's intensity).
@@ -88,7 +91,7 @@ const hb = await connect({ appName: "MyWebXR" }); // → ws://localhost:7703 (he
 hb.play("sample-kit.sine_100hz", { gain: 0.5 });
 ```
 
-The bundler picks the browser build automatically, and the helper performs the UDP broadcast
+The bundler picks the browser build automatically, and the helper performs the UDP send
 on your behalf. Pass `onConnectionLost` to react when the helper goes down. The browser-specific
 constraints (clip playback reaches every device the helper knows about; `targetTimeUs` is ignored)
 are summarized in [](/en/docs/sdk-integration/js-sdk/transports/).
@@ -139,13 +142,16 @@ See [](/en/docs/sdk-integration/js-sdk/event-map/) for details.
 ## Specifying a target
 
 ```ts
-hb.play("sample-kit.sine_100hz", { target: "player_1/chest" }); // one device
-hb.play("sample-kit.sine_100hz", { target: "*/chest" });        // all chest devices
-hb.play("sample-kit.sine_100hz", { target: "" });               // broadcast to all (default)
+hb.play("sample-kit.sine_100hz", { target: "player_1/pos_neck" }); // one device
+hb.play("sample-kit.sine_100hz", { target: "*/pos_neck" });        // that position, every player
+hb.play("sample-kit.sine_100hz", { target: "*/*/group_2" });       // group 2
+hb.play("sample-kit.sine_100hz", { target: "" });                  // every device (default)
 ```
 
 The target resolution order is "the `target` at call time" → "`connect()`'s `defaultTarget`".
-`""` is a broadcast. For the notation (`player_1/chest` / `*/chest` / `group_<N>`), see
+`""` means every device. Matching is **positional**, so to select a group you
+fill the earlier slots — `"*/*/group_2"` (plain `"group_2"` is compared with the
+player slot and never matches). For the notation, see
 [](/en/docs/concepts/group-player-addressing/).
 
 ## Read next

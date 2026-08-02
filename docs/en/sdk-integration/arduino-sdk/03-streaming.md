@@ -49,10 +49,11 @@ void onPressUp() {
 Synthesized sine is sent over UDP, so Wi-Fi conditions can cause dropouts. To fix:
 
 - Call **`WiFi.setSleep(false)`** after connecting (kills ESP32 modem-sleep jitter).
-- **Use unicast**: broadcast UDP has no MAC-layer ACK / retry, so loss becomes
-  audible gaps. `discover()` a single device and unicast to it, and the radio's
-  MAC ACK + retry makes it far smoother (see
-  [](/en/docs/sdk-integration/arduino-sdk/discovery/)).
+- **Have the devices discovered**: once `discover()` has found them, sending is
+  unicast and the radio's MAC ACK + retry makes it far smoother. With none found,
+  it falls back to broadcast — no ACK/retry, and subject to the AP's DTIM holding
+  (100–300 ms). See [](/en/docs/sdk-integration/arduino-sdk/discovery/), and call
+  `ping()` every few seconds from `loop()` to keep the table alive.
 - **Call `pumpSine()` frequently** from `loop()`. If heavy work stalls `loop()`,
   the device ring (~256 ms) starves and you hear gaps.
 

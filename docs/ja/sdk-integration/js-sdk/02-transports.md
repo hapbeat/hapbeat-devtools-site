@@ -1,7 +1,7 @@
 ---
 title: Transports — Node UDP / React Native UDP / Browser helper
 kind: explanation
-description: 1 つの API・3 つのトランスポート。Node と React Native は Wi-Fi UDP を直接ブロードキャスト、ブラウザは hapbeat-helper を WebSocket で中継する。パッケージの exports map がランタイムを見て自動で切り替える仕組みと、各経路の能力差を解説。
+description: 1 つの API・3 つのトランスポート。Node と React Native は Wi-Fi UDP を直接送信し、ブラウザは hapbeat-helper を WebSocket で中継する。パッケージの exports map がランタイムを見て自動で切り替える仕組みと、各経路の能力差を解説。
 sidebar:
   order: 2
   label: Transports
@@ -11,33 +11,33 @@ JS/TS SDK は **API が 1 つ・トランスポート（送信経路）が 3 つ
 `connect()` の呼び方は同じでも、Node・React Native・ブラウザで内部の送信方法が変わります。
 
 - **Node**（Electron / サーバー / CLI / クリエイティブコーディング）→ Wi-Fi
-  **UDP ブロードキャスト**をデバイスへ直接送る。
+  **UDP** をデバイスへ直接送る。
 - **React Native**（Android / iOS のスマホアプリ）→ オプションの
-  `react-native-udp` で Wi-Fi **UDP ブロードキャスト**を端末から直接送る。
+  `react-native-udp` で Wi-Fi **UDP** を端末から直接送る。
   スマホはブラウザのようにサンドボックス化されていないため本物の UDP ソケットを
   開けるので、**hapbeat-helper は不要**。
 - **ブラウザ**（WebXR / three.js / p5.js / jsPsych など）→ ローカルで動く
   **hapbeat-helper** に **WebSocket**（`ws://localhost:7703`）で中継する。
-  ブラウザは生の UDP ソケットを開けないため、helper が代わりにブロードキャストする。
+  ブラウザは生の UDP ソケットを開けないため、helper が代わりに送信する。
 
 どちらを使うかは**自分で選ぶ必要はありません**。パッケージの `exports` map が
 ランタイム／バンドラーを見て自動で正しいビルドを選びます。
 
 ## なぜ 3 つのビルドが必要か
 
-Hapbeat デバイスは LAN 上で **UDP ブロードキャスト**を受けて自己フィルタします
+Hapbeat デバイスは LAN 上で **UDP** を受け、パケット内の target で自己フィルタします
 （詳細は [](/docs/concepts/group-player-addressing/)）。Node は `node:dgram` で、
 React Native は `react-native-udp` で UDP を直接送れますが、
 **ブラウザのサンドボックスは生 UDP を許可しません**。
 そのためブラウザ側はローカルの helper デーモンに WebSocket で指示を渡し、helper が
-UDP ブロードキャストを代行します。
+UDP 送信を代行します。
 
 この差を吸収するため、SDK は実体が異なる 3 つのエントリポイントを持ちます。
 
 | ビルド | エントリ | 依存 | 送信経路 |
 |---|---|---|---|
-| Node | `dist/node.js` | `node:dgram` | UDP ブロードキャスト（直接） |
-| React Native | `dist/react-native.js` | `react-native-udp` | UDP ブロードキャスト（直接） |
+| Node | `dist/node.js` | `node:dgram` | UDP 直接（既定 unicast） |
+| React Native | `dist/react-native.js` | `react-native-udp` | UDP 直接（既定 unicast） |
 | Browser | `dist/browser.js` | `WebSocket` | hapbeat-helper 経由 |
 
 `node:dgram` がブラウザバンドルに混入しないよう、トランスポート実装は
@@ -70,17 +70,19 @@ import { connect } from "@hapbeat/sdk"; // どちらのビルドかは exports �
 const hb = await connect({ appName: "MyApp" });
 ```
 
-## Node — UDP ブロードキャスト
+## Node — UDP 直接送信
 
 Node ビルドは `node:dgram` で UDP4 ソケットを開き、`PLAY` / `STOP` /
-`CONNECT_STATUS` などのパケットを直接ブロードキャストします。
+`CONNECT_STATUS` などのパケットを直接送ります。
 
 ```ts
 const hb = await connect({
   appName: "MyApp",          // OLED 表示名（最大 16 文字）
   port: 7700,                // 既定 7700（コマンド送信先ポート）
-  broadcastAddr: "255.255.255.255", // 既定
+  broadcastAddr: "255.255.255.255", // 既定（フォールバック時の宛先）
   keepalive: true,           // 既定 true
+  unicast: true,             // 既定 true（下記）
+  // deviceTtlMs: 15000,     // PONG からこの時間だけ unicast 宛先として保持
   // bindPort: 7700,         // opt-in: well-known 受信ポートを bind（既定は ephemeral）
 });
 ```
@@ -92,23 +94,44 @@ const hb = await connect({
   discovery は成立します。
 - daemon 的に**非要求のブロードキャストを 7700 で受けたい**場合は
   `bindPort: 7700` を明示します（7700 が使用中なら ephemeral にフォールバック）。
-- `keepalive` が有効かつ `appName` が設定されているときのみ、5 秒間隔で
-  `CONNECT_STATUS` を送り、デバイス OLED にアプリ名を表示します
-  （`hb.close()` で「アプリが離れた」通知を送って解除します）。
+- `keepalive`（既定 true）は 5 秒間隔で **PING** を送ります。デバイスが PONG を
+  返すのは PING に対してだけなので、これが unicast の宛先表を維持します。
+  `appName` を設定している場合は併せて `CONNECT_STATUS` も送り、デバイス OLED に
+  アプリ名を表示します（`hb.close()` で「アプリが離れた」通知を送って解除します）。
+
+### 送信は unicast が標準
+
+`PLAY` / `STOP` / `STOP_ALL` とストリームは、**PING に応答した既知デバイスへ
+unicast** されます。まだ 1 台も応答していない間だけブロードキャストにフォール
+バックします（二重送信はしません）。
+
+Wi-Fi の AP は、同じ AP に省電力状態の端末が 1 台でもいると group-addressed
+フレームを次の DTIM ビーコン（100〜300 ms 周期）まで保留します。これが単発
+コマンドの発火遅れ、連続ストリームの周期的な途切れとして出ます。デバイス側の
+設定では回避できない（原因は無関係な他端末）ため、送信側を unicast にします。
+
+- 多数台を**厳密に同時発火**させたい場合は `unicast: false` でブロードキャストに
+  固定できます（1 回の送信で全台に届く。unicast は台数分を順に送る）。
+- `target` に一致しないデバイスは宛先から外れます。全台不一致だった場合、
+  コマンドはブロードキャストにフォールバックします（デバイス側でも同じ判定を
+  するため誤発火はせず、キャッシュが古いときに STOP が消える方が危険なため）。
+- 宛先表は上記の keep-alive PING で維持されます。
 
 ### マルチ NIC（multi-homed）の注意
 
 PC が複数のネットワークインターフェイスを持つ場合（有線 + Wi-Fi、VPN、Docker の
 仮想 NIC など）、`255.255.255.255` 宛のブロードキャストが **Hapbeat とは別の NIC から
-出ていく**ことがあります。デバイスが見つからない・鳴らないときは、Hapbeat と同じ
-LAN に繋がっている NIC が経路（route）を持っているか確認してください。
+出ていく**ことがあります。探索の PING はブロードキャストなので、これが起きると
+デバイスが 1 台も見つからず、送信も unicast になりません。デバイスが見つからない・
+鳴らないときは、Hapbeat と同じ LAN に繋がっている NIC が経路（route）を持っているか
+確認してください。
 特定セグメントに送りたい場合は `broadcastAddr` をそのサブネットの
 ブロードキャストアドレス（例 `192.168.1.255`）に指定します。
 
-## React Native — UDP ブロードキャスト（helper 不要）
+## React Native — UDP 直接送信（helper 不要）
 
 React Native ビルドは、オプションの peer 依存 `react-native-udp` を使って
-スマホから **UDP ブロードキャストを直接**送ります。スマホはブラウザのように
+スマホから **UDP を直接**送ります（Node と同じく既定 unicast）。スマホはブラウザのように
 サンドボックス化されていないため本物の UDP ソケットを開けます。よって
 **hapbeat-helper は不要**で、ワイヤーフォーマットは Node と同一です。
 `exports` の `react-native` 条件が `dist/react-native.js` を解決します。
@@ -203,7 +226,8 @@ UDP を直接送る Node と React Native は能力が一致し、ブラウザ�
 | `targetTimeUs`（同期再生） | ✅ パケットに乗せて送る | ✅ パケットに乗せて送る | ⚠️ **無視**（即時再生のみ） |
 | clip / live ストリーミング | ✅ | ✅ | ✅ |
 | clip / stream の per-device ターゲティング | ✅ パケット内 address で絞る | ✅ パケット内 address で絞る | ⚠️ helper が知る**全デバイス**へ届く |
-| keep-alive（OLED アプリ名表示） | ✅ `CONNECT_STATUS` 5 秒間隔 | ✅ `CONNECT_STATUS` 5 秒間隔 | — |
+| 送信経路 | ✅ 既定 unicast（未検出時のみブロードキャスト） | ✅ 既定 unicast（未検出時のみブロードキャスト） | helper が決定 |
+| keep-alive | ✅ PING 5 秒間隔（+ `CONNECT_STATUS`） | ✅ PING 5 秒間隔（+ `CONNECT_STATUS`） | — |
 | デバイス探索 `discover()` | ✅ ブロードキャスト PING/PONG | ✅ ブロードキャスト PING/PONG | ✅ helper の `rescan` 経由 |
 
 ブラウザ側の制約の理由:
@@ -230,7 +254,8 @@ UDP を直接送る Node と React Native は能力が一致し、ブラウザ�
 ## まとめ
 
 - API は 1 つ、トランスポートは 3 つ。選択は `exports` map が自動で行う。
-- Node = UDP 直接（送信 7700・受信は既定 ephemeral／`bindPort` で opt-in・keep-alive あり・マルチ NIC に注意）。
+- Node = UDP 直接（送信 7700・既定は既知デバイスへ unicast／未検出時のみブロードキャスト・
+  受信は既定 ephemeral／`bindPort` で opt-in・keep-alive あり・マルチ NIC に注意）。
 - React Native = UDP 直接（要 `react-native-udp` + `fast-text-encoding` polyfill・
   `metro.config.js` resolver・polyfill は最初の import・helper 不要）。
 - Browser = hapbeat-helper 経由（要 `pip install hapbeat-helper`・`targetTimeUs` と
