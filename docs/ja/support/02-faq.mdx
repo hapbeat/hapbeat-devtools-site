@@ -52,35 +52,40 @@ HMD ごとに Hapbeat を紐付ける場合も、**player 番号** で分けま�
 
 </Faq>
 
-<Faq question="PC に Wi-Fi と有線 LAN を同時接続するとデバイスがオフラインになる">
+<Faq question="PC でデバイスが 1 台も見つからない（有線 LAN や仮想ネットワークとの併用）">
 
-別途センサーなどを有線 LAN（イーサネット）で繋ぎ、Hapbeat を Wi-Fi で使う構成で起こります。
+Wi-Fi 以外のネットワークが PC 上で有効になっていると起こります。次の 2 通りがあります。
 
-**原因**: Hapbeat の**デバイス探索**は UDP broadcast と mDNS を使います。PC を Wi-Fi と有線 LAN の **2 つの別ネットワーク**に同時接続すると、Windows は通常**有線を優先**するため、探索パケットが有線側（センサーのネットワーク）にのみ送出され、Wi-Fi 上の Hapbeat に届きません。結果としてデバイスが 1 台も見つからず、Studio がオフライン表示になります。触覚の送信は本来「見つかったデバイスへの宛先指定（unicast）」ですが、1 台も見つかっていない状態では broadcast にフォールバックするため、同じ理由で Wi-Fi 側に届かず、同じ PC からの触覚再生にも影響します。
+- **有線 LAN との併用**: 別途センサーなどをイーサネットで繋ぎ、Hapbeat を Wi-Fi で使う構成
+- **仮想ネットワーク**: **Hyper-V / WSL2 / Docker Desktop / Windows サンドボックス**をインストールすると `vEthernet (Default Switch)` などの仮想アダプターが作られます。これは **LAN ケーブルを繋いでいなくても常に有効**なため、「有線は使っていないから関係ない」と思える環境でも同じ症状が起きます
 
-**対処**: Wi-Fi アダプターの**インターフェイスメトリック**を有線より小さく（優先度を高く）します。センサーへの通信は宛先指定（unicast）のため、変更後も問題なく動作します。
+**原因**: Hapbeat の**デバイス探索**は UDP broadcast と mDNS を使います。PC が複数のネットワークに同時接続していると、探索パケットは **Windows が優先する 1 つのネットワークにしか送出されません**。そちらに Hapbeat がいなければ 1 台も見つからず、Studio がオフライン表示になります。触覚の送信は本来「見つかったデバイスへの宛先指定（unicast）」ですが、1 台も見つかっていない状態では broadcast にフォールバックするため、同じ理由で届かず、触覚再生にも影響します。
+
+**対処 1（推奨）**: **Unity SDK v0.4.0 以降**では、各ネットワークのサブネット宛に送るようになったため、この問題は起きません。SDK を更新できる場合はそれだけで解消します（PC 側の設定変更は不要）。
+
+**対処 2**: SDK を更新できない場合や、Studio / Helper をお使いの場合は、Wi-Fi アダプターの**インターフェイスメトリック**を他より小さく（優先度を高く）します。センサーや WSL2 / Docker への通信は宛先指定（unicast）のため、変更後も問題なく動作します。
 
 管理者権限の PowerShell:
 
 ```powershell
-# 変更前の値を控える
-Get-NetIPInterface -AddressFamily IPv4 | ft InterfaceAlias,InterfaceMetric
+# 変更前の値を控える。数値が小さいほど優先度が高い
+Get-NetIPInterface -AddressFamily IPv4 | Sort-Object InterfaceMetric | ft InterfaceAlias,InterfaceMetric,ConnectionState
 
-# Wi-Fi を優先に（エイリアス名は環境に合わせる）
-Set-NetIPInterface -InterfaceAlias "Wi-Fi" -InterfaceMetric 10
-Set-NetIPInterface -InterfaceAlias "イーサネット" -InterfaceMetric 60
+# Wi-Fi を最優先に（エイリアス名は環境に合わせる）
+Set-NetIPInterface -InterfaceAlias "Wi-Fi" -InterfaceMetric 5
 ```
 
 元に戻す場合:
 
 ```powershell
 Set-NetIPInterface -InterfaceAlias "Wi-Fi" -AutomaticMetric Enabled
-Set-NetIPInterface -InterfaceAlias "イーサネット" -AutomaticMetric Enabled
 ```
 
 GUI の場合: アダプター設定 → Wi-Fi の IPv4 プロパティ → 詳細設定 → 「自動メトリック」のチェックを外し、Wi-Fi に小さい値を設定（戻すときはチェックを戻す）。
 
-> 有線（センサー）と Wi-Fi（Hapbeat）は別サブネットになるようご設定ください。将来的には Studio / Helper / SDK 側で送信インターフェイスを選べるよう改善予定です。
+> 有線（センサー）と Wi-Fi（Hapbeat）は別サブネットになるようご設定ください。仮想アダプターの無効化は WSL2 / Docker の動作を壊すため推奨しません。
+>
+> Studio / Helper 側の同様の対応は今後の課題です。
 
 </Faq>
 
