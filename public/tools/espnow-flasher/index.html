@@ -37,6 +37,22 @@
           M5Stack に、ESP-NOW でライブ音声を同報する送信機・受信機・リピータのファームを書き込みます。
           ビルド環境（PlatformIO 等）は不要です。USB でつないでボタンを押すだけです。
         </p>
+        <p class="repos">
+          <a class="repo-link" href="https://github.com/hapbeat/hapbeat-espnow-tx" target="_blank" rel="noopener noreferrer">
+            <span class="repo-link__icon" aria-hidden="true">↗</span>
+            <span>
+              <strong>hapbeat-espnow-tx</strong>
+              <small>送信機・リピータのファーム（ソース）</small>
+            </span>
+          </a>
+          <a class="repo-link" href="https://github.com/hapbeat/hapbeat-espnow-rx" target="_blank" rel="noopener noreferrer">
+            <span class="repo-link__icon" aria-hidden="true">↗</span>
+            <span>
+              <strong>hapbeat-espnow-rx</strong>
+              <small>受信ライブラリ（自分のコードに組み込む）</small>
+            </span>
+          </a>
+        </p>
       </header>
 
       <!-- 書き込み前の前提。ここで詰まる要因（ブラウザ・シリアル占有・ドライバ）を先に出す。 -->
@@ -96,7 +112,14 @@
             <li>CoreS3 / Cardputer（音あり）</li>
             <li>AtomS3 / M5Dial（表示のみ）</li>
           </ul>
-          <p class="version" data-version-for="rx">バージョン: <span>読み込み中…</span></p>
+          <p class="version" data-version-for="rx">
+            バージョン: <span>読み込み中…</span>
+          </p>
+          <p class="card__link">
+            <a href="https://github.com/hapbeat/hapbeat-espnow-rx#操作方法" target="_blank" rel="noopener noreferrer">
+              書き込んだ後の操作方法（ボタン / キー）→
+            </a>
+          </p>
 
           <esp-web-install-button manifest="./manifest-rx.json">
             <button slot="activate" class="btn btn--primary btn--big" type="button">
@@ -138,11 +161,8 @@
       <p class="hint hint--targets">
         <strong>ボタンを押すとすぐ書き込みが始まります（既存のファームは上書きされます）。</strong>
         チップ（ESP32 / ESP32-S3 / C6）は接続時に自動判別されるので、選ぶのは用途だけです。
-        このプリビルドは <strong>M5 シリーズ向け</strong>です。素の ESP32 ボード + I2S DAC で受けたい場合は
-        <a href="https://github.com/hapbeat/hapbeat-espnow-rx" target="_blank" rel="noopener noreferrer"
-          >受信ライブラリ</a
-        >
-        を使ってください。
+        このプリビルドは <strong>M5 シリーズ向け</strong>です。素の ESP32 ボードで受けたい場合や、
+        受信データを自分の処理で使いたい場合は、上の受信ライブラリを使ってください。
       </p>
 
       <!-- 書き込みログ。モーダルを閉じた後も残るよう、ページ側に常設する。
