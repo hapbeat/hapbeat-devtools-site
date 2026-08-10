@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  ESP-NOW オーディオ送信機 ファーム書き込み — ブラウザから M5Stack へ書き込む。
+  ESP-NOW オーディオ ファーム書き込み — ブラウザから M5Stack / ESP32 へ書き込む。
 
   書き込みは esp-web-tools (ESPHome / Nabu Casa) の Web Component が行う。
   Web Serial API を使うので Chrome / Edge のデスクトップ版限定。
@@ -18,7 +18,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ESP-NOW オーディオ送信機 ファーム書き込み</title>
+    <title>ESP-NOW オーディオ ファーム書き込み</title>
     <meta
       name="description"
       content="M5Stack に ESP-NOW オーディオ送信機・リピータのファームウェアをブラウザから書き込みます。ビルド環境は不要です。"
@@ -28,9 +28,9 @@
   <body>
     <main class="app">
       <header class="app__header">
-        <h1>ESP-NOW オーディオ送信機 ファーム書き込み</h1>
+        <h1>ESP-NOW オーディオ ファーム書き込み</h1>
         <p class="app__lede">
-          M5Stack に、ESP-NOW でライブ音声を同報する送信機ファーム、または中継用のリピータファームを書き込みます。
+          M5Stack に、ESP-NOW でライブ音声を同報する送信機・受信機、または中継用のリピータのファームを書き込みます。
           ビルド環境（PlatformIO 等）は不要です。USB でつないでボタンを押すだけです。
         </p>
       </header>
@@ -57,8 +57,8 @@
         </ul>
       </section>
 
-      <!-- 送信機 / リピータ。基板の種類は接続時に自動判別されるので、
-           ボタンは用途ごとの 2 つだけに絞る。 -->
+      <!-- 送信機 / 受信機 / リピータ。基板の種類は接続時に自動判別されるので、
+           ボタンは用途ごとの 3 つだけに絞る。 -->
       <section class="targets">
         <article class="panel card">
           <h2 class="panel__title">送信機</h2>
@@ -73,6 +73,32 @@
           <esp-web-install-button manifest="./manifest-tx.json">
             <button slot="activate" class="btn btn--primary btn--big" type="button">
               送信機ファームを書き込む
+            </button>
+            <span slot="unsupported" class="notice notice--warn">
+              このブラウザでは書き込めません。Chrome または Edge のデスクトップ版で開いてください。
+            </span>
+            <span slot="not-allowed" class="notice notice--warn">
+              安全でない接続では書き込めません（HTTPS が必要です）。
+            </span>
+          </esp-web-install-button>
+        </article>
+
+        <article class="panel card">
+          <h2 class="panel__title">受信機（モニタ）</h2>
+          <p class="card__desc">
+            受信したストリームを画面の波形で表示し、スピーカーのある機種では音も鳴らします。
+            スピーカーの無い機種は表示のみで動作します。
+          </p>
+          <ul class="boards">
+            <li>M5Stack Basic / Core2（ESP32・スピーカーあり）</li>
+            <li>M5Stack CoreS3 / Cardputer（ESP32-S3・スピーカーあり）</li>
+            <li>AtomS3 / M5Dial（ESP32-S3・表示のみ）</li>
+          </ul>
+          <p class="version" data-version-for="rx">バージョン: <span>読み込み中…</span></p>
+
+          <esp-web-install-button manifest="./manifest-rx.json">
+            <button slot="activate" class="btn btn--primary btn--big" type="button">
+              受信機ファームを書き込む
             </button>
             <span slot="unsupported" class="notice notice--warn">
               このブラウザでは書き込めません。Chrome または Edge のデスクトップ版で開いてください。

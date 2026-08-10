@@ -30,6 +30,11 @@ try {
       .map((env) => `${SHORT_NAME[env]} ${data.builds[env].fwVersion ?? '不明'}`);
     render(group, parts.length > 0 ? parts.join(' / ') : '不明');
   }
+
+  // 受信機は送信機と版管理が違う: 独立したファームではなくライブラリ
+  // (hapbeat-espnow-rx) のサンプルなので、ライブラリ版 + ビルド commit で示す。
+  const rx = data.rx;
+  render('rx', rx?.libraryVersion ? `${rx.libraryVersion}${rx.buildCommit ? ` (${rx.buildCommit})` : ''}` : '不明');
 } catch {
-  for (const group of Object.keys(GROUPS)) render(group, '不明');
+  for (const group of [...Object.keys(GROUPS), 'rx']) render(group, '不明');
 }

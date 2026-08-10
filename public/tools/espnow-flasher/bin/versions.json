@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-10T08:53:23.382Z",
+  "generatedAt": "2026-08-10T09:29:48.842Z",
   "builds": {
     "m5stack_audio_tx": {
       "label": "M5Stack Basic (ライブ送信機)",
@@ -36,6 +36,66 @@
       "bytes": 1117904,
       "sha256": "sha256:ae6e5344430466737b24adfe0f811b1d0391b6416f001bd0b1b32dc2ed718c7e",
       "source": "local:C:\\GitHub\\Hapbeat\\hapbeat-sdk-workspace\\repos-firmware\\hapbeat-transmitter-firmware\\dist\\xiao_c6_repeater\\firmware_full_serial.bin"
+    }
+  },
+  "rx": {
+    "libraryVersion": "0.1.0",
+    "buildCommit": "4674bb7",
+    "builtAt": "2026-08-10T09:26:51.257Z",
+    "source": "local:C:\\GitHub\\Hapbeat\\hapbeat-sdk-workspace\\repos-sdk\\hapbeat-espnow-rx\\extras\\flasher\\out",
+    "boards": {
+      "m5stack-core-esp32": {
+        "chipFamily": "ESP32",
+        "covers": "M5Stack Basic / Core2 / Fire",
+        "parts": [
+          {
+            "path": "bin/rx/m5stack-core-esp32/bootloader.bin",
+            "offset": 4096,
+            "offsetHex": "0x1000"
+          },
+          {
+            "path": "bin/rx/m5stack-core-esp32/partitions.bin",
+            "offset": 32768,
+            "offsetHex": "0x8000"
+          },
+          {
+            "path": "bin/rx/m5stack-core-esp32/boot_app0.bin",
+            "offset": 57344,
+            "offsetHex": "0xe000"
+          },
+          {
+            "path": "bin/rx/m5stack-core-esp32/firmware.bin",
+            "offset": 65536,
+            "offsetHex": "0x10000"
+          }
+        ]
+      },
+      "m5stack-stamps3": {
+        "chipFamily": "ESP32-S3",
+        "covers": "M5Stack CoreS3 / Cardputer / AtomS3 / Dial",
+        "parts": [
+          {
+            "path": "bin/rx/m5stack-stamps3/bootloader.bin",
+            "offset": 0,
+            "offsetHex": "0x0000"
+          },
+          {
+            "path": "bin/rx/m5stack-stamps3/partitions.bin",
+            "offset": 32768,
+            "offsetHex": "0x8000"
+          },
+          {
+            "path": "bin/rx/m5stack-stamps3/boot_app0.bin",
+            "offset": 57344,
+            "offsetHex": "0xe000"
+          },
+          {
+            "path": "bin/rx/m5stack-stamps3/firmware.bin",
+            "offset": 65536,
+            "offsetHex": "0x10000"
+          }
+        ]
+      }
     }
   }
 }

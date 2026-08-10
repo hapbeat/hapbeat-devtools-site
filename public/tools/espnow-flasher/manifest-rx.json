@@ -1,0 +1,49 @@
+{
+  "name": "Hapbeat ESP-NOW 受信機（モニタ）",
+  "version": "0.1.0 (4674bb7)",
+  "new_install_prompt_erase": false,
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        {
+          "path": "bin/rx/m5stack-core-esp32/bootloader.bin",
+          "offset": 4096
+        },
+        {
+          "path": "bin/rx/m5stack-core-esp32/partitions.bin",
+          "offset": 32768
+        },
+        {
+          "path": "bin/rx/m5stack-core-esp32/boot_app0.bin",
+          "offset": 57344
+        },
+        {
+          "path": "bin/rx/m5stack-core-esp32/firmware.bin",
+          "offset": 65536
+        }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "parts": [
+        {
+          "path": "bin/rx/m5stack-stamps3/bootloader.bin",
+          "offset": 0
+        },
+        {
+          "path": "bin/rx/m5stack-stamps3/partitions.bin",
+          "offset": 32768
+        },
+        {
+          "path": "bin/rx/m5stack-stamps3/boot_app0.bin",
+          "offset": 57344
+        },
+        {
+          "path": "bin/rx/m5stack-stamps3/firmware.bin",
+          "offset": 65536
+        }
+      ]
+    }
+  ]
+}

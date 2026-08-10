@@ -18,8 +18,14 @@
 //       ※ repo が private の間は 404 になる。private token があれば
 //          GITHUB_TOKEN 環境変数で渡せる。
 //
+//   node scripts/fetch-flash-bins.mjs --local-rx <hapbeat-espnow-rx のパス>
+//       受信機 (M5Unified_Speaker) を取り込む。先に rx repo 側で
+//       `node extras/flasher/build-flasher-bins.mjs` を実行しておくこと。
+//       送信機・リピータとは独立に指定でき、--local / 既定と併用できる。
+//
 // 出力 (いずれも public/tools/espnow-flasher/):
 //   bin/<env>.bin          merged image (bootloader + partitions + app、offset 0)
+//   bin/rx/<board>/*.bin   受信機は merged image ではなく 4 パート (offset 付き)
 //   bin/versions.json      ページのバージョン表示用
 //   manifest-*.json        version フィールドだけを実バージョンで書き換える
 //
@@ -28,6 +34,7 @@
 
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -35,6 +42,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const PAGE_DIR = path.join(ROOT, 'public', 'tools', 'espnow-flasher');
 const BIN_DIR = path.join(PAGE_DIR, 'bin');
+const RX_BIN_DIR = path.join(BIN_DIR, 'rx');
 
 const GH_REPO = 'hapbeat/hapbeat-espnow-tx';
 
@@ -47,11 +55,17 @@ const MANIFESTS = {
 const ENVS = Object.values(MANIFESTS).flat();
 
 function parseArgs(argv) {
-  const args = { local: null };
+  const args = { local: null, localRx: null, github: false };
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--local') {
       args.local = argv[i + 1];
       if (!args.local) throw new Error('--local にはファーム repo のパスが必要です');
+      i += 1;
+    } else if (argv[i] === '--github') {
+      args.github = true;
+    } else if (argv[i] === '--local-rx') {
+      args.localRx = argv[i + 1];
+      if (!args.localRx) throw new Error('--local-rx には hapbeat-espnow-rx のパスが必要です');
       i += 1;
     }
   }
@@ -118,23 +132,109 @@ async function listReleases() {
   return res.json();
 }
 
+// --- 受信機 (hapbeat-espnow-rx) --------------------------------------------
+//
+// 送信機と違い merged image ではなく 4 パート (bootloader / partitions /
+// boot_app0 / app) をそれぞれの offset で書く。offset は rx repo のビルドが
+// 実際の esptool 引数から書き出したもの (extras/flasher/build-flasher-bins.mjs)
+// なので、ここでは build-info.json をそのまま信じてコピーするだけ。
+
+async function importRx(rxRepoPath) {
+  const outDir = path.resolve(rxRepoPath, 'extras', 'flasher', 'out');
+  const info = JSON.parse(await readFile(path.join(outDir, 'build-info.json'), 'utf-8'));
+
+  await rm(RX_BIN_DIR, { recursive: true, force: true });
+
+  const boards = {};
+  for (const [board, entry] of Object.entries(info.boards ?? {})) {
+    await mkdir(path.join(RX_BIN_DIR, board), { recursive: true });
+    const parts = [];
+    for (const part of entry.parts) {
+      const bin = await readFile(path.join(outDir, part.path));
+      await writeFile(path.join(RX_BIN_DIR, part.path), bin);
+      if (sha256(bin) !== part.sha256) {
+        throw new Error(`${part.path}: build-info.json の sha256 と一致しない`);
+      }
+      parts.push({ path: `bin/rx/${part.path}`, offset: part.offset, offsetHex: part.offsetHex });
+    }
+    boards[board] = { chipFamily: entry.chipFamily, covers: entry.covers, parts };
+    console.log(`  ✓ rx/${board}  ${parts.length} parts`);
+  }
+
+  return {
+    libraryVersion: info.libraryVersion ?? null,
+    buildCommit: info.buildCommit ?? null,
+    builtAt: info.generatedAt ?? null,
+    source: `local:${outDir}`,
+    boards,
+  };
+}
+
+// manifest-rx.json は手書き。offset や parts がビルド結果とずれていたら、
+// 書き込んでから気づくことになるので、ここで突き合わせて落とす。
+async function syncRxManifest(rx) {
+  const manifestPath = path.join(PAGE_DIR, 'manifest-rx.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf-8'));
+
+  for (const build of manifest.builds) {
+    const board = Object.values(rx.boards).find((b) => b.chipFamily === build.chipFamily);
+    if (!board) throw new Error(`manifest-rx.json の ${build.chipFamily} に対応するビルドが無い`);
+    const want = board.parts.map((p) => `${p.path}@${p.offsetHex}`).join(', ');
+    const have = build.parts
+      .map((p) => `${p.path}@0x${p.offset.toString(16).padStart(4, '0')}`)
+      .join(', ');
+    if (want !== have) {
+      throw new Error(`manifest-rx.json の ${build.chipFamily} が実ビルドと違う\n  manifest: ${have}\n  build:    ${want}`);
+    }
+  }
+
+  manifest.version = rx.libraryVersion
+    ? `${rx.libraryVersion}${rx.buildCommit ? ` (${rx.buildCommit})` : ''}`
+    : 'unknown';
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+}
+
 // --- 本体 ------------------------------------------------------------------
 
-const { local } = parseArgs(process.argv.slice(2));
+const { local, localRx, github } = parseArgs(process.argv.slice(2));
 
-console.log(`[fetch-flash-bins] source: ${local ? `local (${local})` : `github (${GH_REPO})`}`);
+// 送信機側のソースは明示されたときだけ取り込む。GitHub を無言の既定にすると、
+// --local-rx 単独実行のとき、唯一残っている古いリリース (v0.1.0) が手元の
+// 新しいビルドを黙ってダウングレードする（実際に起きた）。リリースタグ運用が
+// 正になったら既定を --github に戻してよい。
+const txSource = local ? 'local' : (github ? 'github' : null);
+console.log(`[fetch-flash-bins] tx source: ${txSource ?? 'なし（前回の取り込みを維持）'}${local ? ` (${local})` : github ? ` (${GH_REPO})` : ''}`);
 
 let releases = null;
-if (!local) {
+if (txSource === 'github') {
   releases = await listReleases(); // ここで落ちたら env ごとに握り潰さず全体を止める
 }
 
-await rm(BIN_DIR, { recursive: true, force: true });
+// bin/ を丸ごと消さない・先に消さない: 置き換えは env ごとに「取り込みが
+// 成功したときだけ」行う。ソースを渡していない実行（例: --local-rx のみ）で
+// 既存の bin を先に消すと、該当基板の書き込みボタンが 404 になったまま
+// deploy されうる（実際に --local-rx 単独実行で送信機 3 本が消えた）。
 await mkdir(BIN_DIR, { recursive: true });
+
+// 失敗した env は前回の取り込み結果（bin + versions.json の記述）を引き継ぐ。
+let prevBuilds = {};
+try {
+  prevBuilds = JSON.parse(await readFile(path.join(BIN_DIR, 'versions.json'), 'utf-8')).builds ?? {};
+} catch { /* 初回 */ }
 
 const builds = {};
 
 for (const env of ENVS) {
+  if (!txSource) {
+    const kept = prevBuilds[env];
+    if (kept && existsSync(path.join(BIN_DIR, `${env}.bin`))) {
+      builds[env] = kept;
+      console.log(`  = ${env}: 前回の取り込みを維持 (${kept.fwVersion ?? '版数不明'})`);
+    } else {
+      console.warn(`  ! ${env}: 取り込み履歴が無い — --local か --github を指定して取り込むこと`);
+    }
+    continue;
+  }
   try {
     const { bin, variant, source } = local ? await fromLocal(local, env) : await fromGithub(env, releases);
     await writeFile(path.join(BIN_DIR, `${env}.bin`), bin);
@@ -149,14 +249,35 @@ for (const env of ENVS) {
     };
     console.log(`  ✓ ${env}  ${bin.length.toLocaleString()} B  ${variant.fwVersion ?? '(版数不明)'}`);
   } catch (e) {
-    console.warn(`  ! ${env}: 取り込めなかった — ${e.message}`);
+    const kept = prevBuilds[env];
+    if (kept && existsSync(path.join(BIN_DIR, `${env}.bin`))) {
+      builds[env] = kept;
+      console.log(`  = ${env}: 前回の取り込みを維持 (${kept.fwVersion ?? '版数不明'}) — ${e.message}`);
+    } else {
+      console.warn(`  ! ${env}: 取り込めなかった — ${e.message}`);
+    }
+  }
+}
+
+// 受信機。--local-rx が無い実行では、前回取り込んだ内容を versions.json に
+// 引き継ぐ (bin/rx/ を消していないので、記述だけ落ちると版数が「不明」になる)。
+let rx = null;
+if (localRx) {
+  rx = await importRx(localRx);
+} else {
+  try {
+    rx = JSON.parse(await readFile(path.join(BIN_DIR, 'versions.json'), 'utf-8')).rx ?? null;
+  } catch {
+    /* 初回 */
   }
 }
 
 await writeFile(
   path.join(BIN_DIR, 'versions.json'),
-  `${JSON.stringify({ generatedAt: new Date().toISOString(), builds }, null, 2)}\n`,
+  `${JSON.stringify({ generatedAt: new Date().toISOString(), builds, rx }, null, 2)}\n`,
 );
+
+if (rx) await syncRxManifest(rx);
 
 // manifest の version を実バージョンに合わせる。builds[] の構造は手書きのまま
 // (bin が欠けた env を勝手に消すと、次に成功したとき戻し忘れる)。
