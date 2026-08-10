@@ -1,0 +1,25 @@
+{
+  "name": "Hapbeat ESP-NOW リピータ",
+  "version": "0.1.0d56",
+  "new_install_prompt_erase": false,
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        {
+          "path": "bin/m5stack_repeater.bin",
+          "offset": 0
+        }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-C6",
+      "parts": [
+        {
+          "path": "bin/xiao_c6_repeater.bin",
+          "offset": 0
+        }
+      ]
+    }
+  ]
+}

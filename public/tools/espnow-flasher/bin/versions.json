@@ -1,0 +1,41 @@
+{
+  "generatedAt": "2026-08-10T08:53:23.382Z",
+  "builds": {
+    "m5stack_audio_tx": {
+      "label": "M5Stack Basic (ライブ送信機)",
+      "board": "m5stack_basic",
+      "fwVersion": "0.1.0d39",
+      "buildCommit": "fc53786",
+      "bytes": 998544,
+      "sha256": "sha256:c305a238b4dfef663adaed59dd396bce94c8d40fe4b4273183946ee8573b85bf",
+      "source": "local:C:\\GitHub\\Hapbeat\\hapbeat-sdk-workspace\\repos-firmware\\hapbeat-transmitter-firmware\\dist\\m5stack_audio_tx\\firmware_full_serial.bin"
+    },
+    "m5stack_cores3_audio_tx": {
+      "label": "M5Stack CoreS3 (ライブ送信機)",
+      "board": "m5stack_cores3",
+      "fwVersion": "0.1.0d56",
+      "buildCommit": "fc53786",
+      "bytes": 1161824,
+      "sha256": "sha256:d0be4b689cc3952ce61f7d05236defd16f15b586349e9c5070a08cd74ae54c71",
+      "source": "local:C:\\GitHub\\Hapbeat\\hapbeat-sdk-workspace\\repos-firmware\\hapbeat-transmitter-firmware\\dist\\m5stack_cores3_audio_tx\\firmware_full_serial.bin"
+    },
+    "m5stack_repeater": {
+      "label": "M5Stack Basic (リピータ)",
+      "board": "m5stack_basic",
+      "fwVersion": "0.1.0d56",
+      "buildCommit": "fc53786",
+      "bytes": 971968,
+      "sha256": "sha256:80ded1693e5cea192fc56a07f2c28b59310ade295d672a05f7ec1984a26050d7",
+      "source": "local:C:\\GitHub\\Hapbeat\\hapbeat-sdk-workspace\\repos-firmware\\hapbeat-transmitter-firmware\\dist\\m5stack_repeater\\firmware_full_serial.bin"
+    },
+    "xiao_c6_repeater": {
+      "label": "XIAO ESP32-C6 (リピータ)",
+      "board": "xiao_c6",
+      "fwVersion": "0.1.0d56",
+      "buildCommit": "fc53786",
+      "bytes": 1117904,
+      "sha256": "sha256:ae6e5344430466737b24adfe0f811b1d0391b6416f001bd0b1b32dc2ed718c7e",
+      "source": "local:C:\\GitHub\\Hapbeat\\hapbeat-sdk-workspace\\repos-firmware\\hapbeat-transmitter-firmware\\dist\\xiao_c6_repeater\\firmware_full_serial.bin"
+    }
+  }
+}

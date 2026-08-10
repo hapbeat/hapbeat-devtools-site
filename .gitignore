@@ -54,3 +54,9 @@ public/releases.json
 # scripts/fetch-demos.mjs). public/tools/metronome/ (手書きアプリ本体) は
 # 対象外 — git 管理される通常のソースファイル。
 public/tools/vendor/
+
+# esp-web-tools の vendor コピー (scripts/sync-flasher-vendor.mjs が build 時に
+# 再生成)。npm の固定版 dist/web をそのまま置くだけなので git には入れない。
+# 同じディレクトリの bin/ (ファーム本体) は逆に git 管理対象 — ファーム repo が
+# private で CI から取れないため、取り込んだものをコミットしないと配信できない。
+public/tools/espnow-flasher/vendor/

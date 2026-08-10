@@ -1,0 +1,256 @@
+/* ESP-NOW 送信機ファーム書き込み — スタンドアロンページ用スタイル。
+   devtools-site の Starlight テーマとは独立 (public/ 直置きの生 HTML)。
+   トークンと .panel / .btn の作りは /tools/metronome/ に揃えてある。
+   ライト/ダーク両対応。バージョン行はレイアウトシフトを避けるため常に高さを確保する。 */
+
+:root {
+  color-scheme: light dark;
+  --bg: #f6f5f8;
+  --bg-elev: #ffffff;
+  --ink: #1c1a22;
+  --ink-soft: #55505f;
+  --ink-mute: #8a8494;
+  --line: #e2dfe7;
+  --accent: #7b3fe4;
+  --accent-ink: #ffffff;
+  --accent-soft: #efe7fd;
+  --warn: #b3390a;
+  --warn-soft: #fdece2;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(20, 16, 30, 0.06), 0 8px 24px -12px rgba(20, 16, 30, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16141b;
+    --bg-elev: #211e29;
+    --ink: #f1eef7;
+    --ink-soft: #cabfda;
+    --ink-mute: #948da3;
+    --line: #35313f;
+    --accent: #a883f0;
+    --accent-ink: #1c1428;
+    --accent-soft: #322a45;
+    --warn: #ffb08a;
+    --warn-soft: #402417;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 28px -12px rgba(0, 0, 0, 0.5);
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #16141b;
+  --bg-elev: #211e29;
+  --ink: #f1eef7;
+  --ink-soft: #cabfda;
+  --ink-mute: #948da3;
+  --line: #35313f;
+  --accent: #a883f0;
+  --accent-ink: #1c1428;
+  --accent-soft: #322a45;
+  --warn: #ffb08a;
+  --warn-soft: #402417;
+}
+:root[data-theme='light'] {
+  --bg: #f6f5f8;
+  --bg-elev: #ffffff;
+  --ink: #1c1a22;
+  --ink-soft: #55505f;
+  --ink-mute: #8a8494;
+  --line: #e2dfe7;
+  --accent: #7b3fe4;
+  --accent-ink: #ffffff;
+  --accent-soft: #efe7fd;
+  --warn: #b3390a;
+  --warn-soft: #fdece2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Noto Sans JP',
+    sans-serif;
+  line-height: 1.6;
+}
+
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px 18px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.app__header h1 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.app__lede {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}
+
+a {
+  color: var(--accent);
+}
+
+.panel {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel__title {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.checklist,
+.steps,
+.boards {
+  margin: 0;
+  padding-left: 1.25em;
+  font-size: 13.5px;
+}
+
+.checklist li,
+.steps li {
+  margin-bottom: 6px;
+}
+.checklist li:last-child,
+.steps li:last-child {
+  margin-bottom: 0;
+}
+
+.hint {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--ink-mute);
+}
+
+/* --- 送信機 / リピータのカード --- */
+
+.targets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 18px;
+}
+
+.card {
+  gap: 10px;
+}
+
+.card__desc {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}
+
+.boards {
+  color: var(--ink-mute);
+  font-size: 12.5px;
+}
+
+/* 読み込み前後で高さが変わらないよう 1 行分を確保する。 */
+.version {
+  margin: 0;
+  min-height: 22px;
+  font-size: 12px;
+  color: var(--ink-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ボタンはカード下端に揃える (説明の行数が違っても並ぶ)。 */
+.card esp-web-install-button {
+  margin-top: auto;
+}
+
+.btn {
+  appearance: none;
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, filter 0.15s;
+}
+
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.btn--primary:hover {
+  filter: brightness(1.06);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn--big {
+  padding: 12px 22px;
+  font-size: 15px;
+  border-radius: 10px;
+}
+
+.notice {
+  display: block;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+}
+
+.notice--warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+  border: 1px solid currentColor;
+}
+
+.app__footer {
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-mute);
+  font-size: 12px;
+}
+
+.app__footer p {
+  margin: 0 0 6px;
+}
+.app__footer p:last-child {
+  margin-bottom: 0;
+}
