@@ -1,56 +1,37 @@
 ---
-title: Web ツール — Hapbeat
+title: Web ツール
 description: ブラウザで動く Hapbeat 開発者向けツール集。
-template: splash
 ---
 
-import DemoPortalHeader from '../../components/DemoPortalHeader.astro';
-import DemoCard from '../../components/DemoCard.astro';
-import DemoGrid from '../../components/DemoGrid.astro';
-import DemoSteps from '../../components/DemoSteps.astro';
+import ToolIndex from '../../components/ToolIndex.astro';
 
-<DemoPortalHeader
-  eyebrow="🛠 ブラウザで動きます"
-  title="Hapbeat Web ツール"
-  tagline="ブラウザで動く、Hapbeat 開発者向けの小さなアプリ集です。サイドバーの「🛠 Tools」（Studio / Helper のドキュメント）とは別物 — ここではブラウザで直接動くツール本体を配布しています。"
-/>
+ブラウザだけで動く小さなツールです。インストールは要りません。
+サイドバーの「🛠 Tools」（Studio / Helper のドキュメント）とは別物で、ここはツール本体の置き場です。
 
-<DemoGrid>
-  <DemoCard
-    title="Web メトロノーム"
-    description="音声はブラウザだけで鳴らし、触覚は hapbeat-helper 経由で Hapbeat 実機に送れるメトロノーム。触覚タイミングのズレを確認・調整するのに使えます。"
-    href="/tools/metronome/"
-    icon="🎵"
-    chip="Web Tool"
-    accent="teal"
-    ctaLabel="今すぐ開く"
-  />
-  <DemoCard
-    title="ESP-NOW 送信機ファーム書き込み"
-    description="M5Stack に ESP-NOW オーディオ送信機・中継器のファームウェアをブラウザから書き込みます。ビルド環境は不要です（Chrome / Edge 限定）。"
-    href="/tools/espnow-flasher/"
-    icon="⚡"
-    chip="Web Tool"
-    accent="red"
-    ctaLabel="今すぐ開く"
-  />
-</DemoGrid>
-
-:::note
-触覚を送るには **hapbeat-helper の起動 + Hapbeat 実機** が必要です。
-無くても音声だけのメトロノームとして動作します（helper 未接続時は画面下部に状態が表示されます）。
-:::
-
-## helper をつないで触覚も試す
-
-<DemoSteps
-  steps={[
-    'hapbeat-helper をインストールする（pipx install hapbeat-helper）',
-    'helper を起動する',
-    'Web メトロノームのページを開き、「Hapbeat に触覚を送信する」をオンにする',
+<ToolIndex
+  items={[
+    {
+      name: 'Web メトロノーム',
+      href: '/tools/metronome/',
+      description:
+        '音はブラウザで鳴らし、触覚は hapbeat-helper 経由で Hapbeat 実機へ送ります。触覚タイミングのズレを確認・調整するのに使えます。',
+      meta: '触覚を出すには hapbeat-helper と Hapbeat 実機が必要（音だけなら不要）',
+    },
+    {
+      name: 'ESP-NOW ファーム書き込み',
+      href: '/tools/espnow-flasher/',
+      description:
+        'M5Stack に ESP-NOW オーディオの送信機・受信機・中継器のファームを書き込みます。ビルド環境は要りません。',
+      meta: 'Chrome / Edge のデスクトップ版のみ（Web Serial API）',
+    },
   ]}
 />
 
-詳しい導入手順は
-<a href="/docs/tools/helper/getting-started/" target="_blank" rel="noopener noreferrer">Helper のセットアップ</a>
-を参照してください。
+## メトロノームで触覚も鳴らす
+
+1. `pipx install hapbeat-helper` で helper を入れる
+2. helper を起動する
+3. Web メトロノームを開き、「Hapbeat に触覚を送信する」をオンにする
+
+helper 未接続でも音だけのメトロノームとして動きます（接続状態は画面下部に出ます）。
+導入手順の詳細は [Helper のセットアップ](/docs/tools/helper/getting-started/)。
