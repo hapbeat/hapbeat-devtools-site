@@ -25,7 +25,7 @@
     <title>ESP-NOW オーディオ ファーム書き込み</title>
     <meta
       name="description"
-      content="M5Stack に ESP-NOW オーディオの送信機・受信機・リピータのファームウェアをブラウザから書き込みます。ビルド環境は不要です。"
+      content="M5Stack に ESP-NOW オーディオの送信機・受信機・中継器のファームウェアをブラウザから書き込みます。ビルド環境は不要です。"
     />
     <link rel="stylesheet" href="./flasher.css" />
   </head>
@@ -34,7 +34,7 @@
       <header class="app__header">
         <h1>ESP-NOW オーディオ ファーム書き込み</h1>
         <p class="app__lede">
-          M5Stack に、ESP-NOW でライブ音声を同報する送信機・受信機・リピータのファームを書き込みます。
+          M5Stack に、ESP-NOW でライブ音声を同報する送信機・受信機・中継器のファームを書き込みます。
           ビルド環境（PlatformIO 等）は不要です。USB でつないでボタンを押すだけです。
         </p>
         <p class="repos">
@@ -42,7 +42,7 @@
             <span class="repo-link__icon" aria-hidden="true">↗</span>
             <span>
               <strong>hapbeat-espnow-tx</strong>
-              <small>送信機・リピータのファーム（ソース）</small>
+              <small>送信機・中継器のファーム（ソース）</small>
             </span>
           </a>
           <a class="repo-link" href="https://github.com/hapbeat/hapbeat-espnow-rx" target="_blank" rel="noopener noreferrer">
@@ -77,7 +77,7 @@
         </ul>
       </section>
 
-      <!-- 送信機 / 受信機 / リピータ。基板の種類は接続時に自動判別されるので、
+      <!-- 送信機 / 受信機 / 中継器。基板の種類は接続時に自動判別されるので、
            ボタンは用途ごとの 3 つだけに絞る。 -->
       <section class="targets">
         <article class="panel card">
@@ -135,7 +135,7 @@
         </article>
 
         <article class="panel card">
-          <h2 class="panel__title">リピータ</h2>
+          <h2 class="panel__title">中継器</h2>
           <p class="card__desc">ストリームを中継し、届く範囲を広げます。</p>
           <ul class="boards">
             <li>Basic / Core2（ESP32）</li>
@@ -146,7 +146,7 @@
 
           <esp-web-install-button manifest="./manifest-repeater.json">
             <button slot="activate" class="btn btn--primary btn--big" type="button">
-              リピータを書き込む
+              中継器を書き込む
             </button>
             <span slot="unsupported" class="notice notice--warn">
               このブラウザでは書き込めません。Chrome または Edge のデスクトップ版で開いてください。

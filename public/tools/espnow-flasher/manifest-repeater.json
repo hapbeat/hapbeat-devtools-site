@@ -1,5 +1,5 @@
 {
-  "name": "Hapbeat ESP-NOW リピータ",
+  "name": "Hapbeat ESP-NOW 中継器",
   "version": "0.1.0d56",
   "new_install_prompt_erase": false,
   "new_install_improv_wait_time": 0,

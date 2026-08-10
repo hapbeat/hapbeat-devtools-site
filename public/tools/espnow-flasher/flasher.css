@@ -138,29 +138,41 @@ a {
   margin: 16px 0 0;
 }
 
+/* 背景がパネルと同色だと「ただの囲み」に見えて押せると分からない。
+   アクセント色の面と枠で、リンクではなくボタンとして提示する。 */
 .repo-link {
   display: flex;
   align-items: center;
   gap: 12px;
   flex: 1 1 320px;
   padding: 12px 16px;
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--accent);
   border-radius: var(--radius);
-  background: var(--bg-elev);
+  background: var(--accent-soft);
   color: var(--ink);
   text-decoration: none;
   box-shadow: var(--shadow);
-  transition: border-color 0.15s, transform 0.15s;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 .repo-link:hover {
-  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
   transform: translateY(-1px);
+  box-shadow: 0 4px 16px -4px var(--accent);
+}
+.repo-link:hover small,
+.repo-link:hover .repo-link__icon {
+  color: inherit;
+}
+.repo-link:active {
+  transform: translateY(0);
 }
 
 .repo-link__icon {
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1;
   color: var(--accent);
+  flex: none;
 }
 
 .repo-link strong {
@@ -178,6 +190,13 @@ a {
 .card__link {
   margin: 0;
   font-size: 13.5px;
+}
+.card__link a {
+  display: inline-block;
+  padding: 3px 0;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .panel {
