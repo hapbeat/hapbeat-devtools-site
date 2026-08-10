@@ -88,6 +88,11 @@
           <p class="card__desc">
             受信したストリームを画面の波形で表示し、スピーカーのある機種では音も鳴らします。
             スピーカーの無い機種は表示のみで動作します。
+            チップ（ESP32 / ESP32-S3）は接続時に自動判別され、機種の違いはファームが起動時に吸収します。
+          </p>
+          <p class="card__desc">
+            このプリビルドは <strong>M5 シリーズ専用</strong>です。素の ESP32 ボード + I2S DAC で受けたい場合は、
+            <a href="https://github.com/hapbeat/hapbeat-espnow-rx">受信ライブラリ</a>でスケッチを書いてください（機種を選びません）。
           </p>
           <ul class="boards">
             <li>M5Stack Basic / Core2（ESP32・スピーカーあり）</li>
