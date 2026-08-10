@@ -8,17 +8,16 @@ import DemoPortalHeader from '../../components/DemoPortalHeader.astro';
 import DemoCard from '../../components/DemoCard.astro';
 import DemoGrid from '../../components/DemoGrid.astro';
 import DemoSteps from '../../components/DemoSteps.astro';
-import SquareEdges from '../../components/SquareEdges.astro';
+import PlainSurfaces from '../../components/PlainSurfaces.astro';
 
-<SquareEdges>
+<PlainSurfaces>
 <DemoPortalHeader
-  eyebrow="🛠 ブラウザで動きます"
   title="Hapbeat Web ツール"
   tagline="ブラウザで動く、Hapbeat 開発者向けの小さなアプリ集です。サイドバーの「🛠 Tools」（Studio / Helper のドキュメント）とは別物 — ここではブラウザで直接動くツール本体を配布しています。"
 />
-</SquareEdges>
+</PlainSurfaces>
 
-<SquareEdges>
+<PlainSurfaces>
 <DemoGrid>
   <DemoCard
     title="Web メトロノーム"
@@ -39,7 +38,7 @@ import SquareEdges from '../../components/SquareEdges.astro';
     ctaLabel="今すぐ開く"
   />
 </DemoGrid>
-</SquareEdges>
+</PlainSurfaces>
 
 :::note
 触覚を送るには **hapbeat-helper の起動 + Hapbeat 実機** が必要です。
@@ -48,7 +47,7 @@ import SquareEdges from '../../components/SquareEdges.astro';
 
 ## helper をつないで触覚も試す
 
-<SquareEdges>
+<PlainSurfaces>
 <DemoSteps
   steps={[
     'hapbeat-helper をインストールする（pipx install hapbeat-helper）',
@@ -56,7 +55,7 @@ import SquareEdges from '../../components/SquareEdges.astro';
     'Web メトロノームのページを開き、「Hapbeat に触覚を送信する」をオンにする',
   ]}
 />
-</SquareEdges>
+</PlainSurfaces>
 
 詳しい導入手順は
 <a href="/docs/tools/helper/getting-started/" target="_blank" rel="noopener noreferrer">Helper のセットアップ</a>
