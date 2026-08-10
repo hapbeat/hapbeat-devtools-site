@@ -8,11 +8,14 @@
   ファームのバイナリは **このページと同一オリジンに同梱する**。GitHub の
   リリース資産はブラウザ fetch から CORS で読めない (実測: access-control-
   allow-origin が付かない) ため、CDN 参照ではなく静的アセットとして置く。
-  bin/ と vendor/ は scripts/fetch-flash-bins.mjs が生成する (.gitignore 対象)。
+  bin/ と vendor/ は scripts/fetch-flash-bins.mjs が生成する。
 
   このディレクトリは devtools-site の public/ に直置きの生 HTML
   (/tools/metronome/ と同じパターン)。fetch-demos.mjs が触るのは
   public/tools/vendor/ だけなので、ここは対象外。
+
+  PC で使う前提のレイアウト: 本文を左、書き込みログを右に常設する
+  (esp-web-tools はモーダルにしか進捗を出さず、閉じると辿れないため)。
 -->
 <html lang="ja">
   <head>
@@ -21,7 +24,7 @@
     <title>ESP-NOW オーディオ ファーム書き込み</title>
     <meta
       name="description"
-      content="M5Stack に ESP-NOW オーディオ送信機・リピータのファームウェアをブラウザから書き込みます。ビルド環境は不要です。"
+      content="M5Stack に ESP-NOW オーディオの送信機・受信機・リピータのファームウェアをブラウザから書き込みます。ビルド環境は不要です。"
     />
     <link rel="stylesheet" href="./flasher.css" />
   </head>
@@ -30,126 +33,144 @@
       <header class="app__header">
         <h1>ESP-NOW オーディオ ファーム書き込み</h1>
         <p class="app__lede">
-          M5Stack に、ESP-NOW でライブ音声を同報する送信機・受信機、または中継用のリピータのファームを書き込みます。
+          M5Stack に、ESP-NOW でライブ音声を同報する送信機・受信機・リピータのファームを書き込みます。
           ビルド環境（PlatformIO 等）は不要です。USB でつないでボタンを押すだけです。
         </p>
       </header>
 
-      <!-- 書き込み前の前提。ここで詰まる要因（ブラウザ・シリアル占有・ドライバ）を先に出す。 -->
-      <section class="panel" aria-label="はじめに確認">
-        <h2 class="panel__title">はじめに確認</h2>
-        <ul class="checklist">
-          <li>
-            <strong>Chrome / Edge のデスクトップ版</strong>でのみ動作します（Web Serial API を使用）。
-            Safari・Firefox・スマートフォンでは書き込めません。
-          </li>
-          <li>
-            書き込み中は<strong>同じデバイスにつながる他のシリアル接続を閉じてください</strong>。
-            Hapbeat Studio・シリアルモニタ・Arduino IDE などが接続していると失敗します。
-          </li>
-          <li>
-            M5Stack Basic / Core2 は USB シリアル変換に <strong>CH9102</strong> を使います。
-            デバイスが見つからない場合はドライバを入れてください →
-            <a href="https://docs.m5stack.com/en/download" target="_blank" rel="noopener noreferrer"
-              >M5Stack ドライバ配布ページ</a
+      <div class="layout">
+        <div class="layout__main">
+          <!-- 書き込み前の前提。ここで詰まる要因（ブラウザ・シリアル占有・ドライバ）を先に出す。 -->
+          <section class="panel" aria-label="はじめに確認">
+            <h2 class="panel__title">はじめに確認</h2>
+            <ul class="checklist">
+              <li>
+                <strong>Chrome / Edge のデスクトップ版</strong>でのみ動作します（Web Serial API を使用）。
+                Safari・Firefox・スマートフォンでは書き込めません。
+              </li>
+              <li>
+                書き込み中は<strong>同じデバイスにつながる他のシリアル接続を閉じてください</strong>。
+                Hapbeat Studio・シリアルモニタ・Arduino IDE などが接続していると失敗します。
+              </li>
+              <li>
+                M5Stack Basic / Core2 は USB シリアル変換に <strong>CH9102</strong> を使います。
+                デバイスが見つからない場合はドライバを入れてください →
+                <a href="https://docs.m5stack.com/en/download" target="_blank" rel="noopener noreferrer"
+                  >M5Stack ドライバ配布ページ</a
+                >
+              </li>
+            </ul>
+          </section>
+
+          <!-- 送信機 / 受信機 / リピータ。基板の種類は接続時に自動判別されるので、
+               ボタンは用途ごとの 3 つだけに絞る。 -->
+          <section class="targets">
+            <article class="panel card">
+              <h2 class="panel__title">送信機</h2>
+              <p class="card__desc">ライン入力の音を ESP-NOW で同報します。</p>
+              <ul class="boards">
+                <li>Basic / Core2（ESP32）</li>
+                <li>CoreS3（ESP32-S3）</li>
+                <li>＋ Module Audio が必要</li>
+              </ul>
+              <!-- バージョン行は常に高さを確保する（読み込み後にボタンがずれないように）。 -->
+              <p class="version" data-version-for="tx">バージョン: <span>読み込み中…</span></p>
+
+              <esp-web-install-button manifest="./manifest-tx.json">
+                <button slot="activate" class="btn btn--primary btn--big" type="button">
+                  送信機を書き込む
+                </button>
+                <span slot="unsupported" class="notice notice--warn">
+                  このブラウザでは書き込めません。Chrome または Edge のデスクトップ版で開いてください。
+                </span>
+                <span slot="not-allowed" class="notice notice--warn">
+                  安全でない接続では書き込めません（HTTPS が必要です）。
+                </span>
+              </esp-web-install-button>
+            </article>
+
+            <article class="panel card">
+              <h2 class="panel__title">受信機（モニタ）</h2>
+              <p class="card__desc">受信した音を鳴らし、波形と受信状況を画面に出します。</p>
+              <ul class="boards">
+                <li>Basic / Core2（音あり）</li>
+                <li>CoreS3 / Cardputer（音あり）</li>
+                <li>AtomS3 / M5Dial（表示のみ）</li>
+              </ul>
+              <p class="version" data-version-for="rx">バージョン: <span>読み込み中…</span></p>
+
+              <esp-web-install-button manifest="./manifest-rx.json">
+                <button slot="activate" class="btn btn--primary btn--big" type="button">
+                  受信機を書き込む
+                </button>
+                <span slot="unsupported" class="notice notice--warn">
+                  このブラウザでは書き込めません。Chrome または Edge のデスクトップ版で開いてください。
+                </span>
+                <span slot="not-allowed" class="notice notice--warn">
+                  安全でない接続では書き込めません（HTTPS が必要です）。
+                </span>
+              </esp-web-install-button>
+            </article>
+
+            <article class="panel card">
+              <h2 class="panel__title">リピータ</h2>
+              <p class="card__desc">ストリームを中継し、届く範囲を広げます。</p>
+              <ul class="boards">
+                <li>Basic / Core2（ESP32）</li>
+                <li>XIAO ESP32-C6（外部アンテナ）</li>
+                <li>単体で動作（配線不要）</li>
+              </ul>
+              <p class="version" data-version-for="repeater">バージョン: <span>読み込み中…</span></p>
+
+              <esp-web-install-button manifest="./manifest-repeater.json">
+                <button slot="activate" class="btn btn--primary btn--big" type="button">
+                  リピータを書き込む
+                </button>
+                <span slot="unsupported" class="notice notice--warn">
+                  このブラウザでは書き込めません。Chrome または Edge のデスクトップ版で開いてください。
+                </span>
+                <span slot="not-allowed" class="notice notice--warn">
+                  安全でない接続では書き込めません（HTTPS が必要です）。
+                </span>
+              </esp-web-install-button>
+            </article>
+          </section>
+
+          <p class="hint hint--targets">
+            チップ（ESP32 / ESP32-S3 / C6）は接続時に自動判別されます。機種ごとの違いはファームが起動時に吸収するので、
+            選ぶのは用途だけです。このプリビルドは <strong>M5 シリーズ向け</strong>です。素の ESP32 ボード + I2S DAC で
+            受けたい場合は
+            <a href="https://github.com/hapbeat/hapbeat-espnow-rx" target="_blank" rel="noopener noreferrer"
+              >受信ライブラリ</a
             >
-          </li>
-        </ul>
-      </section>
-
-      <!-- 送信機 / 受信機 / リピータ。基板の種類は接続時に自動判別されるので、
-           ボタンは用途ごとの 3 つだけに絞る。 -->
-      <section class="targets">
-        <article class="panel card">
-          <h2 class="panel__title">送信機</h2>
-          <p class="card__desc">PA のライン出力を入力し、ESP-NOW で受信機へ同報します。</p>
-          <ul class="boards">
-            <li>M5Stack Basic / Core2（ESP32）</li>
-            <li>M5Stack CoreS3 + Module Audio（ESP32-S3）</li>
-          </ul>
-          <!-- バージョン行は常に高さを確保する（読み込み後にボタンがずれないように）。 -->
-          <p class="version" data-version-for="tx">バージョン: <span>読み込み中…</span></p>
-
-          <esp-web-install-button manifest="./manifest-tx.json">
-            <button slot="activate" class="btn btn--primary btn--big" type="button">
-              送信機ファームを書き込む
-            </button>
-            <span slot="unsupported" class="notice notice--warn">
-              このブラウザでは書き込めません。Chrome または Edge のデスクトップ版で開いてください。
-            </span>
-            <span slot="not-allowed" class="notice notice--warn">
-              安全でない接続では書き込めません（HTTPS が必要です）。
-            </span>
-          </esp-web-install-button>
-        </article>
-
-        <article class="panel card">
-          <h2 class="panel__title">受信機（モニタ）</h2>
-          <p class="card__desc">
-            受信したストリームを画面の波形で表示し、スピーカーのある機種では音も鳴らします。
-            スピーカーの無い機種は表示のみで動作します。
-            チップ（ESP32 / ESP32-S3）は接続時に自動判別され、機種の違いはファームが起動時に吸収します。
+            を使ってください。
           </p>
-          <p class="card__desc">
-            このプリビルドは <strong>M5 シリーズ専用</strong>です。素の ESP32 ボード + I2S DAC で受けたい場合は、
-            <a href="https://github.com/hapbeat/hapbeat-espnow-rx">受信ライブラリ</a>でスケッチを書いてください（機種を選びません）。
-          </p>
-          <ul class="boards">
-            <li>M5Stack Basic / Core2（ESP32・スピーカーあり）</li>
-            <li>M5Stack CoreS3 / Cardputer（ESP32-S3・スピーカーあり）</li>
-            <li>AtomS3 / M5Dial（ESP32-S3・表示のみ）</li>
-          </ul>
-          <p class="version" data-version-for="rx">バージョン: <span>読み込み中…</span></p>
 
-          <esp-web-install-button manifest="./manifest-rx.json">
-            <button slot="activate" class="btn btn--primary btn--big" type="button">
-              受信機ファームを書き込む
-            </button>
-            <span slot="unsupported" class="notice notice--warn">
-              このブラウザでは書き込めません。Chrome または Edge のデスクトップ版で開いてください。
-            </span>
-            <span slot="not-allowed" class="notice notice--warn">
-              安全でない接続では書き込めません（HTTPS が必要です）。
-            </span>
-          </esp-web-install-button>
-        </article>
+          <section class="panel" aria-label="手順">
+            <h2 class="panel__title">手順</h2>
+            <ol class="steps">
+              <li>M5Stack を USB でパソコンにつなぐ。</li>
+              <li>上のボタンを押す。</li>
+              <li>ブラウザが出すシリアルポートの一覧から、該当するポートを選ぶ。</li>
+              <li>接続すると基板の種類が自動判別される。<strong>Install</strong> を選んで進める。</li>
+              <li>完了すると M5Stack が再起動する。</li>
+            </ol>
+            <p class="hint">
+              途中で止まる場合は、ケーブルを抜き差しし、他のシリアル接続を閉じてからやり直してください。
+              右のログに esptool の出力がそのまま出ます。
+            </p>
+          </section>
+        </div>
 
-        <article class="panel card">
-          <h2 class="panel__title">リピータ</h2>
-          <p class="card__desc">送信機の ESP-NOW ストリームを中継し、受信機のカバー範囲を広げます。</p>
-          <ul class="boards">
-            <li>M5Stack Basic / Core2（ESP32）</li>
-            <li>XIAO ESP32-C6（ESP32-C6・外部アンテナ）</li>
-          </ul>
-          <p class="version" data-version-for="repeater">バージョン: <span>読み込み中…</span></p>
-
-          <esp-web-install-button manifest="./manifest-repeater.json">
-            <button slot="activate" class="btn btn--primary btn--big" type="button">
-              リピータを書き込む
-            </button>
-            <span slot="unsupported" class="notice notice--warn">
-              このブラウザでは書き込めません。Chrome または Edge のデスクトップ版で開いてください。
-            </span>
-            <span slot="not-allowed" class="notice notice--warn">
-              安全でない接続では書き込めません（HTTPS が必要です）。
-            </span>
-          </esp-web-install-button>
-        </article>
-      </section>
-
-      <section class="panel" aria-label="手順">
-        <h2 class="panel__title">手順</h2>
-        <ol class="steps">
-          <li>M5Stack を USB でパソコンにつなぐ。</li>
-          <li>上のボタンを押す。</li>
-          <li>ブラウザが出すシリアルポートの一覧から、該当するポートを選ぶ。</li>
-          <li>接続すると基板の種類が自動判別され、対応するファームが選ばれる。<strong>Install</strong> を選んで進める。</li>
-          <li>完了すると M5Stack が再起動する。</li>
-        </ol>
-        <p class="hint">
-          途中で止まる場合は、ケーブルを抜き差しし、他のシリアル接続を閉じてからやり直してください。
-        </p>
-      </section>
+        <!-- 書き込みログ。モーダルを閉じた後も残るよう、ページ側に常設する。 -->
+        <aside class="panel log-panel" aria-label="書き込みログ">
+          <div class="log-panel__head">
+            <h2 class="panel__title">ログ</h2>
+            <button id="log-clear" class="btn btn--ghost btn--small" type="button">クリア</button>
+          </div>
+          <div id="log" class="log" role="log" aria-live="polite"></div>
+        </aside>
+      </div>
 
       <footer class="app__footer">
         <p class="app__footer-note">
@@ -165,6 +186,8 @@
       </footer>
     </main>
 
+    <!-- log.js は console を横取りするので、書き込み側より先に読む。 -->
+    <script type="module" src="./log.js"></script>
     <script type="module" src="./vendor/esp-web-tools/install-button.js"></script>
     <script type="module" src="./versions.js"></script>
   </body>

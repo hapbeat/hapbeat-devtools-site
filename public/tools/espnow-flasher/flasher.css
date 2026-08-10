@@ -1,21 +1,27 @@
-/* ESP-NOW 送信機ファーム書き込み — スタンドアロンページ用スタイル。
+/* ESP-NOW ファーム書き込み — スタンドアロンページ用スタイル。
    devtools-site の Starlight テーマとは独立 (public/ 直置きの生 HTML)。
    トークンと .panel / .btn の作りは /tools/metronome/ に揃えてある。
-   ライト/ダーク両対応。バージョン行はレイアウトシフトを避けるため常に高さを確保する。 */
+
+   PC で使う前提: 幅は 1500px まで広げ、本文と書き込みログを左右に置く。
+   本文は 15px 基準（12〜13px だと読み手が目を凝らす）。副次テキストの色も
+   コントラストを上げてある。バージョン行はレイアウトシフトを避けるため
+   常に高さを確保する。 */
 
 :root {
   color-scheme: light dark;
   --bg: #f6f5f8;
   --bg-elev: #ffffff;
-  --ink: #1c1a22;
-  --ink-soft: #55505f;
-  --ink-mute: #8a8494;
-  --line: #e2dfe7;
-  --accent: #7b3fe4;
+  --bg-sunken: #f1eff5;
+  --ink: #14121a;
+  --ink-soft: #3c3848;
+  --ink-mute: #605a70;
+  --line: #ddd9e4;
+  --accent: #6d2fd8;
   --accent-ink: #ffffff;
   --accent-soft: #efe7fd;
-  --warn: #b3390a;
+  --warn: #a33208;
   --warn-soft: #fdece2;
+  --ok: #1c6b3a;
   --radius: 10px;
   --shadow: 0 1px 2px rgba(20, 16, 30, 0.06), 0 8px 24px -12px rgba(20, 16, 30, 0.18);
 }
@@ -23,45 +29,51 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #16141b;
-    --bg-elev: #211e29;
-    --ink: #f1eef7;
-    --ink-soft: #cabfda;
-    --ink-mute: #948da3;
-    --line: #35313f;
-    --accent: #a883f0;
+    --bg-elev: #221f2a;
+    --bg-sunken: #17151d;
+    --ink: #f7f5fb;
+    --ink-soft: #e0dbec;
+    --ink-mute: #bdb6cc;
+    --line: #3d3849;
+    --accent: #b795f5;
     --accent-ink: #1c1428;
     --accent-soft: #322a45;
-    --warn: #ffb08a;
+    --warn: #ffc4a4;
     --warn-soft: #402417;
+    --ok: #86e0a8;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 28px -12px rgba(0, 0, 0, 0.5);
   }
 }
 
 :root[data-theme='dark'] {
   --bg: #16141b;
-  --bg-elev: #211e29;
-  --ink: #f1eef7;
-  --ink-soft: #cabfda;
-  --ink-mute: #948da3;
-  --line: #35313f;
-  --accent: #a883f0;
+  --bg-elev: #221f2a;
+  --bg-sunken: #17151d;
+  --ink: #f7f5fb;
+  --ink-soft: #e0dbec;
+  --ink-mute: #bdb6cc;
+  --line: #3d3849;
+  --accent: #b795f5;
   --accent-ink: #1c1428;
   --accent-soft: #322a45;
-  --warn: #ffb08a;
+  --warn: #ffc4a4;
   --warn-soft: #402417;
+  --ok: #86e0a8;
 }
 :root[data-theme='light'] {
   --bg: #f6f5f8;
   --bg-elev: #ffffff;
-  --ink: #1c1a22;
-  --ink-soft: #55505f;
-  --ink-mute: #8a8494;
-  --line: #e2dfe7;
-  --accent: #7b3fe4;
+  --bg-sunken: #f1eff5;
+  --ink: #14121a;
+  --ink-soft: #3c3848;
+  --ink-mute: #605a70;
+  --line: #ddd9e4;
+  --accent: #6d2fd8;
   --accent-ink: #ffffff;
   --accent-soft: #efe7fd;
-  --warn: #b3390a;
+  --warn: #a33208;
   --warn-soft: #fdece2;
+  --ok: #1c6b3a;
 }
 
 * {
@@ -84,34 +96,62 @@ body {
     'Segoe UI',
     'Noto Sans JP',
     sans-serif;
-  line-height: 1.6;
+  font-size: 15px;
+  line-height: 1.7;
 }
 
 .app {
-  max-width: 720px;
+  max-width: 1500px;
   margin: 0 auto;
-  padding: 28px 18px 60px;
+  padding: 32px 24px 64px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 22px;
 }
 
 .app__header h1 {
-  margin: 0 0 8px;
-  font-size: 22px;
+  margin: 0 0 10px;
+  font-size: 28px;
   font-weight: 700;
-  line-height: 1.4;
-  text-align: center;
+  line-height: 1.35;
 }
 
 .app__lede {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 16px;
   color: var(--ink-soft);
+  max-width: 62em;
 }
 
 a {
   color: var(--accent);
+}
+
+/* --- 全体レイアウト: 本文 + 常設ログ --- */
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 22px;
+  align-items: start;
+}
+
+.layout__main {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+/* 画面が狭ければログは本文の下へ回す。 */
+@media (max-width: 1080px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .log-panel {
+    position: static;
+    max-height: none;
+  }
 }
 
 .panel {
@@ -119,17 +159,17 @@ a {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 16px 18px 18px;
+  padding: 18px 20px 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .panel__title {
   margin: 0;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--ink-mute);
 }
@@ -138,13 +178,13 @@ a {
 .steps,
 .boards {
   margin: 0;
-  padding-left: 1.25em;
-  font-size: 13.5px;
+  padding-left: 1.3em;
+  font-size: 15px;
 }
 
 .checklist li,
 .steps li {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .checklist li:last-child,
 .steps li:last-child {
@@ -153,38 +193,43 @@ a {
 
 .hint {
   margin: 0;
-  font-size: 11.5px;
+  font-size: 13.5px;
   color: var(--ink-mute);
 }
 
-/* --- 送信機 / リピータのカード --- */
+.hint--targets {
+  margin: -4px 2px 0;
+}
+
+/* --- 用途ごとのカード --- */
 
 .targets {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 18px;
 }
 
 .card {
-  gap: 10px;
+  gap: 12px;
 }
 
 .card__desc {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 15px;
   color: var(--ink-soft);
 }
 
 .boards {
   color: var(--ink-mute);
-  font-size: 12.5px;
+  font-size: 13.5px;
+  line-height: 1.6;
 }
 
 /* 読み込み前後で高さが変わらないよう 1 行分を確保する。 */
 .version {
   margin: 0;
-  min-height: 22px;
-  font-size: 12px;
+  min-height: 24px;
+  font-size: 13px;
   color: var(--ink-mute);
   font-variant-numeric: tabular-nums;
 }
@@ -201,8 +246,8 @@ a {
   background: var(--bg-elev);
   color: var(--ink);
   border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 13.5px;
+  padding: 9px 14px;
+  font-size: 15px;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
@@ -222,16 +267,31 @@ a {
 }
 
 .btn--big {
-  padding: 12px 22px;
-  font-size: 15px;
+  padding: 13px 22px;
+  font-size: 16px;
   border-radius: 10px;
+}
+
+.btn--small {
+  width: auto;
+  padding: 4px 12px;
+  font-size: 13px;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--ink-mute);
+}
+.btn--ghost:hover {
+  color: var(--ink);
+  border-color: var(--ink-mute);
 }
 
 .notice {
   display: block;
   border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 12.5px;
+  padding: 11px 13px;
+  font-size: 14px;
 }
 
 .notice--warn {
@@ -240,12 +300,62 @@ a {
   border: 1px solid currentColor;
 }
 
+/* --- 書き込みログ --- */
+
+.log-panel {
+  position: sticky;
+  top: 22px;
+  max-height: calc(100vh - 44px);
+  gap: 10px;
+}
+
+.log-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.log {
+  flex: 1;
+  min-height: 260px;
+  max-height: min(56vh, 520px);
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  background: var(--bg-sunken);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.log__line {
+  margin: 0 0 2px;
+}
+
+.log__time {
+  color: var(--ink-mute);
+  margin-right: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.log__line--warn {
+  color: var(--warn);
+}
+.log__line--error {
+  color: var(--warn);
+  font-weight: 600;
+}
+
 .app__footer {
   margin-top: 10px;
-  padding-top: 14px;
+  padding-top: 16px;
   border-top: 1px solid var(--line);
   color: var(--ink-mute);
-  font-size: 12px;
+  font-size: 13.5px;
 }
 
 .app__footer p {
