@@ -2,6 +2,7 @@
   "name": "Hapbeat ESP-NOW オーディオ送信機",
   "version": "0.1.0d39 / 0.1.0d56",
   "new_install_prompt_erase": false,
+  "new_install_improv_wait_time": 0,
   "builds": [
     {
       "chipFamily": "ESP32",

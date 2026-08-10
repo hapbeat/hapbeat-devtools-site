@@ -11,8 +11,18 @@
 const MAX_LINES = 400;
 
 const el = document.getElementById('log');
-const stamp = () =>
-  new Date().toLocaleTimeString('ja-JP', { hour12: false });
+const followBtn = document.getElementById('log-follow');
+
+// 既定は最新に追従。利用者が上へスクロールしたら解除し、ボタンで戻せる。
+let follow = true;
+
+function setFollow(on) {
+  follow = on;
+  if (followBtn) followBtn.hidden = on;
+  if (on && el) el.scrollTop = el.scrollHeight;
+}
+
+const stamp = () => new Date().toLocaleTimeString('ja-JP', { hour12: false });
 
 function append(kind, text) {
   if (!el || !text) return;
@@ -24,9 +34,7 @@ function append(kind, text) {
   line.append(time, document.createTextNode(text));
   el.appendChild(line);
   while (el.childElementCount > MAX_LINES) el.removeChild(el.firstChild);
-  // 追従スクロール。利用者が上に遡っている間は動かさない。
-  const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
-  if (nearBottom) el.scrollTop = el.scrollHeight;
+  if (follow) el.scrollTop = el.scrollHeight;
 }
 
 /** ページ自身からの通知（バージョン読み込みなど）。 */
@@ -34,6 +42,16 @@ export function log(text, kind = 'info') {
   append(kind, text);
 }
 window.flasherLog = log;
+
+// 追従の解除は「利用者が上へ動かしたとき」だけ。追従中の自動スクロールでも
+// scroll イベントは飛ぶので、下端から離れているかどうかで判定する。
+el?.addEventListener('scroll', () => {
+  const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
+  if (!atBottom && follow) setFollow(false);
+  else if (atBottom && !follow) setFollow(true);
+});
+
+followBtn?.addEventListener('click', () => setFollow(true));
 
 // --- console の横取り --------------------------------------------------------
 // 元の実装は残す（devtools でも従来どおり見える）。
@@ -73,6 +91,7 @@ for (const [method, kind] of [
 
 document.getElementById('log-clear')?.addEventListener('click', () => {
   if (el) el.textContent = '';
+  setFollow(true);
   append('info', 'ログを消去しました。');
 });
 

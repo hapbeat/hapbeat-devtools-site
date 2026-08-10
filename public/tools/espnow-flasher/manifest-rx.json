@@ -2,6 +2,7 @@
   "name": "Hapbeat ESP-NOW 受信機（モニタ）",
   "version": "0.1.0 (4674bb7)",
   "new_install_prompt_erase": false,
+  "new_install_improv_wait_time": 0,
   "builds": [
     {
       "chipFamily": "ESP32",

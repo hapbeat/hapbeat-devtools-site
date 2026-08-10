@@ -2,7 +2,8 @@
    devtools-site の Starlight テーマとは独立 (public/ 直置きの生 HTML)。
    トークンと .panel / .btn の作りは /tools/metronome/ に揃えてある。
 
-   PC で使う前提: 幅は 1500px まで広げ、本文と書き込みログを左右に置く。
+   PC で使う前提: 幅は 1500px まで広げる。ログは操作ブロックの下に横幅
+   いっぱいで置き、高さは内容に依らず固定（下の手順が動かないように）。
    本文は 15px 基準（12〜13px だと読み手が目を凝らす）。副次テキストの色も
    コントラストを上げてある。バージョン行はレイアウトシフトを避けるため
    常に高さを確保する。 */
@@ -125,33 +126,6 @@ body {
 
 a {
   color: var(--accent);
-}
-
-/* --- 全体レイアウト: 本文 + 常設ログ --- */
-
-.layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 380px;
-  gap: 22px;
-  align-items: start;
-}
-
-.layout__main {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-  min-width: 0;
-}
-
-/* 画面が狭ければログは本文の下へ回す。 */
-@media (max-width: 1080px) {
-  .layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .log-panel {
-    position: static;
-    max-height: none;
-  }
 }
 
 .panel {
@@ -303,9 +277,6 @@ a {
 /* --- 書き込みログ --- */
 
 .log-panel {
-  position: sticky;
-  top: 22px;
-  max-height: calc(100vh - 44px);
   gap: 10px;
 }
 
@@ -316,10 +287,14 @@ a {
   gap: 12px;
 }
 
+.log-panel__actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* 高さは固定。行が増えても減っても、下に続く「手順」が動かないようにする。 */
 .log {
-  flex: 1;
-  min-height: 260px;
-  max-height: min(56vh, 520px);
+  height: 280px;
   overflow-y: auto;
   overflow-wrap: anywhere;
   background: var(--bg-sunken);
