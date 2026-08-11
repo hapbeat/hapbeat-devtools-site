@@ -21,10 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: 'npm'
@@ -53,7 +53,7 @@ jobs:
       # 本番ドメイン devtools.hapbeat.com は Worker の custom domain で配信 (2026-06 cutover 済)。
       # 必要な secret: CLOUDFLARE_API_TOKEN (Workers Scripts:Edit) / CLOUDFLARE_ACCOUNT_ID。
       - name: Cloudflare Deploy (Workers static assets)
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
