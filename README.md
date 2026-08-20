@@ -17,7 +17,7 @@
 - `/changelog/` — リリースノート集約
 - `/showcase/`, `/faq/` — その他ページ
 - `/demos/arcade/` — hapbeat-js-sdk の examples/games 取り込み（Hapbeat Arcade）
-- `/tools/` — 本 repo 直書きの静的ツール（例: `/tools/metronome/`）
+- `/tools/` — ブラウザで動く静的ツール（本 repo 直書き: `/tools/metronome/`・`/tools/espnow-flasher/`、modkit のミラー: `/tools/settings-editor/`）
 - `/studio/` — **別 repo（hapbeat-studio）のデプロイ対象**。ここでは配信しない
   （`studio.hapbeat.com` へ転送、cutover 済）
 
@@ -33,10 +33,12 @@
 | `/demos/arcade/...` | (c) fetch-demos による js-sdk examples 取込 | `hapbeat-js-sdk` の `examples/games/`（この repo には無い。js-sdk 側で編集） | `npm run build` の `fetch-demos` ステップが sibling／git clone から `public/demos/arcade/` へコピー（**毎ビルド全消去して作り直す**）。副次的に `@hapbeat/sdk` の browser バンドルを `public/tools/vendor/` へも配置する |
 | `/` `/downloads/` `/changelog/` `/showcase/` `/faq/` 等 | (d) 本 repo native（Starlight splash/page） | `src/content/docs/*.mdx`・`src/content/docs/en/*.mdx`（Astro コンテンツコレクションの手書き MDX） | 集約対象外・このリポジトリで直接編集。**i18n-sync の対象外**（`docs/ja|en/` の自動差分検出は Markdown 側のみ。MDX top-level ページの英訳は手動で追従する） |
 | `/tools/metronome/` 等 | (d) 本 repo native（site-native アプリ） | `public/tools/<name>/`（生 HTML/CSS/JS、Astro コンテンツコレクションを経由しない） | 集約対象外・このリポジトリで直接編集。ただし `public/tools/vendor/` だけは (c) の副産物として毎ビルド上書きされる生成物 |
+| `/tools/settings-editor/` | (e) private repo のミラー（コミット済み） | `hapbeat-modkit` の `tools/settings-editor/index.html`（この repo のコピーは編集しない） | `npm run sync:modkit-tools`（`npm run dev` も実行する）が sibling の modkit から取り込む。**modkit は private で CI から clone できない**ため、取り込んだ結果を git にコミットしないとデプロイに乗らない（`/tools/espnow-flasher/bin/` と同じ理由） |
 
 運用ルール:
 
 - `/demos/` 配下は js-sdk 由来、`/tools/` 配下（`vendor/` を除く）は site-native。両者を混同して js-sdk 側の変更をこの repo に手で書き写さない。
+- `/tools/settings-editor/index.html` は modkit のミラーなので **この repo 側で直接編集しない**（次の同期で黙って上書きされる）。ホスト固有の案内は `src/content/docs/tools.mdx` に書く。乖離は `npm run sync:modkit-tools:check` で検出できる（modkit が手元に無い環境では何もせず通る）。
 - `docs/ja/` を編集した PR の段階で `docs/en/` を同時更新しなくてよい（英訳はリリース節目にまとめて反映、`npm run i18n:sync` 参照）。
 - `src/content/docs/*.mdx`（native ページ）は i18n-sync のスキャン対象外なので、英訳が必要な変更は手動で `en/` 側にも反映する。
 

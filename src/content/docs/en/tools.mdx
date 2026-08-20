@@ -37,12 +37,36 @@ import PlainSurfaces from '../../../components/PlainSurfaces.astro';
     accent="red"
     ctaLabel="Open now"
   />
+  <DemoCard
+    title="Mod Settings Editor"
+    description="Edit a game mod's haptic settings (hapbeat_settings.json) with sliders, and watch logical events light up live as they fire. Tune strength and delay without restarting the game (Chrome / Edge only). The page itself is in Japanese."
+    href="/tools/settings-editor/"
+    icon="🎚"
+    chip="Web Tool"
+    accent="teal"
+    ctaLabel="Open now"
+  />
 </DemoGrid>
 </PlainSurfaces>
 
 :::note
 Haptics require **hapbeat-helper running + a Hapbeat device**.
 Without them it still works as a sound-only metronome (a status line at the bottom shows the connection state when the helper isn't connected).
+:::
+
+## About the Mod Settings Editor
+
+This editor only makes sense once you have **a Hapbeat device and a game running a matching mod**.
+Open it without a settings file and there is nothing to edit, so the form stays empty.
+
+- The settings file (`hapbeat_settings.json`) is created in your game folder by the mods in <a href="https://github.com/hapbeat/hapbeat-modkit" target="_blank" rel="noopener noreferrer">hapbeat-modkit</a> (`UserData\hapbeat_settings.json` for Pistol Whip, `BepInEx\config\hapbeat_settings.json` for Muck).
+- The file is read and written directly on your machine — nothing is uploaded. It uses the File System Access API, so **desktop Chrome / Edge** is required.
+- The live event view subscribes to a diagnostics stream the mod serves on `127.0.0.1`. Browsers **can reach `127.0.0.1` even from this HTTPS page**, so if it does not connect, the game side simply is not listening.
+
+:::note[Notes for using the hosted page]
+With this hosted copy you no longer need to download `index.html` and open it via `file://` — just bookmark this page.
+
+Browser storage is **scoped per page address**. If you previously used the tool from a local `file://` or `http://localhost` copy, the remembered file handle and event history do not carry over to this page. To bring history across, use **"イベント履歴を書き出す" (Export event history)** on the old page to save `hapbeat_event_workspace.json`, then load it here with **"イベント履歴を開く…" (Open event history)**.
 :::
 
 ## Connect the helper to try haptics too

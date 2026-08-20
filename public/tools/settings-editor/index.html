@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hapbeat mod 設定エディタ</title>
+<!--
+  hapbeat_settings.json をブラウザ上で編集するための単一ファイルツール。
+
+  - フレームワーク・CDN・ビルド工程なし。この 1 ファイルをブラウザで開けば動く。
+  - File System Access API でユーザーが選んだファイルを直接読み書きする
+    (アップロードもダウンロードもしない。ファイルは PC から出ない)。
+  - 開いた文書のキーは 1 つも失わない。既知のキーはウィジェットで、
+    知らないキー (mod 固有の拡張) は「その他」の JSON 行で編集し、
+    保存はパース結果のオブジェクトをそのまま書き戻す。
+
+  下の 2 つの script は役割で分けてある:
+    #editor-core … 純粋なデータ操作のみ (DOM に触らない)。Node からも読み込んで
+                    ラウンドトリップ検証に使う (tools/settings-editor/README.md)。
+    #editor-ui   … DOM 配線。
+-->
+<style>
+  :root {
+    --bg: #14161a;
+    --panel: #1c1f26;
+    --panel-2: #232733;
+    --line: #333a47;
+    --fg: #e7ebf2;
+    --fg-dim: #9aa4b5;
+    --accent: #5aa9ff;
+    --accent-2: #7ee0c0;
+    --warn: #ffb454;
+    --err: #ff7a7a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Segoe UI", "Yu Gothic UI", "Hiragino Kaku Gothic ProN", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 20px 64px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 0 0 12px; color: var(--accent); }
+  .lead { color: var(--fg-dim); margin: 0 0 20px; font-size: 13px; }
+
+  .bar {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--bg);
+    padding: 12px 0 10px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 20px;
+  }
+  .bar-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .filename {
+    color: var(--fg-dim); font-size: 13px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  /* 状態表示は常に 1 行ぶんの高さを確保する。文言だけ差し替えるので、
+     保存・編集のたびに下のフォームが動くことがない。 */
+  .status {
+    height: 22px; line-height: 22px;
+    font-size: 13px; margin-top: 8px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .status.idle { color: var(--fg-dim); }
+  .status.dirty { color: var(--warn); }
+  .status.saved { color: var(--accent-2); }
+  .status.error { color: var(--err); }
+
+  button {
+    background: var(--panel-2); color: var(--fg);
+    border: 1px solid var(--line); border-radius: 6px;
+    padding: 7px 14px; font-size: 14px; cursor: pointer;
+  }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: default; }
+  button.primary { background: #21467a; border-color: #2f6bb8; }
+
+  section {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 18px 18px 6px; margin-bottom: 18px;
+  }
+  section.highlight { border-color: #3d5d86; background: #1a2230; }
+  .note { color: var(--fg-dim); font-size: 13px; margin: 0 0 14px; }
+
+  .field { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .field > label { width: 190px; flex: none; font-size: 14px; }
+  .field .hint { color: var(--fg-dim); font-size: 12px; width: 100%; margin: -6px 0 0 190px; }
+  input[type="range"] { flex: 1 1 220px; min-width: 160px; accent-color: var(--accent); }
+  input[type="number"], input[type="text"] {
+    background: var(--panel-2); color: var(--fg);
+    border: 1px solid var(--line); border-radius: 5px;
+    padding: 5px 8px; font-size: 14px; font-family: inherit;
+  }
+  input[type="number"] { width: 92px; }
+  input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--accent); }
+  input.invalid { border-color: var(--err); }
+
+  table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+  .table-scroll { overflow-x: auto; }
+  .table-scroll table { min-width: 1120px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  th { color: var(--fg-dim); font-size: 12px; font-weight: 600; }
+  td.name { font-family: Consolas, "SF Mono", monospace; font-size: 13px; white-space: nowrap; }
+  td.eid input { width: 100%; font-family: Consolas, "SF Mono", monospace; font-size: 13px; }
+  td.gain { white-space: nowrap; }
+  td.gain input[type="range"] { width: 110px; vertical-align: middle; }
+  td.gain .val { display: inline-block; width: 38px; color: var(--fg-dim); font-size: 12px; text-align: right; }
+  td.memo input { width: 100%; min-width: 150px; }
+  tr.off td.name, tr.off td.eid input { opacity: .5; }
+
+  .extra { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .extra .key { width: 190px; flex: none; font-family: Consolas, monospace; font-size: 13px; }
+  .extra input[type="text"] { flex: 1; min-width: 160px; font-family: Consolas, monospace; font-size: 13px; }
+  .extra input[type="range"] { flex: 1 1 200px; }
+  .extra .val { width: 46px; color: var(--fg-dim); font-size: 12px; text-align: right; }
+  .extra .kind { color: var(--fg-dim); font-size: 12px; }
+
+  /* --- イベント発火のライブ表示 ------------------------------------------
+     どの要素も常に同じ高さを占める。接続状態も直近の発火も、状態で文言と色だけが
+     変わり、行が生えたり消えたりしない (レイアウトシフト禁止)。 */
+  .conn {
+    display: inline-block; width: 128px; flex: none;
+    font-size: 12px; text-align: right;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .conn.on { color: var(--accent-2); }
+  .conn.off { color: var(--fg-dim); }
+
+  .lastfire {
+    height: 22px; line-height: 22px; font-size: 13px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: var(--fg-dim); margin: 0 0 12px;
+  }
+  .lastfire.hit { color: var(--accent-2); }
+  .lastfire.unbound { color: var(--warn); }
+  .lastfire code { font-family: Consolas, monospace; }
+
+  /* 発火した行のフラッシュ。--fire は 0..1 の強さ (gain)。
+     border ではなく box-shadow の内側線なので、点いても行の寸法が動かない。 */
+  tr.fire td {
+    background: rgba(126, 224, 192, calc(0.06 + 0.20 * var(--fire, 1)));
+    transition: background 90ms linear;
+  }
+  tr.fire td.name { box-shadow: inset 3px 0 0 var(--accent-2); }
+  tr.fire.stop td {
+    background: rgba(90, 169, 255, calc(0.06 + 0.20 * var(--fire, 1)));
+  }
+  tr.fire.stop td.name { box-shadow: inset 3px 0 0 var(--accent); }
+  tr td { transition: background 320ms ease-out; }
+
+  select {
+    background: var(--panel-2); color: var(--fg);
+    border: 1px solid var(--line); border-radius: 5px;
+    padding: 5px 8px; font-size: 13px; font-family: inherit;
+  }
+
+  /* --- イベントの観測情報 ------------------------------------------------- */
+  .obsstat { height: 22px; line-height: 22px; font-size: 13px; color: var(--fg-dim); margin: 0 0 10px; }
+  td.count { font-variant-numeric: tabular-nums; color: var(--fg); }
+  td.since { font-variant-numeric: tabular-nums; color: var(--fg-dim); font-size: 13px; white-space: nowrap; }
+  td.action { width: 116px; text-align: right; white-space: nowrap; }
+  td.action button { padding: 4px 8px; font-size: 12px; }
+  td.action button + button { margin-left: 4px; }
+  .tag { font-size: 11px; border-radius: 4px; padding: 1px 6px; margin-left: 6px; white-space: nowrap; }
+  .tag.unbound { background: #43331a; color: var(--warn); }
+  .tag.manual { background: #283a4f; color: #9cc9ff; }
+
+  .unbound-editor { display: flex; gap: 8px; align-items: center; }
+  .unbound-editor select { min-width: 220px; max-width: 100%; }
+  .unbound-editor button { padding: 5px 10px; }
+
+  .detected-panel {
+    border-top: 1px solid var(--line); margin: 16px -2px 0; padding: 12px 2px 10px;
+  }
+  .detected-panel summary {
+    cursor: pointer; color: var(--accent); font-size: 14px; font-weight: 600;
+    user-select: none;
+  }
+  .detected-panel .note { margin-top: 10px; }
+  .detected-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 6px; margin: 10px 0 4px;
+  }
+  .detected-grid button {
+    min-width: 0; padding: 5px 8px; text-align: left; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap; font-family: Consolas, "SF Mono", monospace;
+    font-size: 12px;
+  }
+  .detected-grid button:disabled {
+    background: #1a1d23; border-color: #292e38; color: #697282; opacity: 1;
+  }
+
+  .unsupported {
+    display: none; background: #3a2020; border: 1px solid #7a3b3b;
+    color: #ffcccc; padding: 10px 14px; border-radius: 8px; margin-bottom: 18px; font-size: 14px;
+  }
+  body.no-fs .unsupported { display: block; }
+  .empty { color: var(--fg-dim); font-size: 13px; padding-bottom: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Hapbeat mod 設定エディタ</h1>
+  <p class="lead">
+    <code>hapbeat_settings.json</code> を直接編集する。<strong>手を止めて 1 秒で自動保存</strong>し、
+    ゲーム側 mod が数秒以内に読み直すので、ゲームを起動したまま強さを詰められる
+    （<code>appName</code> / <code>group</code> / <code>player</code> / <code>diagnosticsPort</code> の変更だけは再起動が要る）。
+  </p>
+
+  <p class="lead" id="live-help">
+    ライブ表示が繋がらない場合は、mod がまだ起動していないか <code>diagnosticsPort</code>（既定 7704）が違う。
+    このページは HTTPS 経由でも <code>127.0.0.1</code> には繋ぎに行けるので、繋がらない＝ゲーム側が待ち受けていない。
+  </p>
+
+  <div class="unsupported">
+    このブラウザはローカルファイルの直接編集に対応していない。Chrome か Edge（デスクトップ版）で開くこと。
+  </div>
+
+  <div class="bar">
+    <div class="bar-row">
+      <button id="btn-open" class="primary">ファイルを開く…</button>
+      <button id="btn-resume" hidden>前回のファイルを再開</button>
+      <button id="btn-save" disabled>保存 (Ctrl+S)</button>
+      <span class="filename" id="filename">ファイル未選択</span>
+      <span class="conn off" id="conn">ライブ表示: —</span>
+    </div>
+    <div class="status idle" id="status">開くファイル: ゲームフォルダの UserData\hapbeat_settings.json</div>
+  </div>
+
+  <div id="editor" hidden>
+    <section class="highlight">
+      <h2>触覚の遅延（無線ストリーミング時の同期）</h2>
+      <p class="note">
+        Air Link / Virtual Desktop / Steam Link で HMD に映像を飛ばしていると、映像と音だけが 40〜60 ms 遅れて届く。
+        触覚は PC から Hapbeat へ LAN で直行するので先に着いてしまい、<strong>撃つ前に振動が来る</strong>ように感じる。
+        同じくらいの値を入れると揃う。有線 Link やフラットスクリーンなら 0。停止コマンドは遅延しない。
+      </p>
+      <div class="field">
+        <label for="hapticDelayMs">hapticDelayMs</label>
+        <input type="range" id="hapticDelayMs-range" min="0" max="200" step="5">
+        <input type="number" id="hapticDelayMs" min="0" max="2000" step="5">
+        <span class="hint">ms。振動が映像より早ければ増やし、遅れて感じるなら減らす。</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>全体設定</h2>
+      <div class="field">
+        <label for="masterGain">masterGain</label>
+        <input type="range" id="masterGain-range" min="0" max="2" step="0.05">
+        <input type="number" id="masterGain" min="0" max="4" step="0.05">
+        <span class="hint">全イベント共通の倍率。実際の強さは masterGain × 各イベントの gain。</span>
+      </div>
+      <div class="field">
+        <label for="minIntervalMs">minIntervalMs</label>
+        <input type="number" id="minIntervalMs" min="0" max="5000" step="10">
+        <span class="hint">同じイベントの最小送信間隔 (ms)。連射でパケットが埋まるのを防ぐ。0 で無効。</span>
+      </div>
+      <div class="field">
+        <label for="player">player</label>
+        <input type="number" id="player" min="-1" max="99" step="1">
+        <label for="group" style="width:auto">group</label>
+        <input type="number" id="group" min="-1" max="99" step="1">
+        <span class="hint">複数人・複数台での宛先固定 (1〜99)。-1 で無効。<strong>変更はゲーム再起動で反映</strong>。</span>
+      </div>
+      <div class="field">
+        <label for="appName">appName</label>
+        <input type="text" id="appName" maxlength="16" style="width:220px">
+        <span class="hint">デバイス画面に出る接続元名（16 文字まで）。<strong>変更はゲーム再起動で反映</strong>。</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>イベント</h2>
+      <p class="note">
+        表は空から始まり、ゲームで観測した論理イベントが 1 行ずつ自動で加わる。
+        行は発火時に光り、回数と直近の発火からの経過も同じ場所で確認できる。
+        表示中の行と観測履歴はブラウザに自動保存され、同じゲーム設定を開くと続きから再開する。
+      </p>
+      <div class="field">
+        <label for="diagnosticsPort">diagnosticsPort</label>
+        <input type="number" id="diagnosticsPort" min="0" max="65535" step="1">
+        <span class="hint">
+          発火を受け取るポート（127.0.0.1 のみ）。0 で mod 側の送信を止める。
+          <strong>変更はゲーム再起動で反映</strong>。
+        </span>
+      </div>
+      <p class="lastfire" id="lastfire">直近の発火: —</p>
+      <div class="bar-row" style="margin-bottom:12px">
+        <button id="btn-events-download">イベント履歴を書き出す</button>
+        <button id="btn-events-load">イベント履歴を開く…</button>
+        <button id="btn-events-clear-counts">回数をクリア</button>
+      </div>
+      <p class="obsstat" id="events-stat">計測時間 0 秒 / 発火 0 件 / 表示 0 件</p>
+      <div class="table-scroll">
+      <table id="events-table">
+        <thead>
+          <tr>
+            <th style="width:180px">論理イベント</th>
+            <th>eventId</th>
+            <th style="width:180px">gain</th>
+            <th style="width:54px">有効</th>
+            <th style="width:210px">メモ</th>
+            <th style="width:58px">回数</th>
+            <th style="width:92px">経過</th>
+            <th style="width:116px"></th>
+          </tr>
+        </thead>
+        <tbody id="events-body"></tbody>
+      </table>
+      </div>
+      <p class="empty" id="events-empty">まだイベントを観測していない。ゲーム内で操作すると、発火したイベントがここへ追加される。</p>
+
+      <details class="detected-panel" id="detected-panel">
+        <summary>検出イベント一覧（<span id="detected-count">0</span>件）</summary>
+        <p class="note">
+          この設定でこれまでに検出したイベント名の一覧。主表にあるものは灰色で選択できない。
+          主表から外したイベントは、ここから手動で戻せる。
+        </p>
+        <div class="detected-grid" id="detected-grid"></div>
+        <p class="empty" id="detected-empty">検出済みのイベントはまだ無い。</p>
+      </details>
+    </section>
+
+    <section id="extras-section">
+      <h2>その他（mod 固有の設定）</h2>
+      <p class="note">
+        このエディタが名前を知らないキー。値の型からウィジェットを選んで出している。
+        型が読み取れないもの（<code>null</code>・入れ子のオブジェクト・型が混ざった配列）だけ
+        JSON のまま編集する。触らなければそのまま保存される。
+      </p>
+      <div id="extras-body"></div>
+    </section>
+  </div>
+</div>
+
+<script id="editor-core">
+/*
+ * 純粋なデータ操作。DOM に触らないので Node からも読める
+ * (tools/settings-editor/roundtrip-check.mjs がこの script だけ抜き出して評価する)。
+ *
+ * 設計の要点: 編集対象は「JSON.parse した結果のオブジェクトそのもの」であり、
+ * ウィジェットはその場所を書き換えるだけ。保存はそのオブジェクトを stringify する。
+ * 既知のスキーマから作り直さないので、知らないキー・キーの並び順・イベント内の
+ * 追加フィールドがどれも失われない。
+ */
+(function (root) {
+  'use strict';
+
+  // ウィジェットを持つトップレベルキー。ここに無いものは「その他」に回る。
+  var KNOWN_TOP_KEYS = [
+    'appName', 'group', 'player', 'masterGain', 'minIntervalMs', 'hapticDelayMs',
+    'diagnosticsPort', 'events'
+  ];
+
+  // mod 側 HapbeatEventBroadcaster.DefaultPort と同じ既定値。
+  var DEFAULT_DIAGNOSTICS_PORT = 7704;
+
+  // イベント 1 行がウィジェットを持つキー。ここに無いキーはそのまま温存される。
+  var KNOWN_EVENT_KEYS = ['eventId', 'gain', 'enabled'];
+
+  function isPlainObject(v) {
+    return v !== null && typeof v === 'object' && !Array.isArray(v);
+  }
+
+  /**
+   * テキストを設定文書として読む。返すのはパース結果そのもの（複製しない）。
+   * @throws {Error} JSON として読めない / オブジェクトでない場合
+   */
+  function parseDocument(text) {
+    var doc;
+    try {
+      doc = JSON.parse(text);
+    } catch (e) {
+      throw new Error('JSON として読めない: ' + e.message);
+    }
+    if (!isPlainObject(doc)) {
+      throw new Error('最上位が JSON オブジェクトではない。');
+    }
+    return doc;
+  }
+
+  /** 保存するテキスト。mod 側の書き出しに合わせて 2 スペース + 末尾改行。 */
+  function serializeDocument(doc) {
+    return JSON.stringify(doc, null, 2) + '\n';
+  }
+
+  /** events を [{name, event}] の並び（ファイル内の順序）で返す。無ければ空配列。 */
+  function listEvents(doc) {
+    var events = doc.events;
+    if (!isPlainObject(events)) return [];
+    var out = [];
+    Object.keys(events).forEach(function (name) {
+      if (isPlainObject(events[name])) {
+        out.push({ name: name, event: events[name] });
+      }
+    });
+    return out;
+  }
+
+  /** ウィジェットを持たないトップレベルキー。 */
+  function listUnknownKeys(doc) {
+    return Object.keys(doc).filter(function (k) {
+      return KNOWN_TOP_KEYS.indexOf(k) < 0;
+    });
+  }
+
+  /** 表示・保存で桁が暴れないよう丸める（0.1+0.7 のような誤差を書き込まない）。 */
+  function roundGain(value) {
+    return Math.round(value * 100) / 100;
+  }
+
+  /**
+   * 数値フィールドの書き込み。読めない値は無視して元の値を残す
+   * （入力途中の空文字でキーを壊さないため）。
+   * @returns {boolean} 書き込んだか
+   */
+  function setNumber(target, key, raw, options) {
+    var opts = options || {};
+    var n = typeof raw === 'number' ? raw : parseFloat(raw);
+    if (!isFinite(n)) return false;
+    if (typeof opts.min === 'number' && n < opts.min) n = opts.min;
+    if (typeof opts.max === 'number' && n > opts.max) n = opts.max;
+    if (opts.integer) n = Math.round(n);
+    else n = roundGain(n);
+    target[key] = n;
+    return true;
+  }
+
+  /** 文字列フィールドの書き込み。 */
+  function setString(target, key, raw, maxLength) {
+    var s = String(raw === null || raw === undefined ? '' : raw);
+    if (typeof maxLength === 'number' && s.length > maxLength) s = s.slice(0, maxLength);
+    target[key] = s;
+    return true;
+  }
+
+  /** 真偽フィールドの書き込み。 */
+  function setBool(target, key, raw) {
+    target[key] = !!raw;
+    return true;
+  }
+
+  /**
+   * 「その他」の 1 行を書き戻す。JSON として読めない間は文書に触らない
+   * （入力途中で値を壊さない）。
+   * @returns {{ok: boolean, error: string|null}}
+   */
+  function setRawJson(doc, key, text) {
+    var value;
+    try {
+      value = JSON.parse(text);
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+    doc[key] = value;
+    return { ok: true, error: null };
+  }
+
+  /** 「その他」行の初期表示テキスト。 */
+  function formatRawJson(value) {
+    return JSON.stringify(value);
+  }
+
+  /**
+   * mod 固有キーに、その値の形から適したウィジェットを割り当てる。
+   * 未知キーの意味はエディタには分からないので、**型だけ**を根拠にする。
+   * 読めない形 (null / オブジェクト / 混在配列) は生 JSON 行に落とし、
+   * 「開いた文書のキーを失わない」保証をどの分岐でも壊さない。
+   *
+   * @returns {'bool'|'slider'|'number'|'string'|'list'|'json'}
+   */
+  function classifyExtra(key, value) {
+    if (typeof value === 'boolean') return 'bool';
+    if (typeof value === 'number' && isFinite(value)) {
+      return looksFractional(key, value) ? 'slider' : 'number';
+    }
+    if (typeof value === 'string') return 'string';
+    if (Array.isArray(value) && isPrimitiveList(value)) return 'list';
+    return 'json';
+  }
+
+  /**
+   * 0〜1 のスライダーが妥当か。範囲だけで判断すると `bgmDelayMs: 0` のような
+   * 「たまたま 0 の ms 値」までスライダーになってしまうので、
+   * 小数であること（= 連続値として書かれている）か、キー名が割合を示すことを条件にする。
+   */
+  function looksFractional(key, value) {
+    if (value < 0 || value > 1) return false;
+    if (value !== Math.round(value)) return true;
+    return /gain|ratio|amount|level|mix|volume|opacity/i.test(key);
+  }
+
+  function isPrimitiveList(value) {
+    for (var i = 0; i < value.length; i++) {
+      var t = typeof value[i];
+      if (t !== 'string' && t !== 'number') return false;
+    }
+    return true;
+  }
+
+  /** 配列をカンマ区切りの 1 行にする。 */
+  function formatList(value) {
+    return (value || []).join(', ');
+  }
+
+  /**
+   * カンマ区切りの入力を配列として書き戻す。空要素は落とす。
+   * 元が全て数値だった配列は数値のまま戻す（型を勝手に変えない）。
+   */
+  function setList(target, key, text, numeric) {
+    var parts = String(text === null || text === undefined ? '' : text).split(',');
+    var out = [];
+    for (var i = 0; i < parts.length; i++) {
+      var item = parts[i].trim();
+      if (item.length === 0) continue;
+      if (numeric) {
+        var n = parseFloat(item);
+        if (!isFinite(n)) continue;
+        out.push(n);
+      } else {
+        out.push(item);
+      }
+    }
+    target[key] = out;
+    return true;
+  }
+
+  /** 元の配列が全て数値だったか（書き戻す型を決めるため）。 */
+  function isNumericList(value) {
+    if (!Array.isArray(value) || value.length === 0) return false;
+    for (var i = 0; i < value.length; i++) {
+      if (typeof value[i] !== 'number') return false;
+    }
+    return true;
+  }
+
+  /** ライブ表示の接続先ポート。0 / 未設定なら無効 (null)。 */
+  function diagnosticsPortOf(doc) {
+    if (!doc || !Object.prototype.hasOwnProperty.call(doc, 'diagnosticsPort')) {
+      return DEFAULT_DIAGNOSTICS_PORT;
+    }
+    var port = doc.diagnosticsPort;
+    if (typeof port !== 'number' || !isFinite(port) || port <= 0 || port > 65535) return null;
+    return Math.round(port);
+  }
+
+  // --- 割当先に選べるクリップ -----------------------------------------------
+  //
+  // kits/vr-shooter-kit/manifest.json の events と同じ並び。単一 HTML を保つため
+  // manifest を読みに行かずここに写している (Kit が増えたらここに足す)。
+  var KIT_EVENT_IDS = [
+    'vr-shooter-kit.shot_recoil',
+    'vr-shooter-kit.hit_light',
+    'vr-shooter-kit.hit_heavy',
+    'vr-shooter-kit.reload_click',
+    'vr-shooter-kit.heartbeat',
+    'vr-shooter-kit.beat_pulse',
+    'vr-shooter-kit.kill_confirm',
+    'vr-shooter-kit.slash',
+    'vr-shooter-kit.block_thud'
+  ];
+
+  /** 未割当イベントを足すときの初期選択。意味を推測できないので中庸な 1 発に置く。 */
+  var DEFAULT_NEW_EVENT_ID = 'vr-shooter-kit.hit_light';
+
+  // --- 観測 (どの論理イベントが何回飛んできたか) ------------------------------
+  //
+  // 実 SSE から受け取ったイベントをここに溜める。将来 mod 側が同じ JSON を書き出す前提なので、
+  // 形式は README に仕様として書いてある。
+
+  /** 空の観測。`nowMs` を計測開始時刻とする。 */
+  function createObservation(nowMs) {
+    return { startedAt: nowMs, events: {} };
+  }
+
+  /**
+   * 発火 1 件を記録する。payload は SSE のフレームと同じ形。
+   * @returns {boolean} 記録したか (event 名が無い payload は無視)
+   */
+  function recordObservation(obs, payload, nowMs) {
+    var name = payload && typeof payload.event === 'string' ? payload.event : null;
+    if (!name) return false;
+
+    var row = Object.prototype.hasOwnProperty.call(obs.events, name) ? obs.events[name] : null;
+    if (!row) {
+      row = { count: 0, firstSeen: nowMs, lastSeen: nowMs, bound: false, eventId: null, gain: null };
+      obs.events[name] = row;
+    }
+    row.count++;
+    row.lastSeen = nowMs;
+    row.bound = payload.bound !== false && typeof payload.eventId === 'string';
+    row.eventId = row.bound ? payload.eventId : null;
+    row.gain = typeof payload.gain === 'number' ? payload.gain : null;
+    return true;
+  }
+
+  function toIso(ms) {
+    return ms === null || ms === undefined ? null : new Date(ms).toISOString();
+  }
+
+  function fromIso(text) {
+    if (typeof text !== 'string') return null;
+    var ms = Date.parse(text);
+    return isFinite(ms) ? ms : null;
+  }
+
+  /** 観測したイベントだけを書き出し用のオブジェクトにする。 */
+  function serializeObservation(obs, doc, nowMs) {
+    var out = [];
+
+    Object.keys(obs.events).forEach(function (name) {
+      var row = obs.events[name];
+      var binding = doc && isPlainObject(doc.events) ? doc.events[name] : null;
+      // 現在の設定を正とする (計測中に割り当てを足したぶんを反映する)。
+      var bound = isPlainObject(binding) && typeof binding.eventId === 'string' && binding.eventId !== '';
+      out.push({
+        name: name,
+        count: row.count,
+        firstSeen: toIso(row.firstSeen),
+        lastSeen: toIso(row.lastSeen),
+        bound: bound || row.bound,
+        eventId: bound ? binding.eventId : row.eventId,
+        gain: bound && typeof binding.gain === 'number' ? binding.gain : row.gain
+      });
+    });
+
+    return {
+      recordedAt: toIso(nowMs),
+      durationSec: Math.round(Math.max(0, nowMs - obs.startedAt) / 100) / 10,
+      events: out
+    };
+  }
+
+  /**
+   * 書き出した観測結果を読み戻す。mod 側が同じ形式で書いたファイルも同じ経路で開く。
+   * @throws {Error} 形式が違う場合
+   */
+  function parseObservation(text) {
+    var data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      throw new Error('JSON として読めない: ' + e.message);
+    }
+    if (!isPlainObject(data) || !Array.isArray(data.events)) {
+      throw new Error('観測結果の JSON ではない (events の配列が無い)。');
+    }
+    var recordedAt = fromIso(data.recordedAt);
+    if (recordedAt === null) recordedAt = Date.now();
+    var duration = typeof data.durationSec === 'number' && isFinite(data.durationSec) ? data.durationSec : 0;
+
+    var obs = createObservation(recordedAt - Math.round(duration * 1000));
+    obs.recordedAt = recordedAt;
+    data.events.forEach(function (row) {
+      if (!isPlainObject(row) || typeof row.name !== 'string') return;
+      obs.events[row.name] = {
+        count: typeof row.count === 'number' ? row.count : 0,
+        firstSeen: fromIso(row.firstSeen),
+        lastSeen: fromIso(row.lastSeen),
+        bound: row.bound === true,
+        eventId: typeof row.eventId === 'string' ? row.eventId : null,
+        gain: typeof row.gain === 'number' ? row.gain : null
+      };
+    });
+    return obs;
+  }
+
+  /** 観測されたイベントの表示用行。@param {'count'|'recent'|'name'} sort */
+  function observationRows(obs, doc, sort, nowMs) {
+    var rows = [];
+
+    Object.keys(obs.events).forEach(function (name) {
+      var row = obs.events[name];
+      var binding = doc && isPlainObject(doc.events) ? doc.events[name] : null;
+      var inDoc = isPlainObject(binding);
+      rows.push({
+        name: name,
+        count: row.count,
+        lastSeen: row.lastSeen,
+        sinceMs: row.lastSeen === null ? null : Math.max(0, nowMs - row.lastSeen),
+        inDoc: inDoc,
+        bound: inDoc ? typeof binding.eventId === 'string' && binding.eventId !== '' : row.bound,
+        eventId: inDoc ? (typeof binding.eventId === 'string' ? binding.eventId : null) : row.eventId,
+        gain: inDoc && typeof binding.gain === 'number' ? binding.gain : row.gain
+      });
+    });
+
+    rows.sort(function (a, b) {
+      if (sort === 'name') return a.name < b.name ? -1 : (a.name > b.name ? 1 : 0);
+      if (sort === 'recent') {
+        // 一度も発火していない行は常に最後 (「直近」の並びに割り込ませない)。
+        if (a.lastSeen === null && b.lastSeen === null) return a.name < b.name ? -1 : 1;
+        if (a.lastSeen === null) return 1;
+        if (b.lastSeen === null) return -1;
+        return b.lastSeen - a.lastSeen;
+      }
+      if (b.count !== a.count) return b.count - a.count;
+      return a.name < b.name ? -1 : (a.name > b.name ? 1 : 0);
+    });
+    return rows;
+  }
+
+  /** 主表に表示するイベント名と、手動で加えたかを保持する。 */
+  function createEventView() {
+    return { order: [], manual: {}, notes: {} };
+  }
+
+  function addEventToView(view, name, manual) {
+    if (!view || typeof name !== 'string' || name === '' || view.order.indexOf(name) >= 0) {
+      return false;
+    }
+    view.order.push(name);
+    view.manual[name] = manual === true;
+    view.notes[name] = '';
+    return true;
+  }
+
+  function removeEventFromView(view, name) {
+    if (!view) return false;
+    var index = view.order.indexOf(name);
+    if (index < 0) return false;
+    view.order.splice(index, 1);
+    delete view.manual[name];
+    delete view.notes[name];
+    return true;
+  }
+
+  function moveEventInView(view, name, delta) {
+    if (!view || (delta !== -1 && delta !== 1)) return false;
+    var from = view.order.indexOf(name);
+    var to = from + delta;
+    if (from < 0 || to < 0 || to >= view.order.length) return false;
+    var swap = view.order[to];
+    view.order[to] = name;
+    view.order[from] = swap;
+    return true;
+  }
+
+  function setEventNote(view, name, note) {
+    if (!view || view.order.indexOf(name) < 0) return false;
+    view.notes[name] = typeof note === 'string' ? note : '';
+    return true;
+  }
+
+  /** 主表の順番を保った表示用行。設定にあっても未観測・未追加なら出さない。 */
+  function eventViewRows(view, obs, doc, nowMs) {
+    if (!view) return [];
+    return view.order.map(function (name) {
+      var observed = obs && obs.events ? obs.events[name] : null;
+      var binding = doc && isPlainObject(doc.events) ? doc.events[name] : null;
+      var inDoc = isPlainObject(binding);
+      return {
+        name: name,
+        manual: view.manual[name] === true,
+        note: view.notes && typeof view.notes[name] === 'string' ? view.notes[name] : '',
+        count: observed && typeof observed.count === 'number' ? observed.count : 0,
+        lastSeen: observed ? observed.lastSeen : null,
+        sinceMs: observed && observed.lastSeen !== null ? Math.max(0, nowMs - observed.lastSeen) : null,
+        inDoc: inDoc,
+        event: inDoc ? binding : null,
+        bound: inDoc && typeof binding.eventId === 'string' && binding.eventId !== ''
+      };
+    });
+  }
+
+  /** localStorage と手動ファイル保存で共通利用する表示・観測状態。 */
+  function serializeEventWorkspace(obs, doc, view, nowMs) {
+    var data = serializeObservation(obs, doc, nowMs);
+    data.version = 1;
+    data.displayedEvents = (view ? view.order : []).map(function (name) {
+      return {
+        name: name,
+        manual: !!(view.manual && view.manual[name]),
+        note: view.notes && typeof view.notes[name] === 'string' ? view.notes[name] : ''
+      };
+    });
+    return data;
+  }
+
+  function parseEventWorkspace(text) {
+    var data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      throw new Error('JSON として読めない: ' + e.message);
+    }
+    if (!isPlainObject(data) || data.version !== 1 || !Array.isArray(data.displayedEvents)) {
+      throw new Error('イベント履歴の JSON ではない。');
+    }
+    var obs = parseObservation(text);
+    var view = createEventView();
+    data.displayedEvents.forEach(function (entry) {
+      if (!isPlainObject(entry) || typeof entry.name !== 'string') return;
+      addEventToView(view, entry.name, entry.manual === true);
+      setEventNote(view, entry.name, typeof entry.note === 'string' ? entry.note : '');
+    });
+    return { obs: obs, view: view };
+  }
+
+  /**
+   * 未割当の論理イベントに割り当てを足す。既にある行は上書きしない
+   * (イベント表からの操作で、詰めた gain を巻き戻さないため)。
+   * @returns {boolean} 追加したか
+   */
+  function addEventBinding(doc, name, eventId) {
+    if (!doc || typeof name !== 'string' || name === '') return false;
+    if (!isPlainObject(doc.events)) doc.events = {};
+    if (isPlainObject(doc.events[name])) return false;
+    doc.events[name] = { eventId: String(eventId), gain: 1.0, enabled: true };
+    return true;
+  }
+
+  root.HapbeatSettingsEditorCore = {
+    KNOWN_TOP_KEYS: KNOWN_TOP_KEYS,
+    KNOWN_EVENT_KEYS: KNOWN_EVENT_KEYS,
+    DEFAULT_DIAGNOSTICS_PORT: DEFAULT_DIAGNOSTICS_PORT,
+    KIT_EVENT_IDS: KIT_EVENT_IDS,
+    DEFAULT_NEW_EVENT_ID: DEFAULT_NEW_EVENT_ID,
+    createObservation: createObservation,
+    recordObservation: recordObservation,
+    serializeObservation: serializeObservation,
+    parseObservation: parseObservation,
+    observationRows: observationRows,
+    createEventView: createEventView,
+    addEventToView: addEventToView,
+    removeEventFromView: removeEventFromView,
+    moveEventInView: moveEventInView,
+    setEventNote: setEventNote,
+    eventViewRows: eventViewRows,
+    serializeEventWorkspace: serializeEventWorkspace,
+    parseEventWorkspace: parseEventWorkspace,
+    addEventBinding: addEventBinding,
+    parseDocument: parseDocument,
+    serializeDocument: serializeDocument,
+    listEvents: listEvents,
+    listUnknownKeys: listUnknownKeys,
+    setNumber: setNumber,
+    setString: setString,
+    setBool: setBool,
+    setRawJson: setRawJson,
+    formatRawJson: formatRawJson,
+    classifyExtra: classifyExtra,
+    formatList: formatList,
+    setList: setList,
+    isNumericList: isNumericList,
+    diagnosticsPortOf: diagnosticsPortOf,
+    roundGain: roundGain
+  };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+</script>
+
+<script id="editor-ui">
+'use strict';
+(function () {
+  var core = globalThis.HapbeatSettingsEditorCore;
+
+  // 保存状態は「編集回数」と「保存済みの編集回数」の差で表す。保存中に入った編集を
+  // 取りこぼさないため: 書き込みが終わった時点で editSeq が進んでいれば、もう一度書く。
+  var state = {
+    handle: null, doc: null, editSeq: 0, savedSeq: 0, saving: false, timer: null,
+    lastHandle: null,
+    obs: core.createObservation(Date.now()),
+    view: core.createEventView(),
+    storageKey: null
+  };
+
+  var AUTOSAVE_DELAY_MS = 1000;
+  var STORAGE_PREFIX = 'hapbeat-settings-editor:event-workspace:v1:';
+  var HANDLE_DB_NAME = 'hapbeat-settings-editor';
+  var HANDLE_STORE_NAME = 'file-handles';
+  var HANDLE_KEY = 'last-settings-file';
+
+  var el = {
+    open: document.getElementById('btn-open'),
+    resume: document.getElementById('btn-resume'),
+    save: document.getElementById('btn-save'),
+    filename: document.getElementById('filename'),
+    status: document.getElementById('status'),
+    conn: document.getElementById('conn'),
+    editor: document.getElementById('editor'),
+    eventsBody: document.getElementById('events-body'),
+    eventsEmpty: document.getElementById('events-empty'),
+    lastFire: document.getElementById('lastfire'),
+    extrasSection: document.getElementById('extras-section'),
+    extrasBody: document.getElementById('extras-body'),
+    eventsDownload: document.getElementById('btn-events-download'),
+    eventsLoad: document.getElementById('btn-events-load'),
+    eventsClearCounts: document.getElementById('btn-events-clear-counts'),
+    eventsStat: document.getElementById('events-stat'),
+    detectedCount: document.getElementById('detected-count'),
+    detectedGrid: document.getElementById('detected-grid'),
+    detectedEmpty: document.getElementById('detected-empty')
+  };
+
+  var supported = typeof window.showOpenFilePicker === 'function';
+  if (!supported) {
+    document.body.classList.add('no-fs');
+    el.open.disabled = true;
+  }
+
+  function setStatus(kind, message) {
+    el.status.className = 'status ' + kind;
+    el.status.textContent = message;
+  }
+
+  function isDirty() {
+    return state.editSeq !== state.savedSeq;
+  }
+
+  /**
+   * 値が変わった。1 秒手が止まったら自動保存する。
+   * 明示保存 (ボタン / Ctrl+S) も残してあるので、待たずに書きたいときはそれで足りる。
+   */
+  function markDirty() {
+    state.editSeq++;
+    el.save.disabled = false;
+    setStatus('dirty', '編集中…');
+    scheduleAutoSave();
+  }
+
+  function scheduleAutoSave() {
+    if (state.timer) clearTimeout(state.timer);
+    state.timer = setTimeout(function () {
+      state.timer = null;
+      saveFile();
+    }, AUTOSAVE_DELAY_MS);
+  }
+
+  function timeNow() {
+    var d = new Date();
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+  }
+
+  function workspaceStorageKey(doc) {
+    var app = doc && typeof doc.appName === 'string' && doc.appName !== '' ? doc.appName : 'unknown-app';
+    var group = doc && typeof doc.group === 'number' ? doc.group : -1;
+    var player = doc && typeof doc.player === 'number' ? doc.player : -1;
+    return STORAGE_PREFIX + encodeURIComponent(app + '|' + group + '|' + player);
+  }
+
+  function persistWorkspace() {
+    if (!state.doc || !state.storageKey) return;
+    try {
+      var data = core.serializeEventWorkspace(state.obs, state.doc, state.view, Date.now());
+      localStorage.setItem(state.storageKey, JSON.stringify(data));
+    } catch (err) {
+      // localStorage が無効でも設定編集とライブ表示は続けられる。
+    }
+  }
+
+  function restoreWorkspace() {
+    state.obs = core.createObservation(Date.now());
+    state.view = core.createEventView();
+    state.storageKey = workspaceStorageKey(state.doc);
+    if (!state.storageKey) return;
+    try {
+      var text = localStorage.getItem(state.storageKey);
+      if (!text) return;
+      var restored = core.parseEventWorkspace(text);
+      state.obs = restored.obs;
+      state.view = restored.view;
+    } catch (err) {
+      // 壊れた保存値は無視し、空の表から再開する。
+    }
+  }
+
+  // --- ファイル入出力 -------------------------------------------------------
+
+  function openHandleDb() {
+    return new Promise(function (resolve, reject) {
+      if (!window.indexedDB) { reject(new Error('IndexedDB が利用できない。')); return; }
+      var request = window.indexedDB.open(HANDLE_DB_NAME, 1);
+      request.onupgradeneeded = function () {
+        if (!request.result.objectStoreNames.contains(HANDLE_STORE_NAME)) {
+          request.result.createObjectStore(HANDLE_STORE_NAME);
+        }
+      };
+      request.onsuccess = function () { resolve(request.result); };
+      request.onerror = function () { reject(request.error || new Error('IndexedDB を開けない。')); };
+    });
+  }
+
+  async function rememberLastHandle(handle) {
+    var db = await openHandleDb();
+    try {
+      await new Promise(function (resolve, reject) {
+        var tx = db.transaction(HANDLE_STORE_NAME, 'readwrite');
+        tx.objectStore(HANDLE_STORE_NAME).put(handle, HANDLE_KEY);
+        tx.oncomplete = function () { resolve(); };
+        tx.onerror = function () { reject(tx.error || new Error('ファイル記憶を保存できない。')); };
+        tx.onabort = function () { reject(tx.error || new Error('ファイル記憶を保存できない。')); };
+      });
+    } finally {
+      db.close();
+    }
+  }
+
+  async function readLastHandle() {
+    var db = await openHandleDb();
+    try {
+      return await new Promise(function (resolve, reject) {
+        var tx = db.transaction(HANDLE_STORE_NAME, 'readonly');
+        var request = tx.objectStore(HANDLE_STORE_NAME).get(HANDLE_KEY);
+        request.onsuccess = function () { resolve(request.result || null); };
+        request.onerror = function () { reject(request.error || new Error('ファイル記憶を読めない。')); };
+      });
+    } finally {
+      db.close();
+    }
+  }
+
+  async function loadFileHandle(handle, message) {
+    var file = await handle.getFile();
+    var text = await file.text();
+    var doc = core.parseDocument(text);
+
+    state.handle = handle;
+    state.lastHandle = handle;
+    state.doc = doc;
+    state.editSeq = 0;
+    state.savedSeq = 0;
+    restoreWorkspace();
+    if (state.timer) { clearTimeout(state.timer); state.timer = null; }
+    el.filename.textContent = file.name;
+    el.editor.hidden = false;
+    el.resume.hidden = true;
+    el.save.disabled = true;
+    render();
+    setStatus('idle', message || ('読み込んだ: ' + file.name + ' — 編集は 1 秒後に自動保存する'));
+    live.sync();
+  }
+
+  async function openFile() {
+    try {
+      var options = {
+        id: 'hapbeat-settings',
+        types: [{ description: 'Hapbeat settings', accept: { 'application/json': ['.json'] } }],
+        multiple: false
+      };
+      // FileSystemFileHandle を startIn に渡すと、そのファイルの親ディレクトリから開く。
+      if (state.lastHandle) options.startIn = state.lastHandle;
+      var picked = await window.showOpenFilePicker(options);
+      var handle = picked[0];
+      await loadFileHandle(handle);
+      try { await rememberLastHandle(handle); } catch (rememberError) { /* 設定編集は継続できる */ }
+    } catch (err) {
+      if (err && err.name === 'AbortError') return; // ダイアログを閉じただけ
+      setStatus('error', '開けなかった: ' + (err && err.message ? err.message : String(err)));
+    }
+  }
+
+  async function resumeLastFile(askPermission) {
+    var handle = state.lastHandle;
+    if (!handle) return false;
+    try {
+      var permission = handle.queryPermission ? await handle.queryPermission({ mode: 'readwrite' }) : 'granted';
+      if (permission !== 'granted' && askPermission && handle.requestPermission) {
+        permission = await handle.requestPermission({ mode: 'readwrite' });
+      }
+      if (permission !== 'granted') {
+        el.resume.hidden = false;
+        el.resume.textContent = '前回のファイルを再開: ' + (handle.name || 'hapbeat_settings.json');
+        setStatus('idle', '前回のファイルを覚えている。再開ボタンでアクセスを許可できる。');
+        return false;
+      }
+      await loadFileHandle(handle, '前回のファイルを再開した: ' + (handle.name || 'hapbeat_settings.json'));
+      return true;
+    } catch (err) {
+      el.resume.hidden = false;
+      setStatus('error', '前回のファイルを再開できなかった: ' + (err && err.message ? err.message : String(err)));
+      return false;
+    }
+  }
+
+  async function restoreLastFile() {
+    try {
+      state.lastHandle = await readLastHandle();
+      if (state.lastHandle) await resumeLastFile(false);
+    } catch (err) {
+      // IndexedDB が使えない環境では、通常のファイル選択だけを使う。
+    }
+  }
+
+  /** ブラウザのダウンロードとして 1 ファイル渡す (File System Access API を使わない経路)。 */
+  function download(filename, text) {
+    var blob = new Blob([text], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  async function saveFile() {
+    if (!state.handle || !state.doc) return;
+    // 書き込み中に再度呼ばれても多重に書かない。終わってから「その間に編集があったか」を
+    // 見て書き直すので、最後の 1 手が落ちることはない。
+    if (state.saving) return;
+
+    if (state.timer) { clearTimeout(state.timer); state.timer = null; }
+    state.saving = true;
+    var attempted = state.editSeq;
+    var wrote = false;
+
+    try {
+      if (state.handle.queryPermission) {
+        var mode = { mode: 'readwrite' };
+        var perm = await state.handle.queryPermission(mode);
+        if (perm !== 'granted') perm = await state.handle.requestPermission(mode);
+        if (perm !== 'granted') {
+          setStatus('error', '書き込みが許可されなかった。');
+          return;
+        }
+      }
+      var writable = await state.handle.createWritable();
+      await writable.write(core.serializeDocument(state.doc));
+      await writable.close();
+
+      wrote = true;
+      state.savedSeq = attempted;
+      el.save.disabled = !isDirty();
+      if (isDirty()) {
+        // 書いている間に手が動いた。すぐ書き直す（1 秒待たない: もう手は止まっている）。
+        setStatus('dirty', '編集中…');
+      } else {
+        setStatus('saved', '保存しました ' + timeNow() + ' — ゲーム側は数秒以内に反映する');
+      }
+    } catch (err) {
+      setStatus('error', '保存できなかった: ' + (err && err.message ? err.message : String(err)));
+    } finally {
+      state.saving = false;
+    }
+
+    // 失敗した場合は再試行しない。書けない理由（権限拒否・ファイルが消えた）は
+    // 繰り返しても変わらず、自動で再試行するとダイアログを無限に出すことになる。
+    // ユーザーが次に編集するか Ctrl+S を押した時点で改めて試す。
+    if (wrote && isDirty()) saveFile();
+  }
+
+  el.open.addEventListener('click', openFile);
+  el.resume.addEventListener('click', function () { resumeLastFile(true); });
+  el.save.addEventListener('click', saveFile);
+  window.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+      e.preventDefault();
+      if (!el.save.disabled) saveFile();
+    }
+  });
+  window.addEventListener('beforeunload', function (e) {
+    persistWorkspace();
+    if (isDirty()) { e.preventDefault(); e.returnValue = ''; }
+  });
+
+  // --- イベント発火のライブ表示 ---------------------------------------------
+  //
+  // mod 側 (HapbeatEventBroadcaster) が 127.0.0.1 に立てた SSE を購読し、発火した
+  // 論理イベントの行を光らせる。触覚の送信経路とは別系統の診断専用チャンネルで、
+  // ここが繋がらなくてもゲーム側は何も変わらない。
+  var live = (function () {
+    var FLASH_MS = 400;
+    var RETRY_MS = 3000;
+
+    var source = null;      // 現在の EventSource
+    var openPort = null;    // それが繋いでいるポート
+    var retryTimer = null;
+    var rowsByName = {};    // 論理イベント名 -> <tr>
+    var flashTimers = {};
+
+    function setConn(kind, text) {
+      el.conn.className = 'conn ' + kind;
+      el.conn.textContent = text;
+    }
+
+    /** 表の再描画で行の対応表を差し替える。 */
+    function bindRows(map) {
+      rowsByName = map || {};
+      flashTimers = {};
+    }
+
+    /**
+     * 設定ファイルの diagnosticsPort に合わせて接続し直す。開いた直後と、
+     * 再試行のたびに呼ばれるので、ポートを書き換えれば数秒で追従する。
+     */
+    function sync() {
+      var port = state.doc ? core.diagnosticsPortOf(state.doc) : null;
+
+      if (port === null) {
+        close();
+        setConn('off', 'ライブ表示: 停止');
+        return;
+      }
+      if (source && openPort === port) return; // 既に正しい接続がある
+
+      close();
+      openPort = port;
+      connect(port);
+    }
+
+    function connect(port) {
+      var url = 'http://127.0.0.1:' + port + '/events';
+      var es;
+      try {
+        es = new EventSource(url);
+      } catch (err) {
+        setConn('off', 'ライブ表示: 未接続');
+        scheduleRetry();
+        return;
+      }
+      source = es;
+      setConn('off', 'ライブ表示: 接続中…');
+
+      es.onopen = function () {
+        setConn('on', 'ライブ表示: :' + port);
+      };
+      es.onmessage = function (e) {
+        var payload;
+        try { payload = JSON.parse(e.data); } catch (err) { return; }
+        onFired(payload);
+      };
+      es.onerror = function () {
+        // mod がまだ起動していないだけのことが多い。静かに間隔を空けて繋ぎ直す
+        // (EventSource 自身の自動再接続も走るが、ポート変更に追従させたいので
+        //  こちらで持ち直す)。
+        setConn('off', 'ライブ表示: 未接続');
+        close();
+        scheduleRetry();
+      };
+    }
+
+    function scheduleRetry() {
+      if (retryTimer) return;
+      retryTimer = setTimeout(function () {
+        retryTimer = null;
+        sync();
+      }, RETRY_MS);
+    }
+
+    function close() {
+      if (source) {
+        try { source.close(); } catch (err) { /* 閉じるだけ */ }
+        source = null;
+      }
+      openPort = null;
+    }
+
+    /** 1 件の発火を表示する。 */
+    function onFired(payload) {
+      var name = payload && typeof payload.event === 'string' ? payload.event : null;
+      if (!name) return;
+
+      var gain = typeof payload.gain === 'number' ? payload.gain : 1;
+      var isStop = payload.stop === true;
+      core.recordObservation(state.obs, payload, Date.now());
+      var added = core.addEventToView(state.view, name, false);
+      if (added) renderEvents();
+      else updateEventStats();
+      renderDetectedEvents();
+      persistWorkspace();
+
+      // 初回発火では renderEvents() が行を作った直後に、その新しい行を光らせる。
+      var row = Object.prototype.hasOwnProperty.call(rowsByName, name) ? rowsByName[name] : null;
+      var unbound = payload.bound === false;
+      if (row) flash(row, name, gain, isStop);
+      showLastFire(name, payload, isStop, unbound);
+    }
+
+    function flash(row, name, gain, isStop) {
+      row.style.setProperty('--fire', String(Math.max(0, Math.min(1, gain))));
+      row.classList.add('fire');
+      if (isStop) row.classList.add('stop');
+      else row.classList.remove('stop');
+
+      if (flashTimers[name]) clearTimeout(flashTimers[name]);
+      flashTimers[name] = setTimeout(function () {
+        delete flashTimers[name];
+        row.classList.remove('fire');
+        row.classList.remove('stop');
+      }, FLASH_MS);
+    }
+
+    function showLastFire(name, payload, isStop, unbound) {
+      var what = isStop ? '停止' : '発火';
+      var text;
+      if (unbound) {
+        text = '直近の' + what + ': ' + name + ' — この設定に割り当てが無い';
+        el.lastFire.className = 'lastfire unbound';
+      } else {
+        var id = typeof payload.eventId === 'string' ? payload.eventId : '?';
+        var gain = typeof payload.gain === 'number' ? payload.gain.toFixed(2) : '?';
+        text = '直近の' + what + ': ' + name + ' → ' + id + '  gain ' + gain;
+        el.lastFire.className = 'lastfire hit';
+      }
+      el.lastFire.textContent = text;
+    }
+
+    return {
+      sync: sync,
+      bindRows: bindRows,
+      fire: onFired
+    };
+  })();
+
+  // --- ウィジェット配線 -----------------------------------------------------
+
+  /** number 入力と range をひと組にして doc へ書き戻す。 */
+  function bindNumber(numberId, rangeId, key, options) {
+    var num = document.getElementById(numberId);
+    var range = rangeId ? document.getElementById(rangeId) : null;
+    var value = state.doc[key];
+    var shown = typeof value === 'number' ? value : (options && options.fallback) || 0;
+
+    num.value = String(shown);
+    if (range) range.value = String(shown);
+
+    function apply(raw, echoTo) {
+      if (!core.setNumber(state.doc, key, raw, options)) return;
+      if (echoTo) echoTo.value = String(state.doc[key]);
+      markDirty();
+    }
+
+    num.oninput = function () { apply(num.value, range); };
+    if (range) range.oninput = function () { apply(range.value, num); };
+  }
+
+  function bindText(id, key, maxLength) {
+    var input = document.getElementById(id);
+    input.value = typeof state.doc[key] === 'string' ? state.doc[key] : '';
+    input.oninput = function () {
+      core.setString(state.doc, key, input.value, maxLength);
+      markDirty();
+    };
+  }
+
+  var eventCells = {};
+  var eventPick = {};
+
+  function renderEvents() {
+    var rows = core.eventViewRows(state.view, state.obs, state.doc, Date.now());
+    el.eventsBody.innerHTML = '';
+    el.eventsEmpty.hidden = rows.length > 0;
+    var byName = {};
+    eventCells = {};
+
+    rows.forEach(function (row, rowIndex) {
+      var ev = row.event;
+      var tr = document.createElement('tr');
+      if (ev && ev.enabled === false) tr.className = 'off';
+
+      var tdName = document.createElement('td');
+      tdName.className = 'name';
+      tdName.textContent = row.name;
+      if (row.manual) tdName.appendChild(tag('manual', '（手動）'));
+      if (!row.bound) tdName.appendChild(tag('unbound', '未割当'));
+
+      var tdId = document.createElement('td');
+      tdId.className = 'eid';
+      if (row.inDoc) {
+        var idInput = document.createElement('input');
+        idInput.type = 'text';
+        idInput.value = typeof ev.eventId === 'string' ? ev.eventId : '';
+        idInput.placeholder = 'vr-shooter-kit.shot_recoil';
+        idInput.oninput = function () {
+          core.setString(ev, 'eventId', idInput.value);
+          markDirty();
+        };
+        tdId.appendChild(idInput);
+      } else {
+        tdId.appendChild(buildBindingEditor(row.name));
+      }
+
+      var tdGain = document.createElement('td');
+      tdGain.className = 'gain';
+      if (row.inDoc) {
+        var gainRange = document.createElement('input');
+        gainRange.type = 'range';
+        gainRange.min = '0'; gainRange.max = '2'; gainRange.step = '0.05';
+        var gainValue = typeof ev.gain === 'number' ? ev.gain : 1;
+        gainRange.value = String(gainValue);
+        var gainLabel = document.createElement('span');
+        gainLabel.className = 'val';
+        gainLabel.textContent = core.roundGain(gainValue).toFixed(2);
+        gainRange.oninput = function () {
+          if (!core.setNumber(ev, 'gain', gainRange.value, { min: 0, max: 4 })) return;
+          gainLabel.textContent = ev.gain.toFixed(2);
+          markDirty();
+        };
+        tdGain.appendChild(gainRange);
+        tdGain.appendChild(gainLabel);
+      } else {
+        tdGain.textContent = '—';
+      }
+
+      var tdOn = document.createElement('td');
+      var check = document.createElement('input');
+      check.type = 'checkbox';
+      check.checked = !!ev && ev.enabled !== false;
+      check.disabled = !row.inDoc;
+      check.onchange = function () {
+        core.setBool(ev, 'enabled', check.checked);
+        tr.className = check.checked ? '' : 'off';
+        markDirty();
+      };
+      tdOn.appendChild(check);
+
+      var tdNote = document.createElement('td');
+      tdNote.className = 'memo';
+      var noteInput = document.createElement('input');
+      noteInput.type = 'text';
+      noteInput.value = row.note;
+      noteInput.placeholder = '例: 右手の発砲';
+      noteInput.oninput = function () {
+        core.setEventNote(state.view, row.name, noteInput.value);
+        persistWorkspace();
+      };
+      tdNote.appendChild(noteInput);
+
+      var tdCount = document.createElement('td');
+      tdCount.className = 'count';
+      tdCount.textContent = String(row.count);
+
+      var tdSince = document.createElement('td');
+      tdSince.className = 'since';
+      tdSince.textContent = formatSince(row.sinceMs);
+
+      var tdAction = document.createElement('td');
+      tdAction.className = 'action';
+      var up = document.createElement('button');
+      up.textContent = '↑';
+      up.title = '1 行上へ移動';
+      up.disabled = rowIndex === 0;
+      up.onclick = function () {
+        if (!core.moveEventInView(state.view, row.name, -1)) return;
+        persistWorkspace();
+        renderEvents();
+      };
+      var down = document.createElement('button');
+      down.textContent = '↓';
+      down.title = '1 行下へ移動';
+      down.disabled = rowIndex === rows.length - 1;
+      down.onclick = function () {
+        if (!core.moveEventInView(state.view, row.name, 1)) return;
+        persistWorkspace();
+        renderEvents();
+      };
+      var remove = document.createElement('button');
+      remove.textContent = '×';
+      remove.title = '主表から外す（検出履歴と設定は残る）';
+      remove.onclick = function () {
+        if (!core.removeEventFromView(state.view, row.name)) return;
+        persistWorkspace();
+        renderEvents();
+      };
+      tdAction.appendChild(up);
+      tdAction.appendChild(down);
+      tdAction.appendChild(remove);
+
+      tr.appendChild(tdName);
+      tr.appendChild(tdId);
+      tr.appendChild(tdGain);
+      tr.appendChild(tdOn);
+      tr.appendChild(tdNote);
+      tr.appendChild(tdCount);
+      tr.appendChild(tdSince);
+      tr.appendChild(tdAction);
+      el.eventsBody.appendChild(tr);
+      byName[row.name] = tr;
+      eventCells[row.name] = { count: tdCount, since: tdSince };
+    });
+
+    live.bindRows(byName);
+    updateEventStats();
+    renderDetectedEvents();
+  }
+
+  /**
+   * mod 固有キーの行。値の型に応じたウィジェットを出す
+   * (bool→チェックボックス / 数値→数値入力・0〜1 ならスライダー / 文字列→テキスト /
+   *  配列→カンマ区切り)。型が読めないものだけ生 JSON のまま編集する。
+   * どの分岐も state.doc の同じ場所を書き換えるだけなので、キーは失われない。
+   */
+  function renderExtras() {
+    var keys = core.listUnknownKeys(state.doc);
+    el.extrasBody.innerHTML = '';
+    el.extrasSection.hidden = keys.length === 0;
+
+    keys.forEach(function (key) {
+      var wrapper = document.createElement('div');
+      wrapper.className = 'extra';
+
+      var label = document.createElement('span');
+      label.className = 'key';
+      label.textContent = key;
+      wrapper.appendChild(label);
+
+      buildExtraWidget(wrapper, key, state.doc[key]);
+      el.extrasBody.appendChild(wrapper);
+    });
+  }
+
+  function buildExtraWidget(wrapper, key, value) {
+    var kind = core.classifyExtra(key, value);
+
+    if (kind === 'bool') {
+      var check = document.createElement('input');
+      check.type = 'checkbox';
+      check.checked = value === true;
+      check.onchange = function () {
+        core.setBool(state.doc, key, check.checked);
+        markDirty();
+      };
+      wrapper.appendChild(check);
+      return;
+    }
+
+    if (kind === 'slider') {
+      var range = document.createElement('input');
+      range.type = 'range';
+      range.min = '0'; range.max = '1'; range.step = '0.01';
+      range.value = String(value);
+      var readout = document.createElement('span');
+      readout.className = 'val';
+      readout.textContent = core.roundGain(value).toFixed(2);
+      range.oninput = function () {
+        if (!core.setNumber(state.doc, key, range.value, { min: 0, max: 1 })) return;
+        readout.textContent = state.doc[key].toFixed(2);
+        markDirty();
+      };
+      wrapper.appendChild(range);
+      wrapper.appendChild(readout);
+      return;
+    }
+
+    if (kind === 'number') {
+      var num = document.createElement('input');
+      num.type = 'number';
+      // 元の値が整数なら整数のまま、小数なら小数のまま扱う (勝手に型を変えない)。
+      var integer = value === Math.round(value);
+      num.step = integer ? '1' : '0.05';
+      num.value = String(value);
+      num.oninput = function () {
+        if (!core.setNumber(state.doc, key, num.value, { integer: integer })) return;
+        markDirty();
+      };
+      wrapper.appendChild(num);
+      return;
+    }
+
+    if (kind === 'string') {
+      var text = document.createElement('input');
+      text.type = 'text';
+      text.value = value;
+      text.oninput = function () {
+        core.setString(state.doc, key, text.value);
+        markDirty();
+      };
+      wrapper.appendChild(text);
+      return;
+    }
+
+    if (kind === 'list') {
+      var numeric = core.isNumericList(value);
+      var list = document.createElement('input');
+      list.type = 'text';
+      list.value = core.formatList(value);
+      list.placeholder = numeric ? '1, 2, 3' : 'Beat, Bass';
+      list.oninput = function () {
+        core.setList(state.doc, key, list.value, numeric);
+        markDirty();
+      };
+      var hint = document.createElement('span');
+      hint.className = 'kind';
+      hint.textContent = 'カンマ区切り';
+      wrapper.appendChild(list);
+      wrapper.appendChild(hint);
+      return;
+    }
+
+    // 型が読めないもの: 生 JSON。読めない間は文書に触らないので値は壊れない。
+    var raw = document.createElement('input');
+    raw.type = 'text';
+    raw.value = core.formatRawJson(value);
+    raw.oninput = function () {
+      var result = core.setRawJson(state.doc, key, raw.value);
+      raw.className = result.ok ? '' : 'invalid';
+      if (result.ok) markDirty();
+      else setStatus('error', key + ': JSON として読めないので保存対象から外している (' + result.error + ')');
+    };
+    wrapper.appendChild(raw);
+  }
+
+  // --- 観測起点のイベント表 -------------------------------------------------
+
+  /** 「12.3s 前」。一度も発火していない行は「—」。 */
+  function formatSince(sinceMs) {
+    if (sinceMs === null) return '—';
+    if (sinceMs < 60000) return (sinceMs / 1000).toFixed(1) + 's 前';
+    var min = Math.floor(sinceMs / 60000);
+    return min + 'm ' + Math.floor((sinceMs % 60000) / 1000) + 's 前';
+  }
+
+  function updateEventStats() {
+    if (!state.doc) return;
+    var now = Date.now();
+    var rows = core.eventViewRows(state.view, state.obs, state.doc, now);
+    var fired = 0;
+    Object.keys(state.obs.events).forEach(function (k) { fired += state.obs.events[k].count; });
+
+    el.eventsStat.textContent =
+      '計測時間 ' + Math.round(Math.max(0, now - state.obs.startedAt) / 1000) + ' 秒 / 発火 ' +
+      fired + ' 件 / 表示 ' + rows.length + ' 件';
+    rows.forEach(function (row) {
+      var cells = eventCells[row.name];
+      if (!cells) return;
+      cells.count.textContent = String(row.count);
+      cells.since.textContent = formatSince(row.sinceMs);
+    });
+  }
+
+  function tag(kind, text) {
+    var s = document.createElement('span');
+    s.className = 'tag ' + kind;
+    s.textContent = text;
+    return s;
+  }
+
+  /** 未割当行に出す「クリップを選ぶ + 割当」。 */
+  function buildBindingEditor(name) {
+    var wrapper = document.createElement('div');
+    wrapper.className = 'unbound-editor';
+    var select = document.createElement('select');
+    var chosen = eventPick[name] || core.DEFAULT_NEW_EVENT_ID;
+    core.KIT_EVENT_IDS.forEach(function (id) {
+      var opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = id;
+      if (id === chosen) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.onchange = function () { eventPick[name] = select.value; };
+    var btn = document.createElement('button');
+    btn.textContent = '割当';
+    btn.onclick = function () {
+      if (!core.addEventBinding(state.doc, name, select.value)) return;
+      renderEvents();
+      markDirty();
+    };
+    wrapper.appendChild(select);
+    wrapper.appendChild(btn);
+    return wrapper;
+  }
+
+  function renderDetectedEvents() {
+    var names = Object.keys(state.obs.events).sort();
+    el.detectedCount.textContent = String(names.length);
+    el.detectedEmpty.hidden = names.length > 0;
+    el.detectedGrid.innerHTML = '';
+
+    names.forEach(function (name) {
+      var added = state.view.order.indexOf(name) >= 0;
+      var btn = document.createElement('button');
+      btn.textContent = name;
+      btn.title = added ? 'イベント表に追加済み' : 'イベント表へ手動で追加';
+      btn.disabled = added;
+      btn.onclick = function () {
+        if (!core.addEventToView(state.view, name, true)) return;
+        persistWorkspace();
+        renderEvents();
+      };
+      el.detectedGrid.appendChild(btn);
+    });
+  }
+
+  el.eventsClearCounts.addEventListener('click', function () {
+    var now = Date.now();
+    state.obs.startedAt = now;
+    Object.keys(state.obs.events).forEach(function (name) {
+      var row = state.obs.events[name];
+      row.count = 0;
+      row.firstSeen = null;
+      row.lastSeen = null;
+    });
+    persistWorkspace();
+    updateEventStats();
+  });
+  el.eventsDownload.addEventListener('click', function () {
+    if (!state.doc) return;
+    var data = core.serializeEventWorkspace(state.obs, state.doc, state.view, Date.now());
+    download('hapbeat_event_workspace.json', JSON.stringify(data, null, 2) + '\n');
+  });
+  el.eventsLoad.addEventListener('click', function () {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = function () {
+      var file = input.files && input.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        try {
+          var loaded = core.parseEventWorkspace(String(reader.result));
+          state.obs = loaded.obs;
+          state.view = loaded.view;
+          persistWorkspace();
+          renderEvents();
+          setStatus('idle', 'イベント履歴を読み込んだ: ' + file.name);
+        } catch (err) {
+          setStatus('error', 'イベント履歴を読めなかった: ' + (err && err.message ? err.message : String(err)));
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  });
+
+  // 「経過」だけを 1 秒ごとに書き換える。入力中の行は作り直さない。
+  setInterval(function () {
+    if (state.doc) updateEventStats();
+  }, 1000);
+
+  function render() {
+    bindNumber('hapticDelayMs', 'hapticDelayMs-range', 'hapticDelayMs', { min: 0, max: 2000, integer: true });
+    bindNumber('masterGain', 'masterGain-range', 'masterGain', { min: 0, max: 4, fallback: 1 });
+    bindNumber('minIntervalMs', null, 'minIntervalMs', { min: 0, max: 5000, integer: true });
+    bindNumber('player', null, 'player', { min: -1, max: 99, integer: true, fallback: -1 });
+    bindNumber('group', null, 'group', { min: -1, max: 99, integer: true, fallback: -1 });
+    bindText('appName', 'appName', 16);
+    bindDiagnosticsPort();
+    renderEvents();
+    renderExtras();
+  }
+
+  /**
+   * diagnosticsPort だけは他の数値と扱いが違う: 書き換えたら、このエディタ自身の
+   * 購読先も追従させる (mod 側の反映はゲーム再起動)。
+   */
+  function bindDiagnosticsPort() {
+    var input = document.getElementById('diagnosticsPort');
+    var value = state.doc.diagnosticsPort;
+    input.value = String(typeof value === 'number' ? value : core.DEFAULT_DIAGNOSTICS_PORT);
+    input.oninput = function () {
+      if (!core.setNumber(state.doc, 'diagnosticsPort', input.value,
+            { min: 0, max: 65535, integer: true })) {
+        return;
+      }
+      markDirty();
+      live.sync();
+    };
+  }
+
+  // 権限が保持されていれば再読み込みだけで自動復帰する。ブラウザが再許可を
+  // 必要とする場合だけ、ユーザージェスチャー用の「前回のファイルを再開」を出す。
+  restoreLastFile();
+})();
+</script>
+</body>
+</html>

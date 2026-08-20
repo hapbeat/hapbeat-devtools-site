@@ -37,12 +37,36 @@ import PlainSurfaces from '../../components/PlainSurfaces.astro';
     accent="red"
     ctaLabel="今すぐ開く"
   />
+  <DemoCard
+    title="mod 設定エディタ"
+    description="ゲーム mod の触覚設定（hapbeat_settings.json）をスライダーで編集し、発火した論理イベントをその場でライブ表示するツール。ゲームを起動したまま強さと遅延を詰められます（Chrome / Edge 限定）。"
+    href="/tools/settings-editor/"
+    icon="🎚"
+    chip="Web Tool"
+    accent="teal"
+    ctaLabel="今すぐ開く"
+  />
 </DemoGrid>
 </PlainSurfaces>
 
 :::note
 触覚を送るには **hapbeat-helper の起動 + Hapbeat 実機** が必要です。
 無くても音声だけのメトロノームとして動作します（helper 未接続時は画面下部に状態が表示されます）。
+:::
+
+## mod 設定エディタについて
+
+このエディタは **Hapbeat 実機と、対応する mod を入れたゲーム**が揃ってはじめて意味を持ちます。
+設定ファイル（`hapbeat_settings.json`）を持っていない状態で開いても、編集対象がないため何も表示されません。
+
+- 設定ファイルは <a href="https://github.com/hapbeat/hapbeat-modkit" target="_blank" rel="noopener noreferrer">hapbeat-modkit</a> の mod がゲームフォルダに作ります（Pistol Whip なら `UserData\hapbeat_settings.json`、Muck なら `BepInEx\config\hapbeat_settings.json`）。
+- ファイルはブラウザから直接読み書きします（アップロードされません）。File System Access API を使うため **Chrome / Edge のデスクトップ版**が必要です。
+- 発火のライブ表示は mod が `127.0.0.1` に立てる診断用の配信を購読します。**HTTPS のこのページからでも `127.0.0.1` には繋がる**ので、繋がらないときはゲーム側が待ち受けていないだけです。
+
+:::note[このページから開く場合の注意]
+このホスト版を使うなら、`index.html` をローカルに落として `file://` で開く必要はありません。ブックマークしてそのまま開いてください。
+
+ブラウザの保存領域は **ページのアドレスごとに分かれます**。以前ローカルの `file://` や `http://localhost` で使っていた場合、開いていたファイルの記憶とイベント履歴はこのページには引き継がれません。持ち越したい履歴は、旧ページの **「イベント履歴を書き出す」** で `hapbeat_event_workspace.json` を保存し、このページの **「イベント履歴を開く…」** で読み込んでください。
 :::
 
 ## helper をつないで触覚も試す
