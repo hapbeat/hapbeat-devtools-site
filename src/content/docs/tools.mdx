@@ -20,6 +20,15 @@ import PlainSurfaces from '../../components/PlainSurfaces.astro';
 <PlainSurfaces>
 <DemoGrid>
   <DemoCard
+    title="Hapbeat Web Runtime"
+    description="スマートグラスやVR HMDなどのWebアプリが発するイベントを、別PCのRuntime Consoleで受け取り、設定に従ってHapbeatへ送るセッションランタイム。"
+    href="https://hapbeat-web-runtime.yus3594.workers.dev/"
+    icon="🌐"
+    chip="Web Runtime"
+    accent="red"
+    ctaLabel="Runtimeを開く"
+  />
+  <DemoCard
     title="Web メトロノーム"
     description="音声はブラウザだけで鳴らし、触覚は hapbeat-helper 経由で Hapbeat 実機に送れるメトロノーム。触覚タイミングのズレを確認・調整するのに使えます。"
     href="/tools/metronome/"
@@ -50,8 +59,8 @@ import PlainSurfaces from '../../components/PlainSurfaces.astro';
 </PlainSurfaces>
 
 :::note
-触覚を送るには **hapbeat-helper の起動 + Hapbeat 実機** が必要です。
-無くても音声だけのメトロノームとして動作します（helper 未接続時は画面下部に状態が表示されます）。
+触覚を送るには **Runtime Consoleを開くPCでのhapbeat-helper起動 + Hapbeat実機** が必要です。
+Web Runtimeはhelper未接続でもsession relayとイベント受信をシミュレーションでき、Webメトロノームは音声のみで動作します。
 :::
 
 ## mod 設定エディタについて

@@ -20,6 +20,15 @@ import PlainSurfaces from '../../../components/PlainSurfaces.astro';
 <PlainSurfaces>
 <DemoGrid>
   <DemoCard
+    title="Hapbeat Web Runtime"
+    description="Receive semantic events from web apps on smart glasses or VR HMDs in a Runtime Console on another PC, then map and send them to Hapbeat."
+    href="https://hapbeat-web-runtime.yus3594.workers.dev/"
+    icon="🌐"
+    chip="Web Runtime"
+    accent="red"
+    ctaLabel="Open Runtime"
+  />
+  <DemoCard
     title="Web Metronome"
     description="A metronome that plays sound in the browser and can send haptics to a Hapbeat device via hapbeat-helper. Useful for checking and tuning haptic timing offset."
     href="/tools/metronome/"
@@ -50,8 +59,8 @@ import PlainSurfaces from '../../../components/PlainSurfaces.astro';
 </PlainSurfaces>
 
 :::note
-Haptics require **hapbeat-helper running + a Hapbeat device**.
-Without them it still works as a sound-only metronome (a status line at the bottom shows the connection state when the helper isn't connected).
+Haptics require **hapbeat-helper running on the Runtime Console PC + a Hapbeat device**.
+Without the helper, Web Runtime can still simulate the session relay and incoming events, while the Web Metronome remains usable as an audio-only tool.
 :::
 
 ## About the Mod Settings Editor

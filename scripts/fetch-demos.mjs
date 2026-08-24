@@ -63,6 +63,7 @@ const EXCLUDE_BASENAMES = new Set(['.studio-cache.json']);
 const IMPORT_MAP_REWRITES = [
   ['index.html', '"../../dist/browser.js"', '"./vendor/browser.js"'],
   ['fps/index.html', '"../../../dist/browser.js"', '"../vendor/browser.js"'],
+  ['boxing/index.html', '"../../../dist/browser.js"', '"../vendor/browser.js"'],
 ];
 
 // 書き換え後の残置検知でスキャンするテキストファイル拡張子。
