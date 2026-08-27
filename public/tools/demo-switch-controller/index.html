@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Demo Switch controller — 書き込みと設定</title>
+    <meta name="description" content="M5 Demo Switch controller のファーム書き込みと USB serial 設定を行います。" />
+    <link rel="stylesheet" href="./controller.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <h1>Demo Switch controller</h1>
+        <p class="app__lede">M5Stack に controller firmware を書き込み、Quest デモ切替の Wi-Fi・接続先・ボタン A/B/C を USB で設定します。Hapbeat の触覚・音声は送信しません。</p>
+      </header>
+
+      <section class="panel" aria-label="利用条件">
+        <h2>利用条件</h2>
+        <ul>
+          <li><strong>Chrome / Edge のデスクトップ版</strong>と HTTPS が必要です。書き込みと設定はいずれも Web Serial API を使います。</li>
+          <li>接続中は Hapbeat Studio、Arduino IDE、シリアルモニタなど、同じ USB ポートを開くアプリを閉じてください。</li>
+          <li>書き込み確認の <strong>Erase device は選ばないでください</strong>。通常の書き込みでは NVS（Wi-Fi・設定を含む保存領域）を保持します。全消去は復旧時だけ使用します。</li>
+        </ul>
+      </section>
+
+      <section class="panel" aria-label="ファーム書き込み">
+        <h2>1. firmware を書き込む</h2>
+        <p>接続する機種に対応するボタンを選ぶと、bootloader / partition table / OTA data / application の 4 部分を書き込みます。確認画面で Erase device を選ばなければ NVS は保持されます。</p>
+        <p id="hardware-gate" class="notice notice--warning">実機検証が完了するまで、公開ページからの書き込みは無効です。開発用 localhost では <code>?allowUnverified=1</code> を付けた場合だけ検証用ボタンを表示します。</p>
+        <div id="unverified-flashers" class="actions actions--flash" hidden>
+          <esp-web-install-button manifest="./manifest-m5stack-basic.json">
+            <button slot="activate" class="button button--primary" type="button">M5Stack Basic</button>
+            <span slot="unsupported" class="notice notice--warning">Chrome または Edge のデスクトップ版で開いてください。</span>
+            <span slot="not-allowed" class="notice notice--warning">HTTPS で開いてください。</span>
+          </esp-web-install-button>
+          <esp-web-install-button manifest="./manifest-m5stack-core2.json">
+            <button slot="activate" class="button button--primary" type="button">M5Stack Core2</button>
+          </esp-web-install-button>
+          <esp-web-install-button manifest="./manifest-m5stack-cores3.json">
+            <button slot="activate" class="button button--primary" type="button">M5Stack CoreS3</button>
+          </esp-web-install-button>
+        </div>
+        <p class="field-note">3 機種とも自動ビルド対象ですが、公開ボタンは各機種の実機確認後に有効化します。</p>
+      </section>
+
+      <section class="panel" aria-label="USB serial settings">
+        <h2>2. USB 設定</h2>
+        <div class="connection-row">
+          <p id="connection-status" class="status" aria-live="polite"></p>
+          <div class="actions">
+            <button id="connect" class="button button--primary" type="button">USB 接続</button>
+            <button id="disconnect" class="button" type="button">切断</button>
+            <button id="read-config" class="button" type="button">現在の設定を読む</button>
+          </div>
+        </div>
+
+        <p id="unsigned-warning" class="notice notice--danger" hidden><strong>未署名 UDP command を許可しています。</strong> controller と Quest を隔離したデモ LAN だけに接続してください。共有ネットワークでは使えません。</p>
+
+        <form id="config-form" class="config-form">
+          <fieldset>
+            <legend>Wi-Fi と接続先</legend>
+            <label>Wi-Fi SSID<input name="wifi_ssid" autocomplete="off" maxlength="32" /></label>
+            <label class="clear"><input name="clear_wifi_ssid" type="checkbox" /> 保存時に Wi-Fi SSID を消去</label>
+            <label>Wi-Fi password（現在: <span id="wifi-password-state">未確認</span>）<input name="wifi_password" type="password" autocomplete="new-password" maxlength="256" /></label>
+            <label class="clear"><input name="clear_wifi_password" type="checkbox" /> 保存時に Wi-Fi password を消去</label>
+            <label>Quest の IPv4 address<input name="hmd_ip" inputmode="numeric" autocomplete="off" placeholder="192.168.10.20" /></label>
+            <label class="clear"><input name="clear_hmd_ip" type="checkbox" /> 保存時に Quest の IPv4 address を消去</label>
+            <label>controller ID<input name="controller_id" autocomplete="off" pattern="[a-z0-9][a-z0-9._-]{0,63}" /></label>
+            <label class="clear"><input name="clear_controller_id" type="checkbox" /> 保存時に controller ID を再生成</label>
+          </fieldset>
+
+          <fieldset>
+            <legend>ボタン A / B / C</legend>
+            <p class="field-note">空欄は既存値を維持します。値を消す場合だけ「消去」を選びます。</p>
+            <label>Button A demo ID<input name="target_a_demo_id" placeholder="gloveball" autocomplete="off" pattern="[a-z0-9][a-z0-9._-]{0,63}" /></label>
+            <label class="clear"><input name="clear_target_a_demo_id" type="checkbox" /> A を消去</label>
+            <label>Button B demo ID<input name="target_b_demo_id" placeholder="handdemo" autocomplete="off" pattern="[a-z0-9][a-z0-9._-]{0,63}" /></label>
+            <label class="clear"><input name="clear_target_b_demo_id" type="checkbox" /> B を消去</label>
+            <label>Button C demo ID<input name="target_c_demo_id" autocomplete="off" pattern="[a-z0-9][a-z0-9._-]{0,63}" /></label>
+            <label class="clear"><input name="clear_target_c_demo_id" type="checkbox" /> C を消去</label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Command authentication</legend>
+            <label>Shared secret（現在: <span id="shared-secret-state">未確認</span>）<input name="shared_secret" type="password" autocomplete="new-password" maxlength="256" /></label>
+            <label class="clear"><input name="clear_shared_secret" type="checkbox" /> 保存時に shared secret を消去</label>
+            <label class="check"><input name="allow_unsigned" type="checkbox" /> 未署名 command を許可する</label>
+            <label class="check"><input name="isolated_lan" type="checkbox" /> controller と Quest は隔離したデモ LAN にだけ接続している</label>
+            <p class="field-note">未署名を許可する場合は、同じ保存操作で隔離 LAN を明示する必要があります。</p>
+            <p class="field-note">署名を使う場合は Quest 側の各 Demo Switch settings に同じ shared secret を設定します。shared secret も未署名 mode もない状態では、controller は切替 command を送信しません。</p>
+          </fieldset>
+
+          <div class="actions">
+            <button class="button button--primary" type="submit">設定を保存</button>
+            <button id="reboot" class="button" type="button">再起動</button>
+            <button id="factory-reset" class="button button--danger" type="button">出荷時設定に戻す</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel" aria-label="操作履歴">
+        <h2>操作履歴</h2>
+        <ul id="activity" class="activity" aria-live="polite"><li>USB 接続後、現在の設定を自動で読み込みます。</li></ul>
+      </section>
+
+      <footer><a href="/tools/">← Web ツール一覧に戻る</a></footer>
+    </main>
+    <script type="module" src="../espnow-flasher/vendor/esp-web-tools/install-button.js"></script>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

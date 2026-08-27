@@ -1,0 +1,29 @@
+{
+  "name": "Hapbeat Demo Switch controller (m5stack-cores3)",
+  "version": "0.1.0-d1",
+  "new_install_prompt_erase": true,
+  "new_install_improv_wait_time": 0,
+  "builds": [
+    {
+      "chipFamily": "ESP32-S3",
+      "parts": [
+        {
+          "path": "bin/m5stack-cores3/bootloader.bin",
+          "offset": 0
+        },
+        {
+          "path": "bin/m5stack-cores3/partitions.bin",
+          "offset": 32768
+        },
+        {
+          "path": "bin/m5stack-cores3/boot_app0.bin",
+          "offset": 57344
+        },
+        {
+          "path": "bin/m5stack-cores3/firmware.bin",
+          "offset": 65536
+        }
+      ]
+    }
+  ]
+}

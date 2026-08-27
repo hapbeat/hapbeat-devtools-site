@@ -1,0 +1,29 @@
+{
+  "name": "Hapbeat Demo Switch controller (m5stack-basic)",
+  "version": "0.1.0-d1",
+  "new_install_prompt_erase": true,
+  "new_install_improv_wait_time": 0,
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        {
+          "path": "bin/m5stack-basic/bootloader.bin",
+          "offset": 4096
+        },
+        {
+          "path": "bin/m5stack-basic/partitions.bin",
+          "offset": 32768
+        },
+        {
+          "path": "bin/m5stack-basic/boot_app0.bin",
+          "offset": 57344
+        },
+        {
+          "path": "bin/m5stack-basic/firmware.bin",
+          "offset": 65536
+        }
+      ]
+    }
+  ]
+}

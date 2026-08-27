@@ -1,0 +1,26 @@
+{
+  "version": "0.1.0-d1",
+  "environment": "m5stack-core2",
+  "flash": [
+    {
+      "file": "bootloader.bin",
+      "offset": "0x1000",
+      "sha256": "a23f2db3a09e9df581a397ade210cce2224b593f8ae563a28f75b5b9795f30b3"
+    },
+    {
+      "file": "partitions.bin",
+      "offset": "0x8000",
+      "sha256": "bd0f7954aca2ef7d925ee21aaa1f3dc8822d1d6ce5cbbd26a135e5886bfff6ce"
+    },
+    {
+      "file": "boot_app0.bin",
+      "offset": "0xe000",
+      "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+    },
+    {
+      "file": "firmware.bin",
+      "offset": "0x10000",
+      "sha256": "1ee99c0d9987c7a04f6a319136123753e2261564b9368d1d469decae0786b23c"
+    }
+  ]
+}
