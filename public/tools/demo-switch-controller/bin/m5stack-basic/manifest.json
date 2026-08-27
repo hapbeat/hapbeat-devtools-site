@@ -20,7 +20,7 @@
     {
       "file": "firmware.bin",
       "offset": "0x10000",
-      "sha256": "f2a4657c195630d71b294b29b522c151b7587957ff567a09fa3b5f3841c1a018"
+      "sha256": "ec1acb32d94ed9a57cd2287913a79259f925ff6494b3c44f6a4cf50a058b7909"
     }
   ]
 }

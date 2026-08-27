@@ -63,8 +63,9 @@
             <label class="clear"><input name="clear_wifi_ssid" type="checkbox" /> 保存時に Wi-Fi SSID を消去</label>
             <label>Wi-Fi password（現在: <span id="wifi-password-state">未確認</span>）<input name="wifi_password" type="password" autocomplete="new-password" maxlength="256" /></label>
             <label class="clear"><input name="clear_wifi_password" type="checkbox" /> 保存時に Wi-Fi password を消去</label>
-            <label>Quest の IPv4 address<input name="hmd_ip" inputmode="numeric" autocomplete="off" placeholder="192.168.10.20" /></label>
-            <label class="clear"><input name="clear_hmd_ip" type="checkbox" /> 保存時に Quest の IPv4 address を消去</label>
+            <label>Quest の IPv4 address（任意）<input name="hmd_ip" inputmode="numeric" autocomplete="off" placeholder="空欄なら自動検出" /></label>
+            <label class="clear"><input name="clear_hmd_ip" type="checkbox" /> 固定 IPv4 を消去して自動検出に戻す</label>
+            <p class="field-note">通常は空欄のままで構いません。M5 が同じ LAN の前面 Quest を自動検出します。複数の Quest が応答する環境でだけ、対象の IPv4 を固定してください。</p>
             <label>controller ID<input name="controller_id" autocomplete="off" pattern="[a-z0-9][a-z0-9._-]{0,63}" /></label>
             <label class="clear"><input name="clear_controller_id" type="checkbox" /> 保存時に controller ID を再生成</label>
           </fieldset>
