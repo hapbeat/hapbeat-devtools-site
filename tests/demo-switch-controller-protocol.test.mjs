@@ -73,6 +73,25 @@ test('reader discards an overlong line split across chunks, then resumes after L
   );
 });
 
+test('reader accepts the maximum five-profile provisioning frame', () => {
+  const reader = new NdjsonFrameReader();
+  const frame = {
+    version: 1,
+    type: 'set_config',
+    id: 'five-profiles',
+    config: {
+      wifi_profiles: Array.from({ length: 5 }, (_, index) => ({
+        ssid: `ssid-${index}${'s'.repeat(26)}`,
+        wifi_password: 'p'.repeat(256),
+      })),
+    },
+  };
+  const line = encoder.encode(`${JSON.stringify(frame)}\n`);
+  assert.ok(line.length > 1024);
+  assert.ok(line.length <= SERIAL_LINE_LIMIT);
+  assert.deepEqual(reader.push(line), [{ kind: 'frame', frame }]);
+});
+
 test('client correlates a response by request id', async () => {
   const port = new FakePort();
   const client = new SerialProvisioningClient(port, { timeoutMs: 100 });

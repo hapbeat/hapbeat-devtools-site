@@ -86,7 +86,7 @@ function renderConfig(config) {
 }
 
 function handleSerialEvent(event) {
-  if (event.kind === 'line-too-long') appendActivity('1024 byte を超えるシリアル行を破棄しました。', 'error');
+  if (event.kind === 'line-too-long') appendActivity('3072 byte を超えるシリアル行を破棄しました。', 'error');
   if (event.kind === 'invalid-json') appendActivity('壊れたシリアル応答を破棄しました。', 'error');
   if (event.kind === 'read-error') appendActivity('シリアル接続が切れました。', 'error');
 }

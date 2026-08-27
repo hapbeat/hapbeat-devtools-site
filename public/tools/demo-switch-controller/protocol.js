@@ -2,7 +2,7 @@ const encoder = new TextEncoder();
 const decoder = new TextDecoder('utf-8', { fatal: true });
 
 export const BAUD_RATE = 115200;
-export const SERIAL_LINE_LIMIT = 1024;
+export const SERIAL_LINE_LIMIT = 3072;
 export const REQUEST_TIMEOUT_MS = 5000;
 export const REQUEST_RETRY_COUNT = 1;
 
@@ -134,7 +134,7 @@ export class SerialProvisioningClient {
     const frame = { version: 1, type, id, ...extra };
     const line = `${JSON.stringify(frame)}\n`;
     if (encoder.encode(line).length > SERIAL_LINE_LIMIT) {
-      throw new Error('The request exceeds the 1024-byte serial line limit.');
+      throw new Error('The request exceeds the 3072-byte serial line limit.');
     }
 
     const encoded = encoder.encode(line);
