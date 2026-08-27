@@ -61,7 +61,7 @@
             <legend>Wi-Fi と接続先</legend>
             <label>Wi-Fi SSID<input name="wifi_ssid" autocomplete="off" maxlength="32" /></label>
             <label class="clear"><input name="clear_wifi_ssid" type="checkbox" /> 保存時に Wi-Fi SSID を消去</label>
-            <label>Wi-Fi password（現在: <span id="wifi-password-state">未確認</span>）<input name="wifi_password" type="password" autocomplete="new-password" maxlength="256" /></label>
+            <label><span>Wi-Fi password（現在: <span id="wifi-password-state">未確認</span>）</span><input name="wifi_password" type="password" autocomplete="new-password" maxlength="256" /></label>
             <label class="clear"><input name="clear_wifi_password" type="checkbox" /> 保存時に Wi-Fi password を消去</label>
             <label>Quest の IPv4 address（任意）<input name="hmd_ip" inputmode="numeric" autocomplete="off" placeholder="空欄なら自動検出" /></label>
             <label class="clear"><input name="clear_hmd_ip" type="checkbox" /> 固定 IPv4 を消去して自動検出に戻す</label>
@@ -83,7 +83,7 @@
 
           <fieldset>
             <legend>Command authentication</legend>
-            <label>Shared secret（現在: <span id="shared-secret-state">未確認</span>）<input name="shared_secret" type="password" autocomplete="new-password" maxlength="256" /></label>
+            <label><span>Shared secret（現在: <span id="shared-secret-state">未確認</span>）</span><input name="shared_secret" type="password" autocomplete="new-password" maxlength="256" /></label>
             <label class="clear"><input name="clear_shared_secret" type="checkbox" /> 保存時に shared secret を消去</label>
             <label class="check"><input name="allow_unsigned" type="checkbox" /> 未署名 command を許可する</label>
             <label class="check"><input name="isolated_lan" type="checkbox" /> controller と Quest は隔離したデモ LAN にだけ接続している</label>
