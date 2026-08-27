@@ -9,6 +9,9 @@ const configForm = document.getElementById('config-form');
 const unsignedWarning = document.getElementById('unsigned-warning');
 let client;
 let configLoaded = false;
+let loadedWifiProfileCount = 0;
+const wifiProfiles = document.getElementById('wifi-profiles');
+const addWifiProfileButton = document.getElementById('add-wifi-profile');
 
 const unverifiedFlashAllowed = ['localhost', '127.0.0.1'].includes(window.location.hostname)
   && new URLSearchParams(window.location.search).get('allowUnverified') === '1';
@@ -39,14 +42,43 @@ function updateConnection(connected) {
   });
 }
 
+function createWifiProfile(profile = { ssid: '', open: false, wifi_password_set: false }) {
+  if (wifiProfiles.children.length >= 5) return;
+  const row = document.createElement('fieldset');
+  row.className = 'wifi-profile';
+  row.innerHTML = `<legend>Wi-Fi ${wifiProfiles.children.length + 1}</legend>
+    <label>SSID<input class="wifi-ssid" autocomplete="off" maxlength="32" /></label>
+    <label><span>password（現在: <span class="wifi-password-state">未設定</span>）</span><input class="wifi-password" type="password" autocomplete="new-password" maxlength="256" /></label>
+    <label class="check"><input class="wifi-open" type="checkbox" /> Open network</label>
+    <button class="button wifi-remove" type="button">削除</button>`;
+  row.querySelector('.wifi-ssid').value = profile.ssid;
+  row.querySelector('.wifi-open').checked = profile.open;
+  row.querySelector('.wifi-password-state').textContent = profile.open ? '不要' : (profile.wifi_password_set ? '設定済み' : '未設定');
+  row.querySelector('.wifi-password').disabled = profile.open;
+  row.querySelector('.wifi-open').addEventListener('change', (event) => {
+    row.querySelector('.wifi-password').disabled = event.target.checked;
+    if (event.target.checked) row.querySelector('.wifi-password').value = '';
+  });
+  row.querySelector('.wifi-remove').addEventListener('click', () => { row.remove(); renumberWifiProfiles(); });
+  wifiProfiles.append(row);
+}
+
+function renumberWifiProfiles() {
+  [...wifiProfiles.children].forEach((row, index) => { row.querySelector('legend').textContent = `Wi-Fi ${index + 1}`; });
+  addWifiProfileButton.disabled = wifiProfiles.children.length >= 5 || !configLoaded;
+}
+
 function renderConfig(config) {
-  for (const field of ['wifi_ssid', 'hmd_ip', 'controller_id', 'target_a_demo_id', 'target_b_demo_id', 'target_c_demo_id']) {
+  for (const field of ['hmd_ip', 'controller_id', 'target_a_demo_id', 'target_b_demo_id', 'target_c_demo_id']) {
     const input = configForm.elements.namedItem(field);
     input.value = config[field] ?? '';
   }
   configForm.elements.namedItem('allow_unsigned').checked = config.allow_unsigned;
   configForm.elements.namedItem('isolated_lan').checked = config.isolated_lan;
-  document.getElementById('wifi-password-state').textContent = config.wifi_password_set ? '設定済み' : '未設定';
+  wifiProfiles.replaceChildren();
+  config.wifi_profiles.forEach((profile) => createWifiProfile(profile));
+  loadedWifiProfileCount = config.wifi_profiles.length;
+  renumberWifiProfiles();
   document.getElementById('shared-secret-state').textContent = config.shared_secret_set ? '設定済み' : '未設定';
   unsignedWarning.hidden = !config.allow_unsigned;
   configForm.querySelectorAll('input[name^="clear_"]').forEach((input) => { input.checked = false; });
@@ -68,20 +100,38 @@ async function loadConfig() {
 
 function buildConfigUpdate() {
   const config = {};
-  for (const field of ['wifi_ssid', 'hmd_ip', 'controller_id', 'target_a_demo_id', 'target_b_demo_id', 'target_c_demo_id']) {
+  const clearWifiProfiles = configForm.elements.namedItem('clear_wifi_profiles').checked;
+  if (clearWifiProfiles) config.clear_wifi_profiles = true;
+  else {
+    const profiles = [];
+    for (const row of wifiProfiles.children) {
+      const ssid = row.querySelector('.wifi-ssid').value.trim();
+      const passwordInput = row.querySelector('.wifi-password');
+      const password = passwordInput.value;
+      passwordInput.value = '';
+      const open = row.querySelector('.wifi-open').checked;
+      if (!ssid) throw new Error('Wi-Fi profile の SSID を入力するか、その行を削除してください。');
+      if (profiles.some((profile) => profile.ssid === ssid)) throw new Error('Wi-Fi SSID は重複できません。');
+      const profile = { ssid };
+      if (open) profile.open = true;
+      else if (password) profile.wifi_password = password;
+      profiles.push(profile);
+    }
+    if (profiles.length) config.wifi_profiles = profiles;
+    else if (loadedWifiProfileCount) config.clear_wifi_profiles = true;
+  }
+  for (const field of ['hmd_ip', 'controller_id', 'target_a_demo_id', 'target_b_demo_id', 'target_c_demo_id']) {
     const input = configForm.elements.namedItem(field);
     const clear = configForm.elements.namedItem(`clear_${field}`);
     if (clear.checked) config[`clear_${field}`] = true;
     else if (input.value.trim()) config[field] = input.value.trim();
   }
-  for (const field of ['wifi_password', 'shared_secret']) {
-    const input = configForm.elements.namedItem(field);
-    const clear = configForm.elements.namedItem(`clear_${field}`);
-    const value = input.value;
-    input.value = ''; // Do not retain secrets in the DOM after the outgoing frame is created.
-    if (clear.checked) config[`clear_${field}`] = true;
-    else if (value) config[field] = value;
-  }
+  const sharedSecret = configForm.elements.namedItem('shared_secret');
+  const clearSharedSecret = configForm.elements.namedItem('clear_shared_secret');
+  const sharedSecretValue = sharedSecret.value;
+  sharedSecret.value = ''; // Do not retain secrets in the DOM after the outgoing frame is created.
+  if (clearSharedSecret.checked) config.clear_shared_secret = true;
+  else if (sharedSecretValue) config.shared_secret = sharedSecretValue;
   config.allow_unsigned = configForm.elements.namedItem('allow_unsigned').checked;
   config.isolated_lan = configForm.elements.namedItem('isolated_lan').checked;
   if (config.allow_unsigned && !config.isolated_lan) throw new Error('未署名モードには「隔離したデモ LAN」を明示的に選ぶ必要があります。');
@@ -103,6 +153,7 @@ if (unsupported) {
   setStatus(`未接続（USB CDC serial、${BAUD_RATE} baud）`);
 }
 updateConnection(false);
+addWifiProfileButton.addEventListener('click', () => { createWifiProfile(); renumberWifiProfiles(); });
 
 connectButton.addEventListener('click', async () => {
   const message = checkBrowserSupport();

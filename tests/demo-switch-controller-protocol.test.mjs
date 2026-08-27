@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import {
   NdjsonFrameReader,
@@ -16,7 +17,7 @@ const valid = [
       id: 'read-001',
       response: 'config',
       config: {
-        wifi_ssid: 'DemoLan', wifi_password_set: true, hmd_ip: '192.168.10.20', controller_id: 'm5-main',
+        wifi_profiles: [{ ssid: 'DemoLan', open: false, wifi_password_set: true }, { ssid: 'Guest', open: true, wifi_password_set: false }], hmd_ip: '192.168.10.20', controller_id: 'm5-main',
         target_a_demo_id: 'gloveball', target_b_demo_id: 'handdemo', target_c_demo_id: null,
         shared_secret_set: true, allow_unsigned: false, isolated_lan: false, next_sequence: 43,
       },
@@ -88,7 +89,7 @@ test('client rejects a response that does not match the request command', async 
   const port = new FakePort();
   const client = new SerialProvisioningClient(port, { timeoutMs: 100 });
   await client.open();
-  const request = client.setConfig({ wifi_ssid: 'DemoLan' });
+  const request = client.setConfig({ wifi_profiles: [{ ssid: 'DemoLan', wifi_password: 'input-only' }] });
   const sent = JSON.parse(port.sent[0]);
   port.receive({
     version: 1,
@@ -119,7 +120,13 @@ test('client retries a timed-out request with the same id and body', async () =>
 
 test('secret updates are represented by redacted presence fields only', () => {
   assert.deepEqual(
-    redactedSetConfigFields({ wifi_ssid: 'DemoLan', wifi_password: 'never-log', shared_secret: 'never-log' }),
-    ['wifi_ssid', 'wifi_password_set', 'shared_secret_set'],
+    redactedSetConfigFields({ wifi_profiles: [{ ssid: 'DemoLan', wifi_password: 'never-log' }], shared_secret: 'never-log' }),
+    ['wifi_profiles', 'shared_secret_set'],
   );
+});
+
+test('Wi-Fi profile submit path has no legacy password controls', async () => {
+  const app = await readFile(new URL('../public/tools/demo-switch-controller/app.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(app, /elements\.namedItem\('wifi_password'\)/);
+  assert.doesNotMatch(app, /elements\.namedItem\('clear_wifi_password'\)/);
 });

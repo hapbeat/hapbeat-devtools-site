@@ -59,10 +59,9 @@
         <form id="config-form" class="config-form">
           <fieldset>
             <legend>Wi-Fi と接続先</legend>
-            <label>Wi-Fi SSID<input name="wifi_ssid" autocomplete="off" maxlength="32" /></label>
-            <label class="clear"><input name="clear_wifi_ssid" type="checkbox" /> 保存時に Wi-Fi SSID を消去</label>
-            <label><span>Wi-Fi password（現在: <span id="wifi-password-state">未確認</span>）</span><input name="wifi_password" type="password" autocomplete="new-password" maxlength="256" /></label>
-            <label class="clear"><input name="clear_wifi_password" type="checkbox" /> 保存時に Wi-Fi password を消去</label>
+            <div id="wifi-profiles" class="wifi-profiles" aria-live="polite"></div>
+            <div class="actions"><button id="add-wifi-profile" class="button" type="button">Wi-Fi を追加</button><label class="check"><input name="clear_wifi_profiles" type="checkbox" /> 保存時に全 Wi-Fi を消去</label></div>
+            <p class="field-note">最大 5 件を順序付きで保存します。先頭が起動時の接続先です。既存 SSID の password を空欄にすると保持し、open を選ぶと password を消去します。</p>
             <label>Quest の IPv4 address（任意）<input name="hmd_ip" inputmode="numeric" autocomplete="off" placeholder="空欄なら自動検出" /></label>
             <label class="clear"><input name="clear_hmd_ip" type="checkbox" /> 固定 IPv4 を消去して自動検出に戻す</label>
             <p class="field-note">通常は空欄のままで構いません。M5 が同じ LAN の前面 Quest を自動検出します。複数の Quest が応答する環境でだけ、対象の IPv4 を固定してください。</p>

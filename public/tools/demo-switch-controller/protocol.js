@@ -80,7 +80,7 @@ export class NdjsonFrameReader {
 
 export function redactedSetConfigFields(config) {
   return Object.keys(config).map((field) => {
-    if (field === 'wifi_password') return 'wifi_password_set';
+    if (field === 'wifi_profiles') return 'wifi_profiles';
     if (field === 'shared_secret') return 'shared_secret_set';
     return field;
   });

@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0-d1",
+  "version": "0.1.0-d2",
   "environment": "m5stack-core2",
   "flash": [
     {
@@ -20,7 +20,7 @@
     {
       "file": "firmware.bin",
       "offset": "0x10000",
-      "sha256": "8ec8959d104b7f74e8d28490d1d880fbf784d5c2d7ad72c7a2575715229f25b2"
+      "sha256": "9bd5387f3b7648f5542c84a318f50935cb549621cf91362a14ae9ab058058a19"
     }
   ]
 }
