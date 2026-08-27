@@ -27,7 +27,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AdmZip from 'adm-zip';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..');
 const TMP_DIR = path.join(ROOT, '.astro', '_fetch-demos-tmp');
 
@@ -50,7 +51,24 @@ const TOOLS_ROOT = path.join(ROOT, 'public', 'tools');
 const TOOLS_VENDOR_DEST = path.join(TOOLS_ROOT, 'vendor');
 
 // examples/games/ をコピーする際に除外するもの (相対パス、POSIX 区切り)。
-const EXCLUDE_REL_DIRS = new Set(['games/_archive', 'node_modules']);
+const EXCLUDE_REL_DIRS = new Set(['games/_archive']);
+const EXCLUDE_DIR_BASENAMES = new Set([
+  '.cache',
+  '.codex-tmp',
+  '.git',
+  '.mypy_cache',
+  '.pytest_cache',
+  '.ruff_cache',
+  '.venv',
+  '__pycache__',
+  'build',
+  'cache',
+  'coverage',
+  'dist',
+  'node_modules',
+  'out',
+  'venv',
+]);
 const EXCLUDE_REL_FILES = new Set([
   'tuning.csv', // 内部調整メモ
 ]);
@@ -168,6 +186,7 @@ async function copyGamesTree(srcDir, destDir) {
       for (const d of EXCLUDE_REL_DIRS) {
         if (rel.startsWith(`${d}/`)) return false;
       }
+      if (rel.split('/').some((part) => EXCLUDE_DIR_BASENAMES.has(part))) return false;
       if (EXCLUDE_REL_FILES.has(rel)) return false;
       if (EXCLUDE_BASENAMES.has(path.basename(rel))) return false;
       return true;
@@ -354,7 +373,11 @@ async function main() {
   console.log('[fetch-demos] done.');
 }
 
-main().catch((e) => {
-  console.error('[fetch-demos] fatal:', e);
-  process.exit(1);
-});
+export { copyGamesTree };
+
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  main().catch((e) => {
+    console.error('[fetch-demos] fatal:', e);
+    process.exit(1);
+  });
+}
