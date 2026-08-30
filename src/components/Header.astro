@@ -30,11 +30,11 @@ const lp = isEn ? '/en' : '';  // locale prefix for /docs/ links
     <SiteTitle {...Astro.props} />
   </div>
 
-  <div class="hb-topbar__center">
-    {/* transition:persist で SPA 遷移 (ClientRouter) を跨いで <site-search> を維持。
+  <div class="hb-topbar__center" transition:persist="topbar-search">
+    {/* 実 DOM 要素に transition:persist を付け、SPA 遷移 (ClientRouter) を跨いで <site-search> を維持。
         Starlight default の Search は DOMContentLoaded 時に PagefindUI を一度だけ
         初期化するので、persist しないと SPA 遷移後にダイアログ中身が空になる。 */}
-    <Search transition:persist="topbar-search" {...Astro.props} />
+    <Search {...Astro.props} />
   </div>
 
   <div class="hb-topbar__right">

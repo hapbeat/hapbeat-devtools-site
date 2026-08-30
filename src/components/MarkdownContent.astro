@@ -1,0 +1,15 @@
+---
+import Default from '@astrojs/starlight/components/MarkdownContent.astro';
+import { searchTermsForPath } from '../lib/search-metadata.mjs';
+
+const searchTerms = searchTermsForPath(Astro.url.pathname);
+---
+
+<Default {...Astro.props}>
+  {searchTerms && (
+    <span hidden aria-hidden="true" data-pagefind-meta="search_terms">
+      {searchTerms.join(' ')}
+    </span>
+  )}
+  <slot />
+</Default>
