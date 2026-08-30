@@ -44,6 +44,16 @@ if (sdkOg) {
 <Default {...Astro.props}><slot /></Default>
 <ClientRouter />
 
+<script>
+  import { pagefindUserConfig } from 'virtual:starlight/pagefind-config';
+  import { normalizeSearchTerm } from '../lib/search-metadata.mjs';
+
+  const pagefindConfig = pagefindUserConfig as typeof pagefindUserConfig & {
+    processTerm?: (term: string) => string;
+  };
+  pagefindConfig.processTerm = normalizeSearchTerm;
+</script>
+
 <script is:inline>
   (() => {
     const KEY_SCROLL = 'hb-sidebar-scroll';

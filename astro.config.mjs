@@ -560,6 +560,7 @@ export default defineConfig({
       // ロゴ画像は使わず CSS グラデーションで描画するため logo config はなし。
       components: {
         Head: './src/components/Head.astro',
+        MarkdownContent: './src/components/MarkdownContent.astro',
         Header: './src/components/Header.astro',
         SiteTitle: './src/components/SiteTitle.astro',
         LanguageSelect: './src/components/LanguageSelect.astro',
