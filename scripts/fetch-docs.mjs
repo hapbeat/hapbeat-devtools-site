@@ -46,12 +46,14 @@ const REPO_CATEGORY_DIRS = ['repos-core', 'repos-firmware', 'repos-sdk', 'repos-
 //        sub-repo が docs/index.md を持っていればそちらが優先 (override)。
 // 2026-05-11: docs IA 再設計により、helper / studio / firmware / unity-sdk の
 // docs は devtools-site/docs/<short>/ に物理移動し、fetch 不要となった。
-// contracts のみ「タグごとに freeze される規範的仕様」として fetch を維持する。
+// Unreal SDK は SDK repo 側の docs/ を正本としてここへ集約する。
+// contracts は「タグごとに freeze される規範的仕様」として fetch を維持する。
 // 詳細: docs/instructions-docs-ia-restructure-202605111600.md (workspace)
 // short は TARGET_PARENT 配下のサブパス。Contracts (仕様) は Concepts セクションに
 // 取り込む方針 (Reference トップレベルを廃止)。
 const SOURCES = [
   { short: 'concepts/contracts', label: 'Contracts (仕様)', repo: 'hapbeat-contracts', url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
+  { short: 'sdk-integration/unreal-sdk', label: 'Unreal SDK', repo: 'hapbeat-unreal-sdk', url: 'https://github.com/Hapbeat/hapbeat-unreal-sdk.git' },
 ];
 
 // 各リポジトリの CHANGELOG.md を docs ポータルに公開する設定。
@@ -63,6 +65,7 @@ const CHANGELOG_SOURCES = [
   { repo: 'hapbeat-studio',               destPath: 'tools/studio/changelog.md',                  title: '変更履歴 — Hapbeat Studio'         },
   { repo: 'hapbeat-helper',               destPath: 'tools/helper/changelog.md',                   title: '変更履歴 — hapbeat-helper'         },
   { repo: 'hapbeat-unity-sdk',            destPath: 'sdk-integration/unity-sdk/changelog.md',      title: '変更履歴 — Hapbeat Unity SDK'      },
+  { repo: 'hapbeat-unreal-sdk',           destPath: 'sdk-integration/unreal-sdk/changelog.md',     title: '変更履歴 — Hapbeat Unreal SDK'     },
   { repo: 'hapbeat-python-sdk',           destPath: 'sdk-integration/python-sdk/changelog.md',     title: '変更履歴 — Hapbeat Python SDK'     },
   { repo: 'hapbeat-js-sdk',               destPath: 'sdk-integration/js-sdk/changelog.md',         title: '変更履歴 — Hapbeat JavaScript SDK' },
   { repo: 'hapbeat-arduino',              destPath: 'sdk-integration/arduino-sdk/changelog.md',    title: '変更履歴 — Hapbeat Arduino'        },

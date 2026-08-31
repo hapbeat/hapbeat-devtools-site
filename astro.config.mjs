@@ -447,7 +447,7 @@ export default defineConfig({
           // llms.txt は AI エージェントが読む前提のため、索引・説明文は英語で書く
           // (本文はソース docs が日本語のため日本語で生成される)。
           projectName: 'Hapbeat Developer Tools',
-          description: 'Developer documentation for the Hapbeat haptic device ecosystem (SDKs and tools). Covers usage, specifications, and samples for the Unity SDK, Python SDK, Studio, and Helper. Note: page bodies are in Japanese (the source-of-truth docs language); section descriptions and the index are in English.',
+          description: 'Developer documentation for the Hapbeat haptic device ecosystem (SDKs and tools). Covers usage, specifications, and samples for the Unity SDK, Unreal SDK, Python SDK, Studio, and Helper. Note: page bodies are in Japanese (the source-of-truth docs language); section descriptions and the index are in English.',
           // 索引 (llms.txt) に curated な AGENTS.md を載せる。エージェントは
           // 索引を読んで「必要なら」これを取りに行ける (full set より小さく高密度)。
           // AGENTS.md を持つ SDK が増えたら同形で 1 行ずつ足す。
@@ -500,6 +500,11 @@ export default defineConfig({
               paths: ['docs/sdk-integration/unity-sdk/**', 'docs/concepts/**'],
             },
             {
+              label: 'unreal-sdk',
+              description: 'Hapbeat Unreal SDK — usage, Event Map wiring, and Showcase samples (with shared concepts).',
+              paths: ['docs/sdk-integration/unreal-sdk/**', 'docs/concepts/**'],
+            },
+            {
               label: 'arduino-sdk',
               description: 'Hapbeat Arduino / ESP32 / M5Stack library — usage and specification (with shared concepts).',
               paths: ['docs/sdk-integration/arduino-sdk/**', 'docs/concepts/**'],
@@ -514,7 +519,7 @@ export default defineConfig({
               description: 'hapbeat-helper (CLI daemon) — installation, configuration, and usage (with shared concepts).',
               paths: ['docs/tools/helper/**', 'docs/concepts/**'],
             },
-            // 将来: web-sdk / godot-sdk / vrchat / touchdesigner / unreal-sdk の
+            // 将来: web-sdk / godot-sdk / vrchat / touchdesigner の
             // docs が sdk-integration 配下に追加されたら同形で 1 行ずつ足す。
           ],
         }),
@@ -641,6 +646,16 @@ export default defineConfig({
                 pub('docs/sdk-integration/unity-sdk/editor-menus'),
                 pub('docs/sdk-integration/unity-sdk/installation'),
                 pub('docs/sdk-integration/unity-sdk/changelog'),
+              ].filter(Boolean),
+            },
+            {
+              label: 'Unreal SDK',
+              items: [
+                pub('docs/sdk-integration/unreal-sdk/getting-started'),
+                pub('docs/sdk-integration/unreal-sdk/advanced'),
+                pub('docs/sdk-integration/unreal-sdk/showcase-codex'),
+                pub('docs/sdk-integration/unreal-sdk/unity-to-unreal-codex'),
+                pub('docs/sdk-integration/unreal-sdk/changelog'),
               ].filter(Boolean),
             },
             {
