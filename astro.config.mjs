@@ -653,7 +653,7 @@ export default defineConfig({
               items: [
                 pub('docs/sdk-integration/unreal-sdk/getting-started'),
                 pub('docs/sdk-integration/unreal-sdk/advanced'),
-                pub('docs/sdk-integration/unreal-sdk/showcase-codex'),
+                pub('docs/sdk-integration/unreal-sdk/showcase-unreal'),
                 pub('docs/sdk-integration/unreal-sdk/unity-to-unreal-codex'),
                 pub('docs/sdk-integration/unreal-sdk/changelog'),
               ].filter(Boolean),
