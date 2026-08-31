@@ -8,19 +8,6 @@ sidebar:
 
 このページでは、**現在未実装** で今後対応を予定している SDK・ツールをまとめています。実装が完了したものは独立したセクションに移動します。
 
-## Unreal SDK
-
-Unreal Engine から Hapbeat を制御する薄いアダプタ SDK。Unity SDK と同じ UDP プロトコル ([](/docs/concepts/contracts/overview/)) を利用するため、機能セットは Unity SDK にほぼ準じる予定です。
-
-**予定機能**
-
-- Wi-Fi UDP による直接通信
-- Blueprint 対応の Trigger コンポーネント
-- C++ API（`HapbeatBridge` / `HapbeatEventTrigger` 相当）
-- EventMap 風の Editor ツール
-
-**代替手段**: 先行検証したい場合は OSC / UDP ライブラリで [](/docs/concepts/contracts/overview/) を参照しながら直接実装することも可能です。
-
 ## Creative Kit (TouchDesigner / Max / Pure Data)
 
 クリエイティブ開発環境から Hapbeat を制御するテンプレート・サンプル集。

@@ -29,7 +29,7 @@ Hapbeat には **2 つの独立したフロー** があります:
 | **Hapbeat Studio** | Web アプリ | Kit 設計・UI 設定・Wi-Fi 設定・ファーム書込みを GUI で行う | ブラウザ (Chrome/Edge) |
 | **hapbeat-helper** | CLI daemon | PC 上の常駐デーモン。Studio ↔ デバイス間を mDNS / UDP / TCP / Web Serial で中継 | PC (Mac/Win) |
 | **hapbeat-unity-sdk** | UPM パッケージ | Unity から触覚イベントを発火する SDK | Unity Editor / Runtime |
-| **hapbeat-unreal-sdk** | プラグイン | Unreal 用 SDK（実装予定） | — |
+| **hapbeat-unreal-sdk** | UE5 プラグイン | Unreal Engine 5 から触覚イベントを発火する SDK | Windows / UE5 |
 | **hapbeat-creative-kit** | ツール群 | OSC / VJ など創作向け SDK（実装予定） | — |
 
 ## 役割境界（やらないこと）
@@ -50,7 +50,7 @@ hapbeat-contracts（仕様の起点）
   ├─ hapbeat-helper
   ├─ hapbeat-studio
   ├─ hapbeat-unity-sdk
-  ├─ hapbeat-unreal-sdk (WIP)
+  ├─ hapbeat-unreal-sdk
   └─ hapbeat-creative-kit (WIP)
 ```
 

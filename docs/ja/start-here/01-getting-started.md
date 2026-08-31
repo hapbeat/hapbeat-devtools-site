@@ -156,7 +156,7 @@ Studio が読み書きするのは、ここで指定したワーキングディ�
 新規 Unity プロジェクトに SDK をインストールし、サンプルシーンから振動を出すまでの最短ガイドです。
 :::
 
-Unreal SDK / Creative Kit 等は [](/docs/support/coming-soon/) を参照してください。
+Unreal Engine を使う場合は [](/docs/sdk-integration/unreal-sdk/getting-started/) を参照してください。Creative Kit 等は [](/docs/support/coming-soon/) を参照してください。
 
 ## 次に読むページ
 
