@@ -226,10 +226,19 @@ html {
 /* Inline code: design 風に */
 .sl-markdown-content :not(pre) > code {
   font-family: var(--hb-font-mono);
+  /* Keep C++ operators literal: JetBrains Mono otherwise renders -> as a ligature arrow. */
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
   font-size: 0.88em;
   background: var(--hb-bg-code);
   border: 1px solid var(--hb-line);
   padding: 1px 5px;
   border-radius: 4px;
   color: var(--hb-ink);
+}
+
+.sl-markdown-content pre,
+.sl-markdown-content pre code {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
 }
