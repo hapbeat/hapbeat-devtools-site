@@ -17,7 +17,7 @@ hb.play("sample-kit.sine_100hz", 0.6f);
 ```
 
 - The waveform lives in the **kit on the Hapbeat**. The MCU sends a ~30-byte trigger.
-- Deploy the kit to the device first with [Hapbeat Studio](https://devtools.hapbeat.com).
+- Deploy the kit to the device first with [Hapbeat Studio](https://studio.hapbeat.com/en/).
 - Event ids are `<kit-name>.<file-name>` and must exist in the deployed kit.
 - **Good for**: pre-authored haptics (impacts, clicks) played by a fixed id.
 

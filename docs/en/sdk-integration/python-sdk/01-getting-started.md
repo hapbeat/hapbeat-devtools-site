@@ -49,7 +49,7 @@ hb.close()
   EventMap described below supplies the default (the kit's intensity).
 
 `"sample-kit.sine_100hz"` must be an event id present in the **kit deployed to the
-device** (flashed via [Hapbeat Studio](https://devtools.hapbeat.com)). The SDK
+device** (flashed via [Hapbeat Studio](https://studio.hapbeat.com/en/)). The SDK
 sends only the *instruction*; the waveform lives in the kit on the device
 (command mode; for the separate clip mode, see
 [](/en/docs/sdk-integration/python-sdk/command-vs-clip/)).

@@ -137,7 +137,7 @@ warning). For details on clip mode, see [](/en/docs/sdk-integration/js-sdk/comma
 
 ## Authoring flow
 
-1. Edit the kit in [Hapbeat Studio](https://devtools.hapbeat.com) (clips, intensity, command/clip).
+1. Edit the kit in [Hapbeat Studio](https://studio.hapbeat.com/en/) (clips, intensity, command/clip).
 2. Place the kit folder (manifest + `stream-clips/`) in your app (web: `public/`, node: any dir).
 3. Read the manifest with `fetch` (web) / `readFile` (node) and pass `EventMap.fromManifest(manifest)` to `connect`.
 4. If you use clip mode, point `clipBase` at the WAVs' location (URL prefix / dir).

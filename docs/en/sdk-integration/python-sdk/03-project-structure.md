@@ -70,7 +70,7 @@ hb = hapbeat.connect(app_name="MyApp", kit="kits/my-kit")   # specify target per
 
 ## Authoring flow
 
-1. Edit the kit in [Hapbeat Studio](https://devtools.hapbeat.com) (clips, intensity, command/clip).
+1. Edit the kit in [Hapbeat Studio](https://studio.hapbeat.com/en/) (clips, intensity, command/clip).
 2. Place the kit folder in your project's `kits/`.
 3. Write each event's **target** (and gain if needed) in `haptics.json`.
 4. Your code only calls `play("event.id")`.
