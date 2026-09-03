@@ -602,6 +602,7 @@ export default defineConfig({
           items: [
             { label: 'Studio', autogenerate: { directory: 'docs/tools/studio' } },
             { label: 'Helper',         autogenerate: { directory: 'docs/tools/helper' } },
+            { label: 'Web Runtime',    autogenerate: { directory: 'docs/tools/web-runtime' } },
           ],
         },
         { label: '🔧 Hardware',       autogenerate: { directory: 'docs/hardware' } },
