@@ -67,7 +67,7 @@ you are connected.
 
 Command mode keeps the waveform in the **kit on the Hapbeat** and sends only a
 light trigger from the MCU. Deploy a kit to the device first with
-[Hapbeat Studio](https://devtools.hapbeat.com).
+[Hapbeat Studio](https://studio.hapbeat.com/en/).
 
 ```cpp
 hb.play("sample-kit.sine_100hz", 0.6f);   // the id must exist in the deployed kit

@@ -87,7 +87,7 @@ await hb.close();
   any streams currently playing.
 
 `"sample-kit.sine_100hz"` must be an event id contained in a **kit deployed to the device**
-(written via [Hapbeat Studio](https://devtools.hapbeat.com)). The SDK only sends *instructions*;
+(written via [Hapbeat Studio](https://studio.hapbeat.com/en/)). The SDK only sends *instructions*;
 the waveform lives in the kit on the device (command mode). For clip mode, where the waveform
 is sent from the SDK, see [](/en/docs/sdk-integration/js-sdk/command-vs-clip/).
 
