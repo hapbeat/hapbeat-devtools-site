@@ -53,6 +53,7 @@ const REPO_CATEGORY_DIRS = ['repos-core', 'repos-firmware', 'repos-sdk', 'repos-
 // 取り込む方針 (Reference トップレベルを廃止)。
 const SOURCES = [
   { short: 'concepts/contracts', label: 'Contracts (仕様)', repo: 'hapbeat-contracts', url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
+  { short: 'tools/web-runtime', label: 'Web Runtime', repo: 'hapbeat-web-runtime', url: 'https://github.com/Hapbeat/hapbeat-web-runtime.git' },
   { short: 'sdk-integration/unreal-sdk', label: 'Unreal SDK', repo: 'hapbeat-unreal-sdk', url: 'https://github.com/Hapbeat/hapbeat-unreal-sdk.git' },
 ];
 
