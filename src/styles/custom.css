@@ -237,6 +237,12 @@ html {
   color: var(--hb-ink);
 }
 
+/* Tables already tint inline identifiers. Keep the same visual cue when a
+ * narrow-screen-friendly list replaces a wide implementation table. */
+.sl-markdown-content li code {
+  color: var(--sl-color-accent);
+}
+
 .sl-markdown-content pre,
 .sl-markdown-content pre code {
   font-variant-ligatures: none;
