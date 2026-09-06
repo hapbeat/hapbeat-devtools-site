@@ -234,12 +234,8 @@ html {
   border: 1px solid var(--hb-line);
   padding: 1px 5px;
   border-radius: 4px;
-  color: var(--hb-ink);
-}
-
-/* Tables already tint inline identifiers. Keep the same visual cue when a
- * narrow-screen-friendly list replaces a wide implementation table. */
-.sl-markdown-content li code {
+  /* Event IDs, class names, and API calls need the same visual cue in prose,
+   * lists, and tables. Code fences remain governed by syntax highlighting. */
   color: var(--sl-color-accent);
 }
 
