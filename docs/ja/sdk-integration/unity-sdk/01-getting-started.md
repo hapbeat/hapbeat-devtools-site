@@ -132,6 +132,16 @@ Command モード（F キー）を動かすには、デバイスに `basic-exam-
 また、Hapbeat SDK の **gain は乗算構造**になっています。Studio で Kit を設計する際に manifest に記録した基準 gain が「1.0 倍時の振動強度」となり、SDK 側の gain や EventMap の gain はそれに対する倍率として機能します。Kit の設計方法と gain の考え方は [](/docs/tools/studio/kit-design/) で解説しています。
 :::
 
+## 音と触覚のタイミングを合わせる
+
+音声出力の遅延は、PC・スピーカー・ヘッドホンの組み合わせごとに異なります。Hapbeat は UDP で直接届くため、環境によっては**触覚が音より先に感じられる**ことがあります。これは想定内です。
+
+1. `Hapbeat → Open Settings` を開く
+2. **Latency Compensation** の **Haptic Delay (ms)** を `0` から少しずつ上げる
+3. 音と触覚が揃う値で止める
+
+これはすべての Trigger / EventMap 経由の発火に加わる共通の遅延です。個別のイベントだけを微調整したいときは、EventMap entry の **Delay Offset** を使います。次の発火から新しい値が使われ、調整前に待機していた発火は取り消されます。
+
 ## 次のステップ
 
 - [](/docs/sdk-integration/unity-sdk/integration/) — 自分のシーンへの追加手順と Showcase サンプル紹介

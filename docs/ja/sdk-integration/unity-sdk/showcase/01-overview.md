@@ -45,6 +45,10 @@ XR デバイス不要・キーマウスだけで完結します。
 
 Import 直後にシーンを直接開けます。EventMap / kit manifest / audio clip 等はサンプルフォルダに同梱されているため、別途生成手順は不要です。
 
+:::note[音と触覚のタイミング]
+音声出力の遅延は環境ごとに異なるため、触覚が音より先に感じられることがあります。これは想定内です。`Hapbeat → Open Settings` の **Latency Compensation** で **Haptic Delay (ms)** を少しずつ上げ、触覚に遅延を加えて合わせます。詳しくは <a href="/docs/sdk-integration/unity-sdk/getting-started/#音と触覚のタイミングを合わせる" target="_blank" rel="noopener noreferrer">音と触覚のタイミングを合わせる</a> を参照してください。
+:::
+
 ## 次に読む
 
 - [Walkthrough](./walkthrough/) — 改造ヒント / Command モード切替 / WASD 衝突対処 / トラブルシューティング
