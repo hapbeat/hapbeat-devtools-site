@@ -23,6 +23,7 @@
   /* OKLCH brand soft / ink (light mode) */
   --hb-red-soft: oklch(0.93 0.05 20);
   --hb-red-ink: oklch(0.45 0.17 22);
+  --hb-yellow-soft: oklch(0.94 0.06 95);
   --hb-purple-soft: oklch(0.93 0.05 320);
   --hb-purple-ink: oklch(0.42 0.16 320);
   --hb-teal-soft: oklch(0.93 0.045 220);
@@ -85,6 +86,7 @@
 
   --hb-red-soft: oklch(0.32 0.08 22);
   --hb-red-ink: oklch(0.86 0.13 22);
+  --hb-yellow-soft: oklch(0.34 0.07 95);
   --hb-purple-soft: oklch(0.32 0.08 320);
   --hb-purple-ink: oklch(0.86 0.12 320);
   --hb-teal-soft: oklch(0.3 0.06 220);
@@ -269,6 +271,19 @@ html {
 
 .sl-markdown-content .hb-bp-node {
   background: var(--hb-teal-soft);
+}
+
+/* Code-like labels distinguish their role without changing the text color. */
+.sl-markdown-content :not(pre) > code.hb-cpp {
+  background: var(--hb-yellow-soft);
+}
+
+.sl-markdown-content :not(pre) > code.hb-entry {
+  background: var(--hb-red-soft);
+}
+
+.sl-markdown-content :not(pre) > code.hb-asset {
+  background: var(--hb-bg-code);
 }
 
 /* components.css is loaded after this file; use a more specific selector so table
