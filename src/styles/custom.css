@@ -23,7 +23,8 @@
   /* OKLCH brand soft / ink (light mode) */
   --hb-red-soft: oklch(0.93 0.05 20);
   --hb-red-ink: oklch(0.45 0.17 22);
-  --hb-yellow-soft: oklch(0.94 0.06 95);
+  --hb-cpp-ink: oklch(0.52 0.13 95);
+  --hb-bp-ink: oklch(0.43 0.13 250);
   --hb-purple-soft: oklch(0.93 0.05 320);
   --hb-purple-ink: oklch(0.42 0.16 320);
   --hb-teal-soft: oklch(0.93 0.045 220);
@@ -86,7 +87,8 @@
 
   --hb-red-soft: oklch(0.32 0.08 22);
   --hb-red-ink: oklch(0.86 0.13 22);
-  --hb-yellow-soft: oklch(0.34 0.07 95);
+  --hb-cpp-ink: oklch(0.84 0.13 95);
+  --hb-bp-ink: oklch(0.8 0.12 250);
   --hb-purple-soft: oklch(0.32 0.08 320);
   --hb-purple-ink: oklch(0.86 0.12 320);
   --hb-teal-soft: oklch(0.3 0.06 220);
@@ -239,51 +241,14 @@ html {
   color: inherit;
 }
 
-/* SDK walkthrough notation. Background color alone distinguishes locations,
- * Details properties, and Blueprint nodes; text remains the normal body color. */
-.sl-markdown-content .hb-notation {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 12px;
-  margin: -4px 0 20px;
-  font-size: 0.86rem;
-}
-
-.sl-markdown-content .hb-location,
-.sl-markdown-content .hb-field,
+/* Blueprint nodes and C++ symbols are the only semantic color cues. Other
+ * references keep Starlight's normal inline-code treatment. */
 .sl-markdown-content .hb-bp-node {
-  border-radius: 3px;
-  padding: 0 4px;
-  font-size: 0.88em;
-  line-height: 1.2;
-  font-weight: inherit;
-  color: inherit;
-  text-decoration: none;
+  color: var(--hb-bp-ink);
 }
 
-.sl-markdown-content .hb-location {
-  background: var(--hb-bg-soft);
-}
-
-.sl-markdown-content .hb-field {
-  background: var(--hb-purple-soft);
-}
-
-.sl-markdown-content .hb-bp-node {
-  background: var(--hb-teal-soft);
-}
-
-/* Code-like labels distinguish their role without changing the text color. */
 .sl-markdown-content :not(pre) > code.hb-cpp {
-  background: var(--hb-yellow-soft);
-}
-
-.sl-markdown-content :not(pre) > code.hb-entry {
-  background: var(--hb-red-soft);
-}
-
-.sl-markdown-content :not(pre) > code.hb-asset {
-  background: var(--hb-bg-code);
+  color: var(--hb-cpp-ink);
 }
 
 /* components.css is loaded after this file; use a more specific selector so table
