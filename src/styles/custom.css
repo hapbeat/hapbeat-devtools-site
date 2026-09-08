@@ -223,7 +223,7 @@ html {
   font-weight: 700;
 }
 
-/* Inline code: design 風に */
+/* Inline code: C++、asset、entry ID などの識別子。役割を示す UI 要素とは分ける。 */
 .sl-markdown-content :not(pre) > code {
   font-family: var(--hb-font-mono);
   /* Keep C++ operators literal: JetBrains Mono otherwise renders -> as a ligature arrow. */
@@ -234,9 +234,53 @@ html {
   border: 1px solid var(--hb-line);
   padding: 1px 5px;
   border-radius: 4px;
-  /* Event IDs, class names, and API calls need the same visual cue in prose,
-   * lists, and tables. Code fences remain governed by syntax highlighting. */
-  color: var(--sl-color-accent);
+  color: var(--hb-ink-soft);
+}
+
+/* SDK walkthrough notation:
+ * location = editor navigation, field = Details property, bp-node = Blueprint node.
+ * Source-code identifiers remain the neutral inline-code treatment above. */
+.sl-markdown-content .hb-notation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin: -4px 0 20px;
+  font-size: 0.86rem;
+}
+
+.sl-markdown-content .hb-location {
+  color: var(--hb-ink-soft);
+  font-weight: 600;
+  text-decoration: underline dotted var(--hb-line-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.sl-markdown-content .hb-field,
+.sl-markdown-content .hb-bp-node {
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.92em;
+  font-weight: 650;
+}
+
+.sl-markdown-content .hb-field {
+  color: var(--hb-purple-ink);
+  background: var(--hb-purple-soft);
+  border: 1px solid color-mix(in oklab, var(--hb-purple) 24%, var(--hb-line));
+}
+
+.sl-markdown-content .hb-bp-node {
+  color: var(--hb-teal-ink);
+  background: var(--hb-teal-soft);
+  border: 1px solid color-mix(in oklab, var(--hb-teal) 24%, var(--hb-line));
+}
+
+/* components.css is loaded after this file; use a more specific selector so table
+ * identifiers keep the same neutral code role as identifiers in prose. */
+html .sl-markdown-content tbody td code,
+html .sl-markdown-content tbody td a code {
+  color: var(--hb-ink-soft);
 }
 
 .sl-markdown-content pre,
