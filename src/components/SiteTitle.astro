@@ -7,8 +7,9 @@
  * グリフは devtools であることを示す意図。背景の水平グラデ (favicon と共通) でブランドを担保する。
  *
  * 表示優先度:
- *   - ロゴマーク + "Hapbeat" は常時表示
- *   - "devtools" サブタイトルは ≥80rem のみ (ヘッダーが詰まる時は省略)
+ *   - 通常ページではロゴマーク + "Hapbeat / devtools" を表示
+ *   - docs ページではロゴマークをトップへの導線として残し、その右を
+ *     全グループを閉じる／展開状態を戻す操作に使う
  *   - version chip は廃止 (UI 上の優先度が低い)
  *
  * design 出典: public/favicon.svg と同一グリフ
@@ -19,9 +20,19 @@
 // (これをしないと EN ページでロゴを押すと JA トップに飛んでしまう)
 const isEn = Astro.url.pathname === '/en' || Astro.url.pathname.startsWith('/en/');
 const homeUrl = isEn ? '/en/' : (import.meta.env.BASE_URL || '/');
+const { hasSidebar } = Astro.locals.starlightRoute;
+const collapseLabel = 'Collapse groups';
+const collapseAriaLabel = isEn
+  ? 'Collapse all navigation groups'
+  : 'ナビゲーションのグループをすべて閉じる';
+const restoreLabel = 'Restore expanded';
+const restoreAriaLabel = isEn
+  ? 'Restore the navigation groups that were expanded before collapsing all'
+  : 'すべて閉じる前のナビゲーションの展開状態を戻す';
+const homeAriaLabel = isEn ? 'Hapbeat devtools home' : 'Hapbeat devtools のトップ';
 ---
 
-<a class="hb-brand" href={homeUrl} aria-label="Hapbeat devtools — ホーム">
+<a class="hb-brand" href={homeUrl} aria-label={homeAriaLabel} title={homeAriaLabel}>
   <span class="hb-brand__mark" aria-hidden="true">
     <svg viewBox="0 0 32 32" width="26" height="26">
       <g fill="none" stroke="rgba(255,255,255,0.96)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
@@ -30,11 +41,34 @@ const homeUrl = isEn ? '/en/' : (import.meta.env.BASE_URL || '/');
       </g>
     </svg>
   </span>
-  <span class="hb-brand__name">
-    <span class="hb-brand__primary">Hapbeat</span>
-    <span class="hb-brand__sub">devtools</span>
-  </span>
+  {!hasSidebar && (
+    <span class="hb-brand__name">
+      <span class="hb-brand__primary">Hapbeat</span>
+      <span class="hb-brand__sub">devtools</span>
+    </span>
+  )}
 </a>
+
+{
+  hasSidebar && (
+    <button
+      type="button"
+      class="hb-brand__collapse"
+      data-hb-sidebar-collapse
+      data-collapse-label={collapseLabel}
+      data-collapse-aria-label={collapseAriaLabel}
+      data-restore-label={restoreLabel}
+      data-restore-aria-label={restoreAriaLabel}
+      aria-label={collapseAriaLabel}
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m7 10 5-5 5 5" />
+        <path d="m7 18 5-5 5 5" />
+      </svg>
+      <span data-hb-sidebar-collapse-label>{collapseLabel}</span>
+    </button>
+  )
+}
 
 <style>
   .hb-brand {
@@ -82,10 +116,47 @@ const homeUrl = isEn ? '/en/' : (import.meta.env.BASE_URL || '/');
     color: var(--sl-color-gray-2);
     letter-spacing: 0;
   }
+  .hb-brand__collapse {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 28px;
+    width: 9.75rem;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--hb-ink-mute);
+    font: 500 12px/1 var(--hb-font-mono);
+    cursor: pointer;
+    justify-content: flex-start;
+  }
+  .hb-brand__collapse:hover,
+  .hb-brand__collapse:focus-visible {
+    background: var(--hb-bg-soft);
+    color: var(--hb-ink);
+  }
+  .hb-brand__collapse svg {
+    width: 14px;
+    height: 14px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
 
-  /* < 60rem (タブレット未満): "devtools" サブタイトルを省略 */
+  /* < 60rem (タブレット未満): 通常ページのブランド副題だけを省略。
+     docs の操作ラベルは検索欄より優先して維持する。 */
   @media (max-width: calc(60rem - 0.01px)) {
     .hb-brand__sub {
+      display: none;
+    }
+  }
+  /* < 50rem はサイドバー自体がハンバーガーへ収まるため操作を出さない。 */
+  @media (max-width: calc(50rem - 0.01px)) {
+    .hb-brand__collapse {
       display: none;
     }
   }

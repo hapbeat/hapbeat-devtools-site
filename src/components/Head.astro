@@ -58,6 +58,7 @@ if (sdkOg) {
   (() => {
     const KEY_SCROLL = 'hb-sidebar-scroll';
     const KEY_SIDEBAR_STATE = 'sl-sidebar-state';  // Starlight 純正と互換
+    const KEY_SIDEBAR_PRE_COLLAPSE = 'hb-sidebar-precollapse';
     const KEY_THEME = 'starlight-theme';
 
     // ---------- Theme persist (View Transitions 対応) ----------
@@ -187,6 +188,89 @@ if (sdkOg) {
       if (!restore) return NaN;
       return parseInt(restore.dataset.index || '', 10);
     }
+    function readSidebarPreCollapse() {
+      try {
+        const raw = sessionStorage.getItem(KEY_SIDEBAR_PRE_COLLAPSE);
+        const p = raw ? JSON.parse(raw) : null;
+        if (!p || typeof p.hash !== 'string' || !Array.isArray(p.open)) return null;
+        return { hash: p.hash, open: p.open.slice() };
+      } catch {
+        return null;
+      }
+    }
+    function clearSidebarPreCollapse() {
+      try {
+        sessionStorage.removeItem(KEY_SIDEBAR_PRE_COLLAPSE);
+      } catch {}
+    }
+    function getRestorableSidebarPreCollapse() {
+      const snapshot = readSidebarPreCollapse();
+      if (!snapshot) return null;
+      if (snapshot.hash === getSidebarHash()) return snapshot;
+      clearSidebarPreCollapse();
+      return null;
+    }
+    function updateSidebarCollapseControl() {
+      const control = document.querySelector('[data-hb-sidebar-collapse]');
+      if (!control) return;
+      const restoring = Boolean(getRestorableSidebarPreCollapse());
+      const label = control.querySelector('[data-hb-sidebar-collapse-label]');
+      if (label) {
+        label.textContent = restoring
+          ? control.dataset.restoreLabel || ''
+          : control.dataset.collapseLabel || '';
+      }
+      control.setAttribute(
+        'aria-label',
+        restoring
+          ? control.dataset.restoreAriaLabel || ''
+          : control.dataset.collapseAriaLabel || ''
+      );
+    }
+    function collapseAllSidebarGroups(sb) {
+      const hash = getSidebarHash();
+      const s = readSidebarState();
+      const snapshot = { hash, open: [] };
+      let changed = false;
+      let hadOpenGroup = false;
+      sb.querySelectorAll('details').forEach((details) => {
+        const idx = getDetailsIndex(details);
+        if (!isNaN(idx)) {
+          snapshot.open[idx] = details.open;
+          s.open[idx] = false;
+          changed = true;
+        }
+        hadOpenGroup ||= details.open;
+        details.open = false;
+      });
+      if (changed) {
+        s.hash = hash;
+        writeSidebarState(s);
+      }
+      try {
+        if (hash && hadOpenGroup) {
+          sessionStorage.setItem(KEY_SIDEBAR_PRE_COLLAPSE, JSON.stringify(snapshot));
+        } else {
+          clearSidebarPreCollapse();
+        }
+      } catch {}
+    }
+    function restoreSidebarGroups(sb, snapshot) {
+      const s = readSidebarState();
+      let changed = false;
+      sb.querySelectorAll('details').forEach((details) => {
+        const idx = getDetailsIndex(details);
+        if (isNaN(idx) || typeof snapshot.open[idx] !== 'boolean') return;
+        details.open = snapshot.open[idx];
+        s.open[idx] = snapshot.open[idx];
+        changed = true;
+      });
+      if (changed) {
+        s.hash = snapshot.hash;
+        writeSidebarState(s);
+      }
+      clearSidebarPreCollapse();
+    }
 
     // 現在の sessionStorage を新 DOM に適用 (Starlight 純正 restore の代替)
     function restoreSidebarFromStorage() {
@@ -228,8 +312,27 @@ if (sdkOg) {
         if (isNaN(idx)) return;
         // click listener は default action (details toggle) より前に走るので
         // details.open は OLD 値。次の状態は !details.open。
+        clearSidebarPreCollapse();
         setDetailsOpenInStorage(idx, !details.open);
+        updateSidebarCollapseControl();
       });
+    }
+    function bindSidebarCollapseControl() {
+      const control = document.querySelector('[data-hb-sidebar-collapse]');
+      if (!control || control.dataset.hbCollapseBound === '1') return;
+      control.dataset.hbCollapseBound = '1';
+      control.addEventListener('click', () => {
+        const sb = document.querySelector('.sidebar-content');
+        if (!sb) return;
+        const snapshot = getRestorableSidebarPreCollapse();
+        if (snapshot) {
+          restoreSidebarGroups(sb, snapshot);
+        } else {
+          collapseAllSidebarGroups(sb);
+        }
+        updateSidebarCollapseControl();
+      });
+      updateSidebarCollapseControl();
     }
 
     // ---------- (廃止) Group label クリック → セクション landing へ SPA 遷移 ----------
@@ -265,6 +368,8 @@ if (sdkOg) {
       }
       restoreSidebarFromStorage();
       bindSidebarToggleCapture();
+      bindSidebarCollapseControl();
+      updateSidebarCollapseControl();
       // bindGroupLabelNav(); ← 廃止 (umbrella クリックは toggle のみ)
       ensureActiveSidebarVisible();
     }
