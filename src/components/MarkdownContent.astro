@@ -1,11 +1,13 @@
 ---
 import Default from '@astrojs/starlight/components/MarkdownContent.astro';
+import DevDocsEditor from './DevDocsEditor.astro';
 import { searchTermsForPath } from '../lib/search-metadata.mjs';
 
 const searchTerms = searchTermsForPath(Astro.url.pathname);
 ---
 
 <Default {...Astro.props}>
+  {import.meta.env.DEV && <DevDocsEditor pathname={Astro.url.pathname} />}
   {searchTerms && (
     <span hidden aria-hidden="true" data-pagefind-meta="search_terms">
       {searchTerms.join(' ')}

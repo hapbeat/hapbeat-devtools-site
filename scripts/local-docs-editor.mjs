@@ -38,6 +38,14 @@ function preserveLineEndings(content, currentContent) {
   return content.replace(/\r\n/g, '\n');
 }
 
+function appendInternalNote(currentContent, note) {
+  // HTML comments are invisible in the published Markdown, but live beside the
+  // source text so a later agent or reviewer can find the request naturally.
+  const safeNote = note.replace(/-->/g, '—>');
+  const separator = currentContent.endsWith('\n') ? '\n' : '\n\n';
+  return `${currentContent}${separator}<!-- hapbeat-doc-note\n${safeNote}\n-->\n`;
+}
+
 function routeSegments(requestPath) {
   let pathname;
   try {
@@ -193,8 +201,10 @@ function localDocsEditorMiddleware() {
 
         try {
           const body = await readJsonBody(req);
-          if (typeof body.content !== 'string' || !/^[a-f0-9]{64}$/i.test(body.hash || '')) {
-            sendJson(res, 400, { ok: false, error: 'A document body and its original version are required.' });
+          const isDocumentSave = typeof body.content === 'string';
+          const isNoteSave = typeof body.note === 'string' && body.note.trim().length > 0;
+          if ((isDocumentSave === isNoteSave) || !/^[a-f0-9]{64}$/i.test(body.hash || '')) {
+            sendJson(res, 400, { ok: false, error: 'Provide either a document body or a note with its original version.' });
             return;
           }
 
@@ -207,7 +217,9 @@ function localDocsEditorMiddleware() {
             return;
           }
 
-          const savedContent = preserveLineEndings(body.content, currentContent);
+          const savedContent = isNoteSave
+            ? appendInternalNote(currentContent, body.note.trim())
+            : preserveLineEndings(body.content, currentContent);
           await writeAtomically(sourcePath, savedContent);
           sendJson(res, 200, {
             ok: true,

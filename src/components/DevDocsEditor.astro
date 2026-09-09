@@ -9,16 +9,19 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
 
 {
   isDocumentationPage && (
-    <aside id="hb-local-docs-editor" data-path={pathname} aria-label="Local document editor">
-      <button type="button" class="hb-local-docs-editor__open" data-hb-doc-editor-open>
-        Edit this page
-      </button>
+    <aside id="hb-local-docs-editor" data-path={pathname} aria-label="Local document tools">
+      <div class="hb-local-docs-editor__toolbar">
+        <span>ローカル編集</span>
+        <button type="button" data-hb-doc-editor-open>このページを編集</button>
+        <button type="button" data-hb-doc-note-open>メモを残す</button>
+      </div>
+
       <dialog class="hb-local-docs-editor__dialog" data-hb-doc-editor-dialog>
         <form method="dialog" class="hb-local-docs-editor__panel">
           <header>
             <div>
               <p class="hb-local-docs-editor__eyebrow">LOCAL DEVELOPMENT</p>
-              <h2>Edit Markdown</h2>
+              <h2>Markdown を編集</h2>
               <p data-hb-doc-editor-path>Loading source…</p>
             </div>
             <button type="submit" aria-label="Close editor">×</button>
@@ -27,8 +30,32 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
           <footer>
             <p data-hb-doc-editor-status aria-live="polite"></p>
             <div>
-              <button type="button" data-hb-doc-editor-cancel>Cancel</button>
-              <button type="button" data-hb-doc-editor-save disabled>Save and reload</button>
+              <button type="button" data-hb-doc-editor-cancel>キャンセル</button>
+              <button type="button" data-hb-doc-editor-save disabled>保存して再読み込み</button>
+            </div>
+          </footer>
+        </form>
+      </dialog>
+
+      <dialog class="hb-local-docs-editor__note-dialog" data-hb-doc-note-dialog>
+        <form method="dialog" class="hb-local-docs-editor__note-panel">
+          <header>
+            <div>
+              <p class="hb-local-docs-editor__eyebrow">LOCAL DEVELOPMENT</p>
+              <h2>編集メモを残す</h2>
+              <p data-hb-doc-note-path>Loading source…</p>
+            </div>
+            <button type="submit" aria-label="Close note editor">×</button>
+          </header>
+          <p class="hb-local-docs-editor__note-help">
+            本文は変えず、正本 Markdown に非表示のメモとして保存します。次に作業するエージェントも確認できます。
+          </p>
+          <textarea data-hb-doc-note-textarea spellcheck="true" aria-label="Internal editing note" placeholder="例: この段落を短くしたい。『Event Map は…』以外の文案を提案してから変更してほしい。"></textarea>
+          <footer>
+            <p data-hb-doc-note-status aria-live="polite"></p>
+            <div>
+              <button type="button" data-hb-doc-note-cancel>キャンセル</button>
+              <button type="button" data-hb-doc-note-save disabled>メモを保存</button>
             </div>
           </footer>
         </form>
@@ -38,80 +65,26 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
 }
 
 <style is:global>
-  #hb-local-docs-editor {
-    position: fixed;
-    right: 1rem;
-    bottom: 1rem;
-    z-index: 30;
-  }
-  .hb-local-docs-editor__open {
-    border: 1px solid color-mix(in srgb, var(--sl-color-accent) 72%, white);
-    border-radius: 999px;
-    background: var(--sl-color-accent);
-    color: var(--sl-color-text-invert);
-    box-shadow: 0 8px 24px rgb(0 0 0 / 25%);
-    cursor: pointer;
-    font: inherit;
-    font-size: 0.82rem;
-    font-weight: 700;
-    padding: 0.55rem 0.85rem;
-  }
-  .hb-local-docs-editor__open:hover { filter: brightness(1.12); }
-  .hb-local-docs-editor__dialog {
-    width: min(72rem, calc(100vw - 2rem));
-    height: min(48rem, calc(100vh - 2rem));
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 0.75rem;
-    background: var(--sl-color-bg);
-    color: var(--sl-color-text);
-    box-shadow: 0 24px 80px rgb(0 0 0 / 45%);
-    padding: 0;
-  }
-  .hb-local-docs-editor__dialog::backdrop { background: rgb(0 0 0 / 62%); }
-  .hb-local-docs-editor__panel {
-    display: grid;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    box-sizing: border-box;
-    height: 100%;
-    margin: 0;
-  }
-  .hb-local-docs-editor__panel header,
-  .hb-local-docs-editor__panel footer {
-    display: flex;
+  #hb-local-docs-editor { margin: 0 0 1.5rem; }
+  .hb-local-docs-editor__toolbar {
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1rem 1.25rem;
+    background: color-mix(in srgb, var(--sl-color-accent) 12%, var(--sl-color-bg));
+    border: 1px solid color-mix(in srgb, var(--sl-color-accent) 45%, var(--sl-color-gray-5));
+    border-radius: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    padding: 0.6rem 0.75rem;
   }
-  .hb-local-docs-editor__panel header { border-bottom: 1px solid var(--sl-color-gray-5); }
-  .hb-local-docs-editor__panel footer { border-top: 1px solid var(--sl-color-gray-5); }
-  .hb-local-docs-editor__panel h2,
-  .hb-local-docs-editor__panel p { margin: 0; }
-  .hb-local-docs-editor__panel h2 { font-size: 1.1rem; }
-  .hb-local-docs-editor__eyebrow {
-    color: var(--sl-color-accent);
-    font-size: 0.7rem;
+  .hb-local-docs-editor__toolbar > span {
+    color: var(--sl-color-text);
+    font-size: 0.8rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    margin-right: 0.15rem;
   }
-  [data-hb-doc-editor-path], [data-hb-doc-editor-status] {
-    color: var(--sl-color-gray-2);
-    font-family: var(--sl-font-mono);
-    font-size: 0.75rem;
-  }
-  [data-hb-doc-editor-textarea] {
-    box-sizing: border-box;
-    width: 100%;
-    min-height: 0;
-    resize: none;
-    border: 0;
-    background: var(--sl-color-black);
-    color: var(--sl-color-white);
-    font: 0.85rem/1.55 var(--sl-font-mono);
-    padding: 1rem 1.25rem;
-  }
-  [data-hb-doc-editor-textarea]:focus { outline: 2px solid var(--sl-color-accent); outline-offset: -2px; }
-  .hb-local-docs-editor__panel button {
+  .hb-local-docs-editor__toolbar button,
+  .hb-local-docs-editor__panel button,
+  .hb-local-docs-editor__note-panel button {
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 0.35rem;
     background: var(--sl-color-gray-6);
@@ -120,90 +93,223 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
     font: inherit;
     padding: 0.4rem 0.65rem;
   }
-  .hb-local-docs-editor__panel footer > div { display: flex; gap: 0.5rem; }
-  [data-hb-doc-editor-save] { background: var(--sl-color-accent) !important; color: var(--sl-color-text-invert) !important; }
-  [data-hb-doc-editor-save]:disabled { cursor: wait; opacity: 0.55; }
+  .hb-local-docs-editor__toolbar button:first-of-type,
+  [data-hb-doc-editor-save], [data-hb-doc-note-save] {
+    background: var(--sl-color-accent) !important;
+    color: var(--sl-color-text-invert) !important;
+  }
+  .hb-local-docs-editor__toolbar button:hover,
+  .hb-local-docs-editor__panel button:hover,
+  .hb-local-docs-editor__note-panel button:hover { filter: brightness(1.12); }
+  .hb-local-docs-editor__dialog,
+  .hb-local-docs-editor__note-dialog {
+    width: min(72rem, calc(100vw - 2rem));
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.75rem;
+    background: var(--sl-color-bg);
+    color: var(--sl-color-text);
+    box-shadow: 0 24px 80px rgb(0 0 0 / 45%);
+    padding: 0;
+  }
+  .hb-local-docs-editor__dialog { height: min(48rem, calc(100vh - 2rem)); }
+  .hb-local-docs-editor__note-dialog { max-width: 48rem; }
+  .hb-local-docs-editor__dialog::backdrop,
+  .hb-local-docs-editor__note-dialog::backdrop { background: rgb(0 0 0 / 62%); }
+  .hb-local-docs-editor__panel {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    box-sizing: border-box;
+    height: 100%;
+    margin: 0;
+  }
+  .hb-local-docs-editor__note-panel { margin: 0; }
+  .hb-local-docs-editor__panel header,
+  .hb-local-docs-editor__panel footer,
+  .hb-local-docs-editor__note-panel header,
+  .hb-local-docs-editor__note-panel footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+  }
+  .hb-local-docs-editor__panel header,
+  .hb-local-docs-editor__note-panel header { border-bottom: 1px solid var(--sl-color-gray-5); }
+  .hb-local-docs-editor__panel footer,
+  .hb-local-docs-editor__note-panel footer { border-top: 1px solid var(--sl-color-gray-5); }
+  .hb-local-docs-editor__panel h2,
+  .hb-local-docs-editor__panel p,
+  .hb-local-docs-editor__note-panel h2,
+  .hb-local-docs-editor__note-panel p { margin: 0; }
+  .hb-local-docs-editor__panel h2,
+  .hb-local-docs-editor__note-panel h2 { font-size: 1.1rem; }
+  .hb-local-docs-editor__eyebrow {
+    color: var(--sl-color-accent);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  [data-hb-doc-editor-path], [data-hb-doc-editor-status],
+  [data-hb-doc-note-path], [data-hb-doc-note-status] {
+    color: var(--sl-color-gray-2);
+    font-family: var(--sl-font-mono);
+    font-size: 0.75rem;
+  }
+  [data-hb-doc-editor-textarea], [data-hb-doc-note-textarea] {
+    box-sizing: border-box;
+    width: 100%;
+    border: 0;
+    background: var(--sl-color-black);
+    color: var(--sl-color-white);
+    font: 0.85rem/1.55 var(--sl-font-mono);
+    padding: 1rem 1.25rem;
+  }
+  [data-hb-doc-editor-textarea] { min-height: 0; resize: none; }
+  [data-hb-doc-note-textarea] { display: block; min-height: 12rem; resize: vertical; }
+  [data-hb-doc-editor-textarea]:focus, [data-hb-doc-note-textarea]:focus { outline: 2px solid var(--sl-color-accent); outline-offset: -2px; }
+  .hb-local-docs-editor__note-help {
+    color: var(--sl-color-gray-2);
+    font-size: 0.85rem;
+    line-height: 1.55;
+    padding: 1rem 1.25rem 0;
+  }
+  .hb-local-docs-editor__panel footer > div,
+  .hb-local-docs-editor__note-panel footer > div { display: flex; gap: 0.5rem; }
+  [data-hb-doc-editor-save]:disabled, [data-hb-doc-note-save]:disabled { cursor: wait; opacity: 0.55; }
   @media (max-width: 42rem) {
-    #hb-local-docs-editor { right: 0.75rem; bottom: 0.75rem; }
-    .hb-local-docs-editor__panel footer { align-items: flex-start; flex-direction: column; }
+    .hb-local-docs-editor__panel footer,
+    .hb-local-docs-editor__note-panel footer { align-items: flex-start; flex-direction: column; }
   }
 </style>
 
 <script>
-  type EditorState = { hash: string | null; loaded: boolean };
+  type LoadedSource = { hash: string; sourcePath: string; content: string };
 
   function bindEditor() {
     const root = document.getElementById('hb-local-docs-editor');
     if (!root || root.dataset.hbDocsEditorBound === '1') return;
     root.dataset.hbDocsEditorBound = '1';
 
-    const path = root.dataset.path;
-    const openButton = root.querySelector<HTMLButtonElement>('[data-hb-doc-editor-open]');
-    const dialog = root.querySelector<HTMLDialogElement>('[data-hb-doc-editor-dialog]');
-    const textarea = root.querySelector<HTMLTextAreaElement>('[data-hb-doc-editor-textarea]');
-    const sourcePath = root.querySelector<HTMLElement>('[data-hb-doc-editor-path]');
-    const status = root.querySelector<HTMLElement>('[data-hb-doc-editor-status]');
-    const saveButton = root.querySelector<HTMLButtonElement>('[data-hb-doc-editor-save]');
-    const cancelButton = root.querySelector<HTMLButtonElement>('[data-hb-doc-editor-cancel]');
-    if (!path || !openButton || !dialog || !textarea || !sourcePath || !status || !saveButton || !cancelButton) return;
+    const pagePath = root.dataset.path;
+    const editOpenButton = root.querySelector<HTMLButtonElement>('[data-hb-doc-editor-open]');
+    const editDialog = root.querySelector<HTMLDialogElement>('[data-hb-doc-editor-dialog]');
+    const editTextarea = root.querySelector<HTMLTextAreaElement>('[data-hb-doc-editor-textarea]');
+    const editPath = root.querySelector<HTMLElement>('[data-hb-doc-editor-path]');
+    const editStatus = root.querySelector<HTMLElement>('[data-hb-doc-editor-status]');
+    const editSaveButton = root.querySelector<HTMLButtonElement>('[data-hb-doc-editor-save]');
+    const editCancelButton = root.querySelector<HTMLButtonElement>('[data-hb-doc-editor-cancel]');
+    const noteOpenButton = root.querySelector<HTMLButtonElement>('[data-hb-doc-note-open]');
+    const noteDialog = root.querySelector<HTMLDialogElement>('[data-hb-doc-note-dialog]');
+    const noteTextarea = root.querySelector<HTMLTextAreaElement>('[data-hb-doc-note-textarea]');
+    const notePath = root.querySelector<HTMLElement>('[data-hb-doc-note-path]');
+    const noteStatus = root.querySelector<HTMLElement>('[data-hb-doc-note-status]');
+    const noteSaveButton = root.querySelector<HTMLButtonElement>('[data-hb-doc-note-save]');
+    const noteCancelButton = root.querySelector<HTMLButtonElement>('[data-hb-doc-note-cancel]');
+    if (!pagePath || !editOpenButton || !editDialog || !editTextarea || !editPath || !editStatus || !editSaveButton || !editCancelButton || !noteOpenButton || !noteDialog || !noteTextarea || !notePath || !noteStatus || !noteSaveButton || !noteCancelButton) return;
 
-    const state: EditorState = { hash: null, loaded: false };
     const endpoint = () => {
       const url = new URL('/__hapbeat/docs-editor', window.location.origin);
-      url.searchParams.set('path', path);
+      url.searchParams.set('path', pagePath);
       return url;
     };
-    const setStatus = (message: string) => { status.textContent = message; };
+    const getSource = async (): Promise<LoadedSource> => {
+      const response = await fetch(endpoint());
+      const result = await response.json();
+      if (!response.ok || !result.ok) throw new Error(result.error || 'Could not open this page.');
+      return result;
+    };
 
-    async function load() {
-      openButton.disabled = true;
-      setStatus('Loading…');
+    let editSource: LoadedSource | null = null;
+    let noteSource: LoadedSource | null = null;
+    const setEditStatus = (message: string) => { editStatus.textContent = message; };
+    const setNoteStatus = (message: string) => { noteStatus.textContent = message; };
+
+    async function openEditor() {
+      editOpenButton.disabled = true;
+      setEditStatus('Loading…');
       try {
-        const response = await fetch(endpoint());
-        const result = await response.json();
-        if (!response.ok || !result.ok) throw new Error(result.error || 'Could not open this page.');
-        textarea.value = result.content;
-        sourcePath.textContent = result.sourcePath;
-        state.hash = result.hash;
-        state.loaded = true;
-        saveButton.disabled = false;
-        setStatus('Edit the source, then save to reload this page.');
-        dialog.showModal();
-        textarea.focus();
+        editSource = await getSource();
+        editTextarea.value = editSource.content;
+        editPath.textContent = editSource.sourcePath;
+        editSaveButton.disabled = false;
+        setEditStatus('編集後、保存してページを更新します。');
+        editDialog.showModal();
+        editTextarea.focus();
       } catch (error) {
-        setStatus(error instanceof Error ? error.message : 'Could not open this page.');
+        setEditStatus(error instanceof Error ? error.message : 'Could not open this page.');
       } finally {
-        openButton.disabled = false;
+        editOpenButton.disabled = false;
       }
     }
 
-    async function save() {
-      if (!state.loaded || !state.hash) return;
-      saveButton.disabled = true;
-      setStatus('Saving…');
+    async function saveEditor() {
+      if (!editSource) return;
+      editSaveButton.disabled = true;
+      setEditStatus('Saving…');
       try {
         const response = await fetch(endpoint(), {
           method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ content: textarea.value, hash: state.hash }),
+          headers: { 'content-type': 'application/json; charset=utf-8' },
+          body: JSON.stringify({ content: editTextarea.value, hash: editSource.hash }),
         });
         const result = await response.json();
         if (!response.ok || !result.ok) throw new Error(result.error || 'Could not save this page.');
-        setStatus('Saved. Reloading…');
+        setEditStatus('保存しました。再読み込みしています…');
         window.setTimeout(() => window.location.reload(), 500);
       } catch (error) {
-        setStatus(error instanceof Error ? error.message : 'Could not save this page.');
-        saveButton.disabled = false;
+        setEditStatus(error instanceof Error ? error.message : 'Could not save this page.');
+        editSaveButton.disabled = false;
       }
     }
 
-    openButton.addEventListener('click', load);
-    saveButton.addEventListener('click', save);
-    cancelButton.addEventListener('click', () => dialog.close());
-    textarea.addEventListener('keydown', (event) => {
+    async function openNote() {
+      noteOpenButton.disabled = true;
+      setNoteStatus('Loading…');
+      try {
+        noteSource = await getSource();
+        notePath.textContent = noteSource.sourcePath;
+        noteSaveButton.disabled = false;
+        setNoteStatus('本文は変更しません。');
+        noteDialog.showModal();
+        noteTextarea.focus();
+      } catch (error) {
+        setNoteStatus(error instanceof Error ? error.message : 'Could not open this page.');
+      } finally {
+        noteOpenButton.disabled = false;
+      }
+    }
+
+    async function saveNote() {
+      if (!noteSource || !noteTextarea.value.trim()) return;
+      noteSaveButton.disabled = true;
+      setNoteStatus('Saving…');
+      try {
+        const response = await fetch(endpoint(), {
+          method: 'POST',
+          headers: { 'content-type': 'application/json; charset=utf-8' },
+          body: JSON.stringify({ note: noteTextarea.value.trim(), hash: noteSource.hash }),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.ok) throw new Error(result.error || 'Could not save this note.');
+        noteTextarea.value = '';
+        setNoteStatus('メモを保存しました。本文は変更されていません。');
+        noteSaveButton.disabled = false;
+      } catch (error) {
+        setNoteStatus(error instanceof Error ? error.message : 'Could not save this note.');
+        noteSaveButton.disabled = false;
+      }
+    }
+
+    editOpenButton.addEventListener('click', openEditor);
+    editSaveButton.addEventListener('click', saveEditor);
+    editCancelButton.addEventListener('click', () => editDialog.close());
+    noteOpenButton.addEventListener('click', openNote);
+    noteSaveButton.addEventListener('click', saveNote);
+    noteCancelButton.addEventListener('click', () => noteDialog.close());
+    editTextarea.addEventListener('keydown', (event) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
         event.preventDefault();
-        void save();
+        void saveEditor();
       }
     });
   }
