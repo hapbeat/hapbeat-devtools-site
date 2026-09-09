@@ -653,10 +653,11 @@ export default defineConfig({
               label: 'Unreal SDK',
               items: [
                 pub('docs/sdk-integration/unreal-sdk/getting-started'),
+                pub('docs/sdk-integration/unreal-sdk/event-map-and-playback'),
                 pub('docs/sdk-integration/unreal-sdk/showcase-unreal'),
-                pub('docs/sdk-integration/unreal-sdk/showcase-behavior'),
+                pub('docs/sdk-integration/unreal-sdk/vr-config-example'),
                 pub('docs/sdk-integration/unreal-sdk/blueprint-nodes'),
-                pub('docs/sdk-integration/unreal-sdk/advanced'),
+                pub('docs/sdk-integration/unreal-sdk/targeting-and-multi-hmd'),
                 pub('docs/sdk-integration/unreal-sdk/unity-to-unreal-codex'),
                 pub('docs/sdk-integration/unreal-sdk/changelog'),
               ].filter(Boolean),
