@@ -6,7 +6,7 @@
  * file and is intentionally registered only for `astro dev`; built and hosted
  * sites have neither this endpoint nor a browser editor.
  */
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -30,20 +30,60 @@ function contentHash(content) {
   return createHash('sha256').update(content, 'utf8').digest('hex');
 }
 
-// HTMLTextAreaElement normalizes line endings to LF. Keep a CRLF source file
-// CRLF when its author saves it unchanged through the browser editor, so a
-// no-op save never creates a line-ending-only diff.
-function preserveLineEndings(content, currentContent) {
-  if (currentContent.includes('\r\n')) return content.replace(/\r?\n/g, '\r\n');
-  return content.replace(/\r\n/g, '\n');
+const COMMENT_PATTERN = /<!-- hapbeat-doc-comment\r?\n([\s\S]*?)\r?\n-->\r?\n?/g;
+const FRONTMATTER_PATTERN = /^(---\r?\n[\s\S]*?\r?\n---\r?\n?)/;
+
+function parseComments(content) {
+  const comments = [];
+  for (const match of content.matchAll(COMMENT_PATTERN)) {
+    try {
+      const comment = JSON.parse(match[1]);
+      if (typeof comment.id === 'string' && typeof comment.selection === 'string' && typeof comment.message === 'string') {
+        comments.push(comment);
+      }
+    } catch {
+      // A manually edited malformed note remains invisible, but cannot break
+      // local editing of the rest of the document.
+    }
+  }
+  return comments;
 }
 
-function appendInternalNote(currentContent, note) {
-  // HTML comments are invisible in the published Markdown, but live beside the
-  // source text so a later agent or reviewer can find the request naturally.
-  const safeNote = note.replace(/-->/g, '—>');
-  const separator = currentContent.endsWith('\n') ? '\n' : '\n\n';
-  return `${currentContent}${separator}<!-- hapbeat-doc-note\n${safeNote}\n-->\n`;
+function splitEditableSource(content) {
+  const frontmatter = content.match(FRONTMATTER_PATTERN)?.[1] || '';
+  const bodyWithComments = content.slice(frontmatter.length);
+  const commentBlocks = [...bodyWithComments.matchAll(COMMENT_PATTERN)].map((match) => match[0]);
+  const body = bodyWithComments.replace(COMMENT_PATTERN, '').trim();
+  return { frontmatter, body, commentBlocks };
+}
+
+function composeSource(currentContent, editedBody) {
+  const { frontmatter, commentBlocks } = splitEditableSource(currentContent);
+  const newline = currentContent.includes('\r\n') ? '\r\n' : '\n';
+  const body = editedBody.trim().replace(/\r?\n/g, newline);
+  const betweenFrontmatterAndBody = frontmatter ? newline : '';
+  const comments = commentBlocks.length > 0 ? `${newline}${newline}${commentBlocks.join(newline)}` : '';
+  return `${frontmatter}${betweenFrontmatterAndBody}${body}${comments}${newline}`;
+}
+
+function appendComment(currentContent, comment) {
+  const newline = currentContent.includes('\r\n') ? '\r\n' : '\n';
+  const payload = JSON.stringify(comment, null, 2).replace(/\n/g, newline);
+  return `${currentContent.trimEnd()}${newline}${newline}<!-- hapbeat-doc-comment${newline}${payload}${newline}-->${newline}`;
+}
+
+function removeComment(currentContent, commentId) {
+  let removed = false;
+  const content = currentContent.replace(COMMENT_PATTERN, (block, json) => {
+    try {
+      if (JSON.parse(json).id === commentId) {
+        removed = true;
+        return '';
+      }
+    } catch {}
+    return block;
+  });
+  return { content, removed };
 }
 
 function routeSegments(requestPath) {
@@ -193,6 +233,8 @@ function localDocsEditorMiddleware() {
           sendJson(res, 200, {
             ok: true,
             content,
+            editorContent: splitEditableSource(content).body,
+            comments: parseComments(content),
             hash: contentHash(content),
             sourcePath: path.relative(WORKSPACE_ROOT, sourcePath).split(path.sep).join('/'),
           });
@@ -202,9 +244,14 @@ function localDocsEditorMiddleware() {
         try {
           const body = await readJsonBody(req);
           const isDocumentSave = typeof body.content === 'string';
-          const isNoteSave = typeof body.note === 'string' && body.note.trim().length > 0;
-          if ((isDocumentSave === isNoteSave) || !/^[a-f0-9]{64}$/i.test(body.hash || '')) {
-            sendJson(res, 400, { ok: false, error: 'Provide either a document body or a note with its original version.' });
+          const isCommentSave = body.comment
+            && typeof body.comment.selection === 'string'
+            && body.comment.selection.trim().length > 0
+            && typeof body.comment.message === 'string'
+            && body.comment.message.trim().length > 0;
+          const isCommentRemoval = typeof body.removeCommentId === 'string' && body.removeCommentId.length > 0;
+          if ((Number(isDocumentSave) + Number(Boolean(isCommentSave)) + Number(isCommentRemoval) !== 1) || !/^[a-f0-9]{64}$/i.test(body.hash || '')) {
+            sendJson(res, 400, { ok: false, error: 'Provide one document update, selected-text comment, or comment removal with its original version.' });
             return;
           }
 
@@ -217,9 +264,24 @@ function localDocsEditorMiddleware() {
             return;
           }
 
-          const savedContent = isNoteSave
-            ? appendInternalNote(currentContent, body.note.trim())
-            : preserveLineEndings(body.content, currentContent);
+          let savedContent;
+          if (isCommentSave) {
+            savedContent = appendComment(currentContent, {
+              id: randomUUID(),
+              selection: body.comment.selection.trim(),
+              message: body.comment.message.trim(),
+              createdAt: new Date().toISOString(),
+            });
+          } else if (isCommentRemoval) {
+            const result = removeComment(currentContent, body.removeCommentId);
+            if (!result.removed) {
+              sendJson(res, 404, { ok: false, error: 'The comment no longer exists.' });
+              return;
+            }
+            savedContent = result.content;
+          } else {
+            savedContent = composeSource(currentContent, body.content);
+          }
           await writeAtomically(sourcePath, savedContent);
           sendJson(res, 200, {
             ok: true,
