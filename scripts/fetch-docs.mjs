@@ -323,8 +323,13 @@ async function normalizeMarkdownFrontmatter(filePath, { orderFromPrefix = null }
     changed = true;
   }
 
+  // Starlight は frontmatter の title を H1 として描画する。SDK 文書は同じ
+  // 見出しを先頭 H1 にも持つため、取り込み先ではその H1 を残さない。
+  const bodyWithoutLeadingH1 = body.replace(/^(?:[ \t]*\n)*#\s+[^\n]+\n+/, '');
+  if (bodyWithoutLeadingH1 !== body) changed = true;
+
   if (!changed) return;
-  await writeFile(filePath, `---\n${newFm}\n---\n${body}`);
+  await writeFile(filePath, `---\n${newFm}\n---\n${bodyWithoutLeadingH1}`);
 }
 
 // frontmatter から `draft: true` を検出する。dev / build 両方で隠したいページに
