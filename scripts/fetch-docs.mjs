@@ -485,7 +485,7 @@ async function startWatch() {
     if (!watchDir || !existsSync(watchDir)) continue;
     const destDir = path.join(TARGET_PARENT, src.short);
     chokidar
-      .watch(watchDir, { ignoreInitial: true, ignored: /(^|[\/\\])\.git/ })
+      .watch(watchDir, { ignoreInitial: true, ignored: /((^|[\/\\])\.git([\/\\]|$)|\.tmp$)/ })
       .on('all', async (event, filePath) => {
         try {
           await syncOneFile(filePath, watchDir, destDir);
@@ -505,7 +505,7 @@ async function startWatch() {
     const srcDir = path.join(ROOT, srcRel);
     if (!existsSync(srcDir)) continue;
     chokidar
-      .watch(srcDir, { ignoreInitial: true, ignored: /(^|[\/\\])\.git/ })
+      .watch(srcDir, { ignoreInitial: true, ignored: /((^|[\/\\])\.git([\/\\]|$)|\.tmp$)/ })
       .on('all', async (event, filePath) => {
         try {
           await syncOneFile(filePath, srcDir, destBase);

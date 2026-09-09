@@ -7,12 +7,7 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
 {isDocumentationPage && (
   <div id="hb-local-docs-editor" data-path={pathname} contenteditable="false" aria-label="Local document editor">
     <button class="hb-doc-status" type="button" data-hb-doc-status data-state="loading" aria-live="polite">ローカル編集を準備中…</button>
-    <div class="hb-doc-bubble" data-hb-doc-bubble hidden role="toolbar" aria-label="Text formatting">
-      <button type="button" data-command="bold" aria-label="Bold"><strong>B</strong></button>
-      <button type="button" data-command="italic" aria-label="Italic"><em>I</em></button>
-      <button type="button" data-block="h2" aria-label="Heading 2">H2</button>
-      <button type="button" data-block="h3" aria-label="Heading 3">H3</button>
-      <span aria-hidden="true"></span>
+    <div class="hb-doc-bubble" data-hb-doc-bubble hidden role="toolbar" aria-label="Selected text actions">
       <button type="button" data-hb-comment-open aria-label="Add comment">コメント</button>
     </div>
     <section class="hb-doc-popover hb-doc-comment-compose" data-hb-comment-compose hidden aria-label="Add comment">
@@ -39,7 +34,6 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
   .hb-doc-bubble[hidden], .hb-doc-popover[hidden] { display: none; }
   .hb-doc-bubble button, .hb-doc-popover button { background: transparent; border: 0; border-radius: .3rem; color: inherit; cursor: pointer; font: 600 .76rem/1 var(--sl-font); min-height: 1.85rem; padding: .4rem .55rem; }
   .hb-doc-bubble button:hover, .hb-doc-popover button:hover { background: var(--sl-color-gray-6); }
-  .hb-doc-bubble > span { align-self: stretch; background: var(--sl-color-gray-5); margin: .2rem; width: 1px; }
   .hb-doc-popover { border-radius: .65rem; max-height: min(32rem, calc(100vh - 5rem)); overflow: auto; padding: .75rem; width: min(24rem, calc(100vw - 2rem)); }
   .hb-doc-comment-compose blockquote { border-left: 2px solid var(--sl-color-accent); color: var(--sl-color-gray-2); font-size: .8rem; margin: 0 0 .65rem; max-height: 6rem; overflow: auto; padding-left: .55rem; }
   .hb-doc-comment-compose textarea { background: var(--sl-color-bg); border: 1px solid var(--sl-color-gray-5); border-radius: .4rem; box-sizing: border-box; color: var(--sl-color-text); font: .85rem/1.5 var(--sl-font); min-height: 6rem; padding: .6rem; resize: vertical; width: 100%; }
@@ -193,9 +187,16 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
     content.addEventListener('input', scheduleSave, { signal: controller.signal });
     content.addEventListener('click', (event) => { if ((event.target as Element).closest('a')) event.preventDefault(); }, { signal: controller.signal });
     document.addEventListener('selectionchange', updateBubble, { signal: controller.signal });
-    document.addEventListener('keydown', (event) => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's' && content.contains(document.activeElement)) { event.preventDefault(); void saveNow(); } if (event.key === 'Escape') { bubble.hidden = true; compose.hidden = true; comments.hidden = true; } }, { signal: controller.signal });
+    document.addEventListener('keydown', (event) => {
+      const isEditing = content.contains(document.activeElement);
+      if ((event.ctrlKey || event.metaKey) && isEditing) {
+        const key = event.key.toLowerCase();
+        if (key === 's') { event.preventDefault(); void saveNow(); }
+        if (key === 'b' || key === 'i') { event.preventDefault(); document.execCommand(key === 'b' ? 'bold' : 'italic', false); scheduleSave(); }
+      }
+      if (event.key === 'Escape') { bubble.hidden = true; compose.hidden = true; comments.hidden = true; }
+    }, { signal: controller.signal });
     bubble.addEventListener('pointerdown', (event) => event.preventDefault(), { signal: controller.signal });
-    bubble.addEventListener('click', (event) => { const button = (event.target as Element).closest<HTMLButtonElement>('button'); if (!button || button.hasAttribute('data-hb-comment-open')) return; restoreSelection(); if (button.dataset.command) document.execCommand(button.dataset.command, false); if (button.dataset.block) document.execCommand('formatBlock', false, button.dataset.block); bubble.hidden = true; scheduleSave(); }, { signal: controller.signal });
     ui.querySelector('[data-hb-comment-open]')?.addEventListener('click', () => { if (!selectedRange || !selectedText) return; composeSelection.textContent = selectedText; composeText.value = ''; composeError.textContent = ''; const rect = bubble.getBoundingClientRect(); bubble.hidden = true; positionNear(compose, rect, 6); composeText.focus(); }, { signal: controller.signal });
     ui.querySelector('[data-hb-comment-cancel]')?.addEventListener('click', () => { compose.hidden = true; }, { signal: controller.signal });
     ui.querySelector('[data-hb-comment-save]')?.addEventListener('click', async () => { if (!source || !selectedText || !composeText.value.trim()) return; composeError.textContent = '保存中…'; try { if (!await saveNow()) throw new Error('本文を保存できませんでした。'); const latest = await getSource(); await post({ comment: { selection: selectedText, message: composeText.value.trim() }, hash: latest.hash }); source = await getSource(); renderComments(source.comments); compose.hidden = true; setStatus(`ローカル編集 · コメント ${source.comments.length}`, 'saved'); } catch (error) { composeError.textContent = error instanceof Error ? error.message : 'コメントを保存できませんでした。'; } }, { signal: controller.signal });

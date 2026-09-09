@@ -19,6 +19,7 @@ import {
 
 const ENDPOINT = '/__hapbeat/docs-editor';
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
+const GENERATED_DOCS_ROOT = path.join(DEVTOOLS_ROOT, 'src', 'content', 'docs');
 
 function sendJson(res, statusCode, payload) {
   res.statusCode = statusCode;
@@ -178,6 +179,103 @@ async function resolveSourceDocument(requestPath) {
   return findMarkdownFile(localeRoot, route.segments);
 }
 
+function generatedDocumentCandidates(requestPath) {
+  const route = routeSegments(requestPath);
+  if (!route) return [];
+  const root = route.locale === 'en'
+    ? path.join(GENERATED_DOCS_ROOT, 'en', 'docs')
+    : path.join(GENERATED_DOCS_ROOT, 'docs');
+  const relativePath = path.join(...route.segments);
+  return [
+    path.join(root, `${relativePath}.md`),
+    path.join(root, `${relativePath}.mdx`),
+    path.join(root, relativePath, 'index.md'),
+    path.join(root, relativePath, 'index.mdx'),
+  ];
+}
+
+async function modifiedTime(filePath) {
+  try {
+    return (await stat(filePath)).mtimeMs;
+  } catch {
+    return null;
+  }
+}
+
+function delay(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+function normalizedWatchPath(filePath) {
+  return path.resolve(filePath).toLowerCase();
+}
+
+function installEditorReloadFilter(server) {
+  const mutedPaths = new Map();
+  const originalEmit = server.watcher.emit;
+  let nextMuteToken = 0;
+
+  server.watcher.emit = function emit(eventName, ...args) {
+    const filePath = eventName === 'all' ? args[1] : args[0];
+    if (
+      typeof filePath === 'string'
+      && ['add', 'change', 'unlink', 'all'].includes(eventName)
+    ) {
+      const key = normalizedWatchPath(filePath);
+      const mute = mutedPaths.get(key);
+      if (mute && mute.until > Date.now()) return false;
+      if (mute) mutedPaths.delete(key);
+    }
+    return originalEmit.call(this, eventName, ...args);
+  };
+
+  return {
+    mute(candidates) {
+      const token = ++nextMuteToken;
+      const until = Date.now() + 3000;
+      candidates.forEach((candidate) => mutedPaths.set(normalizedWatchPath(candidate), { token, until }));
+      return token;
+    },
+    unmute(candidates, token) {
+      candidates.forEach((candidate) => {
+        const key = normalizedWatchPath(candidate);
+        if (mutedPaths.get(key)?.token === token) mutedPaths.delete(key);
+      });
+    },
+  };
+}
+
+async function restoreGeneratedWatch(reloadFilter, candidates, previousTimes, muteToken) {
+  const deadline = Date.now() + 2000;
+  while (Date.now() < deadline) {
+    for (let index = 0; index < candidates.length; index += 1) {
+      const currentTime = await modifiedTime(candidates[index]);
+      if (currentTime !== null && currentTime !== previousTimes[index]) {
+        await delay(100);
+        reloadFilter.unmute(candidates, muteToken);
+        return;
+      }
+    }
+    await delay(25);
+  }
+  reloadFilter.unmute(candidates, muteToken);
+}
+
+async function writeWithoutEditorReload(reloadFilter, requestPath, sourcePath, content) {
+  const candidates = generatedDocumentCandidates(requestPath);
+  const previousTimes = await Promise.all(candidates.map(modifiedTime));
+
+  // fetch-docs still copies the source into src/content/docs. Only Astro's
+  // reaction to this editor-originated copy is muted, so the rendered DOM does
+  // not disappear underneath the active caret. External edits remain watched.
+  const muteToken = reloadFilter.mute(candidates);
+  try {
+    await writeAtomically(sourcePath, content);
+  } finally {
+    void restoreGeneratedWatch(reloadFilter, candidates, previousTimes, muteToken);
+  }
+}
+
 async function readJsonBody(req) {
   let size = 0;
   const chunks = [];
@@ -209,6 +307,7 @@ function localDocsEditorMiddleware() {
     name: 'hapbeat-local-docs-editor',
     apply: 'serve',
     configureServer(server) {
+      const reloadFilter = installEditorReloadFilter(server);
       server.middlewares.use(ENDPOINT, async (req, res, next) => {
         if (req.method !== 'GET' && req.method !== 'POST') {
           next();
@@ -282,7 +381,7 @@ function localDocsEditorMiddleware() {
           } else {
             savedContent = composeSource(currentContent, body.content);
           }
-          await writeAtomically(sourcePath, savedContent);
+          await writeWithoutEditorReload(reloadFilter, requestPath, sourcePath, savedContent);
           sendJson(res, 200, {
             ok: true,
             hash: contentHash(savedContent),
