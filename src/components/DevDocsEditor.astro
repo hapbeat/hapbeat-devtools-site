@@ -5,31 +5,29 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
 ---
 
 {isDocumentationPage && (
-  <aside id="hb-local-docs-editor" data-path={pathname} aria-label="Local document tools">
+  <aside id="hb-local-docs-editor" data-path={pathname} aria-label="Local document editor">
     <div class="hb-local-docs-editor__toolbar">
-      <span>ローカル編集</span>
-      <button type="button" data-hb-doc-editor-open>本文を編集</button>
+      <span class="hb-local-docs-editor__label">ローカル編集</span>
+      <span class="hb-local-docs-editor__status" data-hb-doc-editor-status data-state="loading" aria-live="polite">
+        本文を読み込んでいます…
+      </span>
       <button type="button" data-hb-doc-comment-open disabled>選択箇所にコメント</button>
-      <span class="hb-local-docs-editor__hint" data-hb-doc-comment-hint>本文の文字列を選択してください</span>
     </div>
-    <section class="hb-local-docs-editor__comments" data-hb-doc-comments hidden aria-label="Comments"></section>
 
-    <dialog class="hb-local-docs-editor__dialog" data-hb-doc-editor-dialog>
-      <div class="hb-local-docs-editor__panel">
-        <header>
-          <div><p>LOCAL DEVELOPMENT</p><h2>本文を編集</h2><small data-hb-doc-editor-path></small></div>
-          <button type="button" data-hb-doc-editor-close aria-label="Close editor">×</button>
-        </header>
-        <div data-hb-doc-editor-host></div>
-        <footer><span data-hb-doc-editor-status aria-live="polite"></span><div><button type="button" data-hb-doc-editor-cancel>キャンセル</button><button type="button" data-hb-doc-editor-save disabled>保存して再読み込み</button></div></footer>
-      </div>
-    </dialog>
+    <div class="hb-local-docs-editor__host" data-hb-doc-editor-host></div>
+    <section class="hb-local-docs-editor__comments" data-hb-doc-comments hidden aria-label="Comments"></section>
 
     <dialog class="hb-local-docs-editor__comment-dialog" data-hb-doc-comment-dialog>
       <form method="dialog" class="hb-local-docs-editor__comment-panel">
-        <header><div><p>COMMENT</p><h2>選択箇所にコメント</h2><blockquote data-hb-doc-comment-selection></blockquote></div><button type="submit" aria-label="Close comment">×</button></header>
+        <header>
+          <div><p>COMMENT</p><h2>選択箇所にコメント</h2><blockquote data-hb-doc-comment-selection></blockquote></div>
+          <button type="submit" aria-label="Close comment">×</button>
+        </header>
         <textarea data-hb-doc-comment-textarea placeholder="例: この文を短くしたい。別の文案を提案してから変更してほしい。"></textarea>
-        <footer><span data-hb-doc-comment-status aria-live="polite"></span><div><button type="button" data-hb-doc-comment-cancel>キャンセル</button><button type="button" data-hb-doc-comment-save>コメントを保存</button></div></footer>
+        <footer>
+          <span data-hb-doc-comment-status aria-live="polite"></span>
+          <div><button type="button" data-hb-doc-comment-cancel>キャンセル</button><button type="button" data-hb-doc-comment-save>コメントを保存</button></div>
+        </footer>
       </form>
     </dialog>
   </aside>
@@ -37,148 +35,284 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
 
 <style is:global>
   #hb-local-docs-editor { margin: 0 0 1.5rem; }
+  .sl-markdown-content.hb-direct-editing > :not(#hb-local-docs-editor):not([data-pagefind-meta]) { display: none !important; }
+  .content-panel.hb-direct-editing-title { display: none; }
   .hb-local-docs-editor__toolbar, .hb-local-docs-editor__comments { border: 1px solid color-mix(in srgb, var(--sl-color-accent) 45%, var(--sl-color-gray-5)); border-radius: .5rem; }
-  .hb-local-docs-editor__toolbar { align-items: center; background: color-mix(in srgb, var(--sl-color-accent) 12%, var(--sl-color-bg)); display: flex; flex-wrap: wrap; gap: .55rem; padding: .6rem .75rem; }
-  .hb-local-docs-editor__toolbar > span:first-child { font-size: .8rem; font-weight: 700; }
-  .hb-local-docs-editor__hint { color: var(--sl-color-gray-2); font-size: .78rem; }
-  .hb-local-docs-editor__toolbar button, .hb-local-docs-editor__panel button, .hb-local-docs-editor__comment-panel button { border: 1px solid var(--sl-color-gray-5); border-radius: .35rem; background: var(--sl-color-gray-6); color: var(--sl-color-text); cursor: pointer; font: inherit; padding: .4rem .65rem; }
-  [data-hb-doc-editor-open], [data-hb-doc-editor-save], [data-hb-doc-comment-save] { background: var(--sl-color-accent) !important; color: var(--sl-color-text-invert) !important; }
+  .hb-local-docs-editor__toolbar { align-items: center; background: color-mix(in srgb, var(--sl-color-accent) 12%, var(--sl-color-bg)); display: flex; flex-wrap: wrap; gap: .55rem; margin-bottom: .75rem; min-height: 2.65rem; padding: .55rem .75rem; }
+  .hb-local-docs-editor__label { font-size: .8rem; font-weight: 700; }
+  .hb-local-docs-editor__status { color: var(--sl-color-gray-2); flex: 1; font-size: .78rem; }
+  .hb-local-docs-editor__status[data-state="saving"] { color: var(--sl-color-accent-high); }
+  .hb-local-docs-editor__status[data-state="error"] { color: var(--sl-color-red-high); }
+  .hb-local-docs-editor__toolbar button, .hb-local-docs-editor__comment-panel button { border: 1px solid var(--sl-color-gray-5); border-radius: .35rem; background: var(--sl-color-gray-6); color: var(--sl-color-text); cursor: pointer; font: inherit; padding: .4rem .65rem; }
+  [data-hb-doc-comment-save] { background: var(--sl-color-accent) !important; color: var(--sl-color-text-invert) !important; }
   button:disabled { cursor: not-allowed; opacity: .55; }
-  .hb-local-docs-editor__comments { margin-top: .5rem; padding: .75rem; }
+  .hb-local-docs-editor__host[hidden] { display: none; }
+  .hb-local-docs-editor__host .toastui-editor-defaultUI { border-color: var(--sl-color-gray-5); border-radius: .5rem; overflow: hidden; }
+  .hb-local-docs-editor__host .toastui-editor-toolbar { border-bottom-color: var(--sl-color-gray-5); }
+  .hb-local-docs-editor__host .toastui-editor-ww-container { overflow-y: hidden; }
+  .hb-local-docs-editor__host .toastui-editor-contents { padding-bottom: 3rem; }
+  .hb-local-docs-editor__comments { margin-top: .75rem; padding: .75rem; }
   .hb-local-docs-editor__comments h3 { font-size: .9rem; margin: 0 0 .45rem; }
   .hb-local-docs-editor__comments ol { margin: 0; padding-left: 1.25rem; }
-  .hb-local-docs-editor__comments li { margin: .35rem 0; }
-  .hb-local-docs-editor__comments button { background: transparent; border: 0; color: var(--sl-color-accent); cursor: pointer; font: inherit; padding: 0; text-align: left; }
-  .hb-local-docs-editor__dialog, .hb-local-docs-editor__comment-dialog { border: 1px solid var(--sl-color-gray-5); border-radius: .75rem; background: var(--sl-color-bg); color: var(--sl-color-text); box-shadow: 0 24px 80px rgb(0 0 0 / 45%); padding: 0; width: min(72rem, calc(100vw - 2rem)); }
-  .hb-local-docs-editor__dialog { height: min(48rem, calc(100vh - 2rem)); }
-  .hb-local-docs-editor__comment-dialog { max-width: 48rem; }
-  .hb-local-docs-editor__dialog::backdrop, .hb-local-docs-editor__comment-dialog::backdrop { background: rgb(0 0 0 / 62%); }
-  .hb-local-docs-editor__panel { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; }
-  .hb-local-docs-editor__panel header, .hb-local-docs-editor__panel footer, .hb-local-docs-editor__comment-panel header, .hb-local-docs-editor__comment-panel footer { align-items: center; display: flex; gap: 1rem; justify-content: space-between; padding: 1rem 1.25rem; }
-  .hb-local-docs-editor__panel header, .hb-local-docs-editor__comment-panel header { border-bottom: 1px solid var(--sl-color-gray-5); }
-  .hb-local-docs-editor__panel footer, .hb-local-docs-editor__comment-panel footer { border-top: 1px solid var(--sl-color-gray-5); }
-  .hb-local-docs-editor__panel h2, .hb-local-docs-editor__comment-panel h2, .hb-local-docs-editor__panel p, .hb-local-docs-editor__comment-panel p { margin: 0; }
-  .hb-local-docs-editor__panel header p, .hb-local-docs-editor__comment-panel header p { color: var(--sl-color-accent); font-size: .7rem; font-weight: 700; letter-spacing: .08em; }
-  [data-hb-doc-editor-host] { min-height: 0; overflow: auto; }
-  [data-hb-doc-editor-host] .toastui-editor-defaultUI { border: 0; height: 100% !important; }
-  [data-hb-doc-editor-host] .toastui-editor-toolbar { border-bottom-color: var(--sl-color-gray-5); }
+  .hb-local-docs-editor__comments li { margin: .5rem 0; }
+  .hb-local-docs-editor__comments blockquote { border-left: 2px solid var(--sl-color-accent); color: var(--sl-color-gray-2); display: inline; font-size: .85rem; margin: 0 .35rem 0 0; padding-left: .45rem; }
+  .hb-local-docs-editor__comments button { background: transparent; border: 0; color: var(--sl-color-accent); cursor: pointer; font: inherit; padding: 0; }
+  .hb-local-docs-editor__comment-dialog { border: 1px solid var(--sl-color-gray-5); border-radius: .75rem; background: var(--sl-color-bg); color: var(--sl-color-text); box-shadow: 0 24px 80px rgb(0 0 0 / 45%); max-width: 48rem; padding: 0; width: min(48rem, calc(100vw - 2rem)); }
+  .hb-local-docs-editor__comment-dialog::backdrop { background: rgb(0 0 0 / 62%); }
+  .hb-local-docs-editor__comment-panel header, .hb-local-docs-editor__comment-panel footer { align-items: center; display: flex; gap: 1rem; justify-content: space-between; padding: 1rem 1.25rem; }
+  .hb-local-docs-editor__comment-panel header { border-bottom: 1px solid var(--sl-color-gray-5); }
+  .hb-local-docs-editor__comment-panel footer { border-top: 1px solid var(--sl-color-gray-5); }
+  .hb-local-docs-editor__comment-panel h2, .hb-local-docs-editor__comment-panel p { margin: 0; }
+  .hb-local-docs-editor__comment-panel header p { color: var(--sl-color-accent); font-size: .7rem; font-weight: 700; letter-spacing: .08em; }
   [data-hb-doc-comment-selection] { border-left: 3px solid var(--sl-color-accent); color: var(--sl-color-gray-2); font-size: .9rem; margin: 1rem 1.25rem; padding-left: .75rem; }
   [data-hb-doc-comment-textarea] { background: var(--sl-color-black); border: 0; box-sizing: border-box; color: var(--sl-color-white); display: block; font: .9rem/1.55 var(--sl-font-mono); min-height: 12rem; padding: 1rem 1.25rem; resize: vertical; width: 100%; }
-  mark.hb-doc-comment { background: color-mix(in srgb, var(--sl-color-accent) 35%, transparent); border-bottom: 2px solid var(--sl-color-accent); cursor: pointer; }
-  @media (max-width: 42rem) { .hb-local-docs-editor__panel footer, .hb-local-docs-editor__comment-panel footer { align-items: flex-start; flex-direction: column; } }
+  @media (max-width: 42rem) { .hb-local-docs-editor__comment-panel footer { align-items: flex-start; flex-direction: column; } }
 </style>
 
 <script>
   type Comment = { id: string; selection: string; message: string; createdAt: string };
   type Source = { hash: string; sourcePath: string; editorContent: string; comments: Comment[] };
-  type ToastEditor = { getMarkdown: () => string; destroy: () => void };
+  type SaveResult = { hash: string; sourcePath: string };
+  type ToastEditor = {
+    getMarkdown: () => string;
+    getSelectedText: () => string;
+    on: (type: string, handler: () => void) => void;
+    setHeight: (height: string) => void;
+    destroy: () => void;
+  };
 
   function bindEditor() {
     const root = document.getElementById('hb-local-docs-editor');
     if (!root || root.dataset.bound === '1') return;
     root.dataset.bound = '1';
+
     const pagePath = root.dataset.path;
-    const content = document.querySelector<HTMLElement>('.sl-markdown-content');
-    const editOpen = root.querySelector<HTMLButtonElement>('[data-hb-doc-editor-open]');
-    const editDialog = root.querySelector<HTMLDialogElement>('[data-hb-doc-editor-dialog]');
+    const content = root.closest<HTMLElement>('.sl-markdown-content');
     const editorHost = root.querySelector<HTMLElement>('[data-hb-doc-editor-host]');
-    const editPath = root.querySelector<HTMLElement>('[data-hb-doc-editor-path]');
     const editStatus = root.querySelector<HTMLElement>('[data-hb-doc-editor-status]');
-    const editSave = root.querySelector<HTMLButtonElement>('[data-hb-doc-editor-save]');
     const commentOpen = root.querySelector<HTMLButtonElement>('[data-hb-doc-comment-open]');
-    const commentHint = root.querySelector<HTMLElement>('[data-hb-doc-comment-hint]');
     const commentDialog = root.querySelector<HTMLDialogElement>('[data-hb-doc-comment-dialog]');
     const commentSelection = root.querySelector<HTMLElement>('[data-hb-doc-comment-selection]');
     const commentText = root.querySelector<HTMLTextAreaElement>('[data-hb-doc-comment-textarea]');
     const commentStatus = root.querySelector<HTMLElement>('[data-hb-doc-comment-status]');
     const commentSave = root.querySelector<HTMLButtonElement>('[data-hb-doc-comment-save]');
     const commentsBox = root.querySelector<HTMLElement>('[data-hb-doc-comments]');
-    if (!pagePath || !content || !editOpen || !editDialog || !editorHost || !editPath || !editStatus || !editSave || !commentOpen || !commentHint || !commentDialog || !commentSelection || !commentText || !commentStatus || !commentSave || !commentsBox) return;
+    if (!pagePath || !content || !editorHost || !editStatus || !commentOpen || !commentDialog || !commentSelection || !commentText || !commentStatus || !commentSave || !commentsBox) return;
 
-    const endpoint = () => { const url = new URL('/__hapbeat/docs-editor', location.origin); url.searchParams.set('path', pagePath); return url; };
-    const getSource = async (): Promise<Source> => { const response = await fetch(endpoint()); const data = await response.json(); if (!response.ok || !data.ok) throw new Error(data.error || 'Could not load this page.'); return data; };
-    const post = async (body: object) => { const response = await fetch(endpoint(), { method: 'POST', headers: { 'content-type': 'application/json; charset=utf-8' }, body: JSON.stringify(body) }); const data = await response.json(); if (!response.ok || !data.ok) throw new Error(data.error || 'Could not save this page.'); return data; };
+    const controller = new AbortController();
+    const endpoint = () => {
+      const url = new URL('/__hapbeat/docs-editor', location.origin);
+      url.searchParams.set('path', pagePath);
+      return url;
+    };
+    const getSource = async (): Promise<Source> => {
+      const response = await fetch(endpoint());
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Could not load this page.');
+      return data;
+    };
+    const post = async (body: object): Promise<SaveResult> => {
+      const response = await fetch(endpoint(), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json; charset=utf-8' },
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Could not save this page.');
+      return data;
+    };
+    const setStatus = (message: string, state: 'loading' | 'editing' | 'saving' | 'saved' | 'error') => {
+      editStatus.textContent = message;
+      editStatus.dataset.state = state;
+    };
+
     let source: Source | null = null;
     let editor: ToastEditor | null = null;
+    let lastSavedMarkdown = '';
+    let saveTimer: number | undefined;
+    let saveInProgress: Promise<boolean> | null = null;
     let selectedText = '';
+
+    function resizeEditor() {
+      if (!editor) return;
+      requestAnimationFrame(() => {
+        const editable = editorHost.querySelector<HTMLElement>('.toastui-editor-contents');
+        const toolbar = editorHost.querySelector<HTMLElement>('.toastui-editor-toolbar');
+        if (!editable) return;
+        const height = Math.max(640, editable.scrollHeight + (toolbar?.offsetHeight || 0) + 48);
+        editor?.setHeight(`${height}px`);
+      });
+    }
+
+    async function saveNow(): Promise<boolean> {
+      window.clearTimeout(saveTimer);
+      if (!source || !editor) return false;
+      if (saveInProgress) return saveInProgress;
+      const markdown = editor.getMarkdown();
+      if (markdown === lastSavedMarkdown) return true;
+
+      const pendingSave = (async () => {
+        setStatus('保存中…', 'saving');
+        try {
+          const result = await post({ content: markdown, hash: source?.hash });
+          if (source) source.hash = result.hash;
+          lastSavedMarkdown = markdown;
+          setStatus('保存済み', 'saved');
+          return true;
+        } catch (error) {
+          setStatus(error instanceof Error ? error.message : '保存できませんでした。', 'error');
+          return false;
+        }
+      })();
+      saveInProgress = pendingSave;
+      const saved = await pendingSave;
+      if (saveInProgress === pendingSave) saveInProgress = null;
+      if (saved && editor.getMarkdown() !== lastSavedMarkdown) return saveNow();
+      return saved;
+    }
+
+    function scheduleSave() {
+      setStatus('編集中…', 'editing');
+      window.clearTimeout(saveTimer);
+      saveTimer = window.setTimeout(() => void saveNow(), 1200);
+      resizeEditor();
+    }
 
     function updateSelection() {
       const selection = window.getSelection();
-      const text = selection?.toString().trim() || '';
       const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
-      const isInContent = Boolean(range && content.contains(range.commonAncestorContainer));
-      selectedText = isInContent ? text : '';
+      const isInEditor = Boolean(range && editorHost.contains(range.commonAncestorContainer));
+      selectedText = isInEditor ? (editor?.getSelectedText().trim() || selection?.toString().trim() || '') : '';
       commentOpen.disabled = !selectedText;
-      commentHint.textContent = selectedText ? `選択中: ${selectedText.slice(0, 60)}${selectedText.length > 60 ? '…' : ''}` : '本文の文字列を選択してください';
     }
 
-    function highlightComments(comments: Comment[]) {
+    function renderComments(comments: Comment[]) {
       commentsBox.replaceChildren();
-      if (comments.length === 0) { commentsBox.hidden = true; return; }
-      const heading = document.createElement('h3'); heading.textContent = `コメント (${comments.length})`;
+      if (comments.length === 0) {
+        commentsBox.hidden = true;
+        return;
+      }
+      const heading = document.createElement('h3');
+      heading.textContent = `コメント (${comments.length})`;
       const list = document.createElement('ol');
       comments.forEach((comment) => {
-        const item = document.createElement('li'); const button = document.createElement('button');
-        button.textContent = `「${comment.selection}」— ${comment.message}`;
-        button.addEventListener('click', () => document.querySelector(`[data-hb-doc-comment-id="${CSS.escape(comment.id)}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' }));
-        const remove = document.createElement('button'); remove.textContent = '削除'; remove.className = 'hb-doc-comment-remove';
+        const item = document.createElement('li');
+        const quote = document.createElement('blockquote');
+        quote.textContent = comment.selection;
+        const message = document.createElement('span');
+        message.textContent = comment.message;
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.textContent = '削除';
         remove.addEventListener('click', async () => {
-          try { const latest = await getSource(); await post({ removeCommentId: comment.id, hash: latest.hash }); location.reload(); }
-          catch { remove.textContent = '削除できませんでした'; }
-        });
-        item.append(button, document.createTextNode(' '), remove); list.append(item);
-        const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT);
-        let node: Text | null;
-        while ((node = walker.nextNode() as Text | null)) {
-          const index = node.data.indexOf(comment.selection);
-          if (index < 0 || node.parentElement?.closest('mark.hb-doc-comment')) continue;
-          const fragment = document.createDocumentFragment();
-          fragment.append(node.data.slice(0, index));
-          const mark = document.createElement('mark'); mark.className = 'hb-doc-comment'; mark.dataset.hbDocCommentId = comment.id; mark.title = comment.message; mark.textContent = comment.selection;
-          mark.addEventListener('click', () => alert(comment.message));
-          fragment.append(mark, node.data.slice(index + comment.selection.length)); node.replaceWith(fragment); break;
-        }
+          try {
+            if (!await saveNow()) throw new Error('Save the document before changing comments.');
+            const latest = await getSource();
+            const result = await post({ removeCommentId: comment.id, hash: latest.hash });
+            if (source) source.hash = result.hash;
+            source = await getSource();
+            renderComments(source.comments);
+          } catch {
+            remove.textContent = '削除できませんでした';
+          }
+        }, { signal: controller.signal });
+        item.append(quote, message, document.createTextNode(' '), remove);
+        list.append(item);
       });
-      commentsBox.append(heading, list); commentsBox.hidden = false;
+      commentsBox.append(heading, list);
+      commentsBox.hidden = false;
     }
 
-    async function initializeComments() { try { highlightComments((await getSource()).comments); } catch {} }
-
-    editOpen.addEventListener('click', async () => {
-      editOpen.disabled = true; editStatus.textContent = 'Loading…';
+    async function initializeEditor() {
       try {
-        source = await getSource(); editPath.textContent = source.sourcePath;
+        source = await getSource();
         await import('@toast-ui/editor/dist/toastui-editor.css');
+        if (document.documentElement.dataset.theme === 'dark') {
+          await import('@toast-ui/editor/dist/theme/toastui-editor-dark.css');
+        }
         const { default: Editor } = await import('@toast-ui/editor');
-        editor?.destroy(); editorHost.replaceChildren();
-        editor = new Editor({ el: editorHost, height: '100%', initialValue: source.editorContent, initialEditType: 'wysiwyg', hideModeSwitch: true, usageStatistics: false, toolbarItems: [['heading', 'bold', 'italic', 'strike'], ['hr', 'quote'], ['ul', 'ol', 'task'], ['table', 'link'], ['code', 'codeblock']] });
-        editSave.disabled = false; editStatus.textContent = '見たまま編集し、保存すると Markdown として反映されます。'; editDialog.showModal();
-      } catch (error) { editStatus.textContent = error instanceof Error ? error.message : 'Could not open the editor.'; }
-      finally { editOpen.disabled = false; }
-    });
-    editSave.addEventListener('click', async () => {
-      if (!source || !editor) return; editSave.disabled = true; editStatus.textContent = 'Saving…';
-      try { await post({ content: editor.getMarkdown(), hash: source.hash }); editStatus.textContent = '保存しました。再読み込みしています…'; setTimeout(() => location.reload(), 500); }
-      catch (error) { editStatus.textContent = error instanceof Error ? error.message : 'Could not save this page.'; editSave.disabled = false; }
-    });
-    root.querySelector('[data-hb-doc-editor-close]')?.addEventListener('click', () => editDialog.close());
-    root.querySelector('[data-hb-doc-editor-cancel]')?.addEventListener('click', () => editDialog.close());
+        editor = new Editor({
+          el: editorHost,
+          height: '640px',
+          minHeight: '640px',
+          initialValue: source.editorContent,
+          initialEditType: 'wysiwyg',
+          hideModeSwitch: true,
+          usageStatistics: false,
+          autofocus: false,
+          theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : undefined,
+          toolbarItems: [
+            ['heading', 'bold', 'italic', 'strike'],
+            ['hr', 'quote'],
+            ['ul', 'ol', 'task'],
+            ['table', 'link'],
+            ['code', 'codeblock'],
+          ],
+        });
+        lastSavedMarkdown = editor.getMarkdown();
+        editor.on('change', scheduleSave);
+        content.classList.add('hb-direct-editing');
+        if (/^#\s+/m.test(source.editorContent)) {
+          document.getElementById('_top')?.closest('.content-panel')?.classList.add('hb-direct-editing-title');
+        }
+        renderComments(source.comments);
+        resizeEditor();
+        setStatus('本文をそのまま編集できます。入力後に自動保存します。', 'saved');
+      } catch (error) {
+        editorHost.hidden = true;
+        setStatus(error instanceof Error ? error.message : '本文を編集できません。', 'error');
+      }
+    }
 
-    document.addEventListener('selectionchange', updateSelection);
-    commentOpen.addEventListener('mousedown', (event) => event.preventDefault());
-    commentOpen.addEventListener('click', async () => {
-      if (!selectedText) return; commentStatus.textContent = 'Loading…'; commentSelection.textContent = selectedText;
-      try { source = await getSource(); commentDialog.showModal(); commentText.focus(); commentStatus.textContent = ''; }
-      catch (error) { commentStatus.textContent = error instanceof Error ? error.message : 'Could not open comments.'; }
-    });
+    document.addEventListener('selectionchange', updateSelection, { signal: controller.signal });
+    document.addEventListener('keydown', (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's' && editorHost.contains(document.activeElement)) {
+        event.preventDefault();
+        void saveNow();
+      }
+    }, { signal: controller.signal });
+    document.addEventListener('astro:before-swap', () => {
+      void saveNow();
+      window.clearTimeout(saveTimer);
+      controller.abort();
+      editor?.destroy();
+    }, { once: true, signal: controller.signal });
+
+    commentOpen.addEventListener('mousedown', (event) => event.preventDefault(), { signal: controller.signal });
+    commentOpen.addEventListener('click', () => {
+      if (!selectedText) return;
+      commentStatus.textContent = '';
+      commentSelection.textContent = selectedText;
+      commentText.value = '';
+      commentDialog.showModal();
+      commentText.focus();
+    }, { signal: controller.signal });
     commentSave.addEventListener('click', async () => {
-      if (!source || !selectedText || !commentText.value.trim()) return; commentSave.disabled = true; commentStatus.textContent = 'Saving…';
-      try { await post({ comment: { selection: selectedText, message: commentText.value.trim() }, hash: source.hash }); commentStatus.textContent = '保存しました。再読み込みしています…'; setTimeout(() => location.reload(), 500); }
-      catch (error) { commentStatus.textContent = error instanceof Error ? error.message : 'Could not save this comment.'; commentSave.disabled = false; }
-    });
-    root.querySelector('[data-hb-doc-comment-cancel]')?.addEventListener('click', () => commentDialog.close());
-    initializeComments();
+      if (!selectedText || !commentText.value.trim()) return;
+      commentSave.disabled = true;
+      commentStatus.textContent = '保存中…';
+      try {
+        if (!await saveNow()) throw new Error('本文を保存できないため、コメントを追加できません。');
+        const latest = await getSource();
+        const result = await post({ comment: { selection: selectedText, message: commentText.value.trim() }, hash: latest.hash });
+        if (source) source.hash = result.hash;
+        source = await getSource();
+        renderComments(source.comments);
+        commentDialog.close();
+      } catch (error) {
+        commentStatus.textContent = error instanceof Error ? error.message : 'コメントを保存できませんでした。';
+      } finally {
+        commentSave.disabled = false;
+      }
+    }, { signal: controller.signal });
+    root.querySelector('[data-hb-doc-comment-cancel]')?.addEventListener('click', () => commentDialog.close(), { signal: controller.signal });
+
+    void initializeEditor();
   }
+
   bindEditor();
-  if (!window.__hbDocsEditorNavigationBound) { window.__hbDocsEditorNavigationBound = true; document.addEventListener('astro:after-swap', bindEditor); }
+  if (!window.__hbDocsEditorNavigationBound) {
+    window.__hbDocsEditorNavigationBound = true;
+    document.addEventListener('astro:after-swap', bindEditor);
+  }
 </script>
