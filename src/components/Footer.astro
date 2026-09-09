@@ -8,6 +8,7 @@
  * default Footer を import + 同一 props で再描画 → そのままの機能を維持。
  */
 import Default from '@astrojs/starlight/components/Footer.astro';
+import DevDocsEditor from './DevDocsEditor.astro';
 
 const year = new Date().getFullYear();
 // 現在のロケールを維持する: EN ページではフッターの内部リンクを /en/ 配下に向ける。
@@ -31,6 +32,8 @@ const lp = isEn ? '/en' : '';
     </ul>
   </div>
 </footer>
+
+{import.meta.env.DEV && <DevDocsEditor pathname={Astro.url.pathname} />}
 
 <style>
   .hb-footer {

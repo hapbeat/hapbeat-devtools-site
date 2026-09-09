@@ -18,6 +18,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import chokidar from 'chokidar';
+import { DOCS_SOURCES, REPO_CATEGORY_DIRS, WORKSPACE_ROOT } from './docs-source-registry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -33,8 +34,6 @@ const TMP_DIR = path.join(ROOT, '.astro', '_fetch-tmp');
 // workspace root = .../hapbeat-sdk-workspace。devtools-site は repos-tools/ 配下なので 2 階層上。
 // sub-repo は 2026-06 の再編でフラットから repos-<category>/ 配下に分類移動した
 // (正規パスは .claude-workspace.json の sub_repos)。sibling docs は各カテゴリを横断探索する。
-const WORKSPACE_ROOT = path.resolve(ROOT, '..', '..');
-const REPO_CATEGORY_DIRS = ['repos-core', 'repos-firmware', 'repos-sdk', 'repos-tools', '_legacy'];
 
 // ユーザー向け docs/ を持つ repo のみ列挙する。
 // hapbeat-bridge / hapbeat-transmitter-firmware は内部コンポーネント
@@ -51,11 +50,7 @@ const REPO_CATEGORY_DIRS = ['repos-core', 'repos-firmware', 'repos-sdk', 'repos-
 // 詳細: docs/instructions-docs-ia-restructure-202605111600.md (workspace)
 // short は TARGET_PARENT 配下のサブパス。Contracts (仕様) は Concepts セクションに
 // 取り込む方針 (Reference トップレベルを廃止)。
-const SOURCES = [
-  { short: 'concepts/contracts', label: 'Contracts (仕様)', repo: 'hapbeat-contracts', url: 'https://github.com/Hapbeat/hapbeat-contracts.git' },
-  { short: 'tools/web-runtime', label: 'Web Runtime', repo: 'hapbeat-web-runtime', url: 'https://github.com/Hapbeat/hapbeat-web-runtime.git' },
-  { short: 'sdk-integration/unreal-sdk', label: 'Unreal SDK', repo: 'hapbeat-unreal-sdk', url: 'https://github.com/Hapbeat/hapbeat-unreal-sdk.git' },
-];
+const SOURCES = DOCS_SOURCES;
 
 // 各リポジトリの CHANGELOG.md を docs ポータルに公開する設定。
 // destPath: TARGET_PARENT 配下の相対パス (URL に対応)

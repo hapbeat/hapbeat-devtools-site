@@ -6,6 +6,7 @@ import { imageSize } from 'image-size';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import localDocsEditor from './scripts/local-docs-editor.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -433,6 +434,9 @@ export default defineConfig({
     // dev server 専用の /demos/ フォルダ URL フォールバック (定義は本ファイル
     // 冒頭参照)。astro:server:setup のみを実装しており build には影響しない。
     demosDevStaticFallback(),
+    // localhost の `astro dev` でだけ表示中の Markdown を直接編集できる。
+    // 生成済みの content collection ではなく、各 repo の正本 docs/ を更新する。
+    localDocsEditor(),
     starlight({
       title: 'Hapbeat devtools',
       description: '触覚デバイス Hapbeat のクリエイター・開発者向けツールとドキュメント',
