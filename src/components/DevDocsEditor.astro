@@ -13,7 +13,7 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
     <section class="hb-doc-popover hb-doc-comment-compose" data-hb-comment-compose hidden aria-label="Add comment">
       <blockquote data-hb-comment-selection></blockquote>
       <textarea data-hb-comment-text placeholder="この箇所へのコメント"></textarea>
-      <footer><button type="button" data-hb-comment-cancel>キャンセル</button><button type="button" data-hb-comment-save>保存</button></footer>
+      <footer><button type="button" data-hb-comment-delete hidden>削除</button><span></span><button type="button" data-hb-comment-cancel>キャンセル</button><button type="button" data-hb-comment-save>保存</button></footer>
       <p data-hb-comment-error aria-live="polite"></p>
     </section>
     <section class="hb-doc-popover hb-doc-comments" data-hb-comments hidden aria-label="Comments">
@@ -29,7 +29,7 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
   .hb-doc-status[data-state="editing"] { border-color: var(--sl-color-accent); color: var(--sl-color-accent-high); }
   .hb-doc-status[data-state="saving"] { color: var(--sl-color-orange-high); }
   .hb-doc-status[data-state="error"] { border-color: var(--sl-color-red); color: var(--sl-color-red-high); }
-  .hb-doc-bubble, .hb-doc-popover { background: color-mix(in srgb, var(--sl-color-bg-nav) 96%, transparent); border: 1px solid var(--sl-color-gray-5); box-shadow: 0 12px 36px rgb(0 0 0 / 28%); color: var(--sl-color-text); position: fixed; z-index: 90; }
+  .hb-doc-bubble, .hb-doc-popover { background: color-mix(in srgb, var(--sl-color-bg-nav) 96%, transparent); border: 1px solid var(--sl-color-gray-5); box-shadow: 0 12px 36px rgb(0 0 0 / 28%); color: var(--sl-color-text); position: fixed; z-index: 1100; }
   .hb-doc-bubble { align-items: center; border-radius: .5rem; display: flex; gap: .15rem; padding: .25rem; }
   .hb-doc-bubble[hidden], .hb-doc-popover[hidden] { display: none; }
   .hb-doc-bubble button, .hb-doc-popover button { background: transparent; border: 0; border-radius: .3rem; color: inherit; cursor: pointer; font: 600 .76rem/1 var(--sl-font); min-height: 1.85rem; padding: .4rem .55rem; }
@@ -38,7 +38,9 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
   .hb-doc-comment-compose blockquote { border-left: 2px solid var(--sl-color-accent); color: var(--sl-color-gray-2); font-size: .8rem; margin: 0 0 .65rem; max-height: 6rem; overflow: auto; padding-left: .55rem; }
   .hb-doc-comment-compose textarea { background: var(--sl-color-bg); border: 1px solid var(--sl-color-gray-5); border-radius: .4rem; box-sizing: border-box; color: var(--sl-color-text); font: .85rem/1.5 var(--sl-font); min-height: 6rem; padding: .6rem; resize: vertical; width: 100%; }
   .hb-doc-comment-compose footer { display: flex; gap: .35rem; justify-content: flex-end; margin-top: .45rem; }
+  .hb-doc-comment-compose footer > span { flex: 1; }
   .hb-doc-comment-compose [data-hb-comment-save] { background: var(--sl-color-accent); color: var(--sl-color-text-invert); }
+  .hb-doc-comment-compose [data-hb-comment-delete] { color: var(--sl-color-red-high); }
   .hb-doc-comment-compose [data-hb-comment-error] { color: var(--sl-color-red-high); font-size: .75rem; margin: .35rem 0 0; }
   .hb-doc-comments { right: 1rem; top: calc(var(--sl-nav-height) + 3.65rem); }
   .hb-doc-comments header { align-items: center; display: flex; justify-content: space-between; }
@@ -51,12 +53,12 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
   .sl-markdown-content[contenteditable="true"]:focus { outline: none; }
   .sl-markdown-content[contenteditable="true"] [contenteditable="false"] { user-select: none; }
   .sl-markdown-content[contenteditable="true"] a { cursor: text; }
-  ::highlight(hb-doc-comments) { background: color-mix(in srgb, var(--sl-color-accent) 24%, transparent); text-decoration: underline var(--sl-color-accent); }
+  .hb-doc-comment-anchor { background: color-mix(in srgb, var(--sl-color-accent) 24%, transparent); border-bottom: 1px solid var(--sl-color-accent); border-radius: .15em; cursor: help; }
   @media (max-width: 50rem) { #hb-local-docs-editor { top: calc(var(--sl-nav-height) + .5rem); } .hb-doc-status { font-size: .68rem; } }
 </style>
 
 <script>
-  type Comment = { id: string; selection: string; message: string; createdAt: string };
+  type Comment = { id: string; selection: string; message: string; prefix?: string; suffix?: string; createdAt: string; updatedAt?: string };
   type Source = { hash: string; sourcePath: string; editorContent: string; comments: Comment[] };
   type SaveResult = { hash: string; sourcePath: string };
 
@@ -72,10 +74,13 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
     const composeSelection = ui.querySelector<HTMLElement>('[data-hb-comment-selection]');
     const composeText = ui.querySelector<HTMLTextAreaElement>('[data-hb-comment-text]');
     const composeError = ui.querySelector<HTMLElement>('[data-hb-comment-error]');
+    const composeDelete = ui.querySelector<HTMLButtonElement>('[data-hb-comment-delete]');
+    const composeCancel = ui.querySelector<HTMLButtonElement>('[data-hb-comment-cancel]');
+    const composeSave = ui.querySelector<HTMLButtonElement>('[data-hb-comment-save]');
     const comments = ui.querySelector<HTMLElement>('[data-hb-comments]');
     const commentsTitle = ui.querySelector<HTMLElement>('[data-hb-comments-title]');
     const commentsList = ui.querySelector<HTMLOListElement>('[data-hb-comments-list]');
-    if (!pagePath || !content || !status || !bubble || !compose || !composeSelection || !composeText || !composeError || !comments || !commentsTitle || !commentsList) return;
+    if (!pagePath || !content || !status || !bubble || !compose || !composeSelection || !composeText || !composeError || !composeDelete || !composeCancel || !composeSave || !comments || !commentsTitle || !commentsList) return;
 
     const controller = new AbortController();
     const endpoint = () => { const url = new URL('/__hapbeat/docs-editor', location.origin); url.searchParams.set('path', pagePath); return url; };
@@ -90,12 +95,19 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
     let saving: Promise<boolean> | null = null;
     let selectedRange: Range | null = null;
     let selectedText = '';
+    let selectedPrefix = '';
+    let selectedSuffix = '';
+    let editingCommentId: string | null = null;
+    let hoverCloseTimer: number | undefined;
     let turndown: { turndown: (input: Node | string) => string; addRule: (key: string, rule: object) => void; use: (plugin: unknown) => void } | null = null;
 
     const positionNear = (element: HTMLElement, rect: DOMRect, offset = 8) => {
       element.hidden = false;
       const own = element.getBoundingClientRect();
-      const left = Math.min(Math.max(8, rect.left + rect.width / 2 - own.width / 2), window.innerWidth - own.width - 8);
+      const contentRect = content.getBoundingClientRect();
+      const minLeft = Math.max(8, contentRect.left);
+      const maxLeft = Math.max(minLeft, Math.min(window.innerWidth - own.width - 8, contentRect.right - own.width));
+      const left = Math.min(Math.max(minLeft, rect.left + rect.width / 2 - own.width / 2), maxLeft);
       const above = rect.top - own.height - offset;
       const top = above >= 8 ? above : Math.min(rect.bottom + offset, window.innerHeight - own.height - 8);
       element.style.left = `${Math.round(left)}px`;
@@ -106,6 +118,7 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
       const clone = content.cloneNode(true) as HTMLElement;
       clone.removeAttribute('contenteditable');
       clone.querySelector('#hb-local-docs-editor')?.remove();
+      clone.querySelectorAll('.hb-doc-comment-anchor').forEach((anchor) => anchor.replaceWith(...anchor.childNodes));
       clone.querySelectorAll('[data-pagefind-meta], .sl-anchor-link, .copy, link, script').forEach((node) => node.remove());
       clone.querySelectorAll('[contenteditable]').forEach((node) => node.removeAttribute('contenteditable'));
       return clone;
@@ -133,35 +146,99 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
 
     function scheduleSave() { setStatus('編集中…', 'editing'); window.clearTimeout(saveTimer); saveTimer = window.setTimeout(() => void saveNow(), 800); }
 
+    function editableTextSnapshot() {
+      const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, { acceptNode(node) { return ui.contains(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT; } });
+      const nodes: Text[] = []; let all = '';
+      while (walker.nextNode()) { const node = walker.currentNode as Text; nodes.push(node); all += node.data; }
+      return { nodes, all };
+    }
+
+    function captureSelectionContext(range: Range, text: string) {
+      const { nodes, all } = editableTextSnapshot();
+      let cursor = 0; let approximateStart = -1;
+      for (const node of nodes) {
+        if (node === range.startContainer) { approximateStart = cursor + range.startOffset; break; }
+        cursor += node.length;
+      }
+      let start = approximateStart >= 0 ? all.indexOf(text, Math.max(0, approximateStart - 2)) : -1;
+      if (start < 0) start = all.indexOf(text);
+      selectedPrefix = start >= 0 ? all.slice(Math.max(0, start - 96), start) : '';
+      selectedSuffix = start >= 0 ? all.slice(start + text.length, start + text.length + 96) : '';
+    }
+
     function updateBubble() {
       if (!source || !turndown || !compose.hidden) return;
       const selection = window.getSelection();
       const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
-      if (!range || range.collapsed || !content.contains(range.commonAncestorContainer) || ui.contains(range.commonAncestorContainer)) { bubble.hidden = true; selectedRange = null; selectedText = ''; return; }
+      if (!range || range.collapsed || !content.contains(range.commonAncestorContainer) || ui.contains(range.commonAncestorContainer)) { bubble.hidden = true; selectedRange = null; selectedText = ''; selectedPrefix = ''; selectedSuffix = ''; return; }
       selectedText = selection?.toString().trim() || '';
       if (!selectedText) { bubble.hidden = true; return; }
       selectedRange = range.cloneRange();
+      captureSelectionContext(range, selectedText);
       positionNear(bubble, range.getBoundingClientRect());
     }
 
-    function restoreSelection() { if (!selectedRange) return; const selection = window.getSelection(); selection?.removeAllRanges(); selection?.addRange(selectedRange); }
+    function anchoredCommentStart(all: string, item: Comment) {
+      let start = all.indexOf(item.selection); let bestStart = start; let bestScore = -1;
+      while (start >= 0) {
+        const prefixMatches = !item.prefix || all.slice(Math.max(0, start - item.prefix.length), start) === item.prefix;
+        const suffixMatches = !item.suffix || all.slice(start + item.selection.length, start + item.selection.length + item.suffix.length) === item.suffix;
+        const score = Number(prefixMatches) + Number(suffixMatches);
+        if (score > bestScore) { bestStart = start; bestScore = score; }
+        if (prefixMatches && suffixMatches) return start;
+        start = all.indexOf(item.selection, start + Math.max(1, item.selection.length));
+      }
+      return bestStart;
+    }
 
-    function showCommentHighlights(items: Comment[]) {
-      const highlights = (CSS as typeof CSS & { highlights?: Map<string, unknown> }).highlights;
-      if (!highlights || typeof Highlight === 'undefined') return;
-      const ranges: Range[] = [];
-      const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, { acceptNode(node) { return ui.contains(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT; } });
-      const nodes: Text[] = []; let all = '';
-      while (walker.nextNode()) { const node = walker.currentNode as Text; nodes.push(node); all += node.data; }
-      const locate = (offset: number) => { let cursor = 0; for (const node of nodes) { if (offset <= cursor + node.length) return { node, offset: offset - cursor }; cursor += node.length; } return null; };
-      items.forEach((item) => { const start = all.indexOf(item.selection); if (start < 0) return; const from = locate(start); const to = locate(start + item.selection.length); if (!from || !to) return; const range = document.createRange(); range.setStart(from.node, from.offset); range.setEnd(to.node, to.offset); ranges.push(range); });
-      highlights.set('hb-doc-comments', new Highlight(...ranges));
+    function showCommentAnchors(items: Comment[]) {
+      content.querySelectorAll('.hb-doc-comment-anchor').forEach((anchor) => anchor.replaceWith(...anchor.childNodes));
+      content.normalize();
+      items.forEach((item) => {
+        const { nodes, all } = editableTextSnapshot();
+        const start = anchoredCommentStart(all, item);
+        if (start < 0) return;
+        const end = start + item.selection.length;
+        let cursor = 0;
+        const segments: { node: Text; start: number; end: number }[] = [];
+        for (const node of nodes) {
+          const nodeStart = cursor; const nodeEnd = cursor + node.length;
+          if (start < nodeEnd && end > nodeStart) segments.push({ node, start: Math.max(0, start - nodeStart), end: Math.min(node.length, end - nodeStart) });
+          cursor = nodeEnd;
+          if (cursor >= end) break;
+        }
+        segments.reverse().forEach((segment) => {
+          if (segment.start >= segment.end) return;
+          const range = document.createRange(); range.setStart(segment.node, segment.start); range.setEnd(segment.node, segment.end);
+          const anchor = document.createElement('span'); anchor.className = 'hb-doc-comment-anchor'; anchor.dataset.hbCommentId = item.id; anchor.title = item.message; anchor.tabIndex = 0;
+          range.surroundContents(anchor);
+        });
+      });
     }
 
     function renderComments(items: Comment[]) {
       commentsList.replaceChildren(); commentsTitle.textContent = `コメント (${items.length})`;
       items.forEach((item) => { const li = document.createElement('li'); const quote = document.createElement('blockquote'); quote.textContent = item.selection; const message = document.createElement('p'); message.textContent = item.message; const remove = document.createElement('button'); remove.type = 'button'; remove.dataset.removeComment = item.id; remove.textContent = '削除'; li.append(quote, message, remove); commentsList.append(li); });
-      showCommentHighlights(items);
+      showCommentAnchors(items);
+    }
+
+    function closeCommentEditor() { compose.hidden = true; editingCommentId = null; window.clearTimeout(hoverCloseTimer); }
+
+    function openExistingComment(item: Comment, rect: DOMRect) {
+      window.clearTimeout(hoverCloseTimer);
+      editingCommentId = item.id;
+      composeSelection.textContent = item.selection;
+      composeText.value = item.message;
+      composeError.textContent = '';
+      composeDelete.hidden = false;
+      composeCancel.textContent = '閉じる';
+      composeSave.textContent = '更新';
+      positionNear(compose, rect, 6);
+    }
+
+    function scheduleCommentEditorClose() {
+      window.clearTimeout(hoverCloseTimer);
+      hoverCloseTimer = window.setTimeout(() => { if (editingCommentId) closeCommentEditor(); }, 250);
     }
 
     async function initialize() {
@@ -186,6 +263,15 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
 
     content.addEventListener('input', scheduleSave, { signal: controller.signal });
     content.addEventListener('click', (event) => { if ((event.target as Element).closest('a')) event.preventDefault(); }, { signal: controller.signal });
+    content.addEventListener('pointerover', (event) => {
+      const anchor = (event.target as Element).closest<HTMLElement>('.hb-doc-comment-anchor');
+      const item = source?.comments.find((comment) => comment.id === anchor?.dataset.hbCommentId);
+      if (anchor && item) openExistingComment(item, anchor.getBoundingClientRect());
+    }, { signal: controller.signal });
+    content.addEventListener('pointerout', (event) => { if ((event.target as Element).closest('.hb-doc-comment-anchor')) scheduleCommentEditorClose(); }, { signal: controller.signal });
+    content.addEventListener('focusin', (event) => { const anchor = (event.target as Element).closest<HTMLElement>('.hb-doc-comment-anchor'); const item = source?.comments.find((comment) => comment.id === anchor?.dataset.hbCommentId); if (anchor && item) openExistingComment(item, anchor.getBoundingClientRect()); }, { signal: controller.signal });
+    compose.addEventListener('pointerenter', () => window.clearTimeout(hoverCloseTimer), { signal: controller.signal });
+    compose.addEventListener('pointerleave', () => { if (editingCommentId && !compose.contains(document.activeElement)) scheduleCommentEditorClose(); }, { signal: controller.signal });
     document.addEventListener('selectionchange', updateBubble, { signal: controller.signal });
     document.addEventListener('keydown', (event) => {
       const isEditing = content.contains(document.activeElement);
@@ -194,16 +280,36 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
         if (key === 's') { event.preventDefault(); void saveNow(); }
         if (key === 'b' || key === 'i') { event.preventDefault(); document.execCommand(key === 'b' ? 'bold' : 'italic', false); scheduleSave(); }
       }
-      if (event.key === 'Escape') { bubble.hidden = true; compose.hidden = true; comments.hidden = true; }
+      if (event.key === 'Escape') { bubble.hidden = true; closeCommentEditor(); comments.hidden = true; }
     }, { signal: controller.signal });
     bubble.addEventListener('pointerdown', (event) => event.preventDefault(), { signal: controller.signal });
-    ui.querySelector('[data-hb-comment-open]')?.addEventListener('click', () => { if (!selectedRange || !selectedText) return; composeSelection.textContent = selectedText; composeText.value = ''; composeError.textContent = ''; const rect = bubble.getBoundingClientRect(); bubble.hidden = true; positionNear(compose, rect, 6); composeText.focus(); }, { signal: controller.signal });
-    ui.querySelector('[data-hb-comment-cancel]')?.addEventListener('click', () => { compose.hidden = true; }, { signal: controller.signal });
-    ui.querySelector('[data-hb-comment-save]')?.addEventListener('click', async () => { if (!source || !selectedText || !composeText.value.trim()) return; composeError.textContent = '保存中…'; try { if (!await saveNow()) throw new Error('本文を保存できませんでした。'); const latest = await getSource(); await post({ comment: { selection: selectedText, message: composeText.value.trim() }, hash: latest.hash }); source = await getSource(); renderComments(source.comments); compose.hidden = true; setStatus(`ローカル編集 · コメント ${source.comments.length}`, 'saved'); } catch (error) { composeError.textContent = error instanceof Error ? error.message : 'コメントを保存できませんでした。'; } }, { signal: controller.signal });
+    ui.querySelector('[data-hb-comment-open]')?.addEventListener('click', () => { if (!selectedRange || !selectedText) return; editingCommentId = null; composeSelection.textContent = selectedText; composeText.value = ''; composeError.textContent = ''; composeDelete.hidden = true; composeCancel.textContent = 'キャンセル'; composeSave.textContent = '保存'; const rect = bubble.getBoundingClientRect(); bubble.hidden = true; positionNear(compose, rect, 6); composeText.focus(); }, { signal: controller.signal });
+    composeCancel.addEventListener('click', closeCommentEditor, { signal: controller.signal });
+    composeSave.addEventListener('click', async () => {
+      if (!source || !composeText.value.trim()) return;
+      composeError.textContent = '保存中…';
+      try {
+        if (editingCommentId) {
+          const latest = await getSource();
+          await post({ updateComment: { id: editingCommentId, message: composeText.value.trim() }, hash: latest.hash });
+        } else {
+          if (!selectedText || !await saveNow()) throw new Error('本文を保存できませんでした。');
+          const latest = await getSource();
+          await post({ comment: { selection: selectedText, message: composeText.value.trim(), prefix: selectedPrefix, suffix: selectedSuffix }, hash: latest.hash });
+        }
+        source = await getSource(); renderComments(source.comments); closeCommentEditor(); setStatus(`ローカル編集 · コメント ${source.comments.length}`, 'saved');
+      } catch (error) { composeError.textContent = error instanceof Error ? error.message : 'コメントを保存できませんでした。'; }
+    }, { signal: controller.signal });
+    composeDelete.addEventListener('click', async () => {
+      if (!editingCommentId) return;
+      composeError.textContent = '削除中…';
+      try { const latest = await getSource(); await post({ removeCommentId: editingCommentId, hash: latest.hash }); source = await getSource(); renderComments(source.comments); closeCommentEditor(); setStatus(source.comments.length ? `ローカル編集 · コメント ${source.comments.length}` : 'ローカル編集', 'saved'); }
+      catch (error) { composeError.textContent = error instanceof Error ? error.message : 'コメントを削除できませんでした。'; }
+    }, { signal: controller.signal });
     status.addEventListener('click', () => { if (!source?.comments.length) return; comments.hidden = !comments.hidden; }, { signal: controller.signal });
     ui.querySelector('[data-hb-comments-close]')?.addEventListener('click', () => { comments.hidden = true; }, { signal: controller.signal });
     commentsList.addEventListener('click', async (event) => { const button = (event.target as Element).closest<HTMLButtonElement>('[data-remove-comment]'); if (!button?.dataset.removeComment || !source) return; try { const latest = await getSource(); await post({ removeCommentId: button.dataset.removeComment, hash: latest.hash }); source = await getSource(); renderComments(source.comments); if (!source.comments.length) comments.hidden = true; setStatus(source.comments.length ? `ローカル編集 · コメント ${source.comments.length}` : 'ローカル編集', 'saved'); } catch { button.textContent = '削除できませんでした'; } }, { signal: controller.signal });
-    document.addEventListener('astro:before-swap', () => { void saveNow(); window.clearTimeout(saveTimer); controller.abort(); const highlights = (CSS as typeof CSS & { highlights?: Map<string, unknown> }).highlights; highlights?.delete('hb-doc-comments'); }, { once: true, signal: controller.signal });
+    document.addEventListener('astro:before-swap', () => { void saveNow(); window.clearTimeout(saveTimer); window.clearTimeout(hoverCloseTimer); controller.abort(); }, { once: true, signal: controller.signal });
     void initialize();
   }
 

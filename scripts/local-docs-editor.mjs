@@ -50,6 +50,11 @@ function parseComments(content) {
   return comments;
 }
 
+function serializeComment(comment, newline) {
+  const payload = JSON.stringify(comment, null, 2).replace(/\n/g, newline);
+  return `<!-- hapbeat-doc-comment${newline}${payload}${newline}-->${newline}`;
+}
+
 function splitEditableSource(content) {
   const frontmatter = content.match(FRONTMATTER_PATTERN)?.[1] || '';
   const bodyWithComments = content.slice(frontmatter.length);
@@ -69,8 +74,27 @@ function composeSource(currentContent, editedBody) {
 
 function appendComment(currentContent, comment) {
   const newline = currentContent.includes('\r\n') ? '\r\n' : '\n';
-  const payload = JSON.stringify(comment, null, 2).replace(/\n/g, newline);
-  return `${currentContent.trimEnd()}${newline}${newline}<!-- hapbeat-doc-comment${newline}${payload}${newline}-->${newline}`;
+  return `${currentContent.trimEnd()}${newline}${newline}${serializeComment(comment, newline)}`;
+}
+
+function updateComment(currentContent, commentId, message) {
+  let updated = false;
+  const content = currentContent.replace(COMMENT_PATTERN, (block, json) => {
+    try {
+      const comment = JSON.parse(json);
+      if (comment.id === commentId) {
+        updated = true;
+        const newline = block.includes('\r\n') ? '\r\n' : '\n';
+        return serializeComment({
+          ...comment,
+          message,
+          updatedAt: new Date().toISOString(),
+        }, newline);
+      }
+    } catch {}
+    return block;
+  });
+  return { content, updated };
 }
 
 function removeComment(currentContent, commentId) {
@@ -349,8 +373,13 @@ function localDocsEditorMiddleware() {
             && typeof body.comment.message === 'string'
             && body.comment.message.trim().length > 0;
           const isCommentRemoval = typeof body.removeCommentId === 'string' && body.removeCommentId.length > 0;
-          if ((Number(isDocumentSave) + Number(Boolean(isCommentSave)) + Number(isCommentRemoval) !== 1) || !/^[a-f0-9]{64}$/i.test(body.hash || '')) {
-            sendJson(res, 400, { ok: false, error: 'Provide one document update, selected-text comment, or comment removal with its original version.' });
+          const isCommentUpdate = body.updateComment
+            && typeof body.updateComment.id === 'string'
+            && body.updateComment.id.length > 0
+            && typeof body.updateComment.message === 'string'
+            && body.updateComment.message.trim().length > 0;
+          if ((Number(isDocumentSave) + Number(Boolean(isCommentSave)) + Number(isCommentRemoval) + Number(Boolean(isCommentUpdate)) !== 1) || !/^[a-f0-9]{64}$/i.test(body.hash || '')) {
+            sendJson(res, 400, { ok: false, error: 'Provide one document update, selected-text comment, comment edit, or comment removal with its original version.' });
             return;
           }
 
@@ -369,8 +398,17 @@ function localDocsEditorMiddleware() {
               id: randomUUID(),
               selection: body.comment.selection.trim(),
               message: body.comment.message.trim(),
+              prefix: typeof body.comment.prefix === 'string' ? body.comment.prefix.slice(-96) : '',
+              suffix: typeof body.comment.suffix === 'string' ? body.comment.suffix.slice(0, 96) : '',
               createdAt: new Date().toISOString(),
             });
+          } else if (isCommentUpdate) {
+            const result = updateComment(currentContent, body.updateComment.id, body.updateComment.message.trim());
+            if (!result.updated) {
+              sendJson(res, 404, { ok: false, error: 'The comment no longer exists.' });
+              return;
+            }
+            savedContent = result.content;
           } else if (isCommentRemoval) {
             const result = removeComment(currentContent, body.removeCommentId);
             if (!result.removed) {
