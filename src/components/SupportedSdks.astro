@@ -11,6 +11,8 @@
  *   - JavaScript : "JS" バッジは MIT。公式ロゴを使用。
  *   - Unity : ブランドガイドラインが第三者の自社製品宣伝でのロゴ使用を認めないため、
  *             ロゴではなく名称（文字ワードマーク）で表示する。書面許可があれば差し替え可。
+ *   - Unreal Engine : ロゴ利用の包括的な第三者向け許諾を確認できないため、ロゴではなく
+ *                     名称（文字ワードマーク）で表示する。書面許可があれば差し替え可。
  *   - Arduino : 商標ガイドが互換製品でのロゴ使用を明確に禁止（"Arduino" の語のみ可）。
  *             ロゴではなく名称（文字ワードマーク）で表示する。
  *
@@ -42,6 +44,19 @@ const SDKS: Sdk[] = [
     desc: {
       ja: 'Unity 製ゲーム・VR/MR アプリ向け。Trigger と EventMap で既存プロジェクトに触覚を追加できます。',
       en: 'For Unity games and VR/MR apps. Add haptics to an existing project with Trigger components and EventMap.',
+    },
+  },
+  {
+    id: 'unreal',
+    name: 'Unreal Engine',
+    mark: 'word',
+    chip: 'GitHub Release',
+    slug: 'unreal-sdk',
+    accent: '#1f2630',
+    tm: true,
+    desc: {
+      ja: 'Unreal Engine 製ゲーム・VR アプリ向け。C++ と Blueprint の両方から Hapbeat の触覚を実装できます。',
+      en: 'For Unreal Engine games and VR apps. Implement Hapbeat haptics from both C++ and Blueprints.',
     },
   },
   {
@@ -90,12 +105,12 @@ const { lang = 'ja' } = Astro.props;
 const prefix = lang === 'en' ? '/en' : '';
 const more =
   lang === 'en'
-    ? 'More SDKs (Unreal, Godot, TouchDesigner, VRChat) are on the way.'
-    : 'Unreal / Godot / TouchDesigner / VRChat などにも順次対応予定です。';
+    ? 'More SDKs (Godot, TouchDesigner, VRChat) are on the way.'
+    : 'Godot / TouchDesigner / VRChat などにも順次対応予定です。';
 const trademark =
   lang === 'en'
-    ? 'Names and logos are trademarks of their respective owners (Python: Python Software Foundation; JavaScript logo: Chris Williams, MIT; Unity: Unity Technologies; Arduino: Arduino S.r.l.). Nominative use only; no affiliation or endorsement implied.'
-    : '各名称・ロゴは各社の商標です（Python: Python Software Foundation／JavaScript ロゴ: Chris Williams, MIT／Unity: Unity Technologies／Arduino: Arduino S.r.l.）。指名的表示であり、提携・推奨を示すものではありません。';
+    ? 'Names and logos are trademarks of their respective owners (Python: Python Software Foundation; JavaScript logo: Chris Williams, MIT; Unity: Unity Technologies; Unreal Engine: Epic Games, Inc.; Arduino: Arduino S.r.l.). Nominative use only; no affiliation or endorsement implied.'
+    : '各名称・ロゴは各社の商標です（Python: Python Software Foundation／JavaScript ロゴ: Chris Williams, MIT／Unity: Unity Technologies／Unreal Engine: Epic Games, Inc.／Arduino: Arduino S.r.l.）。指名的表示であり、提携・推奨を示すものではありません。';
 ---
 
 <div class="hb-sdks">
@@ -109,7 +124,10 @@ const trademark =
       >
         <span class="hb-sdks__mark">
           {s.mark === 'word' ? (
-            <span class="hb-sdks__wordmark">{s.name}</span>
+            <span class="hb-sdks__wordmark">
+              {s.name}
+              {s.tm && <sup class="hb-sdks__tm">®</sup>}
+            </span>
           ) : (
             <img src={`/sdk-logos/${s.mark}`} alt={`${s.name} logo`} width="40" height="40" />
           )}

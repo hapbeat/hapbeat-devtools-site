@@ -22,6 +22,7 @@ export const SDK_OG_IMAGES: Record<string, string> = {
   'python-sdk': '/og/python-sdk.png',
   'js-sdk': '/og/js-sdk.png',
   'unity-sdk': '/og/unity-sdk.png',
+  'unreal-sdk': '/og/unreal-sdk.png',
   'arduino-sdk': '/og/arduino-sdk.png',
 };
 

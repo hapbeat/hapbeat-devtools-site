@@ -10,7 +10,7 @@
 | `python.svg` | Python | Wikimedia Commons `Python-logo-notext.svg`（公式カラー） | PSF 商標ポリシー「Uses that Never Require Approval」により、**未改変**のロゴで互換性表示に利用可（商用含む。override 条項）。**® 併記 + 帰属注記**が条件。https://www.python.org/psf/trademarks/ |
 | `javascript.svg` | JavaScript | 標準の "JS" バッジ（Chris Williams / JSConf, 2011） | **MIT ライセンス**で自由利用可（著作権表示の保持が条件）。https://github.com/voodootikigod/logo.js |
 
-Unity・Arduino はロゴ画像を持たず、**文字ワードマーク**で表示する（下記）。
+Unity・Unreal Engine・Arduino はロゴ画像を持たず、**文字ワードマーク**で表示する（下記）。
 
 ## Unity はロゴを使わない（規約上の判断・2026-06-22）
 
@@ -64,3 +64,21 @@ Arduino の商標ガイドラインは、第三者の**互換製品でのロゴ�
 
 更新時は `npm run gen:og` で再生成すること。新規 SDK 追加の一連手順は
 `add-sdk-platform` skill を参照。
+
+## Unreal Engine はロゴを使わない（規約上の判断・2026-09-10）
+
+Epic の公式ページは Unreal Engine ロゴを商標として扱い、利用時は最新のブランドガイドライン・
+商標利用条件に従うよう求めている。Hapbeat Unreal SDK の OGP は第三者 SDK の公開素材であり、
+**ロゴ利用を包括的に許す一次資料を確認できない**。そのため、Unity・Arduino と同様に公式ロゴ
+（円形の U マークを含む）は使わず、互換性を表す目的で名称 **Unreal Engine®** を文字で表示する。
+
+OGP 下部には以下の帰属を表示する。
+
+> Unreal® and Unreal Engine® are trademarks or registered trademarks of Epic Games, Inc. in the United States of America and elsewhere.
+
+書面でロゴ利用の許可を得た場合のみ、最新の公式ブランドアセットへ置き換える。
+
+一次ソース:
+
+- https://www.unrealengine.com/branding-guidelines-and-trademark-usage
+- https://docs.unrealengine.com/udk/Main/TrademarksAndLogos.html

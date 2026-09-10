@@ -18,7 +18,10 @@
  *   - Arduino    : 商標ガイドが互換製品でのロゴ使用を明確に禁止 → ワードマーク
  *                  ("Arduino" の語のみ可)。アクセント色のみ Arduino teal を使う。
  *
- * 出力: public/og/<slug>.png  (slug = python-sdk / js-sdk / unity-sdk / arduino-sdk)
+ *   - Unreal Engine: ロゴ利用の包括的な第三者向け許諾を確認できないため、ワードマーク。
+ *     Epic の商標帰属を表示する。
+ *
+ * 出力: public/og/<slug>.png  (slug = python-sdk / js-sdk / unity-sdk / unreal-sdk / arduino-sdk)
  * 適用: src/components/Head.astro が pathname を見て og:image を差し替える
  *       (src/lib/sdk-og.ts のマップ。/docs/sdk-integration/<slug>/ 配下の全ページ)。
  *
@@ -75,6 +78,13 @@ const SDKS = [
     logo: null, wordmark: 'Unity', accent: '#5D6670',
     tagline: 'Add haptics to Unity games & VR/MR apps', chip: 'UPM',
     credit: 'Unity is a trademark of Unity Technologies. Nominative use only.',
+  },
+  {
+    slug: 'unreal-sdk', name: 'Unreal Engine SDK', brand: 'Unreal Engine', mark: '®',
+    logo: null, wordmark: 'Unreal Engine', accent: '#1F2630',
+    tagline: 'Add haptics to Unreal Engine games & VR apps', chip: 'GitHub Release',
+    credit: 'Unreal® and Unreal Engine® are trademarks or registered trademarks of Epic Games, Inc. in the United States of America and elsewhere.',
+    creditSize: 14,
   },
   {
     slug: 'arduino-sdk', name: 'Arduino SDK', brand: 'Arduino', mark: '®',
@@ -172,7 +182,7 @@ function buildCardSvg(sdk) {
   ${chipsSvg(sdk.chip)}
 
   <!-- 帰属注記 -->
-  <text x="96" y="586" font-family="${FONT}" font-size="17" font-weight="400"
+  <text x="96" y="586" font-family="${FONT}" font-size="${sdk.creditSize ?? 17}" font-weight="400"
         fill="${C.inkFaint}">${esc(sdk.credit)}</text>
 
   <!-- 右タイル (faux shadow + アクセント淡塗り + アクセント枠) -->
