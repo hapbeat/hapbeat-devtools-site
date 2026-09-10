@@ -81,7 +81,9 @@ const SDKS = [
   },
   {
     slug: 'unreal-sdk', name: 'Unreal Engine SDK', brand: 'Unreal Engine', mark: '®',
-    logo: null, wordmark: 'Unreal Engine', accent: '#1F2630',
+    logo: null, wordmark: 'Unreal Engine', wordmarkLines: ['Unreal', 'Engine'],
+    // Official Unreal Engine logo is black / white; use a neutral near-black accent, not a recreated logo colour.
+    accent: '#18181B', titleSize: 66,
     tagline: 'Add haptics to Unreal Engine games & VR apps', chip: 'GitHub Release',
     credit: 'Unreal® and Unreal Engine® are trademarks or registered trademarks of Epic Games, Inc. in the United States of America and elsewhere.',
     creditSize: 14,
@@ -112,22 +114,28 @@ function brandMark(x, y, size) {
 
 /** タイトル (ブランド名 + 任意の登録/商標マーク + "SDK") を tspan で描く。
  *  SVG は tspan 先頭の空白を畳むため、語間は dx で明示的に空ける。 */
-function titleTspans(brand, mark, suffix) {
+function titleTspans(brand, mark, suffix, size) {
   if (mark) {
-    return `${esc(brand)}<tspan font-size="30" dy="-28">${mark}</tspan>` +
-      `<tspan font-size="76" dy="28" dx="18">${esc(suffix)}</tspan>`;
+    const markSize = Math.round(size * 0.4);
+    const markRise = Math.round(size * 0.368);
+    const suffixGap = Math.round(size * 0.237);
+    return `${esc(brand)}<tspan font-size="${markSize}" dy="-${markRise}">${mark}</tspan>` +
+      `<tspan font-size="${size}" dy="${markRise}" dx="${suffixGap}">${esc(suffix)}</tspan>`;
   }
   return `${esc(brand)}<tspan dx="22">${esc(suffix)}</tspan>`;
 }
 
 /** ロゴ不可のプラットフォーム用「正方形 + 文字」: タイル中央にワードマークを描く */
-function wordmarkText(word, accent) {
+function wordmarkText(word, accent, wordmarkLines) {
   const cx = TILE.x + TILE.w / 2;
   const cy = TILE.y + TILE.h / 2;
-  return `
-  <text x="${cx}" y="${cy}" font-family="${FONT}" font-size="50" font-weight="800"
+  const lines = wordmarkLines ?? [word];
+  const lineHeight = 58;
+  const firstY = cy - ((lines.length - 1) * lineHeight) / 2;
+  return lines.map((line, index) => `
+  <text x="${cx}" y="${firstY + index * lineHeight}" font-family="${FONT}" font-size="50" font-weight="800"
         fill="${C.ink}" text-anchor="middle" dominant-baseline="central"
-        letter-spacing="-0.5">${esc(word)}</text>`;
+        letter-spacing="-0.5">${esc(line)}</text>`).join('');
 }
 
 /** 配布形態チップ（1 つ以上）を左から並べて描く */
@@ -151,6 +159,7 @@ function chipsSvg(chip) {
 /** カード背景 SVG (ロゴ画像以外すべて) を組み立てる */
 function buildCardSvg(sdk) {
   const isWordmark = !sdk.logo;
+  const titleSize = sdk.titleSize ?? 76;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
     <linearGradient id="brand" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -171,8 +180,8 @@ function buildCardSvg(sdk) {
         fill="${C.purple}" letter-spacing="3">HAPBEAT DEVTOOLS</text>
 
   <!-- タイトル -->
-  <text x="96" y="252" font-family="${FONT}" font-size="76" font-weight="800"
-        fill="${C.ink}" letter-spacing="-1.5">${titleTspans(sdk.brand, sdk.mark, 'SDK')}</text>
+  <text x="96" y="252" font-family="${FONT}" font-size="${titleSize}" font-weight="800"
+        fill="${C.ink}" letter-spacing="-1.5">${titleTspans(sdk.brand, sdk.mark, 'SDK', titleSize)}</text>
 
   <!-- 説明 -->
   <text x="98" y="322" font-family="${FONT}" font-size="28" font-weight="500"
@@ -190,7 +199,7 @@ function buildCardSvg(sdk) {
         fill="rgba(0,0,0,0.05)"/>
   <rect x="${TILE.x}" y="${TILE.y}" width="${TILE.w}" height="${TILE.h}" rx="${TILE.rx}"
         fill="${sdk.accent}" fill-opacity="0.06" stroke="${sdk.accent}" stroke-opacity="0.30" stroke-width="2"/>
-  ${isWordmark ? wordmarkText(sdk.wordmark, sdk.accent) : ''}
+  ${isWordmark ? wordmarkText(sdk.wordmark, sdk.accent, sdk.wordmarkLines) : ''}
 </svg>`;
 }
 
