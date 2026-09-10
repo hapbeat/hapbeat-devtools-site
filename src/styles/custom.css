@@ -238,7 +238,9 @@ html {
   border: 1px solid var(--hb-line);
   padding: 1px 5px;
   border-radius: 4px;
-  color: inherit;
+  /* Event IDs, class names, and API calls need the same visual cue in prose,
+   * lists, and tables. Code fences remain governed by syntax highlighting. */
+  color: var(--sl-color-accent);
 }
 
 /* Blueprint nodes and C++ symbols are the only semantic color cues. Other
