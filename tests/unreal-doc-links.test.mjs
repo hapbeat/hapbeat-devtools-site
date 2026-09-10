@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import { rewriteUnrealDocLinks as rewrite } from '../scripts/unreal-doc-links.mjs';
+assert.equal(rewrite('[API](./cpp-api.md)'), '[API](/docs/sdk-integration/unreal-sdk/cpp-api/)');
+assert.equal(rewrite('[API](./cpp-api.md#types)'), '[API](/docs/sdk-integration/unreal-sdk/cpp-api/#types)');
+assert.equal(rewrite('`[API](./cpp-api.md)`'), '`[API](./cpp-api.md)`');
+assert.equal(rewrite('```text\n[API](./cpp-api.md)\n```'), '```text\n[API](./cpp-api.md)\n```');
+assert.equal(rewrite('[web](https://example.com/a.md)'), '[web](https://example.com/a.md)');
+assert.equal(rewrite('[other](../README.md)'), '[other](../README.md)');
+assert.equal(rewrite(rewrite('[API](./cpp-api.md)')), rewrite('[API](./cpp-api.md)'));
+console.log('Unreal doc links: 7 checks passed.');

@@ -53,6 +53,8 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
   .sl-markdown-content[contenteditable="true"]:focus { outline: none; }
   .sl-markdown-content[contenteditable="true"] [contenteditable="false"] { user-select: none; }
   .sl-markdown-content[contenteditable="true"] a { cursor: text; }
+  .sl-markdown-content[contenteditable="true"] [data-hb-shared-doc] a { cursor: pointer; }
+  .hb-shared-doc-end { display: none; }
   .hb-doc-comment-anchor { background: color-mix(in srgb, var(--sl-color-accent) 24%, transparent); border-bottom: 1px solid var(--sl-color-accent); border-radius: .15em; cursor: help; }
   @media (max-width: 50rem) { #hb-local-docs-editor { top: calc(var(--sl-nav-height) + .5rem); } .hb-doc-status { font-size: .68rem; } }
 </style>
@@ -124,6 +126,120 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
       return clone;
     }
 
+    function lockSharedDocBlocks() {
+      content.querySelectorAll<HTMLElement>('[data-hb-shared-doc]').forEach((marker) => {
+        const first = marker.closest('h2')?.closest<HTMLElement>('.sl-heading-wrapper') || marker.closest<HTMLElement>('h2');
+        const parent = first?.parentElement;
+        const end = [...content.querySelectorAll<HTMLElement>('[data-hb-shared-doc-end]')]
+          .find((candidate) => candidate.dataset.hbSharedDocEnd === marker.dataset.hbSharedDoc);
+        if (!first || !parent || !end || end.parentElement !== parent || first.closest('[data-hb-shared-doc]')) return;
+        const block = document.createElement('div');
+        block.className = 'hb-shared-doc-block';
+        block.dataset.hbSharedDoc = marker.dataset.hbSharedDoc || '';
+        block.contentEditable = 'false';
+        parent.insertBefore(block, first);
+        let current: Element | null = first;
+        while (current) {
+          const next = current.nextElementSibling;
+          block.append(current);
+          if (current === end) break;
+          current = next;
+        }
+      });
+    }
+
+    function elementFor(node: Node | null) {
+      return node?.nodeType === Node.ELEMENT_NODE ? node as Element : node?.parentElement || null;
+    }
+
+    function selectionIsInSharedDoc() {
+      const selection = window.getSelection();
+      return Boolean(selection?.rangeCount && elementFor(selection.anchorNode)?.closest('[data-hb-shared-doc]'));
+    }
+
+    function selectionBlock(range: Range) {
+      return elementFor(range.startContainer)?.closest('p, h1, h2, h3, h4, h5, h6, li, blockquote') || null;
+    }
+
+    function textBeforeCaret(block: Element, range: Range) {
+      const before = document.createRange();
+      before.selectNodeContents(block);
+      before.setEnd(range.startContainer, range.startOffset);
+      return before.toString();
+    }
+
+    function setCaretAtStart(element: Element) {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      range.collapse(true);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    }
+
+    function applyMarkdownShortcut(event: InputEvent) {
+      if (selectionIsInSharedDoc()) { event.preventDefault(); return; }
+      const selection = window.getSelection();
+      const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
+      if (!range || !range.collapsed) return;
+      const block = selectionBlock(range);
+      if (!block) return;
+
+      if (event.inputType === 'insertText' && event.data === ' ') {
+        const prefixText = textBeforeCaret(block, range);
+        const match = prefixText.match(/^(#{1,3})$/);
+        if (match) {
+          event.preventDefault();
+          const prefix = document.createRange();
+          prefix.selectNodeContents(block);
+          prefix.setEnd(range.startContainer, range.startOffset);
+          prefix.deleteContents();
+          document.execCommand('formatBlock', false, `h${match[1].length}`);
+          scheduleSave();
+          return;
+        }
+        if (prefixText === '-' || prefixText === '*') {
+          event.preventDefault();
+          const prefix = document.createRange();
+          prefix.selectNodeContents(block);
+          prefix.setEnd(range.startContainer, range.startOffset);
+          prefix.deleteContents();
+          document.execCommand('insertUnorderedList', false);
+          scheduleSave();
+          return;
+        }
+        if (/^\d+\.$/.test(prefixText)) {
+          event.preventDefault();
+          const prefix = document.createRange();
+          prefix.selectNodeContents(block);
+          prefix.setEnd(range.startContainer, range.startOffset);
+          prefix.deleteContents();
+          document.execCommand('insertOrderedList', false);
+          scheduleSave();
+          return;
+        }
+        if (prefixText === '>') {
+          event.preventDefault();
+          const prefix = document.createRange();
+          prefix.selectNodeContents(block);
+          prefix.setEnd(range.startContainer, range.startOffset);
+          prefix.deleteContents();
+          document.execCommand('formatBlock', false, 'blockquote');
+          scheduleSave();
+        }
+      }
+
+      if (event.inputType === 'insertParagraph' && block.matches('p') && /^(---|\*\*\*|___)$/.test(block.textContent?.trim() || '')) {
+        event.preventDefault();
+        const divider = document.createElement('hr');
+        const next = document.createElement('p');
+        next.append(document.createElement('br'));
+        block.replaceWith(divider, next);
+        setCaretAtStart(next);
+        scheduleSave();
+      }
+    }
+
     function serialize() { if (!turndown) return ''; const body = turndown.turndown(prepareClone()).trim(); return sourceTitle ? `${sourceTitle}\n\n${body}`.trim() : body; }
 
     async function saveNow(): Promise<boolean> {
@@ -147,7 +263,7 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
     function scheduleSave() { setStatus('編集中…', 'editing'); window.clearTimeout(saveTimer); saveTimer = window.setTimeout(() => void saveNow(), 800); }
 
     function editableTextSnapshot() {
-      const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, { acceptNode(node) { return ui.contains(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT; } });
+      const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, { acceptNode(node) { return ui.contains(node) || node.parentElement?.closest('[data-hb-shared-doc]') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT; } });
       const nodes: Text[] = []; let all = '';
       while (walker.nextNode()) { const node = walker.currentNode as Text; nodes.push(node); all += node.data; }
       return { nodes, all };
@@ -170,7 +286,7 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
       if (!source || !turndown || !compose.hidden) return;
       const selection = window.getSelection();
       const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
-      if (!range || range.collapsed || !content.contains(range.commonAncestorContainer) || ui.contains(range.commonAncestorContainer)) { bubble.hidden = true; selectedRange = null; selectedText = ''; selectedPrefix = ''; selectedSuffix = ''; return; }
+      if (!range || range.collapsed || !content.contains(range.commonAncestorContainer) || ui.contains(range.commonAncestorContainer) || elementFor(range.commonAncestorContainer)?.closest('[data-hb-shared-doc]')) { bubble.hidden = true; selectedRange = null; selectedText = ''; selectedPrefix = ''; selectedSuffix = ''; return; }
       selectedText = selection?.toString().trim() || '';
       if (!selectedText) { bubble.hidden = true; return; }
       selectedRange = range.cloneRange();
@@ -252,7 +368,10 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
         service.addRule('starlightAside', { filter: (node: Element) => node.nodeName === 'ASIDE' && node.classList.contains('starlight-aside'), replacement: (_content: string, node: Element) => { const type = [...node.classList].find((name) => name.startsWith('starlight-aside--'))?.replace('starlight-aside--', '') || 'note'; const title = node.querySelector('.starlight-aside__title')?.textContent?.trim() || ''; const body = node.querySelector('.starlight-aside__content'); const inner = body ? service.turndown(body.innerHTML).trim() : ''; return `\n\n:::${type}${title ? `[${title}]` : ''}\n\n${inner}\n\n:::\n\n`; } });
         service.addRule('expressiveCode', { filter: (node: Element) => node.nodeName === 'DIV' && node.classList.contains('expressive-code'), replacement: (_content: string, node: Element) => { const pre = node.querySelector('pre'); const language = pre?.getAttribute('data-language') || ''; const lineNodes = [...node.querySelectorAll('.ec-line .code')]; const code = (lineNodes.length ? lineNodes.map((line) => line.textContent || '').join('\n') : pre?.textContent || '').replace(/\n$/, ''); const fence = code.includes('```') ? '````' : '```'; return `\n\n${fence}${language}\n${code}\n${fence}\n\n`; } });
         service.addRule('headingWrapper', { filter: (node: Element) => node.nodeName === 'DIV' && node.classList.contains('sl-heading-wrapper'), replacement: (inner: string) => `\n\n${inner.trim()}\n\n` });
+        service.addRule('sharedDocBlock', { filter: (node: Element) => node.nodeName === 'DIV' && node.hasAttribute('data-hb-shared-doc'), replacement: (_content: string, node: Element) => `\n\n<!-- hapbeat:include ${node.getAttribute('data-hb-shared-doc')} -->\n\n` });
+        service.addRule('horizontalRule', { filter: 'hr', replacement: () => '\n\n---\n\n' });
         turndown = service;
+        lockSharedDocBlocks();
         lastSaved = serialize();
         renderComments(source.comments);
         content.contentEditable = 'true'; content.spellcheck = true; ui.contentEditable = 'false';
@@ -261,8 +380,12 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
       } catch (error) { setStatus(error instanceof Error ? error.message : 'ローカル編集を開始できません。', 'error'); }
     }
 
-    content.addEventListener('input', scheduleSave, { signal: controller.signal });
-    content.addEventListener('click', (event) => { if ((event.target as Element).closest('a')) event.preventDefault(); }, { signal: controller.signal });
+    content.addEventListener('beforeinput', applyMarkdownShortcut, { signal: controller.signal });
+    content.addEventListener('input', (event) => { if (!selectionIsInSharedDoc()) scheduleSave(); }, { signal: controller.signal });
+    content.addEventListener('click', (event) => {
+      const link = (event.target as Element).closest('a');
+      if (link && !link.closest('[data-hb-shared-doc]')) event.preventDefault();
+    }, { signal: controller.signal });
     content.addEventListener('pointerover', (event) => {
       const anchor = (event.target as Element).closest<HTMLElement>('.hb-doc-comment-anchor');
       const item = source?.comments.find((comment) => comment.id === anchor?.dataset.hbCommentId);
@@ -276,6 +399,7 @@ const isDocumentationPage = pathname.startsWith('/docs/') || pathname.startsWith
     document.addEventListener('keydown', (event) => {
       const isEditing = content.contains(document.activeElement);
       if ((event.ctrlKey || event.metaKey) && isEditing) {
+        if (selectionIsInSharedDoc()) { event.preventDefault(); return; }
         const key = event.key.toLowerCase();
         if (key === 's') { event.preventDefault(); void saveNow(); }
         if (key === 'b' || key === 'i') { event.preventDefault(); document.execCommand(key === 'b' ? 'bold' : 'italic', false); scheduleSave(); }

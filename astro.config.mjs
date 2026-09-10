@@ -7,6 +7,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import localDocsEditor from './scripts/local-docs-editor.mjs';
+import { DOCS_SOURCES, REPO_CATEGORY_DIRS, WORKSPACE_ROOT } from './scripts/docs-source-registry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -141,8 +142,32 @@ function resolveSourceFile(slug) {
       }
     } catch {}
   }
-  // 3) src/content/docs/docs/ — fetch-docs が生成したページ (changelog 等)
-  //    fetch-docs は astro build より先に実行されるため、この時点で存在確認できる。
+  // 3) Local SDK sources survive fetch-docs resets. The dev server may load
+  // this config while generated content is temporarily absent; filtering on
+  // generated files alone freezes an empty sidebar until the next restart.
+  if (process.env.FETCH_DOCS_MODE !== 'git') {
+    const source = DOCS_SOURCES.find(({ short }) => rel.startsWith(short + '/'));
+    if (source) {
+      const document = rel.slice(source.short.length + 1);
+      for (const category of REPO_CATEGORY_DIRS) {
+        const repo = path.join(WORKSPACE_ROOT, category, source.repo);
+        if (document === 'changelog' && existsSync(path.join(repo, 'CHANGELOG.md'))) {
+          return path.join(repo, 'CHANGELOG.md');
+        }
+        for (const docs of ['docs~', 'docs']) {
+          const sourceDir = path.join(repo, docs);
+          if (!existsSync(sourceDir)) continue;
+          for (const ext of ['.md', '.mdx']) {
+            const file = path.join(sourceDir, document + ext);
+            if (existsSync(file)) return file;
+          }
+          // Do not resurrect removed source pages from stale generated files.
+          return null;
+        }
+      }
+    }
+  }
+  // 4) Generated pages, including CI's remotely fetched documents.
   for (const ext of ['.md', '.mdx']) {
     const generated = path.join(__dirname, 'src', 'content', 'docs', 'docs', rel + ext);
     if (existsSync(generated)) return generated;
@@ -568,6 +593,7 @@ export default defineConfig({
       //   - Footer: Starlight default に加えてサイトフッター追加
       // ロゴ画像は使わず CSS グラデーションで描画するため logo config はなし。
       components: {
+        Sidebar: './src/components/DocsSidebar.astro',
         Head: './src/components/Head.astro',
         MarkdownContent: './src/components/MarkdownContent.astro',
         Header: './src/components/Header.astro',
@@ -625,8 +651,6 @@ export default defineConfig({
                 pub('docs/sdk-integration/unity-sdk/getting-started'),
                 pub('docs/sdk-integration/unity-sdk/integration'),
                 {
-                  // サンプルシーン関連は 1 グループに集約する。ファイルの物理配置
-                  // (showcase/ 配下と unity-sdk/ 直下) は URL 温存のため変えていない。
                   label: 'Samples',
                   items: [
                     pub('docs/sdk-integration/unity-sdk/showcase/overview'),
@@ -658,11 +682,19 @@ export default defineConfig({
               items: [
                 pub('docs/sdk-integration/unreal-sdk/getting-started'),
                 pub('docs/sdk-integration/unreal-sdk/event-map-and-playback'),
-                pub('docs/sdk-integration/unreal-sdk/showcase-unreal'),
-                pub('docs/sdk-integration/unreal-sdk/vr-config-example'),
-                pub('docs/sdk-integration/unreal-sdk/blueprint-nodes'),
+                {
+                  label: 'Samples',
+                  items: [
+                    pub('docs/sdk-integration/unreal-sdk/basic-example'),
+                    pub('docs/sdk-integration/unreal-sdk/showcase-unreal'),
+                    pub('docs/sdk-integration/unreal-sdk/vr-config-example'),
+                  ].filter(Boolean),
+                },
                 pub('docs/sdk-integration/unreal-sdk/targeting-and-multi-hmd'),
                 pub('docs/sdk-integration/unreal-sdk/unity-to-unreal-codex'),
+                pub('docs/sdk-integration/unreal-sdk/cpp-api'),
+                pub('docs/sdk-integration/unreal-sdk/blueprint-nodes'),
+                pub('docs/sdk-integration/unreal-sdk/editor-menus'),
                 pub('docs/sdk-integration/unreal-sdk/changelog'),
               ].filter(Boolean),
             },

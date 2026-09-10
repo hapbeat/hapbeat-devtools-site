@@ -52,6 +52,58 @@ const TMP_DIR = path.join(ROOT, '.astro', '_fetch-tmp');
 // 取り込む方針 (Reference トップレベルを廃止)。
 const SOURCES = DOCS_SOURCES;
 
+// SDK ごとに複製したくない説明は、Concepts のページを正本にして build 時に
+// 埋め込む。出力側には start/end marker も残すため、正本を編集したときに既に
+// 取り込まれた SDK ページも差分だけ更新できる。
+const SHARED_DOCS = {
+  'targeting-overview': {
+    source: path.join(ROOT, 'docs', 'ja', 'concepts', '05-targeting.md'),
+    heading: 'ターゲティングの概要',
+  },
+};
+function stripFrontmatter(raw) {
+  return raw.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '').trim();
+}
+
+async function expandSharedDocIncludes(filePath) {
+  if (!filePath.endsWith('.md') && !filePath.endsWith('.mdx')) return;
+  let content = await readFile(filePath, 'utf8');
+  let changed = false;
+
+  for (const [key, shared] of Object.entries(SHARED_DOCS)) {
+    if (!existsSync(shared.source)) continue;
+    const overview = stripFrontmatter(await readFile(shared.source, 'utf8'));
+    const expanded = [
+      `<!-- hapbeat:shared:start ${key} -->`,
+      `## <span data-hb-shared-doc="${key}">${shared.heading}</span>`,
+      '',
+      overview,
+      '',
+      `<small>共通ガイド「<a href="/docs/concepts/targeting/" target="_blank" rel="noopener noreferrer">${shared.heading.replace('の概要', '')}</a>」と同じ内容を表示しています。</small>`,
+      '<div class="hb-shared-doc-end" data-hb-shared-doc-end="' + key + '" aria-hidden="true"></div>',
+      '',
+      `<!-- hapbeat:shared:end ${key} -->`,
+      '',
+      '---',
+    ].join('\n');
+    const existing = new RegExp(`<!-- hapbeat:shared:start ${key} -->[\\s\\S]*?<!-- hapbeat:shared:end ${key} -->`, 'g');
+    const next = content
+      .replace(existing, expanded)
+      .replace(new RegExp(`<!-- hapbeat:include ${key} -->`, 'g'), expanded);
+    if (next !== content) { content = next; changed = true; }
+  }
+
+  if (changed) await writeFile(filePath, content, 'utf8');
+}
+
+async function walkAndExpandSharedDocIncludes(dir) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const filePath = path.join(dir, entry.name);
+    if (entry.isDirectory()) await walkAndExpandSharedDocIncludes(filePath);
+    else if (entry.isFile()) await expandSharedDocIncludes(filePath);
+  }
+}
+
 // 各リポジトリの CHANGELOG.md を docs ポータルに公開する設定。
 // destPath: TARGET_PARENT 配下の相対パス (URL に対応)
 // title:    Starlight ページタイトル (frontmatter に注入)
@@ -228,6 +280,7 @@ async function fetchChangelogs(useGit) {
     const page = [
       '---',
       `title: "${src.title}"`,
+      ...(src.repo === 'hapbeat-unreal-sdk' ? ['kind: reference'] : []),
       'sidebar:',
       '  order: 99',
       '  label: 変更履歴',
@@ -320,7 +373,11 @@ async function normalizeMarkdownFrontmatter(filePath, { orderFromPrefix = null }
 
   // Starlight は frontmatter の title を H1 として描画する。SDK 文書は同じ
   // 見出しを先頭 H1 にも持つため、取り込み先ではその H1 を残さない。
-  const bodyWithoutLeadingH1 = body.replace(/^(?:[ \t]*\n)*#\s+[^\n]+\n+/, '');
+  let bodyWithoutLeadingH1 = body.replace(/^(?:[ \t]*\n)*#\s+[^\n]+\n+/, '');
+  if (filePath.replace(/\\/g, '/').includes('/unreal-sdk/')) {
+    const { rewriteUnrealDocLinks } = await import('./unreal-doc-links.mjs');
+    bodyWithoutLeadingH1 = rewriteUnrealDocLinks(bodyWithoutLeadingH1);
+  }
   if (bodyWithoutLeadingH1 !== body) changed = true;
 
   if (!changed) return;
@@ -382,6 +439,7 @@ async function main() {
   if (await isDir(jaDocs)) {
     await cp(jaDocs, TARGET_PARENT, { recursive: true });
     await walkAndNormalize(TARGET_PARENT);
+    await walkAndExpandSharedDocIncludes(TARGET_PARENT);
     console.log('  ok: docs/ja/ → docs/ (root locale, JA)');
     // 方針 (2026-05-24 改定): セクション URL の auto-gen index.md は生成しない。
     //   /docs/<section>/ URL は 404 になるが、サイドバーのグループラベルは
@@ -416,6 +474,7 @@ async function main() {
     }
     // Normalize frontmatter (Starlight requires title) and strip excluded files.
     await walkAndNormalize(dest);
+    await walkAndExpandSharedDocIncludes(dest);
     // (auto-gen index.md は無効化。/docs/<section>/ は 404 で OK の方針)
   }
 
@@ -474,6 +533,7 @@ async function syncOneFile(srcFile, baseSrcDir, destBaseDir) {
       return;
     }
     await normalizeMarkdownFrontmatter(finalPath, { orderFromPrefix });
+    await expandSharedDocIncludes(finalPath);
   }
 }
 
@@ -509,6 +569,10 @@ async function startWatch() {
       .on('all', async (event, filePath) => {
         try {
           await syncOneFile(filePath, srcDir, destBase);
+          // 共通正本の更新時は、それを参照する全 SDK ページを再展開する。
+          if (path.resolve(filePath) === path.resolve(SHARED_DOCS['targeting-overview'].source)) {
+            await walkAndExpandSharedDocIncludes(TARGET_PARENT);
+          }
           console.log(`[fetch-docs] ${event}: ${path.relative(ROOT, filePath)}`);
         } catch (e) {
           console.warn(`[fetch-docs] sync error: ${e.message}`);
