@@ -66,6 +66,14 @@ const PRODUCTS = [
     notes: `${SITE}/docs/sdk-integration/unity-sdk/changelog/`,
   },
   {
+    id: 'unreal-sdk',
+    name: 'Hapbeat Unreal SDK',
+    channel: 'github-release',
+    source: { kind: 'github-release', repo: 'Hapbeat/hapbeat-unreal-sdk' },
+    upgradeTemplate: 'https://github.com/Hapbeat/hapbeat-unreal-sdk/releases/tag/v{version}',
+    notes: `${SITE}/docs/sdk-integration/unreal-sdk/changelog/`,
+  },
+  {
     id: 'python-sdk',
     name: 'hapbeat-python-sdk',
     channel: 'pypi',
