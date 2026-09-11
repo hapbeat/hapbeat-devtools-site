@@ -30,6 +30,10 @@ const TARGET_PARENT = path.join(ROOT, 'src', 'content', 'docs', 'docs');
 // EN ロケール: docs/en/ → src/content/docs/en/docs/ (Starlight の locale folder 規約)。
 // JA (root) は docs/ja/ → TARGET_PARENT。assets は docs/assets/ にロケール中立で共有。
 const EN_TARGET = path.join(ROOT, 'src', 'content', 'docs', 'en', 'docs');
+// Changelog bodies are aggregated from independent product repositories. Their
+// English translations live beside portal documentation rather than in each
+// product's release artifact, then are rendered into the matching EN route.
+const EN_CHANGELOG_DIR = path.join(ROOT, 'docs', 'changelogs', 'en');
 const TMP_DIR = path.join(ROOT, '.astro', '_fetch-tmp');
 // workspace root = .../hapbeat-sdk-workspace。devtools-site は repos-tools/ 配下なので 2 階層上。
 // sub-repo は 2026-06 の再編でフラットから repos-<category>/ 配下に分類移動した
@@ -120,6 +124,18 @@ const CHANGELOG_SOURCES = [
   { repo: 'hapbeat-device-firmware',      destPath: 'hardware/device-firmware/changelog.md',       title: '変更履歴 — デバイスファームウェア'  },
   { repo: 'hapbeat-transmitter-firmware', destPath: 'hardware/transmitter-firmware/changelog.md',  title: '変更履歴 — 送信機ファームウェア'   },
 ];
+
+const CHANGELOG_EN_TITLES = {
+  'hapbeat-studio': 'Changelog — Hapbeat Studio',
+  'hapbeat-helper': 'Changelog — hapbeat-helper',
+  'hapbeat-unity-sdk': 'Changelog — Hapbeat Unity SDK',
+  'hapbeat-unreal-sdk': 'Changelog — Hapbeat Unreal SDK',
+  'hapbeat-python-sdk': 'Changelog — Hapbeat Python SDK',
+  'hapbeat-js-sdk': 'Changelog — Hapbeat JavaScript SDK',
+  'hapbeat-arduino': 'Changelog — Hapbeat Arduino',
+  'hapbeat-device-firmware': 'Changelog — Device firmware',
+  'hapbeat-transmitter-firmware': 'Changelog — Transmitter firmware',
+};
 
 // 集約後に portal で表示しないファイル名 (case-insensitive)。
 //  - README.md: docs/ ディレクトリの説明 (contributor 向けメタ文書)
@@ -292,6 +308,27 @@ async function fetchChangelogs(useGit) {
     await mkdir(path.dirname(dest), { recursive: true });
     await writeFile(dest, page, 'utf8');
     fetched.push(`docs/${src.destPath} (${result.from})`);
+
+    const englishPath = path.join(EN_CHANGELOG_DIR, `${src.repo}.md`);
+    if (existsSync(englishPath)) {
+      const englishRaw = (await readFile(englishPath, 'utf8')).replace(/^﻿/, '').replace(/\r\n/g, '\n');
+      const englishBody = englishRaw.replace(/^#[^\n]*\n+/, '').trimStart();
+      const englishPage = [
+        '---',
+        `title: "${CHANGELOG_EN_TITLES[src.repo] ?? src.title}"`,
+        ...(src.repo === 'hapbeat-unreal-sdk' ? ['kind: reference'] : []),
+        'sidebar:',
+        '  order: 99',
+        '  label: Changelog',
+        '---',
+        '',
+        englishBody,
+      ].join('\n');
+      const englishDest = path.join(EN_TARGET, src.destPath);
+      await mkdir(path.dirname(englishDest), { recursive: true });
+      await writeFile(englishDest, englishPage, 'utf8');
+      fetched.push(`en/docs/${src.destPath} (translation)`);
+    }
   }
   if (fetched.length > 0) {
     console.log(`  ok (changelogs): ${fetched.join(', ')}`);
