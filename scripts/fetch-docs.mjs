@@ -179,6 +179,16 @@ async function fetchFromSibling(src) {
   if (!siblingDocs) return false;
   const dest = path.join(TARGET_PARENT, src.short);
   await cp(siblingDocs, dest, { recursive: true });
+  // A source repository may provide an English mirror under docs/en/. Keep it
+  // out of the root-locale tree and copy it to Starlight's EN locale instead.
+  const siblingEnglish = path.join(siblingDocs, 'en');
+  if (await isDir(siblingEnglish)) {
+    await rm(path.join(dest, 'en'), { recursive: true, force: true });
+    const englishDest = path.join(EN_TARGET, src.short);
+    await mkdir(path.dirname(englishDest), { recursive: true });
+    await cp(siblingEnglish, englishDest, { recursive: true });
+    console.log(`  ok: sibling ${src.repo}/docs/en → en/docs/${src.short}/`);
+  }
   const dirName = path.basename(siblingDocs);
   console.log(`  ok: sibling ${src.repo}/${dirName} → docs/${src.short}/`);
   return true;
@@ -212,6 +222,14 @@ async function fetchFromGit(src) {
   }
   const dest = path.join(TARGET_PARENT, src.short);
   await cp(gitDocs, dest, { recursive: true });
+  const gitEnglish = path.join(gitDocs, 'en');
+  if (await isDir(gitEnglish)) {
+    await rm(path.join(dest, 'en'), { recursive: true, force: true });
+    const englishDest = path.join(EN_TARGET, src.short);
+    await mkdir(path.dirname(englishDest), { recursive: true });
+    await cp(gitEnglish, englishDest, { recursive: true });
+    console.log(`  ok: clone ${src.repo}/docs/en → en/docs/${src.short}/`);
+  }
   const dirName = path.basename(gitDocs);
   console.log(`  ok: clone ${src.repo}/${dirName} → docs/${src.short}/`);
   return true;
@@ -512,6 +530,8 @@ async function main() {
     // Normalize frontmatter (Starlight requires title) and strip excluded files.
     await walkAndNormalize(dest);
     await walkAndExpandSharedDocIncludes(dest);
+    const englishDest = path.join(EN_TARGET, src.short);
+    if (await isDir(englishDest)) await walkAndNormalize(englishDest);
     // (auto-gen index.md は無効化。/docs/<section>/ は 404 で OK の方針)
   }
 
