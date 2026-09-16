@@ -103,10 +103,6 @@ interface Props {
 }
 const { lang = 'ja' } = Astro.props;
 const prefix = lang === 'en' ? '/en' : '';
-const more =
-  lang === 'en'
-    ? 'More SDKs (Godot, TouchDesigner, VRChat) are on the way.'
-    : 'Godot / TouchDesigner / VRChat などにも順次対応予定です。';
 const trademark =
   lang === 'en'
     ? 'Names and logos are trademarks of their respective owners (Python: Python Software Foundation; JavaScript logo: Chris Williams, MIT; Unity: Unity Technologies; Unreal Engine: Epic Games, Inc.; Arduino: Arduino S.r.l.). Nominative use only; no affiliation or endorsement implied.'
@@ -151,7 +147,13 @@ const trademark =
     ))
   }
 </div>
-<p class="hb-sdks__more">{more}</p>
+<p class="hb-sdks__more">
+  {lang === 'en' ? (
+    <>Looking for support for another platform? Please request it via <a href="/en/docs/support/contact/">contact</a>.</>
+  ) : (
+    <>対応希望プラットフォームがあれば、<a href="/docs/support/contact/">contact</a> からご依頼ください。</>
+  )}
+</p>
 <p class="hb-sdks__tm-note">{trademark}</p>
 
 <style>
