@@ -26,7 +26,7 @@ Hapbeat Unity SDK を使います。https://raw.githubusercontent.com/hapbeat/ha
 
 > 対応バージョンの Editor が既にインストール済みであれば、このステップはスキップできます。
 
-**対応バージョン**: Unity 6000.0 以上（Unity 6 系）（動作確認済み: **Unity 6.3 LTS 6000.3.15f1**）
+**推奨バージョン**: **Unity 6000.3.12f1**（Hapbeat のデモ制作で使用）／ **対応バージョン**: Unity 6000.0 以上（動作確認済み: 6000.3.12f1、6000.3.15f1、6000.0.59f2）
 
 [Unity Hub](https://unity.com/download) から対応バージョンをインストールします。
 

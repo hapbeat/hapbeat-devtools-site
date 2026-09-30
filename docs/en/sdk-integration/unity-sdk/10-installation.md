@@ -11,7 +11,8 @@ The Hapbeat Unity SDK can be installed **directly from a Git URL** via the Unity
 
 ## Requirements
 
-- **Unity 6 (6000.0) or later** (tested on Unity 6000.3.12f1)
+- **Recommended: Unity 6000.3.12f1** (used for the Hapbeat demos)
+- **Supported: Unity 6 (6000.0) or later** (verified: 6000.3.12f1, 6000.3.15f1, 6000.0.59f2)
 - **Git** installed on your PC and available on PATH (required because Unity runs `git clone` internally)
 - A network environment where you can connect to the devices on the same network (the same subnet)
 - Active Input Handling: **"Both"** / "Old" / "Input System Package" — all are supported

@@ -18,7 +18,7 @@ For adding the SDK to an existing project, see [](/en/docs/sdk-integration/unity
 
 > Skip this step if a supported version of the Editor is already installed.
 
-**Supported versions**: Unity 6000.0 or later (the Unity 6 line) (verified: **Unity 6.3 LTS 6000.3.15f1**)
+**Recommended**: **Unity 6000.3.12f1** (used for the Hapbeat demos) / **Supported**: Unity 6000.0 or later (verified: 6000.3.12f1, 6000.3.15f1, 6000.0.59f2)
 
 Install a supported version from [Unity Hub](https://unity.com/download).
 
