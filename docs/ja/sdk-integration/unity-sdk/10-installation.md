@@ -10,8 +10,7 @@ Hapbeat Unity SDK は Unity Package Manager (UPM) 経由で **Git URL から直�
 
 ## 動作環境
 
-- **推奨: Unity 6000.3.12f1**（Hapbeat のデモ制作で使用）
-- **対応: Unity 6 (6000.0) 以上**（動作確認済み: 6000.3.12f1、6000.3.15f1、6000.0.59f2）
+- **Unity 6 (6000.0) 以上**（動作確認済み: 6000.3.12f1、6000.3.15f1、6000.0.59f2）。特にこだわりがなければ、デモ制作で使っている 6000.3.12f1 がおすすめです。
 - **Git** が PC にインストール済み・PATH 通り済み (Unity が裏で `git clone` するため必須)
 - デバイスと同一ネットワーク（同一サブネット）に接続できる環境
 - Active Input Handling は **"Both"** / "Old" / "Input System Package" いずれでも動作します
