@@ -1,0 +1,129 @@
+---
+/**
+ * /showcase/ — Hapbeat のデモ一覧 (商談・訪問デモでタブレット / PC に出して
+ * 「どれを体験しますか」と選んでもらうページ)。
+ *
+ * データは src/data/showcase.ts。ここはレイアウトとカテゴリ絞り込みだけ。
+ * 絞り込みは radio + :has() の CSS のみで行い、JS は使わない。
+ */
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import ShowcaseCard from '../../components/ShowcaseCard.astro';
+import { PUBLISHED_SHOWCASE_DEMOS, SHOWCASE_CATEGORIES } from '../../data/showcase';
+
+const demos = PUBLISHED_SHOWCASE_DEMOS;
+const categories = SHOWCASE_CATEGORIES.map((c) => ({
+  ...c,
+  count: demos.filter((d) => d.categories.includes(c.id)).length,
+})).filter((c) => c.count > 0);
+
+// 選んだカテゴリに属さないカードを隠す (カード側の data-cats を参照)。
+const filterCss = categories
+  .map((c) => `.hb-sc:has(#sc-cat-${c.id}:checked) .hb-sc-card:not([data-cats~="${c.id}"]){display:none}`)
+  .join('\n');
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'Hapbeat デモ一覧',
+    description: 'Hapbeat の体験デモの一覧。VR ハンドトラッキング、空間・インスタレーション、研修・安全教育、ゲームなど。',
+    template: 'splash',
+  }}
+>
+  <style is:inline set:html={filterCss} />
+  <div class="hb-sc not-content">
+    <p class="hb-sc__lead">体験したいデモを選んでください。タップすると内容と体験の流れを確認できます。</p>
+
+    <div class="hb-sc__filter" role="radiogroup" aria-label="カテゴリで絞り込む">
+      <input type="radio" name="sc-cat" id="sc-cat-all" checked />
+      <label for="sc-cat-all">すべて <span>{demos.length}</span></label>
+      {
+        categories.map((c) => (
+          <>
+            <input type="radio" name="sc-cat" id={`sc-cat-${c.id}`} />
+            <label for={`sc-cat-${c.id}`}>
+              {c.label} <span>{c.count}</span>
+            </label>
+          </>
+        ))
+      }
+    </div>
+
+    <div class="hb-sc__grid">
+      {demos.map((d) => <ShowcaseCard demo={d} />)}
+    </div>
+  </div>
+</StarlightPage>
+
+<style>
+  .hb-sc {
+    margin-top: 4px;
+  }
+  .hb-sc__lead {
+    margin: 0 0 18px;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--hb-ink-soft);
+  }
+
+  .hb-sc__filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 22px;
+  }
+  /* radio 本体は見えなくするがフォーカス・キーボード操作は残す */
+  .hb-sc__filter input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .hb-sc__filter label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 6px 16px;
+    border: 1px solid var(--hb-line-strong);
+    border-radius: 999px;
+    background: var(--hb-bg-elev);
+    color: var(--hb-ink-soft);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease,
+      border-color 0.15s ease;
+  }
+  .hb-sc__filter label span {
+    font-family: var(--hb-font-mono);
+    font-size: 12px;
+    color: var(--hb-ink-faint);
+  }
+  .hb-sc__filter label:hover {
+    border-color: var(--hb-ink-mute);
+  }
+  .hb-sc__filter input:checked + label {
+    background: var(--hb-ink);
+    border-color: var(--hb-ink);
+    color: var(--hb-bg-elev);
+  }
+  .hb-sc__filter input:checked + label span {
+    color: inherit;
+    opacity: 0.75;
+  }
+  .hb-sc__filter input:focus-visible + label {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  .hb-sc__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+</style>
