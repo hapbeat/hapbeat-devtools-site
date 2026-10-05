@@ -1,12 +1,12 @@
 ---
 /**
- * /showcase/<id>/ — デモの詳細ページ。src/data/showcase.ts の 1 件から生成する。
+ * /demos/showcase/<id>/ — デモの詳細ページ。src/data/showcase.ts の 1 件から生成する。
  * サムネイル (または動画) / 概要 / 体験に使うもの / 体験の流れ / 触覚の見どころ。
  * 下部に前後のデモへの移動を置き、タブレットで続けて見せられるようにする。
  */
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import ShowcaseThumb from '../../components/ShowcaseThumb.astro';
-import { PUBLISHED_SHOWCASE_DEMOS, categoryLabel, type ShowcaseDemo } from '../../data/showcase';
+import ShowcaseThumb from '../../../components/ShowcaseThumb.astro';
+import { PUBLISHED_SHOWCASE_DEMOS, categoryLabel, type ShowcaseDemo } from '../../../data/showcase';
 
 export function getStaticPaths() {
   return PUBLISHED_SHOWCASE_DEMOS.map((demo, i, all) => ({
@@ -36,7 +36,7 @@ const { demo, prev, next } = Astro.props;
   }}
 >
   <div class="hb-scd not-content" style={`--_hue: ${demo.hue}`}>
-    <a class="hb-scd__back" href="/showcase/">
+    <a class="hb-scd__back" href="/demos/showcase/">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <line x1="19" y1="12" x2="5" y2="12" />
         <polyline points="12 19 5 12 12 5" />
@@ -85,11 +85,11 @@ const { demo, prev, next } = Astro.props;
     </div>
 
     <nav class="hb-scd__pager" aria-label="ほかのデモ">
-      <a href={`/showcase/${prev.id}/`} rel="prev">
+      <a href={`/demos/showcase/${prev.id}/`} rel="prev">
         <span>前のデモ</span>
         {prev.icon} {prev.title}
       </a>
-      <a href={`/showcase/${next.id}/`} rel="next">
+      <a href={`/demos/showcase/${next.id}/`} rel="next">
         <span>次のデモ</span>
         {next.icon} {next.title}
       </a>

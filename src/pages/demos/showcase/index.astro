@@ -1,14 +1,15 @@
 ---
 /**
- * /showcase/ — Hapbeat のデモ一覧 (商談・訪問デモでタブレット / PC に出して
+ * /demos/showcase/ — Hapbeat のデモ一覧 (商談・訪問デモでタブレット / PC に出して
  * 「どれを体験しますか」と選んでもらうページ)。
+ * /demos/ の末尾からリンクする (トップ → /demos/ → ここ)。
  *
  * データは src/data/showcase.ts。ここはレイアウトとカテゴリ絞り込みだけ。
  * 絞り込みは radio + :has() の CSS のみで行い、JS は使わない。
  */
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import ShowcaseCard from '../../components/ShowcaseCard.astro';
-import { PUBLISHED_SHOWCASE_DEMOS, SHOWCASE_CATEGORIES } from '../../data/showcase';
+import ShowcaseCard from '../../../components/ShowcaseCard.astro';
+import { PUBLISHED_SHOWCASE_DEMOS, SHOWCASE_CATEGORIES } from '../../../data/showcase';
 
 const demos = PUBLISHED_SHOWCASE_DEMOS;
 const categories = SHOWCASE_CATEGORIES.map((c) => ({

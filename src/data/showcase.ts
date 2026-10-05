@@ -1,5 +1,5 @@
 /**
- * /showcase/ (デモ一覧) のデータ。一覧カードと詳細ページ (/showcase/<id>/) は
+ * /demos/showcase/ (デモ一覧) のデータ。一覧カードと詳細ページ (/demos/showcase/<id>/) は
  * すべてここから生成する。デモの追加・文言修正・サムネイル差し替えはこの
  * ファイルだけを編集すればよい。
  *
@@ -10,6 +10,7 @@
  * サムネイル:
  *   - 画像は public/showcase/ に置き、`thumbnail: '/showcase/<id>.webp'` のように
  *     サイトルートからのパスで指定する (jpg / png / webp)。16:9 推奨。
+ *     (public/demos/ は fetch-demos が毎回作り直すので、素材はそこに置かない)
  *   - 短いプレイ動画は `video: '/showcase/<id>.mp4'` (H.264 MP4。無音で自動再生する)。
  *     video があればカード・詳細ページとも動画を優先し、thumbnail はポスター
  *     (読み込み前に出る静止画) として使う。
@@ -28,7 +29,7 @@ export const SHOWCASE_CATEGORIES: { id: ShowcaseCategory; label: string }[] = [
 ];
 
 export interface ShowcaseDemo {
-  /** URL slug (/showcase/<id>/) */
+  /** URL slug (/demos/showcase/<id>/) */
   id: string;
   title: string;
   /** タイトルの下に小さく出す日本語名・別名 */
@@ -214,7 +215,7 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     id: 'fps',
     title: 'FPS',
     subtitle: 'VR シューター',
-    categories: ['game'],
+    categories: ['vr-hands', 'game'],
     icon: '🎯',
     hue: 0,
     tagline: 'アリーナで敵を倒し、ボスのタレットを破壊する VR シューター。発射・チャージ・被弾を手首と首で感じる。',
@@ -229,9 +230,9 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     specs: [
       { label: '機材', value: 'Meta Quest 3 / 3S ＋ Hapbeat（手首・首）' },
       { label: '人数', value: '1 人ずつ' },
-      { label: '操作', value: 'コントローラ（ハンドトラッキングにも対応）' },
+      { label: '操作', value: '素手（コントローラでも可）' },
     ],
-    meta: ['VR', 'コントローラ', '1 人'],
+    meta: ['VR', '素手で操作', '1 人'],
   },
   {
     id: 'safety-mill',
