@@ -109,6 +109,15 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
       { label: '操作', value: '素手（コントローラなし）' },
     ],
     meta: ['VR', '素手で操作', '1 人'],
+    thumbnail: '/showcase/trex-encounter/thumb.webp',
+    video: '/showcase/trex-encounter/pv.mp4',
+    screenshots: [
+      { src: '/showcase/trex-encounter/shot-1.webp', caption: 'ジャングルの空き地を近づくT-Rex' },
+      { src: '/showcase/trex-encounter/shot-2.webp', caption: '目の前で大きく口を開けて咆哮' },
+      { src: '/showcase/trex-encounter/shot-3.webp', caption: 'ハッチから肉のトレイがせり上がる' },
+      { src: '/showcase/trex-encounter/shot-4.webp', caption: '手に持った肉にかぶりつく' },
+      { src: '/showcase/trex-encounter/shot-5.webp', caption: 'なでた後の下げた頭と目が合う' },
+    ],
   },
   {
     id: 'ripple',
@@ -136,6 +145,15 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
       { label: 'ヘッドセット', value: '不要' },
     ],
     meta: ['ヘッドセットなし', '2〜4 人同時', '約 90 秒'],
+    thumbnail: '/showcase/ripple/thumb.webp',
+    video: '/showcase/ripple/pv.mp4',
+    screenshots: [
+      { src: '/showcase/ripple/shot-1.webp', caption: '雫の波面が人を通り抜ける瞬間' },
+      { src: '/showcase/ripple/shot-2.webp', caption: '同心円の輪が3人に届く' },
+      { src: '/showcase/ripple/shot-3.webp', caption: '深海背景で大きな揺らぎが通過' },
+      { src: '/showcase/ripple/shot-4.webp', caption: '平面波が画面を横切り頭に触れる' },
+      { src: '/showcase/ripple/shot-5.webp', caption: 'ビッグバンで全員に同時に届く' },
+    ],
   },
   {
     id: 'energy-duel',
@@ -170,6 +188,15 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
       { label: '操作', value: '素手（コントローラでも可）' },
     ],
     meta: ['VR', '素手で操作', '1 人'],
+    thumbnail: '/showcase/energy-duel/thumb.webp',
+    video: '/showcase/energy-duel/pv.mp4',
+    screenshots: [
+      { src: '/showcase/energy-duel/shot-1.webp', caption: '拳にLv2のエネルギー球とリング' },
+      { src: '/showcase/energy-duel/shot-2.webp', caption: 'パーに開いてLv3弾を発射' },
+      { src: '/showcase/energy-duel/shot-3.webp', caption: '前腕の八角形シールドが割れる瞬間' },
+      { src: '/showcase/energy-duel/shot-4.webp', caption: '自分の弾と相手の弾がぶつかる' },
+      { src: '/showcase/energy-duel/shot-5.webp', caption: '相手に迫るLv3弾（相手アップ）' },
+    ],
   },
   {
     id: 'boxing',
@@ -198,6 +225,15 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
       { label: '注意', value: '周囲に人や物がない場所で、弱いパンチから始める' },
     ],
     meta: ['VR', '90 秒', '1 人'],
+    thumbnail: '/showcase/boxing/thumb.webp',
+    video: '/showcase/boxing/pv.mp4',
+    screenshots: [
+      { src: '/showcase/boxing/shot-1.webp', caption: '左フックが相手の頭にヒット' },
+      { src: '/showcase/boxing/shot-2.webp', caption: '相手のフックが顔面へ迫る' },
+      { src: '/showcase/boxing/shot-3.webp', caption: '相手のフックを左グローブでブロック' },
+      { src: '/showcase/boxing/shot-4.webp', caption: '決め手のフックでKO勝利' },
+      { src: '/showcase/boxing/shot-5.webp', caption: '開始カウントダウンで相手と対峙' },
+    ],
   },
   {
     id: 'volley',
@@ -237,6 +273,15 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
       { label: '操作', value: '素手（コントローラでも可）' },
     ],
     meta: ['VR', '素手で操作', '1 人'],
+    thumbnail: '/showcase/volley/thumb.webp',
+    video: '/showcase/volley/pv.mp4',
+    screenshots: [
+      { src: '/showcase/volley/shot-1.webp', caption: 'サーブのトス、6対6の試合コート全景' },
+      { src: '/showcase/volley/shot-2.webp', caption: '右手でボールを捉えるスパイク' },
+      { src: '/showcase/volley/shot-3.webp', caption: '相手スパイクを正面でレシーブ' },
+      { src: '/showcase/volley/shot-4.webp', caption: 'ネット越しに両手でブロック' },
+      { src: '/showcase/volley/shot-5.webp', caption: 'ネット際で味方セッターがトス' },
+    ],
   },
   {
     id: 'hand-demo',
@@ -261,6 +306,15 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
       { label: '操作', value: '素手' },
     ],
     meta: ['VR', '初めての方向け', '1 人'],
+    thumbnail: '/showcase/hand-demo/thumb.webp',
+    video: '/showcase/hand-demo/pv.mp4',
+    screenshots: [
+      { src: '/showcase/hand-demo/shot-1.webp', caption: '目線から見た体験テーブル全景' },
+      { src: '/showcase/hand-demo/shot-2.webp', caption: '自分の手で箱をつかんで持ち上げる' },
+      { src: '/showcase/hand-demo/shot-3.webp', caption: '赤いポークボタンを指で押す' },
+      { src: '/showcase/hand-demo/shot-4.webp', caption: 'ブロックをスナップソケットへ差し込む' },
+      { src: '/showcase/hand-demo/shot-5.webp', caption: '青いお手本の手がボタン押しを実演' },
+    ],
   },
   {
     id: 'fps',
@@ -285,6 +339,15 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
       { label: '操作', value: '素手（コントローラでも可）' },
     ],
     meta: ['VR', '素手で操作', '1 人'],
+    thumbnail: '/showcase/fps/thumb.webp',
+    video: '/showcase/fps/pv.mp4',
+    screenshots: [
+      { src: '/showcase/fps/shot-1.webp', caption: 'チャージディスクをボス砲台へ発射' },
+      { src: '/showcase/fps/shot-2.webp', caption: '素手で腰のラックから銃を取る' },
+      { src: '/showcase/fps/shot-3.webp', caption: 'ブラスターがロボットに命中' },
+      { src: '/showcase/fps/shot-4.webp', caption: 'ランチャーのディスクが炸裂' },
+      { src: '/showcase/fps/shot-5.webp', caption: '溶岩に囲まれたアリーナ全景' },
+    ],
   },
   {
     id: 'safety-mill',
@@ -314,6 +377,15 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
       { label: '操作', value: '素手（音声で手順を案内）' },
     ],
     meta: ['VR 研修', '素手で操作', '1 人'],
+    thumbnail: '/showcase/safety-mill/thumb.webp',
+    video: '/showcase/safety-mill/pv.mp4',
+    screenshots: [
+      { src: '/showcase/safety-mill/shot-1.webp', caption: '工房の小型フライス盤とアルミブロック' },
+      { src: '/showcase/safety-mill/shot-2.webp', caption: 'ハンドルを回し切削、切粉が飛ぶ' },
+      { src: '/showcase/safety-mill/shot-3.webp', caption: '回転する刃物の周りに切粉が積もる' },
+      { src: '/showcase/safety-mill/shot-4.webp', caption: '回転中の刃物にブラシが巻き込まれる' },
+      { src: '/showcase/safety-mill/shot-5.webp', caption: '停止後にブラシで払い青線が出る' },
+    ],
   },
 ];
 

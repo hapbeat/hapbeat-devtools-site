@@ -5,7 +5,8 @@
  * 商談・訪問デモの場でタブレットに出して「どれを体験しますか」と選んでもらう
  * ためのカード。サムネイル + カテゴリ + タイトル + 1〜2 行の説明 + 要点。
  * カード全体が詳細ページ (/demos/showcase/<id>/) へのリンク (同じタブで遷移し、
- * 詳細ページの「デモ一覧へ」で戻る)。
+ * 詳細ページの「デモ一覧へ」で戻る)。詳細ページの PV が自動再生されるよう、
+ * ClientRouter の差し替えではなく通常のページ読み込みで開く (data-astro-reload)。
  *
  * data-cats はカテゴリ絞り込み (pages/demos/showcase/index.astro の CSS) が参照する。
  */
@@ -20,7 +21,7 @@ interface Props {
 const { demo } = Astro.props;
 ---
 
-<a class="hb-sc-card" href={`/demos/showcase/${demo.id}/`} data-cats={demo.categories.join(' ')} style={`--_hue: ${demo.hue}`}>
+<a class="hb-sc-card" href={`/demos/showcase/${demo.id}/`} data-astro-reload data-cats={demo.categories.join(' ')} style={`--_hue: ${demo.hue}`}>
   <div class="hb-sc-card__media">
     <ShowcaseThumb demo={demo} />
   </div>

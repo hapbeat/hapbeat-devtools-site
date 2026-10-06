@@ -9,6 +9,11 @@
  * 絵文字とタイトルを載せたプレースホルダにする。
  * 素材の指定は src/data/showcase.ts の 1 か所だけ。
  *
+ * サイトの ClientRouter でページを差し替えると、入れ替わった <video> は再生直後に
+ * 止まる。そのため動画のある詳細ページへのリンク (ShowcaseCard・前後移動) は
+ * data-astro-reload で通常の読み込みにしている。動きを減らす設定
+ * (prefers-reduced-motion) の端末では自動再生せず、操作バーで再生してもらう。
+ *
  * Props:
  *   - demo: ShowcaseDemo
  *   - size: 'card' | 'hero'
@@ -27,7 +32,7 @@ const showVideo = demo.video && (size === 'hero' || !demo.thumbnail);
 <div class="hb-sc-thumb" data-size={size} style={`--_hue: ${demo.hue}`}>
   {
     showVideo ? (
-      <video src={demo.video} poster={demo.thumbnail} muted autoplay loop playsinline preload="metadata" aria-label={demo.title} />
+      <video src={demo.video} poster={demo.thumbnail} muted autoplay loop playsinline controls preload="metadata" aria-label={`${demo.title} の紹介動画`} data-sc-autoplay />
     ) : demo.thumbnail ? (
       <img src={demo.thumbnail} alt={demo.title} loading="lazy" decoding="async" />
     ) : (
@@ -38,6 +43,22 @@ const showVideo = demo.video && (size === 'hero' || !demo.thumbnail);
     )
   }
 </div>
+
+<script>
+  function startShowcaseVideos() {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.querySelectorAll<HTMLVideoElement>('video[data-sc-autoplay]').forEach((v) => {
+      v.muted = true;
+      if (reduce) {
+        v.autoplay = false;
+        v.pause();
+      } else if (v.paused) {
+        v.play().catch(() => {});
+      }
+    });
+  }
+  document.addEventListener('astro:page-load', startShowcaseVideos);
+</script>
 
 <style>
   .hb-sc-thumb {

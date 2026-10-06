@@ -100,11 +100,11 @@ const { demo, prev, next } = Astro.props;
     </div>
 
     <nav class="hb-scd__pager" aria-label="ほかのデモ">
-      <a href={`/demos/showcase/${prev.id}/`} rel="prev">
+      <a href={`/demos/showcase/${prev.id}/`} rel="prev" data-astro-reload>
         <span>前のデモ</span>
         {prev.icon} {prev.title}
       </a>
-      <a href={`/demos/showcase/${next.id}/`} rel="next">
+      <a href={`/demos/showcase/${next.id}/`} rel="next" data-astro-reload>
         <span>次のデモ</span>
         {next.icon} {next.title}
       </a>
