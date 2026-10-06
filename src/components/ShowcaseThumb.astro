@@ -2,14 +2,16 @@
 /**
  * ShowcaseThumb — /demos/showcase/ のサムネイル (16:9)。
  *
- * video > thumbnail > プレースホルダ の順で表示する。動画は無音 (muted) で
- * ループ自動再生し、thumbnail をポスターに使う。素材が無いデモは、デモごとの
- * 色相 (hue) の単色面に絵文字とタイトルを載せたプレースホルダにする。
+ * size='hero' (詳細ページ上部) は video > thumbnail > プレースホルダ、
+ * size='card' (一覧) は thumbnail > video > プレースホルダ の順で表示する
+ * (一覧で何本も動画を自動再生させない)。動画は無音 (muted) でループ自動再生し、
+ * thumbnail をポスターに使う。素材が無いデモは、デモごとの色相 (hue) の単色面に
+ * 絵文字とタイトルを載せたプレースホルダにする。
  * 素材の指定は src/data/showcase.ts の 1 か所だけ。
  *
  * Props:
  *   - demo: ShowcaseDemo
- *   - size: 'card' | 'hero' (プレースホルダの文字サイズ)
+ *   - size: 'card' | 'hero'
  */
 import type { ShowcaseDemo } from '../data/showcase';
 
@@ -19,11 +21,12 @@ interface Props {
 }
 
 const { demo, size = 'card' } = Astro.props;
+const showVideo = demo.video && (size === 'hero' || !demo.thumbnail);
 ---
 
 <div class="hb-sc-thumb" data-size={size} style={`--_hue: ${demo.hue}`}>
   {
-    demo.video ? (
+    showVideo ? (
       <video src={demo.video} poster={demo.thumbnail} muted autoplay loop playsinline preload="metadata" aria-label={demo.title} />
     ) : demo.thumbnail ? (
       <img src={demo.thumbnail} alt={demo.title} loading="lazy" decoding="async" />

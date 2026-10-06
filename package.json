@@ -9,6 +9,7 @@
     "fetch-demos": "node scripts/fetch-demos.mjs",
     "test:fetch-demos": "node --test tests/fetch-demos.test.mjs",
     "test:search": "node --test tests/search.test.mjs",
+    "test:remote-preset": "node --test tests/remote-preset.test.mjs",
     "test:unreal-docs": "node tests/sidebar-source.test.mjs && node tests/docs-editor-link.test.mjs && node tests/unreal-doc-links.test.mjs && node scripts/check-unreal-docs.mjs",
     "fetch-flash-bins": "node scripts/fetch-flash-bins.mjs",
     "sync-flasher-vendor": "node scripts/sync-flasher-vendor.mjs",
@@ -18,7 +19,7 @@
     "sync:modkit-tools:check": "node scripts/sync-modkit-tools.mjs --check",
     "gen:release-feed": "node scripts/gen-release-feed.mjs",
     "dev": "npm run fetch-demos && npm run sync-flasher-vendor && npm run sync:demo-switch-controller-bins && npm run sync:modkit-tools && concurrently --kill-others --names \"fetch,astro\" --prefix-colors \"blue,green\" \"npm:fetch-docs:watch\" \"astro dev\"",
-    "build": "npm run test:demo-switch-controller && npm run test:fetch-demos && npm run fetch-docs && npm run fetch-demos && npm run sync-flasher-vendor && npm run sync:demo-switch-controller-bins && npm run gen:release-feed && astro build && node scripts/postbuild-fix-link-targets.mjs && npm run test:search && npm run test:unreal-docs",
+    "build": "npm run test:demo-switch-controller && npm run test:fetch-demos && npm run test:remote-preset && npm run fetch-docs && npm run fetch-demos && npm run sync-flasher-vendor && npm run sync:demo-switch-controller-bins && npm run gen:release-feed && astro build && node scripts/postbuild-fix-link-targets.mjs && npm run test:search && npm run test:unreal-docs",
     "preview": "astro preview",
     "reorder": "node scripts/reorder.mjs",
     "gen:og": "node scripts/gen-og-images.mjs",
@@ -32,7 +33,8 @@
     "rehype-mermaid": "^3.0.0",
     "sharp": "^0.33.5",
     "turndown": "7.2.0",
-    "turndown-plugin-gfm": "1.0.2"
+    "turndown-plugin-gfm": "1.0.2",
+    "uqr": "0.1.3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

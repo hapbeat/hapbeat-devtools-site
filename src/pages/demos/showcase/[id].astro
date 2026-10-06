@@ -69,6 +69,21 @@ const { demo, prev, next } = Astro.props;
 
     <p class="hb-scd__desc">{demo.description}</p>
 
+    {
+      demo.screenshots && demo.screenshots.length > 0 && (
+        <ul class="hb-scd__gallery" aria-label="スクリーンショット">
+          {demo.screenshots.map((s) => (
+            <li>
+              <figure>
+                <img src={s.src} alt={s.caption} loading="lazy" decoding="async" width="1280" height="720" />
+                <figcaption>{s.caption}</figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
     <div class="hb-scd__cols">
       <section>
         <h2>体験の流れ</h2>
@@ -189,6 +204,38 @@ const { demo, prev, next } = Astro.props;
     font-size: 16px;
     line-height: 1.85;
     color: var(--hb-ink-soft);
+  }
+
+  /* クリックで拡大は astro.config.mjs の lightbox (.sl-markdown-content img) が行う */
+  .hb-scd__gallery {
+    list-style: none;
+    margin: 24px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+    gap: 14px;
+  }
+  .hb-scd__gallery li {
+    margin: 0;
+  }
+  .hb-scd__gallery figure {
+    margin: 0;
+  }
+  .hb-scd__gallery img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border: 1px solid var(--hb-line);
+    border-radius: var(--hb-radius);
+    cursor: zoom-in;
+  }
+  .hb-scd__gallery figcaption {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--hb-ink-mute);
   }
 
   .hb-scd__cols {

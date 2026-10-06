@@ -52,6 +52,10 @@ const filterCss = categories
     <div class="hb-sc__grid">
       {demos.map((d) => <ShowcaseCard demo={d} />)}
     </div>
+
+    <p class="hb-sc__staff">
+      展示スタッフ向け: <a href="/demos/showcase/plan/">リモコン用プランを作る</a>（選んだデモの順番を QR で展示用リモコンに渡す）
+    </p>
   </div>
 </StarlightPage>
 
@@ -121,10 +125,16 @@ const filterCss = categories
     outline-offset: 2px;
   }
 
+  .hb-sc__staff {
+    margin: 0 0 32px;
+    font-size: 13.5px;
+    color: var(--hb-ink-mute);
+  }
+
   .hb-sc__grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
     gap: 20px;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
   }
 </style>

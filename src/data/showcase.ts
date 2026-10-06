@@ -7,14 +7,16 @@
  * README。仕様が変わったら README を見てここを追従させる。
  * 各デモの repo へのリンクは載せない (ソースは非公開のものが多い)。
  *
- * サムネイル:
- *   - 画像は public/showcase/ に置き、`thumbnail: '/showcase/<id>.webp'` のように
- *     サイトルートからのパスで指定する (jpg / png / webp)。16:9 推奨。
- *     (public/demos/ は fetch-demos が毎回作り直すので、素材はそこに置かない)
- *   - 短いプレイ動画は `video: '/showcase/<id>.mp4'` (H.264 MP4。無音で自動再生する)。
- *     video があればカード・詳細ページとも動画を優先し、thumbnail はポスター
- *     (読み込み前に出る静止画) として使う。
- *   - どちらも無いデモは、タイトル入りの単色プレースホルダを表示する。
+ * 素材 (public/showcase/<id>/ に置き、サイトルートからのパスで指定する):
+ *   - thumbnail: '/showcase/<id>/thumb.webp' — 一覧カードの画像。16:9 (1280x720)。
+ *   - video: '/showcase/<id>/pv.mp4' — 詳細ページ上部で無音ループ再生する
+ *     15 秒前後の PV (H.264、音声トラックなし)。thumbnail をポスターに使う。
+ *   - screenshots: [{ src: '/showcase/<id>/shot-1.webp', caption: '…' }, …] —
+ *     詳細ページのギャラリー (クリックで拡大)。
+ *   - 素材が無いデモは、タイトル入りの単色プレースホルダを表示する。
+ *   - public/demos/ は fetch-demos が毎回作り直すので、素材はそこに置かない。
+ *   - 撮り直しの手順とスクリプトは workspace の
+ *     dev-notes/devtools-site/showcase-capture/<id>/ にある。
  *   - この repo は public。ライセンス上公開できない第三者素材 (他社ゲームの
  *     画面・購入アセットの単体画像など) は public/showcase/ にコミットしない。
  */
@@ -28,9 +30,29 @@ export const SHOWCASE_CATEGORIES: { id: ShowcaseCategory; label: string }[] = [
   { id: 'game', label: 'ゲーム・エンタメ' },
 ];
 
+export interface HubOption {
+  id: string;
+  label: string;
+  default: string;
+  values: { value: string; label: string }[];
+  when?: Record<string, string[]>;
+}
+
 export interface ShowcaseDemo {
   /** URL slug (/demos/showcase/<id>/) */
   id: string;
+  /**
+   * Demo Hub / Demo Switch の demo_id (各デモの hapbeat-demo-session.json の demo_id、
+   * hapbeat-contracts specs/demo-session.md)。Quest のデモだけが持つ。
+   * 展示用リモコンのプリセットに入れられるのはこれがあるデモだけ。
+   */
+  hubDemoId?: string;
+  /**
+   * Hub で選べる設定 (各デモの hapbeat-demo-session.json の options の写し)。
+   * リモコン用プランの作成ページで使う。descriptor を変えたらここも合わせる。
+   * when: 他の設定がこの値のときだけ有効 (例: volley の points は scene が block / match のとき)。
+   */
+  hubOptions?: HubOption[];
   title: string;
   /** タイトルの下に小さく出す日本語名・別名 */
   subtitle?: string;
@@ -53,6 +75,7 @@ export interface ShowcaseDemo {
   meta: string[];
   thumbnail?: string;
   video?: string;
+  screenshots?: { src: string; caption: string }[];
   /** false にすると一覧・詳細ページとも生成しない (展示会ごとに一時的に外す等) */
   published?: boolean;
 }
@@ -60,6 +83,7 @@ export interface ShowcaseDemo {
 export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
   {
     id: 'trex-encounter',
+    hubDemoId: 'trex-encounter',
     title: 'T-Rex Encounter',
     subtitle: 'T-Rex エンカウンター',
     categories: ['vr-hands', 'game'],
@@ -115,6 +139,13 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
   },
   {
     id: 'energy-duel',
+    hubDemoId: 'energy-duel',
+    hubOptions: [
+      { id: 'tutorial', label: 'チュートリアル', default: 'on', values: [{ value: 'on', label: 'あり' }, { value: 'off', label: 'なし' }] },
+      { id: 'round_seconds', label: '試合の長さ', default: '30', values: [{ value: '30', label: '30秒' }, { value: '60', label: '60秒' }] },
+      { id: 'difficulty', label: '相手の強さ', default: 'normal', values: [{ value: 'normal', label: 'ふつう' }, { value: 'strong', label: '強い' }] },
+      { id: 'mode', label: 'モード', default: 'match', values: [{ value: 'match', label: '試合' }, { value: 'free', label: 'フリープレイ' }] },
+    ],
     title: 'Energy Duel',
     subtitle: 'エナジーデュエル',
     categories: ['vr-hands', 'game'],
@@ -142,6 +173,8 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
   },
   {
     id: 'boxing',
+    hubDemoId: 'boxing',
+    hubOptions: [{ id: 'round', label: 'ラウンド', default: '90', values: [{ value: '60', label: '60秒' }, { value: '90', label: '90秒' }] }],
     title: 'Boxing',
     subtitle: 'ボクシング',
     categories: ['vr-hands', 'game'],
@@ -168,6 +201,23 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
   },
   {
     id: 'volley',
+    hubDemoId: 'volley',
+    hubOptions: [
+      {
+        id: 'scene',
+        label: 'モード',
+        default: 'block',
+        values: [{ value: 'block', label: 'スパイク＋ブロック' }, { value: 'match', label: '6人制の試合' }, { value: 'receive', label: 'レシーブ' }],
+      },
+      {
+        id: 'points',
+        label: '点数',
+        default: '7',
+        values: [{ value: '3', label: '3点先取' }, { value: '5', label: '5点先取' }, { value: '7', label: '7点先取' }],
+        when: { scene: ['block', 'match'] },
+      },
+      { id: 'balls', label: '球数', default: '10', values: [{ value: '10', label: '10球' }, { value: '20', label: '20球' }], when: { scene: ['receive'] } },
+    ],
     title: 'Volley',
     subtitle: 'バレーボール',
     categories: ['vr-hands', 'game'],
@@ -190,6 +240,7 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
   },
   {
     id: 'hand-demo',
+    hubDemoId: 'handdemo',
     title: 'Hand Demo',
     subtitle: 'つかむ・押す',
     categories: ['vr-hands'],
@@ -213,6 +264,7 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
   },
   {
     id: 'fps',
+    hubDemoId: 'fps',
     title: 'FPS',
     subtitle: 'VR シューター',
     categories: ['vr-hands', 'game'],
@@ -236,6 +288,7 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
   },
   {
     id: 'safety-mill',
+    hubDemoId: 'safety-mill',
     title: 'Safety Mill VR',
     subtitle: 'フライス盤の安全教育',
     categories: ['training', 'vr-hands'],
@@ -268,4 +321,34 @@ export const PUBLISHED_SHOWCASE_DEMOS = SHOWCASE_DEMOS.filter((d) => d.published
 
 export function categoryLabel(id: ShowcaseCategory): string {
   return SHOWCASE_CATEGORIES.find((c) => c.id === id)?.label ?? id;
+}
+
+/** リモコン用プラン作成ページ・受け取りページ (クライアント側の JS) に渡す、Hub に入れられるデモの一覧。 */
+export interface RemoteCatalogEntry {
+  demoId: string;
+  showcaseId: string;
+  title: string;
+  subtitle?: string;
+  icon: string;
+  hue: number;
+  thumbnail?: string;
+  options: HubOption[];
+}
+
+export function remoteCatalog(): RemoteCatalogEntry[] {
+  return PUBLISHED_SHOWCASE_DEMOS.filter((d) => d.hubDemoId).map((d) => ({
+    demoId: d.hubDemoId!,
+    showcaseId: d.id,
+    title: d.title,
+    subtitle: d.subtitle,
+    icon: d.icon,
+    hue: d.hue,
+    thumbnail: d.thumbnail,
+    options: d.hubOptions ?? [],
+  }));
+}
+
+/** <script type="application/json"> に埋め込める JSON (</script> で閉じられないよう < をエスケープ)。 */
+export function jsonForScript(value: unknown): string {
+  return JSON.stringify(value).replace(/</g, '\\u003c');
 }

@@ -1,0 +1,830 @@
+---
+/**
+ * /demos/showcase/plan/ — 展示用 Android リモコン (Hapbeat Demo Remote) に渡すプランを作るページ。
+ *
+ * デモ一覧で来場者・スタッフが選んだデモを、順番・設定つきで 1〜3 件のプリセットに組み、
+ * QR (とリンク) にする。リモコンはアプリの QR 読み取りで取り込む。形式の正本は
+ * hapbeat-contracts specs/demo-session.md「リモコンへのプリセット受け渡し（QR / リンク）」、
+ * 符号化と検査は src/lib/remote-preset.mjs。QR は uqr (MIT, nayuki の QR Code generator
+ * ベース) をビルドに同梱して端末内で作る (外部への通信なし)。
+ *
+ * 作りかけのプランはこのブラウザの localStorage にだけ保存する (他の端末とは共有しない)。
+ */
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { jsonForScript, remoteCatalog } from '../../../data/showcase';
+
+const catalog = remoteCatalog();
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'リモコン用プランを作る',
+    description: 'デモの順番と設定を組み、展示用 Android リモコンに QR で渡します。',
+    template: 'splash',
+    pagefind: false,
+  }}
+>
+  <script type="application/json" id="hb-plan-catalog" set:html={jsonForScript(catalog)} />
+
+  <div class="hb-plan not-content">
+    <a class="hb-plan__back" href="/demos/showcase/">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="19" y1="12" x2="5" y2="12" />
+        <polyline points="12 19 5 12 12 5" />
+      </svg>
+      デモ一覧へ
+    </a>
+    <p class="hb-plan__lead">
+      体験するデモを順番に並べてプリセットにし、展示用リモコン（Hapbeat Demo Remote）のアプリで下の QR を読み取ります。リモコンは確認画面を出してから取り込み、取り込んだだけではデモを始めません。
+    </p>
+
+    <div class="hb-plan__layout">
+      <div class="hb-plan__main">
+        <div class="hb-plan__tabs" role="tablist" aria-label="プリセット" data-tabs></div>
+
+        <div class="hb-plan__preset">
+          <label class="hb-plan__name">
+            <span>プリセット名</span>
+            <input type="text" data-name autocomplete="off" placeholder="例: XR Kaigi A" />
+          </label>
+          <p class="hb-plan__name-note" data-name-note aria-live="polite"></p>
+
+          <h2 class="hb-plan__h">デモを追加</h2>
+          <ul class="hb-plan__palette" data-palette></ul>
+
+          <h2 class="hb-plan__h">体験の順番</h2>
+          <ol class="hb-plan__steps" data-steps></ol>
+          <p class="hb-plan__empty" data-empty>上のデモを押すと、ここに順番に並びます。</p>
+        </div>
+      </div>
+
+      <aside class="hb-plan__side">
+        <div class="hb-plan__meter">
+          <div class="hb-plan__meter-row">
+            <span>QR に入るデータ</span>
+            <span data-bytes></span>
+          </div>
+          <div class="hb-plan__bar"><span data-bar></span></div>
+        </div>
+        <div class="hb-plan__qr" data-qr-box>
+          <button type="button" class="hb-plan__qr-img" data-qr aria-label="QR を大きく表示" disabled></button>
+          <p class="hb-plan__qr-hint" data-qr-hint></p>
+        </div>
+        <ul class="hb-plan__errors" data-errors aria-live="polite"></ul>
+        <div class="hb-plan__zoom" data-zoom hidden>
+          <div class="hb-plan__zoom-qr" data-zoom-qr></div>
+          <p>画面のどこかを押すと閉じます</p>
+        </div>
+        <div class="hb-plan__link" data-link-box hidden>
+          <input type="text" readonly data-link aria-label="プリセットのリンク" />
+          <div class="hb-plan__link-actions">
+            <button type="button" data-copy>リンクをコピー</button>
+            <a data-open target="_blank" rel="noopener noreferrer">内容を確認</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</StarlightPage>
+
+<script>
+  import { encode } from 'uqr';
+  import {
+    MAX_NAME_CODE_POINTS,
+    MAX_PAYLOAD_BYTES,
+    MAX_PRESETS,
+    MAX_STEPS,
+    encodeToken,
+    nameProblem,
+    payloadByteLength,
+    presetPageUrl,
+    validatePayload,
+  } from '../../../lib/remote-preset.mjs';
+
+  type Option = { id: string; label: string; default: string; values: { value: string; label: string }[]; when?: Record<string, string[]> };
+  type Entry = { demoId: string; title: string; subtitle?: string; icon: string; hue: number; thumbnail?: string; options: Option[] };
+  type Step = { demoId: string; options: Record<string, string>; retry: boolean };
+  type Preset = { name: string; steps: Step[] };
+  type State = { active: number; presets: Preset[] };
+
+  const STORAGE_KEY = 'hb-remote-plan-v1';
+  const root = document.querySelector<HTMLElement>('.hb-plan');
+  const catalogEl = document.getElementById('hb-plan-catalog');
+
+  if (root && catalogEl) {
+    const catalog: Entry[] = JSON.parse(catalogEl.textContent || '[]');
+    const byId = new Map(catalog.map((e) => [e.demoId, e]));
+    const $ = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
+
+    const tabsEl = $('[data-tabs]');
+    const nameEl = $<HTMLInputElement>('[data-name]');
+    const nameNoteEl = $('[data-name-note]');
+    const paletteEl = $('[data-palette]');
+    const stepsEl = $('[data-steps]');
+    const emptyEl = $('[data-empty]');
+    const bytesEl = $('[data-bytes]');
+    const barEl = $('[data-bar]');
+    const qrEl = $('[data-qr]');
+    const qrHintEl = $('[data-qr-hint]');
+    const zoomEl = $('[data-zoom]');
+    const zoomQrEl = $('[data-zoom-qr]');
+    const errorsEl = $('[data-errors]');
+    const linkBox = $('[data-link-box]');
+    const linkEl = $<HTMLInputElement>('[data-link]');
+    const copyEl = $<HTMLButtonElement>('[data-copy]');
+    const openEl = $<HTMLAnchorElement>('[data-open]');
+
+    const newPreset = (n: number): Preset => ({ name: `プリセット ${n}`, steps: [] });
+
+    function load(): State {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const s = JSON.parse(raw) as State;
+          const presets = (s.presets || [])
+            .slice(0, MAX_PRESETS)
+            .map((p) => ({
+              name: typeof p.name === 'string' ? p.name : '',
+              steps: (p.steps || []).filter((st) => byId.has(st.demoId)).slice(0, MAX_STEPS).map((st) => ({ demoId: st.demoId, options: { ...(st.options || {}) }, retry: st.retry !== false })),
+            }));
+          if (presets.length) return { active: Math.min(Math.max(0, s.active | 0), presets.length - 1), presets };
+        }
+      } catch {
+        /* 保存が使えない・壊れている場合は新しく始める */
+      }
+      return { active: 0, presets: [newPreset(1)] };
+    }
+
+    const state = load();
+
+    function save() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch {
+        /* プライベートモード等では保存しない */
+      }
+    }
+
+    // when の条件を、現在の値 (無ければ既定値) で判定する。
+    function activeOptions(entry: Entry, chosen: Record<string, string>) {
+      const valueOf = (id: string) => chosen[id] ?? entry.options.find((o) => o.id === id)?.default;
+      return entry.options.filter((o) => !o.when || Object.entries(o.when).every(([k, vs]) => vs.includes(valueOf(k) ?? '')));
+    }
+
+    // 送る JSON。既定値と、条件で無効になった設定は省く (省いた設定は Hub が既定値を使う)。retry は false のときだけ書く。
+    function buildPayload() {
+      return {
+        version: 1,
+        presets: state.presets.map((p) => ({
+          name: p.name,
+          steps: p.steps.map((st) => {
+            const entry = byId.get(st.demoId)!;
+            const options: Record<string, string> = {};
+            for (const o of activeOptions(entry, st.options)) {
+              const v = st.options[o.id];
+              if (v !== undefined && v !== o.default) options[o.id] = v;
+            }
+            const step: { demo_id: string; options?: Record<string, string>; retry?: boolean } = { demo_id: st.demoId };
+            if (Object.keys(options).length) step.options = options;
+            if (!st.retry) step.retry = false;
+            return step;
+          }),
+        })),
+      };
+    }
+
+    function el<K extends keyof HTMLElementTagNameMap>(tag: K, props: Partial<HTMLElementTagNameMap[K]> & { className?: string } = {}, ...children: (Node | string)[]) {
+      const node = document.createElement(tag);
+      Object.assign(node, props);
+      for (const c of children) node.append(c);
+      return node;
+    }
+
+    function renderTabs() {
+      tabsEl.replaceChildren();
+      state.presets.forEach((p, i) => {
+        const tab = el('button', { type: 'button', className: 'hb-plan__tab', textContent: `${i + 1}. ${p.name.trim() || '（名前なし）'}` });
+        tab.setAttribute('role', 'tab');
+        tab.setAttribute('aria-selected', String(i === state.active));
+        tab.addEventListener('click', () => {
+          state.active = i;
+          renderAll();
+        });
+        tabsEl.append(tab);
+      });
+      if (state.presets.length < MAX_PRESETS) {
+        const add = el('button', { type: 'button', className: 'hb-plan__tab hb-plan__tab--add', textContent: '+ プリセットを追加' });
+        add.addEventListener('click', () => {
+          state.presets.push(newPreset(state.presets.length + 1));
+          state.active = state.presets.length - 1;
+          renderAll();
+        });
+        tabsEl.append(add);
+      }
+      if (state.presets.length > 1) {
+        const del = el('button', { type: 'button', className: 'hb-plan__tab hb-plan__tab--del', textContent: 'このプリセットを削除' });
+        del.addEventListener('click', () => {
+          state.presets.splice(state.active, 1);
+          state.active = Math.max(0, state.active - 1);
+          renderAll();
+        });
+        tabsEl.append(del);
+      }
+    }
+
+    function renderPalette() {
+      paletteEl.replaceChildren();
+      const full = current().steps.length >= MAX_STEPS;
+      for (const entry of catalog) {
+        const media = entry.thumbnail
+          ? el('img', { src: entry.thumbnail, alt: '', loading: 'lazy', decoding: 'async' })
+          : el('span', { className: 'hb-plan__ph', textContent: entry.icon });
+        const btn = el('button', { type: 'button', className: 'hb-plan__pick', disabled: full }, media, el('span', { className: 'hb-plan__pick-title', textContent: entry.title }));
+        btn.style.setProperty('--_hue', String(entry.hue));
+        btn.setAttribute('aria-label', `${entry.title} を追加`);
+        btn.addEventListener('click', () => {
+          current().steps.push({ demoId: entry.demoId, options: {}, retry: true });
+          renderAll();
+        });
+        paletteEl.append(el('li', {}, btn));
+      }
+    }
+
+    function renderSteps() {
+      const steps = current().steps;
+      stepsEl.replaceChildren();
+      emptyEl.hidden = steps.length > 0;
+      steps.forEach((st, i) => {
+        const entry = byId.get(st.demoId)!;
+        const head = el('div', { className: 'hb-plan__step-head' }, el('span', { className: 'hb-plan__step-title', textContent: `${entry.icon} ${entry.title}` }));
+        const tools = el('div', { className: 'hb-plan__step-tools' });
+        const mk = (label: string, aria: string, disabled: boolean, fn: () => void) => {
+          const b = el('button', { type: 'button', textContent: label, disabled });
+          b.setAttribute('aria-label', aria);
+          b.addEventListener('click', () => {
+            fn();
+            renderAll();
+          });
+          tools.append(b);
+        };
+        mk('▲', '上へ', i === 0, () => steps.splice(i - 1, 0, steps.splice(i, 1)[0]));
+        mk('▼', '下へ', i === steps.length - 1, () => steps.splice(i + 1, 0, steps.splice(i, 1)[0]));
+        mk('✕', '削除', false, () => steps.splice(i, 1));
+        head.append(tools);
+
+        const body = el('div', { className: 'hb-plan__step-body' });
+        for (const o of activeOptions(entry, st.options)) {
+          const select = el('select');
+          for (const v of o.values) {
+            select.append(el('option', { value: v.value, textContent: v.value === o.default ? `${v.label}（既定）` : v.label }));
+          }
+          select.value = st.options[o.id] ?? o.default;
+          select.addEventListener('change', () => {
+            st.options[o.id] = select.value;
+            renderAll();
+          });
+          body.append(el('label', { className: 'hb-plan__opt' }, el('span', { textContent: o.label }), select));
+        }
+        const retry = el('input', { type: 'checkbox', checked: st.retry });
+        retry.addEventListener('change', () => {
+          st.retry = retry.checked;
+          renderAll();
+        });
+        body.append(el('label', { className: 'hb-plan__retry' }, retry, el('span', { textContent: '終了後に「もう一度」を出す' })));
+
+        const li = el('li', { className: 'hb-plan__step' }, head, body);
+        li.style.setProperty('--_hue', String(entry.hue));
+        stepsEl.append(li);
+      });
+    }
+
+    function qrSvg(text: string) {
+      // byte モード・誤り訂正 M (仕様は L か M)。バイト列で渡して byte モードに固定する。
+      const qr = encode(Array.from(new TextEncoder().encode(text)), { ecc: 'M', border: 4 });
+      let d = '';
+      qr.data.forEach((row, y) =>
+        row.forEach((dark, x) => {
+          if (dark) d += `M${x} ${y}h1v1h-1z`;
+        }),
+      );
+      const ns = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(ns, 'svg');
+      svg.setAttribute('viewBox', `0 0 ${qr.size} ${qr.size}`);
+      svg.setAttribute('role', 'img');
+      svg.setAttribute('aria-label', 'プリセットの QR コード');
+      svg.setAttribute('shape-rendering', 'crispEdges');
+      const bg = document.createElementNS(ns, 'rect');
+      bg.setAttribute('width', String(qr.size));
+      bg.setAttribute('height', String(qr.size));
+      bg.setAttribute('fill', '#fff');
+      const path = document.createElementNS(ns, 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('fill', '#000');
+      svg.append(bg, path);
+      return svg;
+    }
+
+    function renderOutput() {
+      const payload = buildPayload();
+      const bytes = payloadByteLength(payload);
+      const left = MAX_PAYLOAD_BYTES - bytes;
+      bytesEl.textContent = left >= 0 ? `残り ${left} / ${MAX_PAYLOAD_BYTES} bytes` : `${-left} bytes 超過（上限 ${MAX_PAYLOAD_BYTES} bytes）`;
+      barEl.style.width = `${Math.min(100, (bytes / MAX_PAYLOAD_BYTES) * 100)}%`;
+      root!.toggleAttribute('data-over', left < 0);
+
+      const errors = validatePayload(payload);
+      errorsEl.replaceChildren(...errors.map((e) => el('li', { textContent: e })));
+      qrEl.replaceChildren();
+      zoomQrEl.replaceChildren();
+      (qrEl as HTMLButtonElement).disabled = errors.length > 0;
+      if (errors.length) {
+        linkBox.hidden = true;
+        qrHintEl.textContent = '名前とデモをそろえると QR が出ます。';
+        return;
+      }
+      const url = presetPageUrl(encodeToken(payload));
+      qrEl.append(qrSvg(url));
+      zoomQrEl.append(qrSvg(url));
+      qrHintEl.textContent = 'リモコンのアプリで読み取ってください。読みにくいときは QR を押すと大きく表示します。';
+      linkBox.hidden = false;
+      linkEl.value = url;
+      openEl.href = url;
+    }
+
+    function current() {
+      return state.presets[state.active];
+    }
+
+    function renderAll() {
+      renderTabs();
+      if (document.activeElement !== nameEl) nameEl.value = current().name;
+      const np = nameProblem(current().name);
+      nameNoteEl.textContent = np ?? `${[...current().name].length} / ${MAX_NAME_CODE_POINTS} 文字`;
+      nameNoteEl.toggleAttribute('data-error', !!np);
+      renderPalette();
+      renderSteps();
+      renderOutput();
+      save();
+    }
+
+    nameEl.addEventListener('input', () => {
+      current().name = nameEl.value;
+      renderAll();
+    });
+    nameEl.addEventListener('blur', () => renderAll());
+
+    qrEl.addEventListener('click', () => {
+      zoomEl.hidden = false;
+    });
+    zoomEl.addEventListener('click', () => {
+      zoomEl.hidden = true;
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') zoomEl.hidden = true;
+    });
+
+    copyEl.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(linkEl.value);
+        copyEl.textContent = 'コピーしました';
+      } catch {
+        linkEl.select();
+        copyEl.textContent = '選択しました';
+      }
+      setTimeout(() => (copyEl.textContent = 'リンクをコピー'), 1600);
+    });
+
+    renderAll();
+  }
+</script>
+
+<style>
+  .hb-plan {
+    margin-bottom: 40px;
+  }
+  .hb-plan__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--hb-ink-soft);
+    text-decoration: none;
+  }
+  .hb-plan__lead {
+    margin: 6px 0 22px;
+    max-width: 80ch;
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--hb-ink-soft);
+  }
+  .hb-plan__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+    gap: 28px;
+    align-items: start;
+  }
+  .hb-plan__side {
+    position: sticky;
+    top: calc(var(--sl-nav-height, 64px) + 16px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .hb-plan__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .hb-plan :global(.hb-plan__tab) {
+    min-height: 40px;
+    padding: 6px 14px;
+    border: 1px solid var(--hb-line-strong);
+    border-radius: 999px;
+    background: var(--hb-bg-elev);
+    color: var(--hb-ink-soft);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    max-width: 22em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .hb-plan :global(.hb-plan__tab[aria-selected='true']) {
+    background: var(--hb-ink);
+    border-color: var(--hb-ink);
+    color: var(--hb-bg-elev);
+  }
+  .hb-plan :global(.hb-plan__tab--add),
+  .hb-plan :global(.hb-plan__tab--del) {
+    border-style: dashed;
+    font-weight: 500;
+  }
+
+  .hb-plan__preset {
+    padding: 18px 20px 22px;
+    border: 1px solid var(--hb-line);
+    border-radius: var(--hb-radius-lg);
+    background: var(--hb-bg-elev);
+  }
+  .hb-plan__name {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--hb-ink-mute);
+  }
+  .hb-plan__name input {
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid var(--hb-line-strong);
+    border-radius: var(--hb-radius);
+    background: var(--hb-bg);
+    color: var(--hb-ink);
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .hb-plan__name-note {
+    margin: 6px 0 0;
+    min-height: 1.5em;
+    font-size: 12.5px;
+    color: var(--hb-ink-faint);
+  }
+  .hb-plan__name-note[data-error] {
+    color: var(--hb-red-ink);
+  }
+  .hb-plan .hb-plan__h {
+    margin: 18px 0 10px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: normal;
+    color: var(--hb-ink);
+  }
+  .hb-plan .hb-plan__h::before {
+    content: none;
+  }
+
+  .hb-plan__palette {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .hb-plan__palette :global(li) {
+    margin: 0;
+  }
+  .hb-plan :global(.hb-plan__pick) {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border: 1px solid var(--hb-line);
+    border-radius: var(--hb-radius);
+    background: var(--hb-bg);
+    color: var(--hb-ink);
+    font: inherit;
+    overflow: hidden;
+    cursor: pointer;
+    text-align: left;
+  }
+  .hb-plan :global(.hb-plan__pick:hover:not(:disabled)) {
+    border-color: oklch(0.62 0.13 var(--_hue));
+  }
+  .hb-plan :global(.hb-plan__pick:disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .hb-plan :global(.hb-plan__pick img),
+  .hb-plan :global(.hb-plan__ph) {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    font-size: 28px;
+    background: oklch(0.88 0.07 var(--_hue));
+  }
+  :global([data-theme='dark']) .hb-plan :global(.hb-plan__ph) {
+    background: oklch(0.34 0.08 var(--_hue));
+  }
+  .hb-plan :global(.hb-plan__pick-title) {
+    padding: 7px 10px 9px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .hb-plan__steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    counter-reset: step;
+  }
+  .hb-plan :global(.hb-plan__step) {
+    margin: 0;
+    padding: 10px 12px 12px 46px;
+    position: relative;
+    border: 1px solid var(--hb-line);
+    border-left: 4px solid oklch(0.6 0.13 var(--_hue));
+    border-radius: var(--hb-radius);
+    background: var(--hb-bg);
+    counter-increment: step;
+  }
+  .hb-plan :global(.hb-plan__step)::before {
+    content: counter(step);
+    position: absolute;
+    left: 12px;
+    top: 11px;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    background: oklch(0.55 0.13 var(--_hue));
+  }
+  .hb-plan :global(.hb-plan__step-head) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .hb-plan :global(.hb-plan__step-title) {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--hb-ink);
+  }
+  .hb-plan :global(.hb-plan__step-tools) {
+    display: flex;
+    gap: 6px;
+    flex: none;
+  }
+  .hb-plan :global(.hb-plan__step-tools button) {
+    width: 40px;
+    height: 36px;
+    border: 1px solid var(--hb-line-strong);
+    border-radius: var(--hb-radius-sm);
+    background: var(--hb-bg-elev);
+    color: var(--hb-ink-soft);
+    font: inherit;
+    cursor: pointer;
+  }
+  .hb-plan :global(.hb-plan__step-tools button:disabled) {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .hb-plan :global(.hb-plan__step-body) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin-top: 8px;
+    font-size: 13.5px;
+    color: var(--hb-ink-soft);
+  }
+  .hb-plan :global(.hb-plan__opt),
+  .hb-plan :global(.hb-plan__retry) {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+  }
+  .hb-plan :global(.hb-plan__opt select) {
+    min-height: 36px;
+    padding: 4px 8px;
+    border: 1px solid var(--hb-line-strong);
+    border-radius: var(--hb-radius-sm);
+    background: var(--hb-bg-elev);
+    color: var(--hb-ink);
+    font: inherit;
+  }
+  .hb-plan :global(.hb-plan__retry input) {
+    width: 18px;
+    height: 18px;
+  }
+  .hb-plan__empty {
+    margin: 4px 0 0;
+    padding: 18px;
+    border: 1px dashed var(--hb-line-strong);
+    border-radius: var(--hb-radius);
+    font-size: 14px;
+    color: var(--hb-ink-faint);
+    text-align: center;
+  }
+
+  .hb-plan__meter {
+    padding: 12px 14px;
+    border: 1px solid var(--hb-line);
+    border-radius: var(--hb-radius);
+    background: var(--hb-bg-elev);
+  }
+  .hb-plan__meter-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--hb-ink-mute);
+  }
+  .hb-plan__meter-row span:last-child {
+    font-family: var(--hb-font-mono);
+    color: var(--hb-ink);
+  }
+  .hb-plan__bar {
+    margin-top: 8px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--hb-bg-soft);
+    overflow: hidden;
+  }
+  .hb-plan__bar span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--hb-teal);
+    transition: width 0.15s ease;
+  }
+  .hb-plan[data-over] .hb-plan__bar span {
+    background: var(--hb-red);
+  }
+  .hb-plan[data-over] .hb-plan__meter-row span:last-child {
+    color: var(--hb-red-ink);
+  }
+
+  /* QR は読み取りやすさのため、ダーク表示でも白地に黒で出す */
+  .hb-plan__qr {
+    padding: 14px;
+    border: 1px solid var(--hb-line);
+    border-radius: var(--hb-radius-lg);
+    background: var(--hb-bg-elev);
+    text-align: center;
+  }
+  .hb-plan__qr-img {
+    width: 100%;
+    max-width: 340px;
+    aspect-ratio: 1;
+    margin: 0 auto;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: var(--hb-radius);
+    background: var(--hb-bg-soft);
+    cursor: zoom-in;
+  }
+  .hb-plan__qr-img:disabled {
+    cursor: default;
+  }
+  /* 大きく表示 (画面いっぱい、白地) */
+  .hb-plan__zoom {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: #fff;
+    cursor: zoom-out;
+  }
+  .hb-plan__zoom[hidden] {
+    display: none;
+  }
+  .hb-plan__zoom-qr {
+    width: min(92vw, 82vh);
+    aspect-ratio: 1;
+  }
+  .hb-plan__zoom-qr :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .hb-plan__zoom p {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+  }
+  .hb-plan__qr-img :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--hb-radius);
+  }
+  .hb-plan__qr-hint {
+    margin: 10px 0 0;
+    font-size: 13px;
+    color: var(--hb-ink-mute);
+  }
+  .hb-plan__errors {
+    margin: 0;
+    padding: 0 0 0 1.2em;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--hb-red-ink);
+  }
+  .hb-plan__errors:empty {
+    display: none;
+  }
+  .hb-plan__link {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .hb-plan__link input {
+    width: 100%;
+    min-height: 36px;
+    padding: 6px 10px;
+    border: 1px solid var(--hb-line);
+    border-radius: var(--hb-radius-sm);
+    background: var(--hb-bg);
+    color: var(--hb-ink-mute);
+    font-family: var(--hb-font-mono);
+    font-size: 12px;
+  }
+  .hb-plan__link-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .hb-plan__link-actions button,
+  .hb-plan__link-actions a {
+    flex: 1;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--hb-line-strong);
+    border-radius: var(--hb-radius);
+    background: var(--hb-bg-elev);
+    color: var(--hb-ink);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .hb-plan__link-actions button {
+    min-width: 10em;
+  }
+
+  @media (max-width: 56rem) {
+    .hb-plan__layout {
+      grid-template-columns: 1fr;
+    }
+    .hb-plan__side {
+      position: static;
+    }
+  }
+</style>

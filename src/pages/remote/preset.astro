@@ -1,0 +1,213 @@
+---
+/**
+ * /remote/preset#<トークン> — 展示用 Android リモコンへのプリセット受け渡しページ。
+ *
+ * /demos/showcase/plan/ が作る QR / リンクの行き先。リモコンのアプリは QR の文字列から
+ * 直接トークンを読むので、このページを開くのは「リモコン以外の端末で QR を読んだ」
+ * 「リンクを開いた」ときだけ。fragment のトークンを端末内で復号・検査して内容を見せ、
+ * Android ではアプリを開くボタン (intent URL) を出す。トークンは fragment にあるので
+ * サーバーには送られない。形式は src/lib/remote-preset.mjs と
+ * hapbeat-contracts specs/demo-session.md「リモコンへのプリセット受け渡し」。
+ */
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { jsonForScript, remoteCatalog } from '../../data/showcase';
+
+const catalog = remoteCatalog();
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'リモコン用プリセット',
+    description: '展示用 Android リモコン（Hapbeat Demo Remote）に取り込むデモのプリセットです。',
+    template: 'splash',
+    pagefind: false,
+    head: [{ tag: 'meta', attrs: { name: 'robots', content: 'noindex' } }],
+  }}
+>
+  <script type="application/json" id="hb-preset-catalog" set:html={jsonForScript(catalog)} />
+
+  <div class="hb-rp not-content">
+    <p class="hb-rp__lead" data-lead>読み込んでいます…</p>
+
+    <div class="hb-rp__app" data-app hidden>
+      <a class="hb-rp__open" data-open>アプリで開く</a>
+      <p>Hapbeat Demo Remote が入っている Android 端末で押すと、アプリが確認画面を出してから取り込みます。</p>
+    </div>
+
+    <div class="hb-rp__presets" data-presets></div>
+
+    <ul class="hb-rp__notes">
+      <li>このページは、展示用 Android リモコン（Hapbeat Demo Remote）にデモの順番を渡すためのものです。リモコンでは、アプリの QR 読み取りで QR を読むか、上のボタンで取り込みます。</li>
+      <li>取り込んでも、すぐにはデモを始めません。</li>
+      <li>プランは <a href="/demos/showcase/plan/">リモコン用プランを作る</a> で作れます。</li>
+    </ul>
+  </div>
+</StarlightPage>
+
+<script>
+  import { decodeToken, intentUrl } from '../../lib/remote-preset.mjs';
+
+  type Option = { id: string; label: string; default: string; values: { value: string; label: string }[] };
+  type Entry = { demoId: string; title: string; icon: string; hue: number; options: Option[] };
+  type Step = { demo_id: string; options?: Record<string, string>; retry?: boolean };
+  type Payload = { version: number; presets: { name: string; steps: Step[] }[] };
+
+  const root = document.querySelector<HTMLElement>('.hb-rp');
+  const catalogEl = document.getElementById('hb-preset-catalog');
+
+  function el<K extends keyof HTMLElementTagNameMap>(tag: K, props: Partial<HTMLElementTagNameMap[K]> & { className?: string } = {}, ...children: (Node | string)[]) {
+    const node = document.createElement(tag);
+    Object.assign(node, props);
+    for (const c of children) node.append(c);
+    return node;
+  }
+
+  if (root && catalogEl) {
+    const catalog: Entry[] = JSON.parse(catalogEl.textContent || '[]');
+    const byId = new Map(catalog.map((e) => [e.demoId, e]));
+    const lead = root.querySelector<HTMLElement>('[data-lead]')!;
+    const app = root.querySelector<HTMLElement>('[data-app]')!;
+    const open = root.querySelector<HTMLAnchorElement>('[data-open]')!;
+    const list = root.querySelector<HTMLElement>('[data-presets]')!;
+
+    const render = () => {
+      const token = location.hash.replace(/^#/, '');
+      list.replaceChildren();
+      app.hidden = true;
+      if (!token) {
+        lead.textContent = 'プリセットが含まれていません。リモコン用の QR かリンクから開いてください。';
+        return;
+      }
+      let payload: Payload;
+      try {
+        payload = decodeToken(token) as Payload;
+      } catch (e) {
+        lead.textContent = `このリンクのプリセットは読み取れません（${e instanceof Error ? e.message : '形式が正しくありません'}）。作り直した QR かリンクを使ってください。`;
+        return;
+      }
+
+      lead.textContent = `${payload.presets.length} 件のプリセットが含まれています。`;
+      if (/Android/i.test(navigator.userAgent)) {
+        open.href = intentUrl(token);
+        app.hidden = false;
+      }
+
+      payload.presets.forEach((preset, pi) => {
+        const steps = el('ol', { className: 'hb-rp__steps' });
+        for (const st of preset.steps) {
+          const entry = byId.get(st.demo_id);
+          const title = entry ? `${entry.icon} ${entry.title}` : st.demo_id;
+          const details: string[] = [];
+          for (const [k, v] of Object.entries(st.options ?? {})) {
+            const o = entry?.options.find((x) => x.id === k);
+            const label = o?.values.find((x) => x.value === v)?.label;
+            details.push(o ? `${o.label}: ${label ?? v}` : `${k}: ${v}`);
+          }
+          if (st.retry === false) details.push('「もう一度」なし');
+          const li = el('li', {}, el('span', { className: 'hb-rp__step-title', textContent: title }));
+          if (details.length) li.append(el('span', { className: 'hb-rp__step-opts', textContent: details.join(' / ') }));
+          if (!entry) li.append(el('span', { className: 'hb-rp__step-opts', textContent: '（この一覧に無いデモ。リモコン側で確認されます）' }));
+          if (entry) li.style.setProperty('--_hue', String(entry.hue));
+          steps.append(li);
+        }
+        list.append(
+          el('section', { className: 'hb-rp__preset' }, el('h2', { textContent: `${pi + 1}. ${preset.name}` }), steps),
+        );
+      });
+    };
+
+    render();
+    window.addEventListener('hashchange', render);
+  }
+</script>
+
+<style>
+  .hb-rp {
+    max-width: 720px;
+    margin-bottom: 40px;
+  }
+  .hb-rp__lead {
+    margin: 0 0 18px;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--hb-ink);
+  }
+  .hb-rp__app {
+    margin: 0 0 22px;
+    padding: 16px 18px;
+    border: 1px solid var(--hb-line);
+    border-radius: var(--hb-radius-lg);
+    background: var(--hb-bg-elev);
+  }
+  .hb-rp__app p {
+    margin: 10px 0 0;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--hb-ink-mute);
+  }
+  .hb-rp__open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    border-radius: var(--hb-radius);
+    background: var(--hb-ink);
+    color: var(--hb-bg-elev) !important;
+    font-size: 17px;
+    font-weight: 700;
+    text-decoration: none !important;
+  }
+  .hb-rp__presets {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .hb-rp__presets :global(.hb-rp__preset) {
+    padding: 14px 18px 16px;
+    border: 1px solid var(--hb-line);
+    border-radius: var(--hb-radius-lg);
+    background: var(--hb-bg-elev);
+  }
+  .hb-rp__presets :global(.hb-rp__preset h2) {
+    margin: 0 0 10px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: normal;
+    color: var(--hb-ink);
+    overflow-wrap: anywhere;
+  }
+  .hb-rp__presets :global(.hb-rp__preset h2)::before {
+    content: none;
+  }
+  .hb-rp__presets :global(.hb-rp__steps) {
+    margin: 0;
+    padding-left: 1.6em;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .hb-rp__presets :global(.hb-rp__steps li) {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--hb-ink);
+  }
+  .hb-rp__presets :global(.hb-rp__step-title) {
+    font-weight: 600;
+  }
+  .hb-rp__presets :global(.hb-rp__step-opts) {
+    display: block;
+    font-size: 13px;
+    color: var(--hb-ink-mute);
+  }
+  .hb-rp__notes {
+    margin: 24px 0 0;
+    padding-left: 1.2em;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--hb-ink-mute);
+  }
+  .hb-rp__notes li {
+    margin: 0 0 4px;
+  }
+</style>

@@ -580,10 +580,11 @@ export default defineConfig({
         { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
         { tag: 'meta', attrs: { name: 'twitter:image', content: 'https://devtools.hapbeat.com/og-image.png' } },
         // 本文画像をクリックでウィンドウ一杯のモーダル（ライトボックス）表示。クリック / Esc で閉じる。
+        // リンクの中の画像 (デモ一覧のカード等) はリンク遷移を優先して対象外。
         {
           tag: 'script',
           content:
-            "(function(){function open(src){var o=document.createElement('div');o.className='hb-lightbox';var im=document.createElement('img');im.src=src;o.appendChild(im);o.addEventListener('click',function(){o.remove();});document.body.appendChild(o);}document.addEventListener('click',function(e){var img=e.target.closest&&e.target.closest('.sl-markdown-content img');if(!img)return;e.preventDefault();open(img.currentSrc||img.src);});document.addEventListener('keydown',function(e){if(e.key==='Escape'){var el=document.querySelector('.hb-lightbox');if(el)el.remove();}});})();",
+            "(function(){function open(src){var o=document.createElement('div');o.className='hb-lightbox';var im=document.createElement('img');im.src=src;o.appendChild(im);o.addEventListener('click',function(){o.remove();});document.body.appendChild(o);}document.addEventListener('click',function(e){var img=e.target.closest&&e.target.closest('.sl-markdown-content img');if(!img||img.closest('a'))return;e.preventDefault();open(img.currentSrc||img.src);});document.addEventListener('keydown',function(e){if(e.key==='Escape'){var el=document.querySelector('.hb-lightbox');if(el)el.remove();}});})();",
         },
       ],
       // Component overrides:
