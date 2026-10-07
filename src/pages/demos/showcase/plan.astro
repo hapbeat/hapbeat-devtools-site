@@ -85,6 +85,14 @@ const catalog = remoteCatalog();
             <a data-open target="_blank" rel="noopener noreferrer">内容を確認</a>
           </div>
         </div>
+        <div class="hb-plan__file">
+          <div class="hb-plan__link-actions">
+            <button type="button" data-export>JSON に書き出す</button>
+            <button type="button" data-import>JSON を読み込む</button>
+          </div>
+          <input type="file" accept="application/json,.json" data-import-file hidden />
+          <p class="hb-plan__file-note" data-file-note aria-live="polite">プリセット一式を JSON ファイルで保存・読み込みできます。</p>
+        </div>
       </aside>
     </div>
   </div>
@@ -94,6 +102,8 @@ const catalog = remoteCatalog();
   import { encode } from 'uqr';
   import {
     MAX_NAME_CODE_POINTS,
+    parseJsonStrict,
+    serializePayload,
     MAX_PAYLOAD_BYTES,
     MAX_PRESETS,
     MAX_STEPS,
@@ -136,6 +146,10 @@ const catalog = remoteCatalog();
     const linkEl = $<HTMLInputElement>('[data-link]');
     const copyEl = $<HTMLButtonElement>('[data-copy]');
     const openEl = $<HTMLAnchorElement>('[data-open]');
+    const exportEl = $<HTMLButtonElement>('[data-export]');
+    const importEl = $<HTMLButtonElement>('[data-import]');
+    const importFileEl = $<HTMLInputElement>('[data-import-file]');
+    const fileNoteEl = $('[data-file-note]');
 
     const newPreset = (n: number): Preset => ({ name: `プリセット ${n}`, steps: [] });
 
@@ -443,6 +457,56 @@ const catalog = remoteCatalog();
     });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') zoomEl.hidden = true;
+    });
+
+    // JSON 書き出し / 読み込み。形式は QR と同じペイロード ({version, presets})。
+    exportEl.addEventListener('click', () => {
+      const payload = buildPayload();
+      const errors = validatePayload(payload);
+      if (errors.length) {
+        fileNoteEl.textContent = `書き出せません: ${errors[0]}`;
+        return;
+      }
+      const safe = (state.presets[0]?.name ?? '').replace(/[^0-9A-Za-z\u3040-\u30ff\u4e00-\u9fff_-]+/g, '_').slice(0, 40);
+      const blob = new Blob([JSON.stringify(JSON.parse(serializePayload(payload)), null, 2) + '\n'], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `hapbeat-preset${safe ? '-' + safe : ''}.json`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      fileNoteEl.textContent = `${a.download} を保存しました。`;
+    });
+    importEl.addEventListener('click', () => importFileEl.click());
+    importFileEl.addEventListener('change', async () => {
+      const file = importFileEl.files?.[0];
+      importFileEl.value = '';
+      if (!file) return;
+      try {
+        const payload = parseJsonStrict((await file.text()).replace(/^\uFEFF/, '')) as {
+          presets: { name: string; steps: { demo_id: string; options?: Record<string, string>; retry?: boolean }[] }[];
+        };
+        const errors = validatePayload(payload);
+        if (errors.length) throw new Error(errors[0]);
+        const unknown = payload.presets.flatMap((p) => p.steps.map((s) => s.demo_id)).filter((id) => !byId.has(id));
+        if (unknown.length) throw new Error(`この一覧に無いデモがあります: ${[...new Set(unknown)].join(', ')}`);
+        if (!confirm('いまのプリセットを、読み込んだ内容で置き換えますか？')) return;
+        state.presets = payload.presets.map((p) => ({
+          name: p.name,
+          steps: p.steps.map((s) => {
+            const entry = byId.get(s.demo_id)!;
+            const options: Record<string, string> = {};
+            for (const [k, v] of Object.entries(s.options ?? {})) {
+              if (entry.options.some((o) => o.id === k && o.values.some((x) => x.value === v))) options[k] = v;
+            }
+            return { demoId: s.demo_id, options, retry: s.retry !== false };
+          }),
+        }));
+        state.active = 0;
+        renderAll();
+        fileNoteEl.textContent = `${file.name} を読み込みました（${state.presets.length} 件）。`;
+      } catch (e) {
+        fileNoteEl.textContent = `読み込めません: ${e instanceof Error ? e.message : '形式が正しくありません'}`;
+      }
     });
 
     copyEl.addEventListener('click', async () => {
@@ -828,7 +892,7 @@ const catalog = remoteCatalog();
     border: 0;
     border-radius: var(--hb-radius);
     background: var(--hb-bg-soft);
-    cursor: zoom-in;
+    cursor: pointer;
   }
   .hb-plan__qr-img:disabled {
     cursor: default;
@@ -899,6 +963,13 @@ const catalog = remoteCatalog();
     color: var(--hb-ink-mute);
     font-family: var(--hb-font-mono);
     font-size: 12px;
+  }
+  .hb-plan__file-note {
+    margin: 8px 0 0;
+    min-height: 3em;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--hb-ink-mute);
   }
   .hb-plan__link-actions {
     display: flex;

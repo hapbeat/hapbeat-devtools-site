@@ -48,7 +48,7 @@ const catalog = remoteCatalog();
   import { decodeToken, intentUrl } from '../../lib/remote-preset.mjs';
 
   type Option = { id: string; label: string; default: string; values: { value: string; label: string }[] };
-  type Entry = { demoId: string; title: string; icon: string; hue: number; options: Option[] };
+  type Entry = { demoId: string; title: string; icon: string; hue: number; thumbnail?: string; options: Option[] };
   type Step = { demo_id: string; options?: Record<string, string>; retry?: boolean };
   type Payload = { version: number; presets: { name: string; steps: Step[] }[] };
 
@@ -96,7 +96,7 @@ const catalog = remoteCatalog();
         const steps = el('ol', { className: 'hb-rp__steps' });
         for (const st of preset.steps) {
           const entry = byId.get(st.demo_id);
-          const title = entry ? `${entry.icon} ${entry.title}` : st.demo_id;
+          const title = entry ? entry.title : st.demo_id;
           const details: string[] = [];
           for (const [k, v] of Object.entries(st.options ?? {})) {
             const o = entry?.options.find((x) => x.id === k);
@@ -104,9 +104,13 @@ const catalog = remoteCatalog();
             details.push(o ? `${o.label}: ${label ?? v}` : `${k}: ${v}`);
           }
           if (st.retry === false) details.push('「もう一度」なし');
-          const li = el('li', {}, el('span', { className: 'hb-rp__step-title', textContent: title }));
-          if (details.length) li.append(el('span', { className: 'hb-rp__step-opts', textContent: details.join(' / ') }));
-          if (!entry) li.append(el('span', { className: 'hb-rp__step-opts', textContent: '（この一覧に無いデモ。リモコン側で確認されます）' }));
+          const thumb = entry?.thumbnail
+            ? el('img', { className: 'bare hb-rp__thumb', src: entry.thumbnail, alt: '' })
+            : el('span', { className: 'hb-rp__thumb hb-rp__ph', textContent: entry?.icon ?? '?' });
+          const text = el('div', { className: 'hb-rp__step-text' }, el('span', { className: 'hb-rp__step-title', textContent: title }));
+          if (details.length) text.append(el('span', { className: 'hb-rp__step-opts', textContent: details.join(' / ') }));
+          if (!entry) text.append(el('span', { className: 'hb-rp__step-opts', textContent: '（この一覧に無いデモ。リモコン側で確認されます）' }));
+          const li = el('li', {}, thumb, text);
           if (entry) li.style.setProperty('--_hue', String(entry.hue));
           steps.append(li);
         }
@@ -181,16 +185,38 @@ const catalog = remoteCatalog();
   }
   .hb-rp__presets :global(.hb-rp__steps) {
     margin: 0;
-    padding-left: 1.6em;
+    padding-left: 0;
+    list-style: none;
     display: flex;
     flex-direction: column;
     gap: 6px;
   }
   .hb-rp__presets :global(.hb-rp__steps li) {
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     font-size: 15px;
     line-height: 1.5;
     color: var(--hb-ink);
+  }
+  .hb-rp__presets :global(.hb-rp__thumb) {
+    flex: none;
+    width: 112px;
+    max-height: none;
+    margin: 0;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--hb-radius-sm);
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+    background: var(--hb-bg-soft);
+  }
+  .hb-rp__presets :global(.hb-rp__step-text) {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
   }
   .hb-rp__presets :global(.hb-rp__step-title) {
     font-weight: 600;
