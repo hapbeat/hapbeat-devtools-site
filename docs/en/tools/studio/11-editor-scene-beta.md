@@ -16,10 +16,30 @@ This page outlines how to assign **sound and haptic materials** to game events (
 
 | Folder | Contents | Opened from |
 |---|---|---|
-| **Editor folder** | The waveform editor's workspace: clips, AI trials and ratings (`haptic-knowledge/`), exchanges with the agent (`hapbeat-agent/`), material adjustments (`adjust/`) | "Open folder" in the waveform editor |
+| **Editor folder** | The waveform editor's workspace and records (below). One folder is shared by all projects; projects are kept apart by the clips' "project" name | "Open folder" in the waveform editor |
 | **Game project** | The cue table (each event's sound / haptic), the material WAVs, the recording (full replay and event times) | "Project" in the Scene tab |
 
-`.hapbeat-editor/` is Studio's internal cache. Do not read or write it (it is rebuilt when missing).
+- Do not open a game project in the waveform editor: the folder you open there is set up as an editor folder (`.hapbeat-editor/` and others are created).
+- Decided assignments and materials (the cue table and WAVs) are written to the **game project**, because the game reads them at run time. The editor folder keeps work in progress and records only.
+
+### Inside the editor folder
+
+| Path | Contents |
+|---|---|
+| `materials/<project>/` | Source material as obtained (sound effects, …) |
+| `adjust/<project>/<sound\|haptic>/` | Effect settings of adjusted materials, and the audio before adjusting |
+| `scene-overrides/<project>.json` | Changes made in the Scene tab (reassigned firings, …) |
+| `haptic-knowledge/` | AI trials and ratings (the knowledge base), shared by all projects |
+| `hapbeat-agent/` | Exchanges with the AI agent (trial requests, audio the agent made, requests from Studio) |
+| `exports/` | Files you exported by hand |
+| `.hapbeat-editor/` | Studio's internal cache and view settings. Do not read or write it (it is rebuilt when missing) |
+
+### Where the recording lives
+
+The recording is made in the game project's `Saved/HapticViewer/` (Unreal Engine): the full replay (`full_replay.mp4`), a short video per event, firing times and levels (`viewer-data.json`), and where the cue table and WAVs are (`viewer-lib.json`).
+
+- It is made by replaying the game at a fixed frame rate (the record script of the authoring tool). Recording again gives the same result, so it is not version-controlled (`Saved/` holds Unreal Engine's generated files and is normally excluded from Git).
+- The game does not read the recording. It sits in the game project so that the Scene tab reads and writes it from the same folder as the cue table and WAVs.
 
 ## Working with an AI agent (MCP)
 
