@@ -1,31 +1,28 @@
 ---
 /**
  * /demos/showcase/<id>/ — デモの詳細ページ。src/data/showcase.ts の 1 件から生成する。
- * サムネイル (または動画) / 概要 / 体験に使うもの / 体験の流れ / 触覚の見どころ。
- * 下部に前後のデモへの移動を置き、タブレットで続けて見せられるようにする。
+ * PV (または画像) / 概要 / 体験に使うもの / スクショ / 体験の流れ / 触覚の見どころ。
+ * 下部に、ほかのデモをサムネイル + タイトルの小さなカードで並べる (順番に意味は無い)。
+ * サイト共通の本文画像スタイル (.sl-markdown-content img の枠・角丸・影) は
+ * class="bare" で外し、このページ側で形を決める。
  */
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import ShowcaseThumb from '../../../components/ShowcaseThumb.astro';
 import { PUBLISHED_SHOWCASE_DEMOS, categoryLabel, type ShowcaseDemo } from '../../../data/showcase';
 
 export function getStaticPaths() {
-  return PUBLISHED_SHOWCASE_DEMOS.map((demo, i, all) => ({
+  return PUBLISHED_SHOWCASE_DEMOS.map((demo, _i, all) => ({
     params: { id: demo.id },
-    props: {
-      demo,
-      prev: all[(i - 1 + all.length) % all.length],
-      next: all[(i + 1) % all.length],
-    },
+    props: { demo, others: all.filter((d) => d.id !== demo.id) },
   }));
 }
 
 interface Props {
   demo: ShowcaseDemo;
-  prev: ShowcaseDemo;
-  next: ShowcaseDemo;
+  others: ShowcaseDemo[];
 }
 
-const { demo, prev, next } = Astro.props;
+const { demo, others } = Astro.props;
 ---
 
 <StarlightPage
@@ -75,7 +72,7 @@ const { demo, prev, next } = Astro.props;
           {demo.screenshots.map((s) => (
             <li>
               <figure>
-                <img src={s.src} alt={s.caption} loading="lazy" decoding="async" width="1280" height="720" />
+                <img class="bare" src={s.src} alt={s.caption} loading="lazy" decoding="async" width="1280" height="720" />
                 <figcaption>{s.caption}</figcaption>
               </figure>
             </li>
@@ -99,15 +96,20 @@ const { demo, prev, next } = Astro.props;
       </section>
     </div>
 
-    <nav class="hb-scd__pager" aria-label="ほかのデモ">
-      <a href={`/demos/showcase/${prev.id}/`} rel="prev" data-astro-reload>
-        <span>前のデモ</span>
-        {prev.icon} {prev.title}
-      </a>
-      <a href={`/demos/showcase/${next.id}/`} rel="next" data-astro-reload>
-        <span>次のデモ</span>
-        {next.icon} {next.title}
-      </a>
+    <nav class="hb-scd__others" aria-label="ほかのデモ">
+      <h2>ほかのデモ</h2>
+      <ul>
+        {
+          others.map((d) => (
+            <li>
+              <a href={`/demos/showcase/${d.id}/`} data-astro-reload>
+                <ShowcaseThumb demo={d} />
+                <span>{d.title}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </nav>
   </div>
 </StarlightPage>
@@ -138,7 +140,6 @@ const { demo, prev, next } = Astro.props;
     align-items: start;
   }
   .hb-scd__media {
-    border: 1px solid var(--hb-line);
     border-radius: var(--hb-radius-lg);
     overflow: hidden;
     box-shadow: var(--hb-shadow-md);
@@ -225,9 +226,10 @@ const { demo, prev, next } = Astro.props;
     display: block;
     width: 100%;
     height: auto;
+    max-height: none;
+    margin: 0;
     aspect-ratio: 16 / 9;
     object-fit: cover;
-    border: 1px solid var(--hb-line);
     border-radius: var(--hb-radius);
     cursor: zoom-in;
   }
@@ -310,34 +312,46 @@ const { demo, prev, next } = Astro.props;
     box-shadow: 0 0 0 4px oklch(0.55 0.13 var(--_hue) / 0.18);
   }
 
-  .hb-scd__pager {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-top: 32px;
+  .hb-scd__others {
+    margin-top: 36px;
   }
-  .hb-scd__pager a {
+  .hb-scd .hb-scd__others h2 {
+    margin: 0 0 12px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: normal;
+    color: var(--hb-ink);
+  }
+  .hb-scd .hb-scd__others h2::before {
+    content: none;
+  }
+  .hb-scd__others ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr));
+    gap: 14px;
+  }
+  .hb-scd__others li {
+    margin: 0;
+  }
+  .hb-scd__others a {
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    padding: 12px 16px;
-    border: 1px solid var(--hb-line);
-    border-radius: var(--hb-radius);
-    background: var(--hb-bg-elev);
+    gap: 6px;
     color: var(--hb-ink);
+    font-size: 14px;
     font-weight: 700;
     text-decoration: none;
   }
-  .hb-scd__pager a[rel='next'] {
-    text-align: right;
+  .hb-scd__others a :global(.hb-sc-thumb) {
+    border-radius: var(--hb-radius);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
-  .hb-scd__pager a:hover {
-    border-color: var(--hb-ink-mute);
-  }
-  .hb-scd__pager span {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--hb-ink-mute);
+  .hb-scd__others a:hover :global(.hb-sc-thumb) {
+    transform: translateY(-2px);
+    box-shadow: var(--hb-shadow-md);
   }
 
   @media (max-width: 50rem) {

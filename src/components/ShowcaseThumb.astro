@@ -8,6 +8,8 @@
  * thumbnail をポスターに使う。素材が無いデモは、デモごとの色相 (hue) の単色面に
  * 絵文字とタイトルを載せたプレースホルダにする。
  * 素材の指定は src/data/showcase.ts の 1 か所だけ。
+ * 画像はサイト共通の本文画像スタイル (枠・角丸・影) を class="bare" で外し、
+ * 角の丸めは親 (カード等) の overflow: hidden に任せる。
  *
  * サイトの ClientRouter でページを差し替えると、入れ替わった <video> は再生直後に
  * 止まる。そのため動画のある詳細ページへのリンク (ShowcaseCard・前後移動) は
@@ -34,7 +36,7 @@ const showVideo = demo.video && (size === 'hero' || !demo.thumbnail);
     showVideo ? (
       <video src={demo.video} poster={demo.thumbnail} muted autoplay loop playsinline controls preload="metadata" aria-label={`${demo.title} の紹介動画`} data-sc-autoplay />
     ) : demo.thumbnail ? (
-      <img src={demo.thumbnail} alt={demo.title} loading="lazy" decoding="async" />
+      <img class="bare" src={demo.thumbnail} alt={demo.title} loading="lazy" decoding="async" />
     ) : (
       <div class="hb-sc-thumb__ph" aria-hidden="true">
         <span class="hb-sc-thumb__icon">{demo.icon}</span>
@@ -75,6 +77,8 @@ const showVideo = demo.video && (size === 'hero' || !demo.thumbnail);
     display: block;
     width: 100%;
     height: 100%;
+    max-height: none;
+    margin: 0;
     object-fit: cover;
   }
 

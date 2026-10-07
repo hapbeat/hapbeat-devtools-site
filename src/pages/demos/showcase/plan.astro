@@ -1,12 +1,15 @@
 ---
 /**
- * /demos/showcase/plan/ — 展示用 Android リモコン (Hapbeat Demo Remote) に渡すプランを作るページ。
+ * /demos/showcase/plan/ — プリセット作成。展示用 Android リモコン (Hapbeat Demo Remote) に渡すプランを作るページ。
  *
  * デモ一覧で来場者・スタッフが選んだデモを、順番・設定つきで 1〜3 件のプリセットに組み、
  * QR (とリンク) にする。リモコンはアプリの QR 読み取りで取り込む。形式の正本は
  * hapbeat-contracts specs/demo-session.md「リモコンへのプリセット受け渡し（QR / リンク）」、
  * 符号化と検査は src/lib/remote-preset.mjs。QR は uqr (MIT, nayuki の QR Code generator
  * ベース) をビルドに同梱して端末内で作る (外部への通信なし)。
+ *
+ * 体験の順番はサムネイル付きのカードで、つまみかサムネイルをドラッグして並べ替える
+ * (Pointer Events。タブレットの指でも動く)。つまみにフォーカスして上下キーでも動かせる。
  *
  * 作りかけのプランはこのブラウザの localStorage にだけ保存する (他の端末とは共有しない)。
  */
@@ -18,7 +21,7 @@ const catalog = remoteCatalog();
 
 <StarlightPage
   frontmatter={{
-    title: 'リモコン用プランを作る',
+    title: 'プリセット作成',
     description: 'デモの順番と設定を組み、展示用 Android リモコンに QR で渡します。',
     template: 'splash',
     pagefind: false,
@@ -54,7 +57,7 @@ const catalog = remoteCatalog();
 
           <h2 class="hb-plan__h">体験の順番</h2>
           <ol class="hb-plan__steps" data-steps></ol>
-          <p class="hb-plan__empty" data-empty>上のデモを押すと、ここに順番に並びます。</p>
+          <p class="hb-plan__empty" data-empty>上のデモを押すと、ここに順番に並びます。並べ替えはカードをドラッグします。</p>
         </div>
       </div>
 
@@ -237,7 +240,7 @@ const catalog = remoteCatalog();
       const full = current().steps.length >= MAX_STEPS;
       for (const entry of catalog) {
         const media = entry.thumbnail
-          ? el('img', { src: entry.thumbnail, alt: '', loading: 'lazy', decoding: 'async' })
+          ? el('img', { className: 'bare', src: entry.thumbnail, alt: '', loading: 'lazy', decoding: 'async' })
           : el('span', { className: 'hb-plan__ph', textContent: entry.icon });
         const btn = el('button', { type: 'button', className: 'hb-plan__pick', disabled: full }, media, el('span', { className: 'hb-plan__pick-title', textContent: entry.title }));
         btn.style.setProperty('--_hue', String(entry.hue));
@@ -250,27 +253,84 @@ const catalog = remoteCatalog();
       }
     }
 
+    function move(from: number, to: number) {
+      const steps = current().steps;
+      if (to < 0 || to >= steps.length || from === to) return;
+      steps.splice(to, 0, steps.splice(from, 1)[0]);
+      renderAll();
+    }
+
+    // つまみ / サムネイルのドラッグで並べ替える。つかんだカードは指に追従し、
+    // ほかのカードは入る位置を空けるようにずれる。離した位置に挿入する。
+    function startDrag(e: PointerEvent, li: HTMLElement, index: number) {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      const handle = e.currentTarget as HTMLElement;
+      handle.setPointerCapture(e.pointerId);
+      const items = [...stepsEl.children] as HTMLElement[];
+      const rects = items.map((n) => n.getBoundingClientRect());
+      const gap = rects.length > 1 ? rects[1].top - rects[0].bottom : 10;
+      const shift = rects[index].height + gap;
+      const startY = e.clientY;
+      let target = index;
+      li.classList.add('is-dragging');
+      stepsEl.classList.add('is-sorting');
+
+      const onMove = (ev: PointerEvent) => {
+        const dy = ev.clientY - startY;
+        li.style.transform = `translateY(${dy}px)`;
+        const center = rects[index].top + rects[index].height / 2 + dy;
+        target = rects.filter((r, j) => j !== index && r.top + r.height / 2 < center).length;
+        items.forEach((n, j) => {
+          if (j === index) return;
+          let off = 0;
+          if (index < j && j <= target) off = -shift;
+          else if (target <= j && j < index) off = shift;
+          n.style.transform = off ? `translateY(${off}px)` : '';
+        });
+      };
+      const onEnd = () => {
+        handle.removeEventListener('pointermove', onMove);
+        handle.removeEventListener('pointerup', onEnd);
+        handle.removeEventListener('pointercancel', onEnd);
+        items.forEach((n) => (n.style.transform = ''));
+        li.classList.remove('is-dragging');
+        stepsEl.classList.remove('is-sorting');
+        if (target !== index) move(index, target);
+      };
+      handle.addEventListener('pointermove', onMove);
+      handle.addEventListener('pointerup', onEnd);
+      handle.addEventListener('pointercancel', onEnd);
+    }
+
     function renderSteps() {
       const steps = current().steps;
       stepsEl.replaceChildren();
       emptyEl.hidden = steps.length > 0;
       steps.forEach((st, i) => {
         const entry = byId.get(st.demoId)!;
-        const head = el('div', { className: 'hb-plan__step-head' }, el('span', { className: 'hb-plan__step-title', textContent: `${entry.icon} ${entry.title}` }));
-        const tools = el('div', { className: 'hb-plan__step-tools' });
-        const mk = (label: string, aria: string, disabled: boolean, fn: () => void) => {
-          const b = el('button', { type: 'button', textContent: label, disabled });
-          b.setAttribute('aria-label', aria);
-          b.addEventListener('click', () => {
-            fn();
-            renderAll();
-          });
-          tools.append(b);
-        };
-        mk('▲', '上へ', i === 0, () => steps.splice(i - 1, 0, steps.splice(i, 1)[0]));
-        mk('▼', '下へ', i === steps.length - 1, () => steps.splice(i + 1, 0, steps.splice(i, 1)[0]));
-        mk('✕', '削除', false, () => steps.splice(i, 1));
-        head.append(tools);
+
+        const grip = el('button', { type: 'button', className: 'hb-plan__grip', textContent: '⠿' });
+        grip.setAttribute('aria-label', `${i + 1} 番目 ${entry.title}。ドラッグまたは上下キーで並べ替え`);
+        grip.addEventListener('keydown', (e) => {
+          if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+          e.preventDefault();
+          const to = i + (e.key === 'ArrowUp' ? -1 : 1);
+          if (to < 0 || to >= steps.length) return;
+          move(i, to);
+          stepsEl.children[to]?.querySelector<HTMLElement>('.hb-plan__grip')?.focus();
+        });
+        const thumb = entry.thumbnail
+          ? el('img', { className: 'bare hb-plan__step-img', src: entry.thumbnail, alt: '', draggable: false })
+          : el('span', { className: 'hb-plan__step-img hb-plan__ph', textContent: entry.icon });
+        const handle = el('div', { className: 'hb-plan__handle' }, grip, el('span', { className: 'hb-plan__step-no', textContent: String(i + 1) }), thumb);
+
+        const del = el('button', { type: 'button', className: 'hb-plan__del', textContent: '✕' });
+        del.setAttribute('aria-label', `${entry.title} を削除`);
+        del.addEventListener('click', () => {
+          steps.splice(i, 1);
+          renderAll();
+        });
 
         const body = el('div', { className: 'hb-plan__step-body' });
         for (const o of activeOptions(entry, st.options)) {
@@ -292,8 +352,10 @@ const catalog = remoteCatalog();
         });
         body.append(el('label', { className: 'hb-plan__retry' }, retry, el('span', { textContent: '終了後に「もう一度」を出す' })));
 
-        const li = el('li', { className: 'hb-plan__step' }, head, body);
+        const main = el('div', { className: 'hb-plan__step-main' }, el('span', { className: 'hb-plan__step-title', textContent: entry.title }), body);
+        const li = el('li', { className: 'hb-plan__step' }, handle, main, del);
         li.style.setProperty('--_hue', String(entry.hue));
+        handle.addEventListener('pointerdown', (e) => startDrag(e, li, i));
         stepsEl.append(li);
       });
     }
@@ -527,17 +589,20 @@ const catalog = remoteCatalog();
     display: flex;
     flex-direction: column;
     padding: 0;
-    border: 1px solid var(--hb-line);
+    border: 0;
     border-radius: var(--hb-radius);
     background: var(--hb-bg);
+    box-shadow: var(--hb-shadow-sm);
     color: var(--hb-ink);
     font: inherit;
     overflow: hidden;
     cursor: pointer;
     text-align: left;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
   .hb-plan :global(.hb-plan__pick:hover:not(:disabled)) {
-    border-color: oklch(0.62 0.13 var(--_hue));
+    transform: translateY(-2px);
+    box-shadow: var(--hb-shadow-md);
   }
   .hb-plan :global(.hb-plan__pick:disabled) {
     opacity: 0.5;
@@ -548,6 +613,8 @@ const catalog = remoteCatalog();
     display: grid;
     place-items: center;
     width: 100%;
+    max-height: none;
+    margin: 0;
     aspect-ratio: 16 / 9;
     object-fit: cover;
     font-size: 28px;
@@ -570,68 +637,107 @@ const catalog = remoteCatalog();
     display: flex;
     flex-direction: column;
     gap: 10px;
-    counter-reset: step;
   }
   .hb-plan :global(.hb-plan__step) {
     margin: 0;
-    padding: 10px 12px 12px 46px;
-    position: relative;
-    border: 1px solid var(--hb-line);
-    border-left: 4px solid oklch(0.6 0.13 var(--_hue));
+    padding: 10px 10px 10px 6px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: start;
     border-radius: var(--hb-radius);
     background: var(--hb-bg);
-    counter-increment: step;
+    box-shadow: var(--hb-shadow-sm);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
-  .hb-plan :global(.hb-plan__step)::before {
-    content: counter(step);
-    position: absolute;
-    left: 12px;
-    top: 11px;
+  /* ドラッグ中: つかんだカードは指に追従 (transition なし)、ほかはなめらかにずれる */
+  .hb-plan :global(.hb-plan__step.is-dragging) {
+    position: relative;
+    z-index: 2;
+    transition: none;
+    box-shadow: var(--hb-shadow-lg);
+  }
+  .hb-plan :global(.hb-plan__steps.is-sorting) {
+    user-select: none;
+  }
+  .hb-plan :global(.hb-plan__handle) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: grab;
+    touch-action: none;
+  }
+  .hb-plan :global(.hb-plan__step.is-dragging .hb-plan__handle) {
+    cursor: grabbing;
+  }
+  .hb-plan :global(.hb-plan__grip) {
+    width: 26px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--hb-radius-sm);
+    background: transparent;
+    color: var(--hb-ink-faint);
+    font-size: 20px;
+    line-height: 1;
+    cursor: inherit;
+    touch-action: none;
+  }
+  .hb-plan :global(.hb-plan__step-no) {
     width: 24px;
     height: 24px;
     display: grid;
     place-items: center;
+    flex: none;
     border-radius: 999px;
     font-size: 13px;
     font-weight: 700;
     color: #fff;
     background: oklch(0.55 0.13 var(--_hue));
   }
-  .hb-plan :global(.hb-plan__step-head) {
+  .hb-plan :global(.hb-plan__step-img) {
+    display: grid;
+    place-items: center;
+    width: 128px;
+    max-height: none;
+    margin: 0;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--hb-radius-sm);
+    font-size: 26px;
+    pointer-events: none;
+  }
+  .hb-plan :global(.hb-plan__step-main) {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
   }
   .hb-plan :global(.hb-plan__step-title) {
     font-size: 15px;
     font-weight: 700;
     color: var(--hb-ink);
   }
-  .hb-plan :global(.hb-plan__step-tools) {
-    display: flex;
-    gap: 6px;
-    flex: none;
-  }
-  .hb-plan :global(.hb-plan__step-tools button) {
+  .hb-plan :global(.hb-plan__del) {
     width: 40px;
-    height: 36px;
-    border: 1px solid var(--hb-line-strong);
+    height: 40px;
+    border: 0;
     border-radius: var(--hb-radius-sm);
-    background: var(--hb-bg-elev);
-    color: var(--hb-ink-soft);
+    background: transparent;
+    color: var(--hb-ink-mute);
     font: inherit;
+    font-size: 16px;
     cursor: pointer;
   }
-  .hb-plan :global(.hb-plan__step-tools button:disabled) {
-    opacity: 0.35;
-    cursor: default;
+  .hb-plan :global(.hb-plan__del:hover) {
+    background: var(--hb-bg-soft);
+    color: var(--hb-ink);
   }
   .hb-plan :global(.hb-plan__step-body) {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 16px;
-    margin-top: 8px;
+    gap: 4px 16px;
+    margin-top: 4px;
     font-size: 13.5px;
     color: var(--hb-ink-soft);
   }
@@ -819,6 +925,25 @@ const catalog = remoteCatalog();
     min-width: 10em;
   }
 
+  .hb-plan :global(.hb-plan__opt span),
+  .hb-plan :global(.hb-plan__retry span) {
+    white-space: nowrap;
+  }
+  /* 狭い画面: つまみ・番号・サムネイルと削除を上段に、名前と設定を下段に全幅で */
+  @media (max-width: 34rem) {
+    .hb-plan :global(.hb-plan__step) {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+    .hb-plan :global(.hb-plan__step-main) {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      padding-left: 8px;
+    }
+    .hb-plan :global(.hb-plan__step-img) {
+      width: 112px;
+    }
+  }
   @media (max-width: 56rem) {
     .hb-plan__layout {
       grid-template-columns: 1fr;

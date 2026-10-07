@@ -32,7 +32,16 @@ const filterCss = categories
 >
   <style is:inline set:html={filterCss} />
   <div class="hb-sc not-content">
-    <p class="hb-sc__lead">体験したいデモを選んでください。タップすると内容と体験の流れを確認できます。</p>
+    <div class="hb-sc__head">
+      <p class="hb-sc__lead">体験したいデモを選んでください。タップすると内容と体験の流れを確認できます。</p>
+      <a class="hb-sc__preset" href="/demos/showcase/plan/">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        プリセット作成
+      </a>
+    </div>
 
     <div class="hb-sc__filter" role="radiogroup" aria-label="カテゴリで絞り込む">
       <input type="radio" name="sc-cat" id="sc-cat-all" checked />
@@ -52,10 +61,6 @@ const filterCss = categories
     <div class="hb-sc__grid">
       {demos.map((d) => <ShowcaseCard demo={d} />)}
     </div>
-
-    <p class="hb-sc__staff">
-      展示スタッフ向け: <a href="/demos/showcase/plan/">リモコン用プランを作る</a>（選んだデモの順番を QR で展示用リモコンに渡す）
-    </p>
   </div>
 </StarlightPage>
 
@@ -63,8 +68,34 @@ const filterCss = categories
   .hb-sc {
     margin-top: 4px;
   }
-  .hb-sc__lead {
+  .hb-sc__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 20px;
+    flex-wrap: wrap;
     margin: 0 0 18px;
+  }
+  /* 展示用リモコンに渡すプリセットを作るページへ */
+  .hb-sc__preset {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: var(--hb-ink);
+    color: var(--hb-bg-elev) !important;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none !important;
+    white-space: nowrap;
+  }
+  .hb-sc__preset:hover {
+    filter: brightness(1.15);
+  }
+  .hb-sc__lead {
+    margin: 0;
     font-size: 16px;
     line-height: 1.7;
     color: var(--hb-ink-soft);
@@ -125,16 +156,10 @@ const filterCss = categories
     outline-offset: 2px;
   }
 
-  .hb-sc__staff {
-    margin: 0 0 32px;
-    font-size: 13.5px;
-    color: var(--hb-ink-mute);
-  }
-
   .hb-sc__grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
     gap: 20px;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
   }
 </style>
