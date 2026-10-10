@@ -1,0 +1,147 @@
+<!doctype html>
+<!--
+  Hapbeat ナレーション エディタ — Unity / Unreal デモのナレーション台本と声を、ブラウザで編集・試聴する。
+
+  - 正本はローカルの hapbeat-demos のファイル（各デモの Voice/voice-lines.json と tools/tts/voice.json）。
+    File System Access API でフォルダを開いて読み書きする。無いブラウザではファイル選択 + ダウンロード。
+  - 音声はローカルの AivisSpeech Engine（VOICEVOX 互換 API）で合成し、BS.1770 の積分ラウドネスで
+    -20 LUFS に揃えてから Hub のナレーション音量を掛けて鳴らす（hapbeat-contracts specs/demo-session.md
+    「ナレーションの音量」）。ここで OK を出したら hapbeat-demos の tools/tts/generate-all-voices.ps1 で
+    本番の音声を作る。
+  - このディレクトリは devtools-site の public/ に直置きの生 HTML（本 repo native）。純粋関数は
+    loudness.js / voice-files.js / engine.js に分け、tests/narration-editor.test.mjs で検証する。
+-->
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hapbeat ナレーション エディタ</title>
+    <meta
+      name="description"
+      content="Unity / Unreal デモのナレーション台本と声（AivisSpeech）を編集し、実機に近い音量で試聴するツール。"
+    />
+    <link rel="stylesheet" href="./narration.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <h1>Hapbeat ナレーション エディタ</h1>
+        <p class="lead">
+          デモのナレーション台本と声を編集し、実機に近い音量で試聴します。OK が出たら保存して、hapbeat-demos で音声を生成・ビルドします。
+        </p>
+      </header>
+
+      <!-- 接続・フォルダ・Hub 音量 -->
+      <section class="panel" aria-label="接続とフォルダ">
+        <div class="row">
+          <label class="row__label" for="engineUrl">エンジン</label>
+          <input id="engineUrl" class="text text--url" type="url" spellcheck="false" />
+          <button id="probeBtn" class="btn btn--mini" type="button">接続確認</button>
+          <span id="engineStatus" class="pill" data-state="idle">未確認</span>
+        </div>
+        <div class="row">
+          <span class="row__label">フォルダ</span>
+          <button id="openFolderBtn" class="btn btn--secondary btn--folder" type="button">hapbeat-demos フォルダを開く</button>
+          <span id="folderStatus" class="status-text">未選択</span>
+        </div>
+        <div class="row">
+          <label class="row__label" for="hubVolume">Hub 音量</label>
+          <input id="hubVolume" type="range" min="0" max="100" step="10" value="50" />
+          <span id="hubVolumeValue" class="num-readout">50%</span>
+        </div>
+        <p class="hint">
+          試聴は合成した音声を -20 LUFS（ITU-R BS.1770）に揃え、Hub のナレーション音量（既定 50%）を掛けて鳴らします。デモと同じ式です（ゲイン = 音量 / 100）。
+        </p>
+        <div class="setup">
+          <p class="setup__title">エンジンの準備（AivisSpeech Engine）</p>
+          <p class="hint" id="setupLead"></p>
+          <div class="cmd">
+            <code id="startCommand" class="cmd__code"></code>
+            <button class="btn btn--mini btn--copy" type="button" data-copy-target="startCommand">コピー</button>
+          </div>
+          <ul class="hint setup__notes">
+            <li>PowerShell で実行し、試聴中は起動したままにします。インストール手順は hapbeat-demos の <code>tools/tts/README.md</code>。</li>
+            <li>Chrome / Edge では初回に「ローカル ネットワーク上のデバイスへのアクセス」の許可を求められることがあります。許可してから「接続確認」を押してください。</li>
+            <li>「CORS で拒否」はエンジンが動いているが、このページのアドレスを許可していない状態です。上のコマンドで起動し直してください。</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 声の選択 -->
+      <section class="panel" aria-label="声">
+        <div class="panel__head">
+          <h2 class="panel__title">声（共有: tools/tts/voice.json）</h2>
+          <span id="voiceDirty" class="dirty-mark" data-dirty="false">未保存</span>
+        </div>
+        <div class="row">
+          <label class="row__label" for="speakerSelect">話者</label>
+          <select id="speakerSelect"></select>
+          <label class="row__label row__label--inline" for="styleSelect">スタイル</label>
+          <select id="styleSelect"></select>
+        </div>
+        <div class="row">
+          <label class="row__label" for="speedRange">話速</label>
+          <input id="speedRange" type="range" min="0.5" max="2" step="0.05" value="1" />
+          <span id="speedValue" class="num-readout">1.00</span>
+        </div>
+        <div class="row">
+          <label class="row__label" for="volumeRange">volume</label>
+          <input id="volumeRange" type="range" min="0" max="2" step="0.05" value="0.85" />
+          <span id="volumeValue" class="num-readout">0.85</span>
+        </div>
+        <p class="hint">
+          volume はエンジンの volumeScale です。生成時と試聴時はその後で -20 LUFS に揃えるので、聞こえる大きさはほぼ変わりません（1 未満でピークの余裕が増えます）。
+        </p>
+        <div class="row">
+          <button id="saveVoiceBtn" class="btn btn--primary btn--save-voice" type="button">共有の声（voice.json）として保存</button>
+          <span id="voiceStatus" class="status-text">voice.json 未取得</span>
+        </div>
+        <p class="hint">
+          各デモの voice-lines.json にある <code>voice</code> は、この voice.json で上書きされます（行ごとに声を指定した行だけはその指定が優先）。
+        </p>
+        <div class="row">
+          <label class="row__label" for="sampleText">試聴</label>
+          <input id="sampleText" class="text text--grow" type="text" />
+          <button id="samplePlayBtn" class="btn btn--icon" type="button" aria-label="この文を試聴">▶</button>
+          <button id="stopBtn" class="btn btn--icon" type="button" aria-label="再生を止める">■</button>
+        </div>
+        <p id="sampleInfo" class="measure">&nbsp;</p>
+      </section>
+
+      <!-- デモごとの台本 -->
+      <section class="panel" aria-label="台本">
+        <div class="panel__head">
+          <h2 class="panel__title">台本</h2>
+        </div>
+        <div id="demoTabs" class="tabs" role="tablist"></div>
+        <div id="demoPanel" role="tabpanel"></div>
+      </section>
+
+      <!-- 保存と次の手順 -->
+      <section class="panel" aria-label="保存と次の手順">
+        <div class="panel__head">
+          <h2 class="panel__title">保存と次の手順</h2>
+        </div>
+        <div class="row">
+          <button id="saveAllBtn" class="btn btn--primary btn--save-all" type="button">すべて保存</button>
+          <span id="dirtySummary" class="status-text">未保存の変更はありません</span>
+        </div>
+        <p id="saveStatus" class="status-line">&nbsp;</p>
+        <ol class="steps">
+          <li>
+            hapbeat-demos フォルダで音声を生成します（変わった行だけ合成し直します）。Unreal のデモ（T-Rex Encounter / Safety Mill VR）は、先にエディタを閉じてください。
+            <div class="cmd">
+              <code id="generateCommand" class="cmd__code">powershell -File tools/tts/generate-all-voices.ps1</code>
+              <button class="btn btn--mini btn--copy" type="button" data-copy-target="generateCommand">コピー</button>
+            </div>
+            <span class="hint">一部のデモだけなら <code>-Only trex,handdemo</code> のように指定します。voice.json を変えたときは全デモを生成し直します。</span>
+          </li>
+          <li>
+            各デモをビルドします。Unreal は上のコマンドが取り込みまで行います。Unity は WAV が Assets 下に入るので、次にエディタを開いたとき・ビルドしたときに取り込まれます。
+          </li>
+        </ol>
+      </section>
+    </main>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

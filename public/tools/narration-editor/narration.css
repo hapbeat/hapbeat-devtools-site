@@ -1,0 +1,527 @@
+/* Hapbeat ナレーション エディタ — スタンドアロンページ用スタイル（Web メトロノームと同じトークン）。
+   ライト/ダーク両対応。状態で文言が変わるもの（接続状態・ボタン・未保存表示・行ごとの測定値）は
+   幅か高さを先に確保し、表示の切り替えで周りが動かないようにする。 */
+
+:root {
+  color-scheme: light dark;
+  --bg: #f6f5f8;
+  --bg-elev: #ffffff;
+  --ink: #1c1a22;
+  --ink-soft: #55505f;
+  --ink-mute: #8a8494;
+  --line: #e2dfe7;
+  --accent: #7b3fe4;
+  --accent-ink: #ffffff;
+  --accent-soft: #efe7fd;
+  --warn: #b3390a;
+  --warn-soft: #fdece2;
+  --ok: #1a7a4c;
+  --ok-soft: #e3f6ec;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(20, 16, 30, 0.06), 0 8px 24px -12px rgba(20, 16, 30, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #16141b;
+    --bg-elev: #211e29;
+    --ink: #f1eef7;
+    --ink-soft: #cabfda;
+    --ink-mute: #948da3;
+    --line: #35313f;
+    --accent: #a883f0;
+    --accent-ink: #1c1428;
+    --accent-soft: #322a45;
+    --warn: #ffb08a;
+    --warn-soft: #402417;
+    --ok: #7fe3ae;
+    --ok-soft: #16352a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 28px -12px rgba(0, 0, 0, 0.5);
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #16141b;
+  --bg-elev: #211e29;
+  --ink: #f1eef7;
+  --ink-soft: #cabfda;
+  --ink-mute: #948da3;
+  --line: #35313f;
+  --accent: #a883f0;
+  --accent-ink: #1c1428;
+  --accent-soft: #322a45;
+  --warn: #ffb08a;
+  --warn-soft: #402417;
+  --ok: #7fe3ae;
+  --ok-soft: #16352a;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 28px -12px rgba(0, 0, 0, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+  line-height: 1.5;
+}
+
+code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.92em;
+}
+
+.app {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 28px 16px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.app__header h1 {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 700;
+}
+.lead {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+}
+
+.panel {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.panel__title {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink-mute);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.row__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  min-width: 76px;
+  flex: none;
+}
+.row__label--inline {
+  min-width: 0;
+}
+
+input[type='range'] {
+  flex: 1;
+  min-width: 100px;
+  accent-color: var(--accent);
+}
+
+.text,
+select {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+}
+select {
+  min-width: 160px;
+  max-width: 100%;
+}
+.text--url {
+  width: 240px;
+  max-width: 100%;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+.text--grow {
+  flex: 1;
+  min-width: 160px;
+}
+
+.num-readout {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12.5px;
+  color: var(--ink-mute);
+  min-width: 48px;
+  text-align: right;
+}
+
+.hint {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--ink-mute);
+}
+
+.status-text {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  flex: 1;
+  min-width: 0;
+}
+.status-text[data-dirty='true'] {
+  color: var(--warn);
+  font-weight: 600;
+}
+
+/* 接続状態: 最長の「起動していない」が収まる固定幅 */
+.pill {
+  display: inline-block;
+  width: 9.5em;
+  text-align: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  color: var(--ink-mute);
+  background: var(--bg);
+  flex: none;
+}
+.pill[data-state='connected'] {
+  color: var(--ok);
+  background: var(--ok-soft);
+  border-color: var(--ok);
+}
+.pill[data-state='cors'],
+.pill[data-state='down'],
+.pill[data-state='error'] {
+  color: var(--warn);
+  background: var(--warn-soft);
+  border-color: var(--warn);
+}
+
+.dirty-mark {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--warn);
+}
+.dirty-mark[data-dirty='false'] {
+  visibility: hidden;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.btn--secondary {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn--mini {
+  padding: 4px 10px;
+  font-size: 12px;
+  flex: none;
+}
+.btn--icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 14px;
+  flex: none;
+}
+.btn--small {
+  width: 28px;
+  height: 28px;
+  font-size: 13px;
+}
+.btn--danger:hover:not(:disabled) {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+/* 文言が変わるボタンは最長の文言で幅を固定する */
+.btn--copy {
+  width: 6.5em;
+}
+.btn--folder {
+  min-width: 15em;
+}
+
+.setup {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.setup__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+.setup__notes {
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cmd {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 4px 0;
+}
+.cmd__code {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+/* 測定値・保存結果の行: 文言が出ても高さが変わらないよう 1 行分を確保 */
+.measure,
+.status-line {
+  margin: 0;
+  min-height: 1.5em;
+  font-size: 12px;
+  color: var(--ink-mute);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+.status-line {
+  font-family: inherit;
+  font-size: 12.5px;
+}
+.status-line[data-kind='ok'] {
+  color: var(--ok);
+}
+.status-line[data-kind='error'] {
+  color: var(--warn);
+}
+
+/* タブ */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+.tab {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink-soft);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tab[aria-selected='true'] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.tab__engine {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink-mute);
+}
+.tab__dirty {
+  color: var(--warn);
+  font-size: 10px;
+  width: 1em;
+}
+.tab__dirty[data-dirty='false'] {
+  visibility: hidden;
+}
+
+.demo-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.demo-path {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+.empty {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--ink-mute);
+}
+
+/* id の注意: 警告の有無で色だけ変え、高さは警告文が収まる 3 行分を確保 */
+.notice {
+  margin: 0;
+  min-height: calc(4.5em + 14px);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--ink-mute);
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+.notice[data-active='true'] {
+  color: var(--warn);
+  background: var(--warn-soft);
+  border-color: var(--warn);
+}
+
+/* 台本の行 */
+.lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.line {
+  display: grid;
+  grid-template-columns: 2em 11em minmax(0, 1fr) auto;
+  grid-template-areas: 'num id text controls' '. meta meta meta';
+  gap: 4px 8px;
+  align-items: start;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+}
+.line[data-playing='true'] {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.line__num {
+  grid-area: num;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--ink-mute);
+  padding-top: 7px;
+  text-align: right;
+}
+.line__id {
+  grid-area: id;
+  width: 100%;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+}
+.line__text {
+  grid-area: text;
+  width: 100%;
+  resize: vertical;
+  min-height: 3.4em;
+  font-size: 13.5px;
+  background: var(--bg-elev);
+}
+.line__controls {
+  grid-area: controls;
+  display: flex;
+  gap: 4px;
+}
+.line__meta {
+  grid-area: meta;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 1.5em;
+  font-size: 11.5px;
+}
+.line__problem {
+  color: var(--ink-mute);
+}
+.line__problem[data-kind='error'] {
+  color: var(--warn);
+  font-weight: 600;
+}
+.line__measure {
+  color: var(--ink-mute);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  text-align: right;
+}
+
+.steps {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .line {
+    grid-template-columns: 2em minmax(0, 1fr);
+    grid-template-areas: 'num id' '. text' '. controls' '. meta';
+  }
+  .line__meta {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .line__measure {
+    text-align: left;
+  }
+}

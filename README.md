@@ -17,7 +17,7 @@
 - `/changelog/` — リリースノート集約
 - `/showcase/`, `/faq/` — その他ページ
 - `/demos/arcade/` — hapbeat-js-sdk の examples/games 取り込み（Hapbeat Arcade）
-- `/tools/` — ブラウザで動く静的ツール（本 repo 直書き: `/tools/metronome/`・`/tools/espnow-flasher/`、modkit のミラー: `/tools/settings-editor/`）
+- `/tools/` — ブラウザで動く静的ツール（本 repo 直書き: `/tools/metronome/`・`/tools/espnow-flasher/`・`/tools/narration-editor/`、modkit のミラー: `/tools/settings-editor/`）
 - `/studio/` — **別 repo（hapbeat-studio）のデプロイ対象**。ここでは配信しない
   （`studio.hapbeat.com` へ転送、cutover 済）
 
