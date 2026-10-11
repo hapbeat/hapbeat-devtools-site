@@ -54,7 +54,7 @@ export interface ShowcaseDemo {
    */
   hubOptions?: HubOption[];
   title: string;
-  /** タイトルの下に小さく出す日本語名・別名 */
+  /** タイトルの横に小さく出す日本語名・内容の補足。英名をカタカナにしただけの読みは付けない */
   subtitle?: string;
   categories: ShowcaseCategory[];
   /** プレースホルダの絵文字 */
@@ -87,7 +87,6 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     id: 'trex-encounter',
     hubDemoId: 'trex-encounter',
     title: 'T-Rex Encounter',
-    subtitle: 'T-Rex エンカウンター',
     categories: ['vr-hands', 'game'],
     icon: '🦖',
     hue: 145,
@@ -155,7 +154,6 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
       { id: 'mode', label: 'モード', default: 'match', values: [{ value: 'match', label: '試合' }, { value: 'free', label: 'フリープレイ' }] },
     ],
     title: 'Energy Duel',
-    subtitle: 'エナジーデュエル',
     categories: ['vr-hands', 'game'],
     icon: '⚡',
     hue: 290,
@@ -188,7 +186,6 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     hubDemoId: 'boxing',
     hubOptions: [{ id: 'round', label: 'ラウンド', default: '90', values: [{ value: '60', label: '60秒' }, { value: '90', label: '90秒' }] }],
     title: 'Boxing',
-    subtitle: 'ボクシング',
     categories: ['vr-hands', 'game'],
     icon: '🥊',
     hue: 25,
