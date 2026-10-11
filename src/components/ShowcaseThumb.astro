@@ -16,6 +16,11 @@
  * data-astro-reload で通常の読み込みにしている。動きを減らす設定
  * (prefers-reduced-motion) の端末では自動再生せず、操作バーで再生してもらう。
  *
+ * シークバー: 配信先 (Cloudflare Workers の静的アセット) が Range リクエストに 206 を
+ * 返さず常に全体を 200 で返すため、URL を直接 src にするとブラウザがシークできない。
+ * PV は数 MB なので、全体を fetch して Blob URL で再生する (Blob はどこへでもシークできる)。
+ * それまではポスター (thumbnail) を表示する。
+ *
  * Props:
  *   - demo: ShowcaseDemo
  *   - size: 'card' | 'hero'
@@ -34,7 +39,7 @@ const showVideo = demo.video && (size === 'hero' || !demo.thumbnail);
 <div class="hb-sc-thumb" data-size={size} style={`--_hue: ${demo.hue}`}>
   {
     showVideo ? (
-      <video src={demo.video} poster={demo.thumbnail} muted autoplay loop playsinline controls preload="metadata" aria-label={`${demo.title} の紹介動画`} data-sc-autoplay />
+      <video data-src={demo.video} poster={demo.thumbnail} muted autoplay loop playsinline controls preload="none" aria-label={`${demo.title} の紹介動画`} data-sc-autoplay />
     ) : demo.thumbnail ? (
       <img class="bare" src={demo.thumbnail} alt={demo.title} loading="lazy" decoding="async" />
     ) : (
@@ -49,17 +54,31 @@ const showVideo = demo.video && (size === 'hero' || !demo.thumbnail);
 <script>
   function startShowcaseVideos() {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    document.querySelectorAll<HTMLVideoElement>('video[data-sc-autoplay]').forEach((v) => {
+    document.querySelectorAll<HTMLVideoElement>('video[data-sc-autoplay]').forEach(async (v) => {
       v.muted = true;
-      if (reduce) {
-        v.autoplay = false;
-        v.pause();
-      } else if (v.paused) {
-        v.play().catch(() => {});
+      if (reduce) v.autoplay = false;
+      const url = v.dataset.src;
+      if (url && !v.src) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) throw new Error(String(res.status));
+          v.src = URL.createObjectURL(await res.blob());
+        } catch {
+          v.src = url; // 取得に失敗したら直接再生 (シークは効かない)
+        }
       }
+      if (!reduce && v.paused) v.play().catch(() => {});
     });
   }
   document.addEventListener('astro:page-load', startShowcaseVideos);
+  // 背景タブでは Chrome が無音動画の再生を止める (省電力)。まだ一度も再生していない
+  // 動画は、タブが表示されたときに再生を始める。
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    document.querySelectorAll<HTMLVideoElement>('video[data-sc-autoplay]').forEach((v) => {
+      if (v.src && v.paused && v.currentTime === 0) v.play().catch(() => {});
+    });
+  });
 </script>
 
 <style>

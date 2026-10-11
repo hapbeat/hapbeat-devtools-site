@@ -67,7 +67,7 @@ export interface ShowcaseDemo {
   description: string;
   /** 体験の流れ (順番に) */
   flow: string[];
-  /** 触覚の見どころ */
+  /** 触覚体験 (どんな触覚を感じられるか。詳細ページ上段に出す) */
   haptics: string[];
   /** 体験に使うもの・人数など (ラベル → 値) */
   specs: { label: string; value: string }[];
