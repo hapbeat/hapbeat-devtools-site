@@ -12,6 +12,7 @@
 //       "start": "2026-11-12T19:00:00+09:00",      // 開始 (タイムゾーン付き ISO 8601)
 //       "end": "2026-11-12T21:00:00+09:00",        // 任意。終了
 //       "place": "LODGE（東京・紀尾井町）",          // 場所 (オンラインなら「オンライン」)
+//       "map": "https://www.google.com/maps/...",  // 任意。場所の Google マップ (https)
 //       "url": "https://...",                      // イベントページ (https)
 //       "note": "Hapbeat のデモを展示します"          // 任意。一言 (料金は書かない)
 //     }
@@ -35,7 +36,7 @@ test('events are well formed', () => {
   const ids = new Set();
   for (const e of feed.events) {
     const at = `event ${e.id ?? '(no id)'}`;
-    const extra = Object.keys(e).filter((k) => !['id', 'title', 'start', 'end', 'place', 'url', 'note'].includes(k));
+    const extra = Object.keys(e).filter((k) => !['id', 'title', 'start', 'end', 'place', 'map', 'url', 'note'].includes(k));
     assert.deepEqual(extra, [], `${at}: unknown fields`);
     assert.match(e.id ?? '', /^[a-z0-9][a-z0-9-]{0,63}$/, `${at}: id`);
     assert.ok(!ids.has(e.id), `${at}: duplicate id`);
@@ -48,6 +49,7 @@ test('events are well formed', () => {
       assert.ok(Date.parse(e.end) >= Date.parse(e.start), `${at}: end before start`);
     }
     assert.match(e.url ?? '', /^https:\/\/\S+$/, `${at}: url must be https`);
+    if (e.map !== undefined) assert.match(e.map, /^https:\/\/(www\.)?google\.[a-z.]+\/maps|^https:\/\/maps\.app\.goo\.gl\//, `${at}: map must be a Google Maps https URL`);
     if (e.note !== undefined) assert.ok(typeof e.note === 'string' && e.note.length <= 80, `${at}: note`);
   }
 });
