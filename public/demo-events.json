@@ -1,14 +1,16 @@
 {
   "version": 1,
-  "updated": "2026-10-11",
+  "updated": "2026-10-12",
   "events": [
     {
       "id": "lodge-xr-talk-44",
       "title": "LODGE XR Talk Vol.44",
+      "registration": "required",
+      "fee": "free",
       "sessions": [
         {
           "start": "2026-10-20T19:00:00+09:00",
-          "end": "2026-10-20T20:00:00+09:00"
+          "end": "2026-10-20T21:00:00+09:00"
         }
       ],
       "place": "LODGE（東京ガーデンテラス紀尾井町 17F）",
@@ -33,6 +35,8 @@
     {
       "id": "xr-kaigi-2026",
       "title": "XR Kaigi 2026",
+      "registration": "required",
+      "fee": "paid",
       "sessions": [
         {
           "start": "2026-12-01T10:00:00+09:00",

@@ -9,6 +9,8 @@
 //     {
 //       "id": "lodge-xr-talk-2026-11",            // 英小文字・数字・-、重複なし
 //       "title": "LODGE XR Talk Vol.45",           // イベント名
+//       "registration": "required",                // 任意。事前登録 "required"（要登録）| "none"（登録不要）
+//       "fee": "free",                             // 任意。参加費 "free"（無料）| "paid"（有料）
 //       "sessions": [                              // 体験できる時間帯 (1 件以上、時刻順)。日ごとに時間が違う複数日は日ごとに 1 つ
 //         { "start": "2026-11-12T19:00:00+09:00",  // 開始 (タイムゾーン付き ISO 8601、または日付だけ YYYY-MM-DD)
 //           "end": "2026-11-12T20:00:00+09:00" }   // 任意。終了 (start と同じ形式。時間の決まっていない複数日は日付だけで)
@@ -38,12 +40,14 @@ test('events are well formed', () => {
   const ids = new Set();
   for (const e of feed.events) {
     const at = `event ${e.id ?? '(no id)'}`;
-    const extra = Object.keys(e).filter((k) => !['id', 'title', 'sessions', 'place', 'area', 'map', 'url'].includes(k));
+    const extra = Object.keys(e).filter((k) => !['id', 'title', 'registration', 'fee', 'sessions', 'place', 'area', 'map', 'url'].includes(k));
     assert.deepEqual(extra, [], `${at}: unknown fields`);
     assert.match(e.id ?? '', /^[a-z0-9][a-z0-9-]{0,63}$/, `${at}: id`);
     assert.ok(!ids.has(e.id), `${at}: duplicate id`);
     ids.add(e.id);
     for (const k of ['title', 'place']) assert.ok(typeof e[k] === 'string' && e[k].trim(), `${at}: ${k}`);
+    if (e.registration !== undefined) assert.ok(['required', 'none'].includes(e.registration), `${at}: registration must be "required" or "none"`);
+    if (e.fee !== undefined) assert.ok(['free', 'paid'].includes(e.fee), `${at}: fee must be "free" or "paid"`);
     if (e.area !== undefined) assert.ok(typeof e.area === 'string' && e.area.trim(), `${at}: area`);
     assert.ok(Array.isArray(e.sessions) && e.sessions.length > 0, `${at}: sessions must be a non-empty array`);
     let prev = -Infinity;
