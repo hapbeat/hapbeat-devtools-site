@@ -5,36 +5,46 @@
     {
       "id": "lodge-xr-talk-44",
       "title": "LODGE XR Talk Vol.44",
-      "start": "2026-10-20T19:00:00+09:00",
-      "end": "2026-10-20T20:00:00+09:00",
+      "sessions": [
+        {
+          "start": "2026-10-20T19:00:00+09:00",
+          "end": "2026-10-20T20:00:00+09:00"
+        }
+      ],
       "place": "LODGE（東京ガーデンテラス紀尾井町 17F）",
+      "area": "東京都千代田区",
       "map": "https://www.google.com/maps/search/?api=1&query=%E6%9D%B1%E4%BA%AC%E3%82%AC%E3%83%BC%E3%83%87%E3%83%B3%E3%83%86%E3%83%A9%E3%82%B9%E7%B4%80%E5%B0%BE%E4%BA%95%E7%94%BA%20LODGE",
       "url": "https://lodge-xr-talk-44.peatix.com"
     },
     {
       "id": "runs-into-kk-2026",
       "title": "RUNS:INTO KK（東京2025世界陸上・デフリンピック 1周年記念イベント）",
-      "start": "2026-11-07T10:00:00+09:00",
-      "end": "2026-11-07T18:00:00+09:00",
-      "place": "KK線（旧東京高速道路、銀座一丁目駅付近）",
-      "map": "https://www.google.com/maps/search/?api=1&query=KK%E7%B7%9A%20%E6%97%A7%E6%9D%B1%E4%BA%AC%E9%AB%98%E9%80%9F%E9%81%93%E8%B7%AF%20%E9%8A%80%E5%BA%A7%E4%B8%80%E4%B8%81%E7%9B%AE",
+      "sessions": [
+        {
+          "start": "2026-11-07T10:00:00+09:00",
+          "end": "2026-11-07T18:00:00+09:00"
+        }
+      ],
+      "place": "KK線（旧東京高速道路）西銀座入退場口",
+      "area": "東京都中央区",
+      "map": "https://www.google.com/maps/d/u/0/viewer?mid=1vpkWnEGXJBMf1BpKj8limL_cBiztrpY&ll=35.675340200000036%2C139.76737009999997&z=17",
       "url": "https://runsintokk.com/"
     },
     {
-      "id": "xr-kaigi-2026-day1",
-      "title": "XR Kaigi 2026（1日目）",
-      "start": "2026-12-01T10:00:00+09:00",
-      "end": "2026-12-01T18:00:00+09:00",
+      "id": "xr-kaigi-2026",
+      "title": "XR Kaigi 2026",
+      "sessions": [
+        {
+          "start": "2026-12-01T10:00:00+09:00",
+          "end": "2026-12-01T18:00:00+09:00"
+        },
+        {
+          "start": "2026-12-02T10:00:00+09:00",
+          "end": "2026-12-02T17:00:00+09:00"
+        }
+      ],
       "place": "東京ポートシティ竹芝",
-      "map": "https://www.google.com/maps/search/?api=1&query=%E6%9D%B1%E4%BA%AC%E3%83%9D%E3%83%BC%E3%83%88%E3%82%B7%E3%83%86%E3%82%A3%E7%AB%B9%E8%8A%9D",
-      "url": "https://xrkaigi.com/"
-    },
-    {
-      "id": "xr-kaigi-2026-day2",
-      "title": "XR Kaigi 2026（2日目）",
-      "start": "2026-12-02T10:00:00+09:00",
-      "end": "2026-12-02T17:00:00+09:00",
-      "place": "東京ポートシティ竹芝",
+      "area": "東京都港区",
       "map": "https://www.google.com/maps/search/?api=1&query=%E6%9D%B1%E4%BA%AC%E3%83%9D%E3%83%BC%E3%83%88%E3%82%B7%E3%83%86%E3%82%A3%E7%AB%B9%E8%8A%9D",
       "url": "https://xrkaigi.com/"
     }
