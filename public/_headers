@@ -10,3 +10,10 @@
 /releases.json
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=1800
+
+# Hapbeat を体験できるイベントの予定 (hapbeat.com のトップが読む)。
+# 手で編集する静的 JSON。形式は tests/demo-events.test.mjs の検査と
+# workspace dev-notes/devtools-site/demo-events-feed.md。
+/demo-events.json
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=600
