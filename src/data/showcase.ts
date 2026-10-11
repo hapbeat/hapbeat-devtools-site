@@ -9,10 +9,10 @@
  *
  * 素材 (public/showcase/<id>/ に置き、サイトルートからのパスで指定する):
  *   - thumbnail: '/showcase/<id>/thumb.webp' — 一覧カードの画像。16:9 (1280x720)。
- *   - video: '/showcase/<id>/pv.mp4' — 詳細ページ上部で無音ループ再生する
- *     15 秒前後の PV (H.264、音声トラックなし)。thumbnail をポスターに使う。
- *   - screenshots: [{ src: '/showcase/<id>/shot-1.webp', caption: '…' }, …] —
- *     詳細ページのギャラリー (クリックで拡大)。
+ *   - video: '/showcase/<id>/pv.mp4' — 詳細ページ上部でループ再生する 15 秒前後の PV
+ *     (H.264 + AAC。音を消した状態で自動再生し、操作バーで音を出せる)。thumbnail をポスターに使う。
+ *   - flow[].shot: '/showcase/<id>/shot-N.webp' — 体験の流れの各ステップのスクショ (1 ステップ 1 枚、
+ *     クリックで拡大)。alt に短い説明。
  *   - 素材が無いデモは、タイトル入りの単色プレースホルダを表示する。
  *   - public/demos/ は fetch-demos が毎回作り直すので、素材はそこに置かない。
  *   - 撮り直しの手順とスクリプトは workspace の
@@ -65,8 +65,11 @@ export interface ShowcaseDemo {
   tagline: string;
   /** 詳細ページの導入文 */
   description: string;
-  /** 体験の流れ (順番に) */
-  flow: string[];
+  /**
+   * 体験の流れ (順番に)。1 ステップにスクショ 1 枚 (shot、無くてもよい)。
+   * 詳細ページでは番号・スクショ・文を 1 枚のカードにまとめて並べる。
+   */
+  flow: { text: string; shot?: string; alt?: string }[];
   /** 触覚体験 (どんな触覚を感じられるか。詳細ページ上段に出す) */
   haptics: string[];
   /** 体験に使うもの・人数など (ラベル → 値) */
@@ -75,8 +78,6 @@ export interface ShowcaseDemo {
   meta: string[];
   thumbnail?: string;
   video?: string;
-  /** step: そのスクショが対応する体験の流れ (flow) の番号 (1 始まり)。詳細ページで番号を揃えて並べる */
-  screenshots?: { src: string; caption: string; step?: number }[];
   /** false にすると一覧・詳細ページとも生成しない (展示会ごとに一時的に外す等) */
   published?: boolean;
 }
@@ -94,11 +95,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     description:
       'ジャングルの空き地で、大きな T-Rex と出会う体験です。咆哮の地響き、頭をなでる感触を Hapbeat の振動で体に返します。コントローラは使わず、ハンドトラッキングの素手で操作します。',
     flow: [
-      '人差し指を立てて合図すると始まる',
-      'T-Rex が近づき、目の前で咆哮する',
-      '台に置かれた骨付き肉をつかんで差し出すと、T-Rex が食べに来る',
-      '食べ終わって下げた頭を、手でなでる',
-      'T-Rex が向きを変えて去っていく',
+      { text: '人差し指を立てて合図すると、T-Rex がジャングルの空き地に現れて近づいてくる', shot: '/showcase/trex-encounter/shot-1.webp', alt: 'ジャングルの空き地を近づくT-Rex' },
+      { text: '目の前で大きく口を開けて咆哮する', shot: '/showcase/trex-encounter/shot-2.webp', alt: '目の前で大きく口を開けて咆哮' },
+      { text: 'ハッチから肉のトレイがせり上がる。骨をつかんで差し出す', shot: '/showcase/trex-encounter/shot-3.webp', alt: 'ハッチから肉のトレイがせり上がる' },
+      { text: 'T-Rex が近づき、差し出した肉にかぶりつく', shot: '/showcase/trex-encounter/shot-4.webp', alt: '手に持った肉にかぶりつく' },
+      { text: '食べ終わって下げた頭を手でなでると、満足して去っていく', shot: '/showcase/trex-encounter/shot-5.webp', alt: 'なでた後の下げた頭と目が合う' },
     ],
     haptics: [
       '咆哮の振動を首まわりに。恐竜のいる方向に左右の強さを寄せる',
@@ -112,13 +113,6 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     meta: ['VR', '素手で操作', '1 人'],
     thumbnail: '/showcase/trex-encounter/thumb.webp',
     video: '/showcase/trex-encounter/pv.mp4',
-    screenshots: [
-      { src: '/showcase/trex-encounter/shot-1.webp', caption: 'ジャングルの空き地を近づくT-Rex', step: 2 },
-      { src: '/showcase/trex-encounter/shot-2.webp', caption: '目の前で大きく口を開けて咆哮', step: 2 },
-      { src: '/showcase/trex-encounter/shot-3.webp', caption: 'ハッチから肉のトレイがせり上がる', step: 3 },
-      { src: '/showcase/trex-encounter/shot-4.webp', caption: '手に持った肉にかぶりつく', step: 3 },
-      { src: '/showcase/trex-encounter/shot-5.webp', caption: 'なでた後の下げた頭と目が合う', step: 4 },
-    ],
   },
   {
     id: 'ripple',
@@ -131,9 +125,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     description:
       '暗い水面に生まれた波紋が広がり、波面が人に届いた瞬間にその人の Hapbeat が振動します。カメラで一人ひとりの位置を捉えて画面に表示し、見えた波と感じる振動が同じタイミングで重なります。一人ずつ順に届く場面と、全員に同時に届く場面を、音楽つき約 90 秒のパフォーマンスとして見せます。映像と複数台の Hapbeat を Python SDK から同期させており、映像演出に触覚を組み込む例にもなります。',
     flow: [
-      '体験者が Hapbeat を着けて画面の前に並ぶ（カメラが位置を捉え、画面に丸で表示）',
-      '画面のあちこちから波紋が生まれ、届いた人から順に振動する',
-      '音楽に合わせて、一人ずつ・全員同時の波が続く（約 90 秒）',
+      { text: '雫が落ちて波紋が広がり、届いた人から順に振動する', shot: '/showcase/ripple/shot-1.webp', alt: '雫の波面が人を通り抜ける瞬間' },
+      { text: '同心円の輪が次々に届き、輪が通るたびに振動する', shot: '/showcase/ripple/shot-2.webp', alt: '同心円の輪が3人に届く' },
+      { text: '大きなうねりがゆっくり体を通り抜ける', shot: '/showcase/ripple/shot-3.webp', alt: '深海背景で大きな揺らぎが通過' },
+      { text: '平面波が画面を横切り、端の人から順に届く', shot: '/showcase/ripple/shot-4.webp', alt: '平面波が画面を横切り頭に触れる' },
+      { text: 'フィナーレで全員に同時に届く', shot: '/showcase/ripple/shot-5.webp', alt: 'ビッグバンで全員に同時に届く' },
     ],
     haptics: [
       '波が丸の縁を横切る瞬間に振動。かすかな波はかすかに、大きなうねりは長く',
@@ -148,13 +144,6 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     meta: ['ヘッドセットなし', '2〜4 人同時', '約 90 秒'],
     thumbnail: '/showcase/ripple/thumb.webp',
     video: '/showcase/ripple/pv.mp4',
-    screenshots: [
-      { src: '/showcase/ripple/shot-1.webp', caption: '雫の波面が人を通り抜ける瞬間', step: 2 },
-      { src: '/showcase/ripple/shot-2.webp', caption: '同心円の輪が3人に届く', step: 2 },
-      { src: '/showcase/ripple/shot-3.webp', caption: '深海背景で大きな揺らぎが通過', step: 3 },
-      { src: '/showcase/ripple/shot-4.webp', caption: '平面波が画面を横切り頭に触れる', step: 3 },
-      { src: '/showcase/ripple/shot-5.webp', caption: 'ビッグバンで全員に同時に届く', step: 3 },
-    ],
   },
   {
     id: 'energy-duel',
@@ -174,9 +163,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     description:
       'ハンドトラッキングで遊ぶ 1 対 1 の撃ち合いです。何も持たない手からエネルギー弾を放ち、相手の弾は腕のシールドで受けるか、体をかわして避けます。溜め・発射・ガード・ガード割れ・被弾を、それぞれ違う触覚で返すのが主役です。',
     flow: [
-      'チュートリアル: 撃つ → 最大まで溜めて当てる → ガード → 相手の弾を撃ち消す',
-      '30 秒の試合で AI の相手と撃ち合う',
-      '結果のあと、もう一試合またはフリープレイ',
+      { text: '撃つ: 手を握ってから突き出して開くと、エネルギー弾が飛ぶ', shot: '/showcase/energy-duel/shot-2.webp', alt: 'パーに開いてLv3弾を発射' },
+      { text: '溜める: 長く握るほど弾が大きく強くなる（3 段階）', shot: '/showcase/energy-duel/shot-1.webp', alt: '拳にLv2のエネルギー球とリング' },
+      { text: 'ガード: 腕を横に構えるとシールド。3 発受けると割れるので、反対の腕に持ち替える', shot: '/showcase/energy-duel/shot-3.webp', alt: '前腕の八角形シールドが割れる瞬間' },
+      { text: '打ち消し: 飛んでくる相手の弾に撃ち当てて消す', shot: '/showcase/energy-duel/shot-4.webp', alt: '自分の弾と相手の弾がぶつかる' },
+      { text: '試合: 30 秒間、動き回る AI の相手と撃ち合う', shot: '/showcase/energy-duel/shot-5.webp', alt: '相手に迫るLv3弾（相手アップ）' },
     ],
     haptics: [
       '溜めの段階が上がるたびに合図、最大まで溜まると完了の触覚',
@@ -191,13 +182,6 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     meta: ['VR', '素手で操作', '1 人'],
     thumbnail: '/showcase/energy-duel/thumb.webp',
     video: '/showcase/energy-duel/pv.mp4',
-    screenshots: [
-      { src: '/showcase/energy-duel/shot-1.webp', caption: '拳にLv2のエネルギー球とリング', step: 1 },
-      { src: '/showcase/energy-duel/shot-2.webp', caption: 'パーに開いてLv3弾を発射', step: 1 },
-      { src: '/showcase/energy-duel/shot-3.webp', caption: '前腕の八角形シールドが割れる瞬間', step: 2 },
-      { src: '/showcase/energy-duel/shot-4.webp', caption: '自分の弾と相手の弾がぶつかる', step: 2 },
-      { src: '/showcase/energy-duel/shot-5.webp', caption: '相手に迫るLv3弾（相手アップ）', step: 2 },
-    ],
   },
   {
     id: 'boxing',
@@ -212,9 +196,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     description:
       'リングで相手と向き合う 90 秒のスパーリングです。手の動きがそのままグローブになり、打ち込んだ手応えも、腕で受けたパンチも Hapbeat で返します。HP が 0 になるとノックアウトで終了します。',
     flow: [
-      'リング上の開始位置に立ち、3 カウントでラウンド開始',
-      '左右のグローブで攻撃・ガード、頭を動かして相手のパンチを避ける',
-      '90 秒またはノックアウトで終了し、スコアを表示',
+      { text: 'リングで相手と向き合い、3 カウントでラウンド開始', shot: '/showcase/boxing/shot-5.webp', alt: '開始カウントダウンで相手と対峙' },
+      { text: '左右のグローブで打ち込む', shot: '/showcase/boxing/shot-1.webp', alt: '左フックが相手の頭にヒット' },
+      { text: '相手のパンチが迫る。頭を動かしてかわす', shot: '/showcase/boxing/shot-2.webp', alt: '相手のフックが顔面へ迫る' },
+      { text: 'グローブや腕でパンチを受け止める', shot: '/showcase/boxing/shot-3.webp', alt: '相手のフックを左グローブでブロック' },
+      { text: '相手の HP を 0 にしてノックアウト（または 90 秒で終了）', shot: '/showcase/boxing/shot-4.webp', alt: '決め手のフックでKO勝利' },
     ],
     haptics: [
       'パンチが当たった手応えを、打った側の手首に',
@@ -228,13 +214,6 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     meta: ['VR', '90 秒', '1 人'],
     thumbnail: '/showcase/boxing/thumb.webp',
     video: '/showcase/boxing/pv.mp4',
-    screenshots: [
-      { src: '/showcase/boxing/shot-5.webp', caption: '開始カウントダウンで相手と対峙', step: 1 },
-      { src: '/showcase/boxing/shot-1.webp', caption: '左フックが相手の頭にヒット', step: 2 },
-      { src: '/showcase/boxing/shot-2.webp', caption: '相手のフックが顔面へ迫る', step: 2 },
-      { src: '/showcase/boxing/shot-3.webp', caption: '相手のフックを左グローブでブロック', step: 2 },
-      { src: '/showcase/boxing/shot-4.webp', caption: '決め手のフックでKO勝利', step: 3 },
-    ],
   },
   {
     id: 'volley',
@@ -264,10 +243,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     description:
       'アリーナでバレーボールを体験する 1 人プレイのデモです。ボールを受ける手の向きと振りの速さでボールの行き先が決まり、当たった場所に応じた衝撃を Hapbeat で返します。',
     flow: [
-      'モードを選ぶ: スパイク＋ブロック / レシーブ / 6 人制の試合',
-      '相手のサーブやスパイクを、手のひらや腕でレシーブする',
-      '味方のトスに合わせて、ボールを打ち下ろすスパイク',
-      'ネット際で両手を上げて、相手のスパイクをブロック',
+      { text: 'モードを選ぶ（スパイク＋ブロック / レシーブ / 6 人制の試合）。試合はサーブから始まる', shot: '/showcase/volley/shot-1.webp', alt: 'サーブのトス、6対6の試合コート全景' },
+      { text: '相手のサーブやスパイクを、手のひらや腕でレシーブする', shot: '/showcase/volley/shot-3.webp', alt: '相手スパイクを正面でレシーブ' },
+      { text: '味方のセッターがトスを上げる', shot: '/showcase/volley/shot-5.webp', alt: 'ネット際で味方セッターがトス' },
+      { text: 'トスに合わせて、ボールを打ち下ろすスパイク', shot: '/showcase/volley/shot-2.webp', alt: '右手でボールを捉えるスパイク' },
+      { text: 'ネット際で両手を上げて、相手のスパイクをブロック', shot: '/showcase/volley/shot-4.webp', alt: 'ネット越しに両手でブロック' },
     ],
     haptics: ['左右どちらの手・腕で受けたかに合わせた打球の衝撃', '体にボールが当たったときの衝撃'],
     specs: [
@@ -278,13 +258,6 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     meta: ['VR', '素手で操作', '1 人'],
     thumbnail: '/showcase/volley/thumb.webp',
     video: '/showcase/volley/pv.mp4',
-    screenshots: [
-      { src: '/showcase/volley/shot-1.webp', caption: 'サーブのトス、6対6の試合コート全景', step: 1 },
-      { src: '/showcase/volley/shot-3.webp', caption: '相手スパイクを正面でレシーブ', step: 2 },
-      { src: '/showcase/volley/shot-5.webp', caption: 'ネット際で味方セッターがトス', step: 3 },
-      { src: '/showcase/volley/shot-2.webp', caption: '右手でボールを捉えるスパイク', step: 3 },
-      { src: '/showcase/volley/shot-4.webp', caption: 'ネット越しに両手でブロック', step: 4 },
-    ],
   },
   {
     id: 'hand-demo',
@@ -298,9 +271,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     description:
       '机に並んだ箱・ボタン・スライダー・パネルを素手で操作します。つかむ、離す、スロットにはめる、ボタンを押し込む、といった一つひとつの操作に、触れた側の手首へ触覚が返ります。音声と手の見本で一つずつ案内するので、VR や触覚が初めての方の最初の体験に向きます。',
     flow: [
-      '音声と手の見本の案内に沿って、一つずつ操作する',
-      'ボタン・スクロール・箱・円柱・スロット・スライダー・押しボタンなど',
-      '最後は自由に触って遊ぶ',
+      { text: '目の前のテーブルに、触れて試せる物が並ぶ', shot: '/showcase/hand-demo/shot-1.webp', alt: '目線から見た体験テーブル全景' },
+      { text: '青いお手本の手と音声が、次の操作を一つずつ案内する', shot: '/showcase/hand-demo/shot-5.webp', alt: '青いお手本の手がボタン押しを実演' },
+      { text: '箱をつかんで持ち上げる', shot: '/showcase/hand-demo/shot-2.webp', alt: '自分の手で箱をつかんで持ち上げる' },
+      { text: '赤いボタンを指で押し込む', shot: '/showcase/hand-demo/shot-3.webp', alt: '赤いポークボタンを指で押す' },
+      { text: 'ブロックをスロットへはめ込む。最後は自由に触って遊ぶ', shot: '/showcase/hand-demo/shot-4.webp', alt: 'ブロックをスナップソケットへ差し込む' },
     ],
     haptics: ['つかむ・離す・はめ込む・押し込むなど、操作ごとに違う触覚', '左右の手首それぞれに、触れた側の手だけ返す'],
     specs: [
@@ -311,13 +286,6 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     meta: ['VR', '初めての方向け', '1 人'],
     thumbnail: '/showcase/hand-demo/thumb.webp',
     video: '/showcase/hand-demo/pv.mp4',
-    screenshots: [
-      { src: '/showcase/hand-demo/shot-1.webp', caption: '目線から見た体験テーブル全景', step: 1 },
-      { src: '/showcase/hand-demo/shot-5.webp', caption: '青いお手本の手がボタン押しを実演', step: 1 },
-      { src: '/showcase/hand-demo/shot-2.webp', caption: '自分の手で箱をつかんで持ち上げる', step: 2 },
-      { src: '/showcase/hand-demo/shot-3.webp', caption: '赤いポークボタンを指で押す', step: 2 },
-      { src: '/showcase/hand-demo/shot-4.webp', caption: 'ブロックをスナップソケットへ差し込む', step: 2 },
-    ],
   },
   {
     id: 'fps',
@@ -330,7 +298,13 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     tagline: 'アリーナで敵を倒し、ボスのタレットを破壊する VR シューター。発射・チャージ・被弾を手首と首で感じる。',
     description:
       '武器を持ってアリーナを進み、ゴールのボス（タレット）を破壊する一人称シューティングです。武器ごとに違う発射の反動、チャージの高まり、被弾を、手首と首の Hapbeat で返します。プレイヤーは倒れないので、最後まで遊べます。',
-    flow: ['最初に移動・武器の取り方・撃ち方を案内', 'アリーナの敵を倒しながら進む', 'ボスのタレットを破壊してクリア'],
+    flow: [
+      { text: '溶岩に囲まれたアリーナからスタート。移動・武器の取り方・撃ち方を最初に案内', shot: '/showcase/fps/shot-5.webp', alt: '溶岩に囲まれたアリーナ全景' },
+      { text: '素手で腰のラックから武器を取る', shot: '/showcase/fps/shot-2.webp', alt: '素手で腰のラックから銃を取る' },
+      { text: 'ブラスターで敵のロボットを撃つ', shot: '/showcase/fps/shot-3.webp', alt: 'ブラスターがロボットに命中' },
+      { text: 'ランチャーをチャージして撃ち、ディスクを炸裂させる', shot: '/showcase/fps/shot-4.webp', alt: 'ランチャーのディスクが炸裂' },
+      { text: 'ボスの砲台を破壊してクリア', shot: '/showcase/fps/shot-1.webp', alt: 'チャージディスクをボス砲台へ発射' },
+    ],
     haptics: [
       'ブラスター・ランチャー・ショットガンで違う発射の反動（手首と首）',
       'ランチャーのチャージと発射・着弾',
@@ -344,13 +318,6 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     meta: ['VR', '素手で操作', '1 人'],
     thumbnail: '/showcase/fps/thumb.webp',
     video: '/showcase/fps/pv.mp4',
-    screenshots: [
-      { src: '/showcase/fps/shot-5.webp', caption: '溶岩に囲まれたアリーナ全景', step: 1 },
-      { src: '/showcase/fps/shot-2.webp', caption: '素手で腰のラックから銃を取る', step: 1 },
-      { src: '/showcase/fps/shot-3.webp', caption: 'ブラスターがロボットに命中', step: 2 },
-      { src: '/showcase/fps/shot-4.webp', caption: 'ランチャーのディスクが炸裂', step: 2 },
-      { src: '/showcase/fps/shot-1.webp', caption: 'チャージディスクをボス砲台へ発射', step: 3 },
-    ],
   },
   {
     id: 'safety-mill',
@@ -364,10 +331,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     description:
       '小型フライス盤でアルミブロックを削る作業を VR で行います。切り粉が次のけがき線を隠したとき、回転中の刃物のそばでブラシを使うと巻き込まれ、手首と首への衝撃で危険を体で覚えます。そのあと、主軸を止める・止まるのを待つ・切り粉を払う・再始動する、という安全な手順で作業を仕上げます。',
     flow: [
-      'ハンドルを回してテーブルを送り、ブロックを削る',
-      '回転中の刃物の近くで切り粉を払い、巻き込まれを体感する',
-      '主軸を止めて、止まるのを待ってから切り粉を払う',
-      '再始動して切削を仕上げる',
+      { text: '工房の小型フライス盤の前に立つ', shot: '/showcase/safety-mill/shot-1.webp', alt: '工房の小型フライス盤とアルミブロック' },
+      { text: 'ハンドルを回してテーブルを送り、ブロックを削る', shot: '/showcase/safety-mill/shot-2.webp', alt: 'ハンドルを回し切削、切粉が飛ぶ' },
+      { text: '切り粉がたまって、次のけがき線が隠れる', shot: '/showcase/safety-mill/shot-3.webp', alt: '回転する刃物の周りに切粉が積もる' },
+      { text: '回転中の刃物の近くでブラシを使い、巻き込まれる', shot: '/showcase/safety-mill/shot-4.webp', alt: '回転中の刃物にブラシが巻き込まれる' },
+      { text: '主軸を止め、止まるのを待ってから切り粉を払い、作業を仕上げる', shot: '/showcase/safety-mill/shot-5.webp', alt: '停止後にブラシで払い青線が出る' },
     ],
     haptics: [
       'ハンドルのクリック感、刃が当たる瞬間、送りの速さと負荷に応じた切削の振動',
@@ -382,13 +350,6 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     meta: ['VR 研修', '素手で操作', '1 人'],
     thumbnail: '/showcase/safety-mill/thumb.webp',
     video: '/showcase/safety-mill/pv.mp4',
-    screenshots: [
-      { src: '/showcase/safety-mill/shot-1.webp', caption: '工房の小型フライス盤とアルミブロック', step: 1 },
-      { src: '/showcase/safety-mill/shot-2.webp', caption: 'ハンドルを回し切削、切粉が飛ぶ', step: 1 },
-      { src: '/showcase/safety-mill/shot-3.webp', caption: '回転する刃物の周りに切粉が積もる', step: 1 },
-      { src: '/showcase/safety-mill/shot-4.webp', caption: '回転中の刃物にブラシが巻き込まれる', step: 2 },
-      { src: '/showcase/safety-mill/shot-5.webp', caption: '停止後にブラシで払い青線が出る', step: 3 },
-    ],
   },
 ];
 

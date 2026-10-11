@@ -7,8 +7,8 @@
  *     Starlight の標準タイトル欄は使わず (下の :global で隠す)、このページで組む
  *   - PV | 一言の説明と「触覚体験」(どんな触覚を感じられるか)
  *   - 概要文 | 機材・人数などの小さな表
- *   - 「体験の流れ」の番号付きリスト | 同じ番号を付けたスクショ (screenshots[].step)。
- *     リストの項目にカーソルを乗せると、同じ番号のスクショが強調される (逆も同様)
+ *   - 「体験の流れ」: 1 ステップ = 番号付きスクショ 1 枚 + 文の小さなカード (flow[])。
+ *     スクショはクリックで拡大 (lightbox)
  *   - ほかのデモ (サムネイル + タイトルの小さなカード)
  * 画像はサイト共通の本文画像スタイル (.sl-markdown-content img の枠・角丸・影) を
  * class="bare" で外し、このページ側で形を決める。
@@ -30,15 +30,6 @@ interface Props {
 }
 
 const { demo, others } = Astro.props;
-const shots = demo.screenshots ?? [];
-
-// 体験の流れ ↔ スクショの相互ハイライト (番号ごと。JS なし)
-const linkCss = demo.flow
-  .map((_, i) => {
-    const n = i + 1;
-    return `.hb-scd__story:has([data-step="${n}"]:hover) [data-step="${n}"]{--_hl:1}`;
-  })
-  .join('\n');
 ---
 
 <StarlightPage
@@ -48,7 +39,6 @@ const linkCss = demo.flow
     template: 'splash',
   }}
 >
-  <style is:inline set:html={linkCss} />
   <div class="hb-scd not-content" style={`--_hue: ${demo.hue}`}>
     <header class="hb-scd__head">
       <a class="hb-scd__back" href="/demos/showcase/">
@@ -100,39 +90,23 @@ const linkCss = demo.flow
 
     <section class="hb-scd__story" aria-labelledby="hb-scd-flow">
       <h2 id="hb-scd-flow">体験の流れ</h2>
-      <div class="hb-scd__story-grid" data-has-shots={shots.length > 0 ? '' : undefined}>
-        <ol class="hb-scd__flow">
-          {
-            demo.flow.map((f, i) => (
-              <li data-step={i + 1}>
-                <span class="hb-scd__num" aria-hidden="true">{i + 1}</span>
-                <span>{f}</span>
-              </li>
-            ))
-          }
-        </ol>
+      <ol class="hb-scd__steps">
         {
-          shots.length > 0 && (
-            <ul class="hb-scd__shots" aria-label="スクリーンショット">
-              {shots.map((s) => (
-                <li data-step={s.step}>
-                  <figure>
-                    <div class="hb-scd__shot">
-                      <img class="bare" src={s.src} alt={s.caption} loading="lazy" decoding="async" width="1280" height="720" />
-                      {s.step && (
-                        <span class="hb-scd__num" aria-label={`体験の流れ ${s.step}`}>
-                          {s.step}
-                        </span>
-                      )}
-                    </div>
-                    <figcaption>{s.caption}</figcaption>
-                  </figure>
-                </li>
-              ))}
-            </ul>
-          )
+          demo.flow.map((step, i) => (
+            <li>
+              <div class="hb-scd__step-media">
+                {step.shot ? (
+                  <img class="bare" src={step.shot} alt={step.alt ?? step.text} loading="lazy" decoding="async" width="1280" height="720" />
+                ) : (
+                  <div class="hb-scd__step-ph" aria-hidden="true">{demo.icon}</div>
+                )}
+                <span class="hb-scd__num" aria-hidden="true">{i + 1}</span>
+              </div>
+              <p>{step.text}</p>
+            </li>
+          ))
         }
-      </div>
+      </ol>
     </section>
 
     <nav class="hb-scd__others" aria-label="ほかのデモ">
@@ -338,80 +312,33 @@ const linkCss = demo.flow
     color: var(--hb-ink-soft);
   }
 
-  /* ---- 体験の流れ | 番号付きスクショ ---- */
+  /* ---- 体験の流れ: 1 ステップ = 番号付きスクショ + 文のカード ---- */
   .hb-scd__story {
     margin-top: 36px;
   }
-  .hb-scd__story-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  /* 流れとスクショの高さを揃える: 流れの項目が少ないときは各項目を縦に伸ばす */
-  .hb-scd__story-grid[data-has-shots] {
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-    align-items: stretch;
-  }
-  .hb-scd__flow {
+  .hb-scd__steps {
+    list-style: none;
     margin: 0;
     padding: 0;
-    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    gap: 16px;
+  }
+  .hb-scd__steps li {
+    margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-  }
-  .hb-scd__flow li {
-    flex: 1 1 auto;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin: 0;
-    padding: 10px 12px;
     border-radius: var(--hb-radius);
     background: var(--hb-bg-elev);
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--hb-ink-soft);
-    box-shadow: inset 0 0 0 calc(var(--_hl, 0) * 2px) oklch(0.55 0.13 var(--_hue));
-    transition: box-shadow 0.12s ease;
-  }
-  .hb-scd__num {
-    flex: none;
-    width: 24px;
-    height: 24px;
-    display: grid;
-    place-items: center;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 1;
-    color: #fff;
-    background: oklch(0.55 0.13 var(--_hue));
-  }
-  .hb-scd__shots {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    align-self: start;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-  }
-  .hb-scd__shots li {
-    margin: 0;
-  }
-  .hb-scd__shots figure {
-    margin: 0;
-  }
-  .hb-scd__shot {
-    position: relative;
-    border-radius: var(--hb-radius);
+    box-shadow: var(--hb-shadow-sm);
     overflow: hidden;
-    box-shadow: 0 0 0 calc(var(--_hl, 0) * 3px) oklch(0.55 0.13 var(--_hue));
-    transition: box-shadow 0.12s ease;
+  }
+  .hb-scd__step-media {
+    position: relative;
   }
   /* クリックで拡大は astro.config.mjs の lightbox (.sl-markdown-content img) が行う */
-  .hb-scd__shot img {
+  .hb-scd__step-media img,
+  .hb-scd__step-ph {
     display: block;
     width: 100%;
     height: auto;
@@ -419,22 +346,41 @@ const linkCss = demo.flow
     margin: 0;
     aspect-ratio: 16 / 9;
     object-fit: cover;
-    cursor: pointer;
   }
-  .hb-scd__shot .hb-scd__num {
+  .hb-scd__step-media img {
+    cursor: zoom-in;
+  }
+  .hb-scd__step-ph {
+    display: grid;
+    place-items: center;
+    font-size: 32px;
+    background: oklch(0.88 0.07 var(--_hue));
+  }
+  :global([data-theme='dark']) .hb-scd__step-ph {
+    background: oklch(0.34 0.08 var(--_hue));
+  }
+  .hb-scd__num {
     position: absolute;
-    top: 6px;
-    left: 6px;
-    width: 22px;
-    height: 22px;
-    font-size: 12px;
+    top: 8px;
+    left: 8px;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    background: oklch(0.55 0.13 var(--_hue));
     box-shadow: 0 1px 3px oklch(0 0 0 / 0.35);
   }
-  .hb-scd__shots figcaption {
-    margin-top: 5px;
-    font-size: 12.5px;
-    line-height: 1.45;
-    color: var(--hb-ink-mute);
+  .hb-scd__steps p {
+    margin: 0;
+    padding: 10px 12px 12px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--hb-ink-soft);
   }
 
   /* ---- ほかのデモ ---- */
@@ -470,15 +416,9 @@ const linkCss = demo.flow
     box-shadow: var(--hb-shadow-md);
   }
 
-  @media (max-width: 64rem) {
-    .hb-scd__shots {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
   @media (max-width: 50rem) {
     .hb-scd__top,
-    .hb-scd__about,
-    .hb-scd__story-grid[data-has-shots] {
+    .hb-scd__about {
       grid-template-columns: 1fr;
     }
   }
