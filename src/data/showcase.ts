@@ -328,11 +328,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     description:
       '小型フライス盤でアルミブロックを削る作業を VR で行います。切り粉が次のけがき線を隠したとき、回転中の刃物のそばでブラシを使うと巻き込まれ、手首と首への衝撃で危険を体で覚えます。そのあと、主軸を止める・止まるのを待つ・切り粉を払う・再始動する、という安全な手順で作業を仕上げます。',
     flow: [
-      { text: '工房の小型フライス盤の前に立つ', shot: '/showcase/safety-mill/shot-1.webp', alt: '工房の小型フライス盤とアルミブロック' },
-      { text: 'ハンドルを回してテーブルを送り、ブロックを削る', shot: '/showcase/safety-mill/shot-2.webp', alt: 'ハンドルを回し切削、切粉が飛ぶ' },
-      { text: '切り粉がたまって、次のけがき線が隠れる', shot: '/showcase/safety-mill/shot-3.webp', alt: '回転する刃物の周りに切粉が積もる' },
-      { text: '回転中の刃物の近くでブラシを使い、巻き込まれる', shot: '/showcase/safety-mill/shot-4.webp', alt: '回転中の刃物にブラシが巻き込まれる' },
-      { text: '主軸を止め、止まるのを待ってから切り粉を払い、作業を仕上げる', shot: '/showcase/safety-mill/shot-5.webp', alt: '停止後にブラシで払い青線が出る' },
+      { text: '工房の小型フライス盤の前に立つ', shot: '/showcase/safety-mill/shot-1.webp', alt: '工房のフライス盤の前に立つ' },
+      { text: '緑のボタンを指で押して、主軸を回す', shot: '/showcase/safety-mill/shot-2.webp', alt: '緑のボタンを指先で押して主軸を始動' },
+      { text: 'ハンドルを回してテーブルを送り、ブロックを削る。切り粉が飛び、たまっていく', shot: '/showcase/safety-mill/shot-3.webp', alt: 'ハンドルを回して削ると切粉が飛ぶ' },
+      { text: 'たまった切り粉を払おうと、回転中の刃物の近くにブラシを入れる', shot: '/showcase/safety-mill/shot-4.webp', alt: 'ブラシを握り回転中の工具に近づける' },
+      { text: 'ブラシが刃物に巻き込まれる。このあと、主軸を止めてから払う正しい手順でやり直す', shot: '/showcase/safety-mill/shot-5.webp', alt: 'ブラシが回転中の工具に巻き込まれる' },
     ],
     haptics: [
       'ハンドルのクリック感、刃が当たる瞬間、送りの速さと負荷に応じた切削の振動',
