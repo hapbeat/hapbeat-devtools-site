@@ -208,6 +208,10 @@
 .sl-markdown-content img {
   cursor: zoom-in;
 }
+/* リンクの中の画像 (カードのサムネイル等) は拡大せずリンク先へ進むので、普通のクリック用カーソル */
+.sl-markdown-content a img {
+  cursor: pointer;
+}
 .hb-lightbox {
   position: fixed;
   inset: 0;

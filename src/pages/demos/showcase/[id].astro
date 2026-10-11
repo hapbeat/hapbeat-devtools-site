@@ -1,10 +1,16 @@
 ---
 /**
  * /demos/showcase/<id>/ — デモの詳細ページ。src/data/showcase.ts の 1 件から生成する。
- * 上段: PV | どんな触覚体験か (触覚体験) と大まかな体験の流れ。どういう体験ができるかを
- * 最初に読めるようにする。その下に概要文・スクショ、目立たない位置に機材・人数などの表。
- * 下部に、ほかのデモをサムネイル + タイトルの小さなカードで並べる (順番に意味は無い)。
- * サイト共通の本文画像スタイル (.sl-markdown-content img の枠・角丸・影) は
+ *
+ * 構成 (上から):
+ *   - 見出し: 「デモ一覧へ」→ タイトル + 日本語名 + カテゴリのタグ (1 行、狭いと折り返す)。
+ *     Starlight の標準タイトル欄は使わず (下の :global で隠す)、このページで組む
+ *   - PV | 一言の説明と「触覚体験」(どんな触覚を感じられるか)
+ *   - 概要文 | 機材・人数などの小さな表
+ *   - 「体験の流れ」の番号付きリスト | 同じ番号を付けたスクショ (screenshots[].step)。
+ *     リストの項目にカーソルを乗せると、同じ番号のスクショが強調される (逆も同様)
+ *   - ほかのデモ (サムネイル + タイトルの小さなカード)
+ * 画像はサイト共通の本文画像スタイル (.sl-markdown-content img の枠・角丸・影) を
  * class="bare" で外し、このページ側で形を決める。
  */
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
@@ -12,9 +18,9 @@ import ShowcaseThumb from '../../../components/ShowcaseThumb.astro';
 import { PUBLISHED_SHOWCASE_DEMOS, categoryLabel, type ShowcaseDemo } from '../../../data/showcase';
 
 export function getStaticPaths() {
-  return PUBLISHED_SHOWCASE_DEMOS.map((demo, _i, all) => ({
+  return PUBLISHED_SHOWCASE_DEMOS.map((demo) => ({
     params: { id: demo.id },
-    props: { demo, others: all.filter((d) => d.id !== demo.id) },
+    props: { demo, others: PUBLISHED_SHOWCASE_DEMOS.filter((d) => d.id !== demo.id) },
   }));
 }
 
@@ -24,6 +30,15 @@ interface Props {
 }
 
 const { demo, others } = Astro.props;
+const shots = demo.screenshots ?? [];
+
+// 体験の流れ ↔ スクショの相互ハイライト (番号ごと。JS なし)
+const linkCss = demo.flow
+  .map((_, i) => {
+    const n = i + 1;
+    return `.hb-scd__story:has([data-step="${n}"]:hover) [data-step="${n}"]{--_hl:1}`;
+  })
+  .join('\n');
 ---
 
 <StarlightPage
@@ -33,24 +48,30 @@ const { demo, others } = Astro.props;
     template: 'splash',
   }}
 >
+  <style is:inline set:html={linkCss} />
   <div class="hb-scd not-content" style={`--_hue: ${demo.hue}`}>
-    <a class="hb-scd__back" href="/demos/showcase/">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <line x1="19" y1="12" x2="5" y2="12" />
-        <polyline points="12 19 5 12 12 5" />
-      </svg>
-      デモ一覧へ
-    </a>
+    <header class="hb-scd__head">
+      <a class="hb-scd__back" href="/demos/showcase/">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+        デモ一覧へ
+      </a>
+      <div class="hb-scd__titlerow">
+        <h1 class="hb-scd__title">{demo.title}</h1>
+        {demo.subtitle && <span class="hb-scd__sub">{demo.subtitle}</span>}
+        <div class="hb-scd__tags">
+          {demo.categories.map((c) => <span class="hb-scd__cat">{categoryLabel(c)}</span>)}
+        </div>
+      </div>
+    </header>
 
     <div class="hb-scd__top">
       <div class="hb-scd__media">
         <ShowcaseThumb demo={demo} size="hero" />
       </div>
       <div class="hb-scd__summary">
-        <div class="hb-scd__tags">
-          {demo.categories.map((c) => <span class="hb-scd__cat">{categoryLabel(c)}</span>)}
-        </div>
-        {demo.subtitle && <p class="hb-scd__sub">{demo.subtitle}</p>}
         <p class="hb-scd__tagline">{demo.tagline}</p>
         <section class="hb-scd__block">
           <h2>触覚体験</h2>
@@ -58,42 +79,61 @@ const { demo, others } = Astro.props;
             {demo.haptics.map((h) => <li>{h}</li>)}
           </ul>
         </section>
-        <section class="hb-scd__block">
-          <h2>体験の流れ</h2>
-          <ol class="hb-scd__flow">
-            {demo.flow.map((f) => <li>{f}</li>)}
-          </ol>
-        </section>
       </div>
     </div>
 
-    <p class="hb-scd__desc">{demo.description}</p>
+    <div class="hb-scd__about">
+      <p class="hb-scd__desc">{demo.description}</p>
+      <table class="hb-scd__specs">
+        <tbody>
+          {
+            demo.specs.map((s) => (
+              <tr>
+                <th scope="row">{s.label}</th>
+                <td>{s.value}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
 
-    {
-      demo.screenshots && demo.screenshots.length > 0 && (
-        <ul class="hb-scd__gallery" aria-label="スクリーンショット">
-          {demo.screenshots.map((s) => (
-            <li>
-              <figure>
-                <img class="bare" src={s.src} alt={s.caption} loading="lazy" decoding="async" width="1280" height="720" />
-                <figcaption>{s.caption}</figcaption>
-              </figure>
-            </li>
-          ))}
-        </ul>
-      )
-    }
-
-    <dl class="hb-scd__specs" aria-label="体験に使うもの">
-      {
-        demo.specs.map((s) => (
-          <div>
-            <dt>{s.label}</dt>
-            <dd>{s.value}</dd>
-          </div>
-        ))
-      }
-    </dl>
+    <section class="hb-scd__story" aria-labelledby="hb-scd-flow">
+      <h2 id="hb-scd-flow">体験の流れ</h2>
+      <div class="hb-scd__story-grid" data-has-shots={shots.length > 0 ? '' : undefined}>
+        <ol class="hb-scd__flow">
+          {
+            demo.flow.map((f, i) => (
+              <li data-step={i + 1}>
+                <span class="hb-scd__num" aria-hidden="true">{i + 1}</span>
+                <span>{f}</span>
+              </li>
+            ))
+          }
+        </ol>
+        {
+          shots.length > 0 && (
+            <ul class="hb-scd__shots" aria-label="スクリーンショット">
+              {shots.map((s) => (
+                <li data-step={s.step}>
+                  <figure>
+                    <div class="hb-scd__shot">
+                      <img class="bare" src={s.src} alt={s.caption} loading="lazy" decoding="async" width="1280" height="720" />
+                      {s.step && (
+                        <span class="hb-scd__num" aria-label={`体験の流れ ${s.step}`}>
+                          {s.step}
+                        </span>
+                      )}
+                    </div>
+                    <figcaption>{s.caption}</figcaption>
+                  </figure>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+    </section>
 
     <nav class="hb-scd__others" aria-label="ほかのデモ">
       <h2>ほかのデモ</h2>
@@ -114,15 +154,38 @@ const { demo, others } = Astro.props;
 </StarlightPage>
 
 <style>
+  /* Starlight 標準のタイトル欄 (h1#_top だけの最初の content-panel) は使わない */
+  :global(.content-panel:has(> .sl-container > h1#_top)) {
+    display: none;
+  }
+  :global(.content-panel:has(.hb-scd)) {
+    border-top: 0;
+  }
+
   .hb-scd {
     margin-bottom: 32px;
+  }
+  /* 見出しの h2 は .sl-markdown-content h2 (上余白 56px・ドット) より強くして打ち消す */
+  .hb-scd.not-content h2 {
+    margin: 0 0 12px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: normal;
+    color: var(--hb-ink);
+  }
+  .hb-scd.not-content h2::before {
+    content: none;
+  }
+
+  /* ---- 見出し ---- */
+  .hb-scd__head {
+    margin-bottom: 18px;
   }
   .hb-scd__back {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    min-height: 40px;
-    margin-bottom: 14px;
+    min-height: 36px;
     font-size: 14px;
     font-weight: 600;
     color: var(--hb-ink-soft);
@@ -131,19 +194,27 @@ const { demo, others } = Astro.props;
   .hb-scd__back:hover {
     color: var(--hb-ink);
   }
-
-  .hb-scd__top {
-    display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-    gap: 28px;
-    align-items: start;
+  .hb-scd__titlerow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    margin-top: 4px;
   }
-  .hb-scd__media {
-    border-radius: var(--hb-radius-lg);
-    overflow: hidden;
-    box-shadow: var(--hb-shadow-md);
+  .hb-scd .hb-scd__titlerow .hb-scd__title {
+    margin: 0;
+    font-size: clamp(28px, 4vw, 36px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--hb-ink);
   }
-
+  .hb-scd__sub {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: normal;
+    color: var(--hb-ink-mute);
+  }
   .hb-scd__tags {
     display: flex;
     flex-wrap: wrap;
@@ -161,76 +232,33 @@ const { demo, others } = Astro.props;
     color: oklch(0.9 0.08 var(--_hue));
     background: oklch(0.36 0.08 var(--_hue));
   }
-  .hb-scd__sub {
-    margin: 12px 0 0;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--hb-ink-mute);
+
+  /* ---- PV | 説明・触覚体験 ---- */
+  .hb-scd__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+  .hb-scd__media {
+    border-radius: var(--hb-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--hb-shadow-md);
   }
   .hb-scd__tagline {
-    margin: 8px 0 0;
+    margin: 0;
     font-size: 18px;
     font-weight: 600;
     line-height: 1.6;
     color: var(--hb-ink);
   }
-
-  /* 触覚体験・体験の流れ (上段右) */
   .hb-scd__block {
     margin-top: 18px;
   }
-  .hb-scd .hb-scd__block h2 {
-    margin: 0 0 8px;
+  .hb-scd.not-content .hb-scd__block h2 {
+    margin-bottom: 8px;
     font-size: 15px;
-    font-weight: 700;
-    letter-spacing: normal;
-    color: var(--hb-ink);
   }
-  .hb-scd .hb-scd__block h2::before {
-    content: none;
-  }
-
-  .hb-scd__desc {
-    margin: 28px 0 0;
-    font-size: 16px;
-    line-height: 1.85;
-    color: var(--hb-ink-soft);
-  }
-
-  /* クリックで拡大は astro.config.mjs の lightbox (.sl-markdown-content img) が行う */
-  .hb-scd__gallery {
-    list-style: none;
-    margin: 24px 0 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
-    gap: 14px;
-  }
-  .hb-scd__gallery li {
-    margin: 0;
-  }
-  .hb-scd__gallery figure {
-    margin: 0;
-  }
-  .hb-scd__gallery img {
-    display: block;
-    width: 100%;
-    height: auto;
-    max-height: none;
-    margin: 0;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    border-radius: var(--hb-radius);
-    cursor: pointer;
-  }
-  .hb-scd__gallery figcaption {
-    margin-top: 6px;
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--hb-ink-mute);
-  }
-
-  .hb-scd__flow,
   .hb-scd__haptics {
     margin: 0;
     padding: 0;
@@ -242,35 +270,15 @@ const { demo, others } = Astro.props;
     line-height: 1.6;
     color: var(--hb-ink-soft);
   }
-  .hb-scd__flow {
-    counter-reset: flow;
-  }
-  .hb-scd__flow li,
   .hb-scd__haptics li {
     position: relative;
     margin: 0;
-    padding-left: 34px;
-  }
-  .hb-scd__flow li::before {
-    counter-increment: flow;
-    content: counter(flow);
-    position: absolute;
-    left: 0;
-    top: 1px;
-    width: 24px;
-    height: 24px;
-    display: grid;
-    place-items: center;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 700;
-    color: oklch(0.98 0.01 var(--_hue));
-    background: oklch(0.55 0.13 var(--_hue));
+    padding-left: 26px;
   }
   .hb-scd__haptics li::before {
     content: '';
     position: absolute;
-    left: 7px;
+    left: 4px;
     top: 0.55em;
     width: 10px;
     height: 10px;
@@ -279,44 +287,159 @@ const { demo, others } = Astro.props;
     box-shadow: 0 0 0 4px oklch(0.55 0.13 var(--_hue) / 0.18);
   }
 
-  /* 機材・人数など: 目立たせない控えめな表 */
-  .hb-scd__specs {
-    margin: 24px 0 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 24px;
-    padding: 12px 16px;
-    border-radius: var(--hb-radius);
-    background: var(--hb-bg-soft);
+  /* ---- 概要文 | 機材などの表 ---- */
+  .hb-scd__about {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+    margin-top: 28px;
+  }
+  .hb-scd__desc {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.85;
+    color: var(--hb-ink-soft);
+  }
+  /* サイト共通の表スタイル (.sl-markdown-content table の枠・背景・横スクロール) を打ち消す */
+  .hb-scd .hb-scd__about .hb-scd__specs {
+    display: table;
+    width: 100%;
+    margin: 0;
+    border: 0;
+    border-collapse: collapse;
     font-size: 13px;
-    line-height: 1.6;
+    line-height: 1.55;
+    overflow: visible;
   }
-  .hb-scd__specs div {
-    display: flex;
-    gap: 8px;
+  .hb-scd .hb-scd__about .hb-scd__specs th,
+  .hb-scd .hb-scd__about .hb-scd__specs td {
+    padding: 7px 0;
+    border: 0;
+    border-bottom: 1px solid var(--hb-line);
+    background: transparent;
+    text-align: left;
+    vertical-align: top;
+    line-height: 1.55;
   }
-  .hb-scd__specs dt {
+  .hb-scd .hb-scd__about .hb-scd__specs tr:first-child th,
+  .hb-scd .hb-scd__about .hb-scd__specs tr:first-child td {
+    border-top: 1px solid var(--hb-line);
+  }
+  .hb-scd .hb-scd__about .hb-scd__specs th {
+    width: 6.5em;
+    padding-right: 12px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--hb-ink-mute);
     white-space: nowrap;
   }
-  .hb-scd__specs dd {
-    margin: 0;
+  .hb-scd .hb-scd__about .hb-scd__specs td {
     color: var(--hb-ink-soft);
   }
 
-  .hb-scd__others {
+  /* ---- 体験の流れ | 番号付きスクショ ---- */
+  .hb-scd__story {
     margin-top: 36px;
   }
-  .hb-scd .hb-scd__others h2 {
-    margin: 0 0 12px;
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: normal;
-    color: var(--hb-ink);
+  .hb-scd__story-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
-  .hb-scd .hb-scd__others h2::before {
-    content: none;
+  /* 流れとスクショの高さを揃える: 流れの項目が少ないときは各項目を縦に伸ばす */
+  .hb-scd__story-grid[data-has-shots] {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    align-items: stretch;
+  }
+  .hb-scd__flow {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .hb-scd__flow li {
+    flex: 1 1 auto;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: var(--hb-radius);
+    background: var(--hb-bg-elev);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--hb-ink-soft);
+    box-shadow: inset 0 0 0 calc(var(--_hl, 0) * 2px) oklch(0.55 0.13 var(--_hue));
+    transition: box-shadow 0.12s ease;
+  }
+  .hb-scd__num {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    background: oklch(0.55 0.13 var(--_hue));
+  }
+  .hb-scd__shots {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-self: start;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .hb-scd__shots li {
+    margin: 0;
+  }
+  .hb-scd__shots figure {
+    margin: 0;
+  }
+  .hb-scd__shot {
+    position: relative;
+    border-radius: var(--hb-radius);
+    overflow: hidden;
+    box-shadow: 0 0 0 calc(var(--_hl, 0) * 3px) oklch(0.55 0.13 var(--_hue));
+    transition: box-shadow 0.12s ease;
+  }
+  /* クリックで拡大は astro.config.mjs の lightbox (.sl-markdown-content img) が行う */
+  .hb-scd__shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    margin: 0;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    cursor: pointer;
+  }
+  .hb-scd__shot .hb-scd__num {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+    box-shadow: 0 1px 3px oklch(0 0 0 / 0.35);
+  }
+  .hb-scd__shots figcaption {
+    margin-top: 5px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--hb-ink-mute);
+  }
+
+  /* ---- ほかのデモ ---- */
+  .hb-scd__others {
+    margin-top: 40px;
   }
   .hb-scd__others ul {
     list-style: none;
@@ -347,8 +470,15 @@ const { demo, others } = Astro.props;
     box-shadow: var(--hb-shadow-md);
   }
 
+  @media (max-width: 64rem) {
+    .hb-scd__shots {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
   @media (max-width: 50rem) {
-    .hb-scd__top {
+    .hb-scd__top,
+    .hb-scd__about,
+    .hb-scd__story-grid[data-has-shots] {
       grid-template-columns: 1fr;
     }
   }

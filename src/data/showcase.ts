@@ -75,7 +75,8 @@ export interface ShowcaseDemo {
   meta: string[];
   thumbnail?: string;
   video?: string;
-  screenshots?: { src: string; caption: string }[];
+  /** step: そのスクショが対応する体験の流れ (flow) の番号 (1 始まり)。詳細ページで番号を揃えて並べる */
+  screenshots?: { src: string; caption: string; step?: number }[];
   /** false にすると一覧・詳細ページとも生成しない (展示会ごとに一時的に外す等) */
   published?: boolean;
 }
@@ -112,11 +113,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     thumbnail: '/showcase/trex-encounter/thumb.webp',
     video: '/showcase/trex-encounter/pv.mp4',
     screenshots: [
-      { src: '/showcase/trex-encounter/shot-1.webp', caption: 'ジャングルの空き地を近づくT-Rex' },
-      { src: '/showcase/trex-encounter/shot-2.webp', caption: '目の前で大きく口を開けて咆哮' },
-      { src: '/showcase/trex-encounter/shot-3.webp', caption: 'ハッチから肉のトレイがせり上がる' },
-      { src: '/showcase/trex-encounter/shot-4.webp', caption: '手に持った肉にかぶりつく' },
-      { src: '/showcase/trex-encounter/shot-5.webp', caption: 'なでた後の下げた頭と目が合う' },
+      { src: '/showcase/trex-encounter/shot-1.webp', caption: 'ジャングルの空き地を近づくT-Rex', step: 2 },
+      { src: '/showcase/trex-encounter/shot-2.webp', caption: '目の前で大きく口を開けて咆哮', step: 2 },
+      { src: '/showcase/trex-encounter/shot-3.webp', caption: 'ハッチから肉のトレイがせり上がる', step: 3 },
+      { src: '/showcase/trex-encounter/shot-4.webp', caption: '手に持った肉にかぶりつく', step: 3 },
+      { src: '/showcase/trex-encounter/shot-5.webp', caption: 'なでた後の下げた頭と目が合う', step: 4 },
     ],
   },
   {
@@ -148,11 +149,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     thumbnail: '/showcase/ripple/thumb.webp',
     video: '/showcase/ripple/pv.mp4',
     screenshots: [
-      { src: '/showcase/ripple/shot-1.webp', caption: '雫の波面が人を通り抜ける瞬間' },
-      { src: '/showcase/ripple/shot-2.webp', caption: '同心円の輪が3人に届く' },
-      { src: '/showcase/ripple/shot-3.webp', caption: '深海背景で大きな揺らぎが通過' },
-      { src: '/showcase/ripple/shot-4.webp', caption: '平面波が画面を横切り頭に触れる' },
-      { src: '/showcase/ripple/shot-5.webp', caption: 'ビッグバンで全員に同時に届く' },
+      { src: '/showcase/ripple/shot-1.webp', caption: '雫の波面が人を通り抜ける瞬間', step: 2 },
+      { src: '/showcase/ripple/shot-2.webp', caption: '同心円の輪が3人に届く', step: 2 },
+      { src: '/showcase/ripple/shot-3.webp', caption: '深海背景で大きな揺らぎが通過', step: 3 },
+      { src: '/showcase/ripple/shot-4.webp', caption: '平面波が画面を横切り頭に触れる', step: 3 },
+      { src: '/showcase/ripple/shot-5.webp', caption: 'ビッグバンで全員に同時に届く', step: 3 },
     ],
   },
   {
@@ -191,11 +192,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     thumbnail: '/showcase/energy-duel/thumb.webp',
     video: '/showcase/energy-duel/pv.mp4',
     screenshots: [
-      { src: '/showcase/energy-duel/shot-1.webp', caption: '拳にLv2のエネルギー球とリング' },
-      { src: '/showcase/energy-duel/shot-2.webp', caption: 'パーに開いてLv3弾を発射' },
-      { src: '/showcase/energy-duel/shot-3.webp', caption: '前腕の八角形シールドが割れる瞬間' },
-      { src: '/showcase/energy-duel/shot-4.webp', caption: '自分の弾と相手の弾がぶつかる' },
-      { src: '/showcase/energy-duel/shot-5.webp', caption: '相手に迫るLv3弾（相手アップ）' },
+      { src: '/showcase/energy-duel/shot-1.webp', caption: '拳にLv2のエネルギー球とリング', step: 1 },
+      { src: '/showcase/energy-duel/shot-2.webp', caption: 'パーに開いてLv3弾を発射', step: 1 },
+      { src: '/showcase/energy-duel/shot-3.webp', caption: '前腕の八角形シールドが割れる瞬間', step: 2 },
+      { src: '/showcase/energy-duel/shot-4.webp', caption: '自分の弾と相手の弾がぶつかる', step: 2 },
+      { src: '/showcase/energy-duel/shot-5.webp', caption: '相手に迫るLv3弾（相手アップ）', step: 2 },
     ],
   },
   {
@@ -228,11 +229,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     thumbnail: '/showcase/boxing/thumb.webp',
     video: '/showcase/boxing/pv.mp4',
     screenshots: [
-      { src: '/showcase/boxing/shot-1.webp', caption: '左フックが相手の頭にヒット' },
-      { src: '/showcase/boxing/shot-2.webp', caption: '相手のフックが顔面へ迫る' },
-      { src: '/showcase/boxing/shot-3.webp', caption: '相手のフックを左グローブでブロック' },
-      { src: '/showcase/boxing/shot-4.webp', caption: '決め手のフックでKO勝利' },
-      { src: '/showcase/boxing/shot-5.webp', caption: '開始カウントダウンで相手と対峙' },
+      { src: '/showcase/boxing/shot-5.webp', caption: '開始カウントダウンで相手と対峙', step: 1 },
+      { src: '/showcase/boxing/shot-1.webp', caption: '左フックが相手の頭にヒット', step: 2 },
+      { src: '/showcase/boxing/shot-2.webp', caption: '相手のフックが顔面へ迫る', step: 2 },
+      { src: '/showcase/boxing/shot-3.webp', caption: '相手のフックを左グローブでブロック', step: 2 },
+      { src: '/showcase/boxing/shot-4.webp', caption: '決め手のフックでKO勝利', step: 3 },
     ],
   },
   {
@@ -264,7 +265,9 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
       'アリーナでバレーボールを体験する 1 人プレイのデモです。ボールを受ける手の向きと振りの速さでボールの行き先が決まり、当たった場所に応じた衝撃を Hapbeat で返します。',
     flow: [
       'モードを選ぶ: スパイク＋ブロック / レシーブ / 6 人制の試合',
-      '飛んでくるボールを、手のひらや腕で打ち返す',
+      '相手のサーブやスパイクを、手のひらや腕でレシーブする',
+      '味方のトスに合わせて、ボールを打ち下ろすスパイク',
+      'ネット際で両手を上げて、相手のスパイクをブロック',
     ],
     haptics: ['左右どちらの手・腕で受けたかに合わせた打球の衝撃', '体にボールが当たったときの衝撃'],
     specs: [
@@ -276,11 +279,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     thumbnail: '/showcase/volley/thumb.webp',
     video: '/showcase/volley/pv.mp4',
     screenshots: [
-      { src: '/showcase/volley/shot-1.webp', caption: 'サーブのトス、6対6の試合コート全景' },
-      { src: '/showcase/volley/shot-2.webp', caption: '右手でボールを捉えるスパイク' },
-      { src: '/showcase/volley/shot-3.webp', caption: '相手スパイクを正面でレシーブ' },
-      { src: '/showcase/volley/shot-4.webp', caption: 'ネット越しに両手でブロック' },
-      { src: '/showcase/volley/shot-5.webp', caption: 'ネット際で味方セッターがトス' },
+      { src: '/showcase/volley/shot-1.webp', caption: 'サーブのトス、6対6の試合コート全景', step: 1 },
+      { src: '/showcase/volley/shot-3.webp', caption: '相手スパイクを正面でレシーブ', step: 2 },
+      { src: '/showcase/volley/shot-5.webp', caption: 'ネット際で味方セッターがトス', step: 3 },
+      { src: '/showcase/volley/shot-2.webp', caption: '右手でボールを捉えるスパイク', step: 3 },
+      { src: '/showcase/volley/shot-4.webp', caption: 'ネット越しに両手でブロック', step: 4 },
     ],
   },
   {
@@ -309,11 +312,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     thumbnail: '/showcase/hand-demo/thumb.webp',
     video: '/showcase/hand-demo/pv.mp4',
     screenshots: [
-      { src: '/showcase/hand-demo/shot-1.webp', caption: '目線から見た体験テーブル全景' },
-      { src: '/showcase/hand-demo/shot-2.webp', caption: '自分の手で箱をつかんで持ち上げる' },
-      { src: '/showcase/hand-demo/shot-3.webp', caption: '赤いポークボタンを指で押す' },
-      { src: '/showcase/hand-demo/shot-4.webp', caption: 'ブロックをスナップソケットへ差し込む' },
-      { src: '/showcase/hand-demo/shot-5.webp', caption: '青いお手本の手がボタン押しを実演' },
+      { src: '/showcase/hand-demo/shot-1.webp', caption: '目線から見た体験テーブル全景', step: 1 },
+      { src: '/showcase/hand-demo/shot-5.webp', caption: '青いお手本の手がボタン押しを実演', step: 1 },
+      { src: '/showcase/hand-demo/shot-2.webp', caption: '自分の手で箱をつかんで持ち上げる', step: 2 },
+      { src: '/showcase/hand-demo/shot-3.webp', caption: '赤いポークボタンを指で押す', step: 2 },
+      { src: '/showcase/hand-demo/shot-4.webp', caption: 'ブロックをスナップソケットへ差し込む', step: 2 },
     ],
   },
   {
@@ -342,11 +345,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     thumbnail: '/showcase/fps/thumb.webp',
     video: '/showcase/fps/pv.mp4',
     screenshots: [
-      { src: '/showcase/fps/shot-1.webp', caption: 'チャージディスクをボス砲台へ発射' },
-      { src: '/showcase/fps/shot-2.webp', caption: '素手で腰のラックから銃を取る' },
-      { src: '/showcase/fps/shot-3.webp', caption: 'ブラスターがロボットに命中' },
-      { src: '/showcase/fps/shot-4.webp', caption: 'ランチャーのディスクが炸裂' },
-      { src: '/showcase/fps/shot-5.webp', caption: '溶岩に囲まれたアリーナ全景' },
+      { src: '/showcase/fps/shot-5.webp', caption: '溶岩に囲まれたアリーナ全景', step: 1 },
+      { src: '/showcase/fps/shot-2.webp', caption: '素手で腰のラックから銃を取る', step: 1 },
+      { src: '/showcase/fps/shot-3.webp', caption: 'ブラスターがロボットに命中', step: 2 },
+      { src: '/showcase/fps/shot-4.webp', caption: 'ランチャーのディスクが炸裂', step: 2 },
+      { src: '/showcase/fps/shot-1.webp', caption: 'チャージディスクをボス砲台へ発射', step: 3 },
     ],
   },
   {
@@ -380,11 +383,11 @@ export const SHOWCASE_DEMOS: ShowcaseDemo[] = [
     thumbnail: '/showcase/safety-mill/thumb.webp',
     video: '/showcase/safety-mill/pv.mp4',
     screenshots: [
-      { src: '/showcase/safety-mill/shot-1.webp', caption: '工房の小型フライス盤とアルミブロック' },
-      { src: '/showcase/safety-mill/shot-2.webp', caption: 'ハンドルを回し切削、切粉が飛ぶ' },
-      { src: '/showcase/safety-mill/shot-3.webp', caption: '回転する刃物の周りに切粉が積もる' },
-      { src: '/showcase/safety-mill/shot-4.webp', caption: '回転中の刃物にブラシが巻き込まれる' },
-      { src: '/showcase/safety-mill/shot-5.webp', caption: '停止後にブラシで払い青線が出る' },
+      { src: '/showcase/safety-mill/shot-1.webp', caption: '工房の小型フライス盤とアルミブロック', step: 1 },
+      { src: '/showcase/safety-mill/shot-2.webp', caption: 'ハンドルを回し切削、切粉が飛ぶ', step: 1 },
+      { src: '/showcase/safety-mill/shot-3.webp', caption: '回転する刃物の周りに切粉が積もる', step: 1 },
+      { src: '/showcase/safety-mill/shot-4.webp', caption: '回転中の刃物にブラシが巻き込まれる', step: 2 },
+      { src: '/showcase/safety-mill/shot-5.webp', caption: '停止後にブラシで払い青線が出る', step: 3 },
     ],
   },
 ];
