@@ -36,6 +36,7 @@ Requests from Studio to the agent (request a sound, remake, go to haptics, reass
 
 - Give each candidate stars (1–5) and a comment, and comment on the trial as a whole. Comments are the main information.
 - For events with a scene, the representative stretch of the full replay plays at the event's real firing times.
+- The list can be filtered by **project** and **type (sound / haptic)** at the top of the panel. The choice is remembered, so when the trials of a new project do not show up, check these filters first.
 - "Save and next" confirms. Candidates rated ★4+ are added to the event's materials as **tentative**; ★3 go to the reserves. What you type is saved as a draft automatically.
 
 ## Events panel
