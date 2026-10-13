@@ -48,6 +48,13 @@ Manage each cue's sound and haptic materials.
 - **Adjust**: adjust a material in place with effects (LPF, …) and the **strength slider**. Changes go straight to the event's WAV; the original audio and the effects stay in `adjust/` of the editor folder.
 - Haptic auditions go only to devices at the cue's body positions (neck, wrists, …).
 
+## Effects: clean-up
+
+Effects for preparing found or generated audio ("Clean-up" in the add-effect menu). AI agents can use them in a trial's `effects` too.
+
+- **Spectral denoise**: finds, per frequency, the level that is always there (the noise floor) and lowers only what stays near it. Unlike a low-pass, a hit keeps its highs; only steady hiss goes down. `thresholdK` (bins at or below this × the noise floor are lowered, default 2), `floorDb` (how far, default −24 dB), `percentile` (the low percentile used as the noise floor, default 20 %).
+- **Isolate hit**: keeps only the loudest hit — cut where its tail has fallen `endDb` below the peak (default −50 dB) or just before a second attack (`riseDb` within 20 ms, default +9 dB), with a `fadeMs` fade-out (default 25 ms). Use it when one contact should sound once.
+
 ## Scene tab
 
 Check every firing of each cue against the recording.
