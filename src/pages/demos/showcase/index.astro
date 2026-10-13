@@ -8,6 +8,7 @@
  * 絞り込みは radio + :has() の CSS のみで行い、JS は使わない。
  */
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import OfficialSiteCta from '../../../components/OfficialSiteCta.astro';
 import ShowcaseCard from '../../../components/ShowcaseCard.astro';
 import { PUBLISHED_SHOWCASE_DEMOS, SHOWCASE_CATEGORIES } from '../../../data/showcase';
 
@@ -61,6 +62,8 @@ const filterCss = categories
     <div class="hb-sc__grid">
       {demos.map((d) => <ShowcaseCard demo={d} />)}
     </div>
+
+    <OfficialSiteCta />
   </div>
 </StarlightPage>
 
