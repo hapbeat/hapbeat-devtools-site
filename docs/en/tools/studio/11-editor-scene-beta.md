@@ -103,6 +103,7 @@ Requests from Studio to the agent (request a sound, remake, go to haptics, reass
 
 - Give each candidate stars (1–5) and a comment, and comment on the proposal as a whole. Comments are the main information.
 - For events with a scene, the representative stretch of the full replay plays at the event's real firing times. The `scene.context` cues and the events firing at the same moment play along ("Play the events around it" switches this).
+- The list can be filtered by **project** and **target (sound / haptic)** at the top of the panel. The choice is remembered, so when the proposals of a new project do not show up, check these filters first.
 - "Save and next" confirms. Candidates rated ★4+ are added automatically to the event's **unstarred candidates** (alternates), and are starred only when the event has no starred material yet. ★3 go to the **reserves**. What you type is saved as a draft automatically.
 
 ## Events panel

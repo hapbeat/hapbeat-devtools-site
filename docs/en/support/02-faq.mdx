@@ -103,6 +103,14 @@ Using the GUI: Adapter settings → IPv4 properties of Wi-Fi → Advanced → un
 
 </Faq>
 
+<Faq question="I asked an AI agent, but no candidates appear in the waveform editor's AI trials">
+
+Check the **project** and **type (sound / haptic)** filters at the top of the AI trials panel. The filters are remembered and stay set the next time you open Studio, so if a different project you worked on earlier is still selected when trials for a new project arrive, none of them are listed. Set the filters to "All projects" and "All", or to the trial's project and type, and they appear.
+
+To check whether the trials reached Studio at all, ask the agent to run the MCP tool `list_trials` (every trial that arrived has a number such as `T107`).
+
+</Faq>
+
 ## Other
 
 <Faq question="I want different vibrations on multiple devices at the same time">
