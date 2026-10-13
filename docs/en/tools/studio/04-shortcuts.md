@@ -3,7 +3,7 @@ title: Keyboard Shortcuts
 kind: reference
 sidebar:
   order: 300
-description: Keyboard shortcuts and mouse operations available in the Studio Kit Manager.
+description: Keyboard shortcuts and mouse operations available in the Studio Kit tab and the waveform editor.
 ---
 
 Click the **"?"** (Controls) button at the top of the Kit tab to display an up-to-date cheat sheet as a popover inside Studio. This page is the reference version of that cheat sheet.
@@ -28,6 +28,19 @@ Click the **"?"** (Controls) button at the top of the Kit tab to display an up-t
 
 > 💡 To prevent `←` / `→` from also triggering native slider value changes, move focus away from the slider with `↓` / `↑` before switching cards.
 
+
+## Waveform Editor: AI Trial and Event Detail Cards
+
+The same keys as the Kit Editor. Click a card (an AI trial candidate, or a material / reserve in the event details) to focus it first.
+
+| Key | Action |
+|-----|--------|
+| `↑` / `↓` | Move to the previous / next card (shown in the waveform panel; stops playback; scrolls into view) |
+| `Space` | Play / stop the focused card |
+| `←` / `→` | On the strength slider: strength ±1% (`Shift`: ±10%) |
+
+- While typing (comment fields) or with a rating ★ focused, the arrow keys stay with that field.
+- On the strength slider, `←` / `→` change the strength and `↑` / `↓` move between cards (like the Kit Amp slider).
 ## Edit Modal
 
 | Key | Action |
