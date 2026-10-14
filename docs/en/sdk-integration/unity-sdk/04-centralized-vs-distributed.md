@@ -78,7 +78,7 @@ GameHapticRouter.Instance.OnEnemyHit();
 ### Cons
 - The Inspector gives no visibility into what is being called (you must read the script)
 - EventMap integration is manual (runtime existence checks appear, but unused entries cannot be detected in Inspector)
-- **Not covered by latency compensation**: `HapbeatConfig.hapticDelaySeconds` (audio delay compensation) is applied automatically only when going through Trigger / Bridge / Event / StateBehaviour. The `Manager.Instance.Play()` direct path bypasses EventMap entries, so if needed, the caller must add an equivalent delay using `Invoke` / `StartCoroutine`. Be mindful of this when adopting the centralized pattern.
+- **Not covered by latency compensation**: `HapbeatConfig.hapticDelaySeconds` (audio delay compensation) is applied automatically only when going through Trigger / StateBehaviour. The `Manager.Instance.Play()` direct path bypasses EventMap entries, so if needed, the caller must add an equivalent delay using `Invoke` / `StartCoroutine`. Be mindful of this when adopting the centralized pattern.
 
 ## Guidance on choosing
 

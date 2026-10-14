@@ -40,7 +40,7 @@ The panel only moves in front of you when it leaves the centre of your view. It 
 
 Set a return destination on **Return Scene** of `VRConfigExampleController` and Exit takes you back to your own scene. That lets you **use this scene as-is as a "Hapbeat settings screen."**
 
-If you want to build your own UI, adding a single `HapbeatAddressOverridePanel` to a GameObject generates an equivalent settings UI (→ [](/en/docs/sdk-integration/unity-sdk/targeting/#override-targeting)).
+If you want to build your own UI, adding a single `HapbeatAddressOverridePanel` to a GameObject generates an equivalent settings UI (→ [](/en/docs/sdk-integration/unity-sdk/targeting/#placing-a-settings-panel)).
 
 ## See also
 

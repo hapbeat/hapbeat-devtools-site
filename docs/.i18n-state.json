@@ -77,6 +77,101 @@
       "source_sha": "7e1f0d12b68c79ae38665f29c53dc131e984b50e",
       "translated_at": "2026-06-25T20:42:51Z"
     },
+    "docs/en/sdk-integration/unity-sdk/01-getting-started.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/01-getting-started.md",
+      "source_sha": "75cab897774533a706fd0d57d2e2560429faf32d",
+      "translated_at": "2026-10-14T15:19:12.100Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/02-integration.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/02-integration.md",
+      "source_sha": "8b33e530aed49cb6891cfdcaf29a247b200e0e78",
+      "translated_at": "2026-10-14T15:19:12.456Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/03-ai-assisted-workflow.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/03-ai-assisted-workflow.md",
+      "source_sha": "763c5e739fc31ba9a9016ac83d9f79d2a65e790d",
+      "translated_at": "2026-10-14T15:19:12.807Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/04-centralized-vs-distributed.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/04-centralized-vs-distributed.md",
+      "source_sha": "4ffe92d6672fa1f1eb3aa31ddc2788a6791a808f",
+      "translated_at": "2026-10-14T15:19:13.211Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/05-fire-vs-clip.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/05-fire-vs-clip.md",
+      "source_sha": "7f5f925563f13a13ede66d3802f80b343f1e9bcb",
+      "translated_at": "2026-10-14T15:19:13.704Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/08-editor-menus.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/08-editor-menus.md",
+      "source_sha": "c38dc6b578b1313d0b16e6c6e16f41a38c6f1672",
+      "translated_at": "2026-10-14T15:19:14.208Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/09-event-map.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/09-event-map.md",
+      "source_sha": "b8ab572730c968a020f836860dd2fce6fc4e6928",
+      "translated_at": "2026-10-14T15:19:14.610Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/10-installation.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/10-installation.md",
+      "source_sha": "1579acc475034a88989da6af889479e87517942a",
+      "translated_at": "2026-10-14T15:19:14.959Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/11-parameter-binding.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/11-parameter-binding.md",
+      "source_sha": "fce81b51e5900f24df5e2a71deb29e4b0d0d129b",
+      "translated_at": "2026-10-14T15:19:15.318Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/12-triggers.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/12-triggers.md",
+      "source_sha": "7fd1416d8033069f14a4dde77f3d271cc214846e",
+      "translated_at": "2026-10-14T15:19:15.697Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/13-xri-handdemo-quickstart.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/13-xri-handdemo-quickstart.md",
+      "source_sha": "23aa3394c048fc91c4ffaa049c873a0546a3aa98",
+      "translated_at": "2026-10-14T15:19:16.035Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/15-vr-config-example.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/15-vr-config-example.md",
+      "source_sha": "f9ef5ac827977b847df6a7ead8c6bcfa301d723e",
+      "translated_at": "2026-10-14T15:19:16.428Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/17-streaming.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/17-streaming.md",
+      "source_sha": "8f0015bd3b3de25ca3414acc634143053e021946",
+      "translated_at": "2026-10-14T15:19:16.825Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/18-scripting.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/18-scripting.md",
+      "source_sha": "b0307b5f2d94e36ec9fc524ceaf83330ba1b9d2a",
+      "translated_at": "2026-10-14T15:19:17.240Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/19-script-api.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/19-script-api.md",
+      "source_sha": "7c1b61586761aa28f825c1f830b7e4b2b3da500f",
+      "translated_at": "2026-10-14T15:19:17.621Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/showcase/01-overview.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/showcase/01-overview.md",
+      "source_sha": "bedaf85a4e444185a0ce46a3881c598ad340f4d8",
+      "translated_at": "2026-10-14T15:19:17.982Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/showcase/02-walkthrough.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/showcase/02-walkthrough.md",
+      "source_sha": "90131a9a792d7991de55013642ae235adacb689b",
+      "translated_at": "2026-10-14T15:19:18.390Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/showcase/03-wiring.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/showcase/03-wiring.md",
+      "source_sha": "04a7b974f39ba035018cb21fc85188447bc7ca64",
+      "translated_at": "2026-10-14T15:19:18.822Z"
+    },
+    "docs/en/sdk-integration/unity-sdk/showcase/04-method-choice.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/showcase/04-method-choice.md",
+      "source_sha": "58d3e162c8ecea2df1c707866e0afcaea52bf864",
+      "translated_at": "2026-10-14T15:19:19.184Z"
+    },
     "docs/en/tools/studio/11-editor-scene-beta.md": {
       "source": "docs/ja/tools/studio/11-editor-scene-beta.md",
       "source_sha": "e2ff40051b941c1d0af4d7acd2b7125a95853e31",

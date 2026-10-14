@@ -12,7 +12,7 @@ The Hapbeat SDK consolidates all operations under the top-level Unity Editor men
 Hapbeat/
   Open Event Map                           ← Window (main screen for Event ID + Wiring management)
   Open Batch Setup                         ← Window (bulk Trigger setup for multiple GameObjects)
-  Open Settings                            ← Window (connection settings / Bridge / Override Addressing)
+  Open Settings                            ← Window (connection settings / Override Addressing / latency compensation)
   Open Runtime Status                      ← Window (resolved override / appName at runtime)
   ─────────────────────────────
   Samples/Augment XRI Hand Demo            ← Apply haptic wiring to the XRI sample scene
@@ -41,7 +41,6 @@ Hapbeat/
   Diagnostics/Check for SDK Updates        ← Check for a newer SDK release right now
   Diagnostics/Check for SDK Updates on Startup ← Toggle the automatic check at Editor startup
   ─────────────────────────────
-  Developer/Build Basic Example            ← Scaffold the Basic Example sample (Local/Embedded install only)
   Developer/Sync HapbeatSDK → Samples~ (Showcase)
   Developer/Sync HapbeatSDK → Samples~ (BasicExample)
 ```
@@ -51,16 +50,16 @@ Section breakdown:
 1. **Window** (top): Opens editor windows. Placed first because they are used frequently.
 2. **Samples**: Commands that apply wiring to imported samples.
 3. **Create**: Day-to-day authoring operations. Create Event Router or Event Map individually.
-3. **Initial / One-time**: For initial setup or special cases. Initial Scene Setup is an all-in-one command (Router + EventMap + folder); Deploy Imported Sample deploys from the Samples folder to HapbeatSDK/.
-4. **Authoring tools**: EventMap export / audio format conversion (asset processing).
-5. **Diagnostics**: Wiring tests, log recording, emergency transport close, bulk verbose log disable. For debugging purposes.
-6. **Developer** (gate hidden in UPM consumer installs): SDK developer only. Hidden in UPM Git URL / registry installs by `HapbeatDevModeMenuGate`.
+4. **Initial / One-time**: For initial setup or special cases. Initial Scene Setup is an all-in-one command (Router + EventMap + folder).
+5. **Authoring tools**: EventMap export / audio format conversion (asset processing).
+6. **Diagnostics**: Wiring tests, log recording, emergency transport close, bulk verbose log disable, sample version / SDK update checks. For debugging purposes.
+7. **Developer** (gate hidden in UPM consumer installs): SDK developer only. Hidden in UPM Git URL / registry installs by `HapbeatDevModeMenuGate`.
 
 Hapbeat entries also appear in the following menu locations:
 
 - **GameObject → Hapbeat → Event Router** (including Hierarchy right-click) — same as Create Event Router
 - **Assets → Create → Hapbeat → Config / Event Map** — ScriptableObject creation
-- **Add Component → Hapbeat/...** — Add individual Trigger / Bridge / Helper components
+- **Add Component → Hapbeat/...** — Add individual Trigger / Helper components
 
 ---
 
@@ -72,15 +71,16 @@ A window for editing connection settings.
 
 | Setting | Purpose |
 |---|---|
-| Port | UDP port (default 7700) |
+| UDP Port | UDP port (default 7700) |
 | App Name | Client app name displayed on the Hapbeat device's display. **Max 16 characters** (display grid width). The default `app_name` element (8×1) shows only the first 8 characters. If left blank, `Application.productName` is used automatically (truncated if over 16 characters). `<p>` / `<g>` are replaced with the override values just before sending |
 | **Override Addressing (this build)** | The player / group pinned for the whole build. When blank (disabled), the EventMap's own target is used as-is → [](/en/docs/sdk-integration/unity-sdk/targeting/) |
-| Use Bridge / Bridge Host | Enable only when using ESP-NOW routing (advanced setup) |
-| Ping Interval | Keepalive send interval (seconds) |
-| Haptic Delay | A uniform delay added to every firing (ms). For syncing with visuals |
-| Stream Send Ahead | How far ahead CLIP data is sent (seconds) |
-| Stream / Command Unicast | Send to known devices by unicast (ON by default) → [](/en/docs/concepts/communication-model/) |
-| Enable / Verbose Logging | How much is written to the Console |
+| Auto Reconnect | Automatically reopens a connection dropped by a socket error (interval doubles from 2 s up to 30 s). Leave ON for unattended operation |
+| Ping Interval (s) | Keepalive send interval (seconds) |
+| Stream Buffer (s) | How far ahead CLIP (StreamClip) data is sent (seconds). Shorter makes Stop respond faster; longer is more stable. Range 10–200 ms, default 50 ms |
+| Command Unicast | Send Play / Stop / StopAll to known devices by unicast (ON by default) → [](/en/docs/concepts/communication-model/) |
+| Enable Logging | Print Play / Stop / connection / errors to the Console |
+| Verbose Log | Also print PONG / keepalive / protocol details (for debugging) |
+| Latency Compensation → Haptic Delay (ms) | A uniform delay (ms) added to firings that go through a Trigger / StateBehaviour. For syncing with the audio output device. Each entry's Delay Offset is added on top |
 
 Use this for ping testing with a physical device or editing settings outside a scene. The content is the same as the Inspector for a `HapbeatConfig` ScriptableObject created via `Assets/Create/Hapbeat/Config`.
 
@@ -89,7 +89,9 @@ Use this for ping testing with a physical device or editing settings outside a s
 A window for checking the **resolved values** during Play mode. It shows not the settings themselves, but "what is actually being sent right now."
 
 - **Override Addressing (this device)** — the current player / group set by the runtime API or the settings panel
+  - **Edit (works outside Play Mode too)** — enter Player / Group and press **Save to this device** to store them (also possible outside Play Mode)
 - **App Name** — the `appName` template, and the actual string sent after `<p>` / `<g>` substitution
+- **Connection** (Play Mode only) — Connected / Transport / Port / Alive devices, and the list of discovered devices
 
 It lets you confirm whether the override is in effect, and whether the string that should appear on the OLED is what you expect, without looking at a device.
 
@@ -104,7 +106,7 @@ Key features:
 - Wiring section: Reverse-scan to find which Triggers fire the selected entry
 - Test Play / Snapshot/Restore during Play mode (save and restore values when tuning against a physical device)
 
-Details: [Event Map Window](./event-map.md)
+Details: [Event Map Window](/en/docs/sdk-integration/unity-sdk/event-map/)
 
 ### Batch Setup
 
@@ -186,7 +188,7 @@ Exports the contents of a `HapbeatEventMap.asset` as a Markdown summary. Intende
 - `Selected` — Only the EventMap currently selected in the Project view
 - `All in Project` — Bulk-exports all EventMaps found via `t:HapbeatEventMap`
 
-Details: [AI-Assisted Workflow](./ai-assisted-workflow.md)
+Details: [AI-Assisted Workflow](/en/docs/sdk-integration/unity-sdk/ai-assisted-workflow/)
 
 ---
 
@@ -198,7 +200,7 @@ Diagnostic utilities available to users. The recommended flow for bug reports is
 
 Adds or removes logging wiring that outputs UnityEvent invocations (e.g. `XRGrabInteractable.selectEntered`) on the selected GameObject to the Console.
 
-Useful for visualizing what is happening before setting up Triggers, or for confirming fire timing. When building wiring with AI assistance, observing "which events fire when" first helps keep the design grounded. Details: [AI-Assisted Workflow](./ai-assisted-workflow.md).
+Useful for visualizing what is happening before setting up Triggers, or for confirming fire timing. When building wiring with AI assistance, observing "which events fire when" first helps keep the design grounded. Details: [AI-Assisted Workflow](/en/docs/sdk-integration/unity-sdk/ai-assisted-workflow/).
 
 ### Logs/
 
@@ -230,12 +232,6 @@ Under normal circumstances you will not need this.
 
 For SDK developers. Hidden in end-user UPM Git URL / registry / tarball installs by `HapbeatDevModeMenuGate` — the menu does not appear at all.
 
-### Build Basic Example
-
-Scaffolds the Basic Example sample set (Kit / EventMap / Scene) at `Assets/HapbeatSDK/SDK_Samples/BasicExample/`. Requires the Basic Example to be imported via Package Manager first.
-
-End users can open the Scene directly from Package Manager's Sample Import, so this menu is not normally needed.
-
 ### Sync HapbeatSDK → Samples~ (Showcase) / (BasicExample)
 
 Writes back Scenes / EventMaps / Animations edited under `Assets/HapbeatSDK/SDK_Samples/<sample>/` to the package's `Samples~/<sample>/`. A maintainer-only command for SDK developers.
@@ -263,14 +259,15 @@ In a GameObject's Inspector → Add Component → search for `Hapbeat`:
 |---|---|
 | Hapbeat Collision Trigger | Fires on physics collision / Trigger Enter / Exit |
 | Hapbeat Sequence Trigger | Handles grab / hold / release in one component |
-| Hapbeat Tick Emitter | Snap-fires based on the rate of change in a continuous value (e.g. Slider) |
-| Hapbeat Unity Event Trigger | Fires from any UnityEvent via the `Fire()` method |
+| Hapbeat Tick Trigger | Snap-fires based on the rate of change in a continuous value (e.g. Slider) (class name `HapbeatTickEmitter`) |
+| Hapbeat UnityEvent Trigger | Fires from any UnityEvent via the `Fire()` method |
 | Hapbeat Parameter Binding | Maps Transform / Rigidbody values to gain / pan in real time |
 | Hapbeat Action Helper | Wrapper to call Stop / StopAll / Ping from a UnityEvent |
-| Hapbeat Event Logger | Logs UnityEvent invocations to the Console (for debugging) |
+| Hapbeat Event Logger (Diagnostic) | Logs UnityEvent invocations to the Console (for debugging) |
 | Hapbeat Key Dispatcher | Maps key presses to UnityEvents (for samples / prototypes) |
 | Hapbeat Status Overlay | Displays connection state and logs on a Canvas |
+| Hapbeat Address Override Panel | A panel for switching player / group at runtime (Override Addressing (this device)) |
 
-> For firing from Animator states, use **`HapbeatStateBehaviour`**. Because it is a StateMachineBehaviour, it is added via the **Animator window: select a state → Inspector → Add Behaviour**, not through Add Component. Details: [Trigger Components](./triggers.md#hapbeatstatebehaviour).
+> For firing from Animator states, use **`HapbeatStateBehaviour`**. Because it is a StateMachineBehaviour, it is added via the **Animator window: select a state → Inspector → Add Behaviour**, not through Add Component. Details: [Trigger Components](/en/docs/sdk-integration/unity-sdk/triggers/#hapbeatstatebehaviour).
 
-Details: [Trigger Components](./triggers.md) / [Parameter Binding](./parameter-binding.md)
+Details: [Trigger Components](/en/docs/sdk-integration/unity-sdk/triggers/) / [Parameter Binding](/en/docs/sdk-integration/unity-sdk/parameter-binding/)

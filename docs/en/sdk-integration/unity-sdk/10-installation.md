@@ -31,7 +31,7 @@ https://github.com/Hapbeat/hapbeat-unity-sdk.git
 To pin a specific version, append a tag. See [Releases](https://github.com/Hapbeat/hapbeat-unity-sdk/releases) for the available tags:
 
 ```
-https://github.com/Hapbeat/hapbeat-unity-sdk.git#v0.3.0
+https://github.com/Hapbeat/hapbeat-unity-sdk.git#v0.6.0
 ```
 
 ### 2. Updating
@@ -48,7 +48,7 @@ Package Manager cannot detect updates for tag-pinned Git URLs, so this check is 
 
 ### 3. Create the SDK Folder (optional, convenient on first setup)
 
-Run `Hapbeat → Setup → Create HapbeatSDK Folder` to generate:
+Run `Hapbeat → Create HapbeatSDK Folder` to generate:
 
 ```
 Assets/HapbeatSDK/
@@ -57,7 +57,7 @@ Assets/HapbeatSDK/
   EventMaps/   ← EventMap.asset
 ```
 
-This is generated automatically when using the sample Build menu, so you rarely need to run it explicitly.
+This is generated automatically when you run `Hapbeat → Initial Scene Setup`, so you do not need to call it explicitly.
 
 ## Samples
 
@@ -65,18 +65,18 @@ Select Hapbeat SDK in Package Manager → **Import** from the **Samples** tab in
 
 | Sample | Contents | Requirements |
 |---|---|---|
-| **Basic Example** | Minimal combination of Trigger × 3 + Helper + Dispatcher + StatusOverlay. Test with Space/R/F/S/C keys | Device + Studio or Helper running |
+| **BasicExample** | Minimal combination of Trigger × 3 + Helper + Dispatcher + StatusOverlay. Test with Space/R/F/S/C keys | Device + Studio or Helper running |
 | **Showcase** | Full SDK feature showcase with 5 zones (Bowling / Door / Fishing / Stream Console / Target Range). Works with keyboard and mouse — no XR required | Same |
-| **XR Helpers** | Filters for XR Interaction Toolkit integration (XRGrabFilter / XRSocketFilter) | Only for projects with XRI installed |
+| **XR Helpers** | XR Interaction Toolkit integration components (HapbeatXRGrabFilter / HapbeatXRSocketFilter / HapbeatXRHandSideRouter, which routes UnityEvents by left / right hand) | Only for projects with XRI installed |
 | **XRI Hand Demo (haptics add-on)** | EventMap + Kit that add haptics to the XRI Hands Interaction Demo. The scene is not bundled — the wiring is applied by an Editor command → [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/) | XRI + XR Helpers + a hand-tracking HMD |
 | **VR Config Example** | A minimal scene for checking things on a VR headset. Override settings and test firing only. No XRI dependency → [](/en/docs/sdk-integration/unity-sdk/targeting/) | A VR headset such as Quest |
 
-Samples are unpacked to `Assets/Samples/Hapbeat SDK/<version>/<sample>/`. Open the scene (`Scenes/*.unity`) immediately after import and hit Play to verify — no additional build steps required.
+Samples are unpacked to `Assets/Samples/Hapbeat SDK/<version>/<sample>/`. Open the scene immediately after import and hit Play to verify — no additional build steps required. The BasicExample / Showcase scenes are directly under the sample (`BasicExample.unity` / `Showcase.unity`); the VR Config Example is at `Scenes/VRConfigExample.unity`.
 
 ## Verifying the Setup
 
 1. Launch **Hapbeat Studio** or **Hapbeat Helper** and confirm your device appears online
-2. In Unity, open `Assets/HapbeatSDK/Scenes/BasicExample.unity`
+2. In Unity, open `Assets/Samples/Hapbeat SDK/<version>/BasicExample/BasicExample.unity`
 3. Enter Play mode
 4. Press **Space** for a one-shot stream, **F** for a Command (Fire) — if the device vibrates, you're set (**R** = Stream loop, **S** = Stop all, **C** = Ping)
 

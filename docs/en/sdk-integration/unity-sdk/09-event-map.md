@@ -225,7 +225,7 @@ An element of `HapbeatEventEntry.bindings`. A preset for modulating gain / pan d
 | `debugLogInterval` | `float` | `0.1` | Log throttle (seconds) |
 | `debugLogChangeThreshold` | `float` | `0.02` | Log is skipped if the normalized value has not changed by at least this amount |
 
-### 4.1 BindingSourceProperty (10 values)
+### 4.1 BindingSourceProperty (11 values)
 
 | Value | Input | Required ref |
 |---|---|---|
@@ -288,6 +288,7 @@ Left to right:
 | `Event Map:` Object Field | Switch the EventMap being edited (persisted by GUID) |
 | `● Save` / `✓ Saved` | Dirty state indicator and manual save button |
 | (FlexibleSpace) | |
+| `Bulk Edit` | Open a modal that applies mode / gain / target / delay / manifest / notes to multiple entries at once. Targets all entries by default; uncheck `Select all` in the modal to apply only to the rows selected in the Table view |
 | `Batch Setup` | Open `HapbeatBatchSetupWindow` |
 | `Scan Scene` | Re-scan Trigger / State / Script wiring in the scene |
 | `↻` | Refresh manifest intensity cache for all entries |
@@ -356,7 +357,7 @@ UI rendered in order:
 - Button: `▶ Test Play` (green) ⇔ `■ Stop` (red) toggle
   - During Play: via `HapbeatManager.Instance`
   - In Edit mode: lazy-opens `HapbeatEditorTransport`
-- Right side: **Manifest** row (uses port/group from `HapbeatConfig` set via `Hapbeat → Open Settings`)
+- Right side: **Manifest** row (uses the port from `HapbeatConfig` set via `Hapbeat → Open Settings`)
   - Label `Manifest`
   - Picker (TextAsset field, limited to `*-manifest.json`) — sets `manifestOverride`
   - `↻` Refresh button — walks up from the clip's folder to auto-attach `*-manifest.json`
@@ -454,14 +455,12 @@ A spreadsheet-style view for bulk editing.
 |---|---|---|
 | `☰` | Drag handle | 20px |
 | `#` | List index | 28px |
-| `Mode` | Popup (`FIRE` / `CLIP` / `LIVE`*) | 70px |
+| `Mode` | Popup (`FIRE` / `CLIP`) | 70px |
 | `Name` | `displayName` TextField | flex |
 | `Event ID / Clip` | Command: combined `category.eventName` / StreamClip: `AudioClip` picker | 180px |
 | `Gain` | FloatField | 48px |
-| `Target` | Read-only summary | 110px |
+| `Target` | Click to open the target edit popup (applies to all rows when a multi-selected row is clicked) | 110px |
 | `×` | Delete | 20px |
-
-*The Table view Mode popup retains `LIVE`, but since there is only one `StreamClip` enum value, selecting LIVE is a no-op.
 
 ### 9.2 Selection / Bulk Editing
 
@@ -477,6 +476,7 @@ A spreadsheet-style view for bulk editing.
 - Set Mode/FIRE (Command)
 - Set Mode/CLIP (Stream Clip)
 - Set Gain.../0.5 / 1.0 / 2.0
+- Set Target... (applies the target edit popup to all selected rows)
 - Duplicate All
 - Delete All
 

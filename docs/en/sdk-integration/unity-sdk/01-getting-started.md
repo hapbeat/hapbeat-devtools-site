@@ -49,13 +49,13 @@ https://github.com/Hapbeat/hapbeat-unity-sdk.git
 | **Basic Example** | **Required** | Minimal sample used in this tutorial (keyboard-driven event firing) |
 | **Showcase** | **Strongly recommended** (optional) | An implementation catalog covering haptic wiring patterns across 5 zones in a single scene. Highly useful as a reference when integrating — import it alongside Basic Example |
 
-The full sample set (Scene / EventMap / Kit) is placed under `Assets/HapbeatSDK/SDK_Samples/` and is **ready to Play immediately**. After import, the **`Hapbeat`** menu appears in the menu bar.
+The full sample set (Scene / EventMap / Kit) is placed under `Assets/Samples/Hapbeat SDK/<version>/` and is **ready to Play immediately**. After import, the **`Hapbeat`** menu appears in the menu bar.
 
 For version pinning, updates, and troubleshooting, see [](/en/docs/sdk-integration/unity-sdk/installation/).
 
 ## 2. Play and confirm vibration (Stream)
 
-Open `Assets/HapbeatSDK/SDK_Samples/BasicExample/Scenes/BasicExample.unity` and press **Play** (the scene, EventMap, and Kit are all included in the sample — no extra setup required).
+Open `Assets/Samples/Hapbeat SDK/<version>/BasicExample/BasicExample.unity` and press **Play** (the scene, EventMap, and Kit are all included in the sample — no extra setup required).
 
 An on-screen key guide is displayed:
 
@@ -106,7 +106,7 @@ EventMap details: [](/en/docs/sdk-integration/unity-sdk/event-map/)
 To use Command mode (F key), install `basic-exam-kit` on the device. Deploying from Studio requires **hapbeat-helper** (see [](/en/docs/tools/studio/initial-setup/)).
 
 1. Open **Hapbeat Studio** (`https://studio.hapbeat.com/en/`)
-2. **Kit tab (right side)** → select a folder ("Open Folder") and point it at `Assets/HapbeatSDK/SDK_Samples/BasicExample/Kit/` in your Unity project
+2. **Kit tab (right side)** → select a folder ("Open Folder") and point it at `Assets/Samples/Hapbeat SDK/<version>/BasicExample/Kit/` in your Unity project
 3. Select `basic-exam-kit` from the list
 4. Confirm a device is selected (top-right of the page) → click **Deploy**
 
@@ -127,6 +127,7 @@ Also note that the Hapbeat SDK uses a **multiplicative gain structure**. The ref
 ## Next steps
 
 - [](/en/docs/sdk-integration/unity-sdk/integration/) — How to add the SDK to your own scene, plus the Showcase sample walkthrough
+- [](/en/docs/sdk-integration/unity-sdk/scripting/) — Fire haptics from your own C# script
 - [](/en/docs/sdk-integration/unity-sdk/triggers/) — Collision / Sequence / UnityEvent / TickEmitter / StateBehaviour
 - [](/en/docs/sdk-integration/unity-sdk/event-map/) — Manage Event ID ↔ waveform mappings in a GUI
 - [](/en/docs/sdk-integration/unity-sdk/parameter-binding/) — Dynamically map game state to gain / pan

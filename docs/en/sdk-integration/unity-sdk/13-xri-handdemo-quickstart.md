@@ -37,10 +37,10 @@ A prebuilt APK is available → [](/en/docs/sdk-integration/unity-sdk/xri-handde
      https://github.com/Hapbeat/hapbeat-unity-sdk.git
      ```
 
-   - To pin a version, append a tag (e.g. `#v0.3.0`)
+   - To pin a version, append a tag (e.g. `#v0.6.0`)
 
 4. **From the Hapbeat SDK Samples, import *XR Helpers* and *XRI Hand Demo (haptics add-on)***
-   - **Both are required.** The former holds the XRI filter components, the latter the EventMap and Kit
+   - **Both are required.** The former holds the XRI filter components and `HapbeatXRHandSideRouter`, which routes UnityEvents by the hand (left / right) that performed the interaction. The latter holds the two EventMaps (`HandsDemoLeftEventMap.asset` / `HandsDemoRightEventMap.asset`) and the Kit
 
 5. **Open `HandsDemoScene.unity`**
 
@@ -54,23 +54,24 @@ A prebuilt APK is available → [](/en/docs/sdk-integration/unity-sdk/xri-handde
    - Without this you cannot grab. Poking works from finger position alone, but grabbing is a pinch — it needs select input, and the Hand Interaction Profile is what supplies it
 
 8. **Put the Hapbeat on the same Wi-Fi and press Play**
+   - The left and right EventMaps have the same 10 entries and differ only in target (left `player_1/pos_l_wrist` / right `player_1/pos_r_wrist`). Set the two wrist Hapbeats to `player_1/pos_l_wrist/group_1` / `player_1/pos_r_wrist/group_1` respectively
 
 :::tip[When you want to review the wiring points]
 Instead of step 6, run `Hapbeat > Samples > Augment XRI Hand Demo (+ diagnostic Event Logger)` to log every XRI event on the poke button to the Console.
 :::
 
 :::note[No Kit deployment required]
-All 10 entries in the bundled EventMap are CLIP (StreamClip), so the waveforms are streamed from the app. The bundled `hand-demo-kit-manifest.json` exists to preview the reference intensity in the EventMap. For the difference from FIRE, see [](/en/docs/sdk-integration/unity-sdk/fire-vs-clip/).
+All entries in the bundled EventMaps (10 each for left and right) are CLIP (StreamClip), so the waveforms are streamed from the app. The bundled `hand-demo-kit-manifest.json` exists to preview the reference intensity in the EventMap. For the difference from FIRE, see [](/en/docs/sdk-integration/unity-sdk/fire-vs-clip/).
 :::
 
 ## When it doesn't work
 
 | Symptom | Fix |
 |---|---|
-| `HandsDemoEventMap.asset` not found | The *XRI Hand Demo (haptics add-on)* sample is not imported → step 4 |
+| `HandsDemoLeftEventMap.asset` / `HandsDemoRightEventMap.asset` not found | The *XRI Hand Demo (haptics add-on)* sample is not imported → step 4 |
 | The open scene is not the Hands Interaction Demo | Wrong scene, or an XRI version difference. The dialog lists the paths it could not find |
 | Console shows `GameObject '…' not found` | XRI renamed or moved it. Wire the paths in the warning manually ([](/en/docs/sdk-integration/unity-sdk/triggers/)) |
-| Console shows `type '…HapbeatXRGrabFilter' not found` | The *XR Helpers* sample is not imported → step 4 |
+| Console shows `type '…HapbeatXRGrabFilter' not found`, or the dialog shows `HapbeatXRHandSideRouter was not found` | The *XR Helpers* sample is not imported → step 4 |
 | Cannot grab | Enable the Hand Interaction Profile and the Hand Tracking Subsystem → step 7 |
 | No haptic feedback | See the connectivity entries in [](/en/docs/support/faq/) |
 
