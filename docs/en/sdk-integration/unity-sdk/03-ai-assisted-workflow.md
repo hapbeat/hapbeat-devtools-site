@@ -10,14 +10,14 @@ The Hapbeat SDK's straightforward structure — GameObjects / Triggers / EventMa
 
 This page presents a four-step workflow for having an AI read an existing scene, design the haptic feedback, and implement it — along with recommended prompts for each step.
 
-> This is a cleaned-up version of the workflow the SDK author used with Claude Code when implementing the `Showcase` / `XriHandDemoAugment` samples.
+> This is a cleaned-up version of the workflow the SDK author used with Claude Code when implementing the `Showcase` sample and the XRI Hand Demo wiring command (`Hapbeat → Samples → Augment XRI Hand Demo`).
 
 ---
 
 ## Prerequisites
 
 - Your **Unity project** is readable by the AI (Claude Code / Cursor etc. launched at the project root)
-- **Hapbeat SDK** is installed ([installation guide](./installation.md))
+- **Hapbeat SDK** is installed ([installation guide](/en/docs/sdk-integration/unity-sdk/installation/))
 - The **existing scene** you want to add haptics to is saved under `Assets/`
 - The AI has permission to read `.unity` scene files (YAML) and the SDK Trigger / EventMap definitions
 
@@ -107,7 +107,7 @@ Each entry follows this schema:
 - gain: 0.0–1.0 (use 0.5 as a starting point during touch design)
 - target: haptic device target (empty string = all groups / "neck" / "arm", etc.)
 
-Reference: read the spec in `Packages/com.hapbeat.sdk/docs/event-map.md`
+Reference: read the spec at https://devtools.hapbeat.com/docs/sdk-integration/unity-sdk/event-map/
 before deciding.
 
 Output as a C# array literal for embedding in an Editor script:
@@ -176,8 +176,8 @@ Based on the EventMap and wiring table above, create
 5. Do not auto-save the scene after running, so the user can review and
    manually adjust before saving
 
-Reference: read BasicExampleSceneBuilder.cs / ShowcaseSceneBuilder.cs from
-the existing samples to match the API and namespaces.
+Reference: read the SDK's `Editor/HapbeatHandDemoAugmentor.cs` (the Editor command
+that applies wiring to the XRI Hand Demo) to match the API and namespaces.
 ````
 
 **Benefits:**
@@ -220,8 +220,8 @@ Pointing the AI at `Packages/com.hapbeat.sdk/` lets it understand the SDK correc
 
 - Each Trigger implementation in `Runtime/Hapbeat*Trigger.cs`
 - `Runtime/HapbeatEventMap.cs` / `HapbeatEventEntry.cs`
-- `docs/triggers.md` / `docs/event-map.md`
-- `Samples~/Showcase/Editor/ShowcaseSceneBuilder.cs` (a good implementation pattern example)
+- The public docs: [Trigger Components](/en/docs/sdk-integration/unity-sdk/triggers/) / [Event Map Window](/en/docs/sdk-integration/unity-sdk/event-map/)
+- `Editor/HapbeatHandDemoAugmentor.cs` (a good implementation pattern example of applying wiring from an Editor command)
 
 ### Do not fully delegate haptic design to AI
 
@@ -253,10 +253,8 @@ AI tends to omit `Undo.AddComponent` / `Undo.RecordObject`. **State "reversible 
 
 ---
 
-## Reference: prompts used during Hapbeat SDK development
+## Reference: the SDK's own Augmentor implementation
 
-The detailed instruction documents (test criteria / scene path tables / Undo requirements / environment checks) passed to Claude Code when implementing the `Showcase` / `XriHandDemoAugment` samples are located under `instructions/later/` in the SDK repository:
-
-- [`instructions-xri-handdemo-augment-202605051200.md`](https://github.com/Hapbeat/hapbeat-unity-sdk/blob/master/instructions/later/instructions-xri-handdemo-augment-202605051200.md) — Design specification for an Augmentor that retrofits haptics onto XRI HandDemo with a single Editor menu click
+The implementation that retrofits haptics onto the XRI Hand Demo with a single Editor menu click is the SDK's `Editor/HapbeatHandDemoAugmentor.cs` (menu `Hapbeat → Samples → Augment XRI Hand Demo`). It is idempotent, can be rolled back with a single Undo, and reports a warning for any scene path it cannot find. For usage, see [](/en/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/).
 
 Use these as a reference for how thoroughly to write a haptic augmentation Editor tool.

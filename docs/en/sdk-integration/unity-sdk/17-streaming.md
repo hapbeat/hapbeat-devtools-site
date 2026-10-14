@@ -31,12 +31,12 @@ When `StopStream()` is called:
 
 ## Configuration
 
-Change this via `streamSendAheadSeconds` in [](/en/docs/sdk-integration/unity-sdk/installation/):
+Change this via **Stream Buffer (s)** (`HapbeatConfig.streamSendAheadSeconds`) in `Hapbeat → Open Settings`:
 
 ```
-HapbeatConfig
+Hapbeat Settings
   Behavior
-    streamSendAheadSeconds: 0.05  ← default 50ms
+    Stream Buffer (s): 0.05  ← default 50ms
 ```
 
 Range: 10ms to 200ms.
@@ -59,31 +59,29 @@ Range: 10ms to 200ms.
 
 `HapbeatActionHelper.StopEverything()` sends stop instructions to both modes — Command audio stops instantly, while Stream audio has ~sendAhead seconds of residual playback.
 
-## Clip Format Consistency (Simultaneous StreamClip Playback)
+## Clip Format (StreamClip)
 
-A Hapbeat stream session is **locked to a single format**. Only clips with the **same sample rate and channel count** can be streamed simultaneously within one session. A second clip with a different format will be rejected by the SDK:
-
-```
-[Hapbeat] StreamAudioClip: rate/channel mismatch with active session
-(session=16000Hz/2ch, new=16000Hz/1ch). Rejecting new source.
-```
+The SDK **resamples and up-mixes each StreamClip source to 16 kHz / stereo before mixing** and sending it to the device. Clips with different sample rates / channel counts can therefore be played at the same time.
 
 ### Recommended Format: **16 kHz / 2ch (stereo) PCM16**
 
-- Normalize all StreamClip WAV files to **`16 kHz / stereo / PCM 16-bit signed LE`**
-- Up-mix mono sources to stereo (duplicate L to R)
-- Mixing clips with different sample rates or channel counts prevents simultaneous playback
+Matching the format is not required, but it is recommended for these reasons:
+
+- If the source material already matches the send format, the SDK has no resampling to do and the intended waveform arrives as is (pre-normalization)
+- Material at a higher sample rate only makes the asset larger, since what is sent is brought down to 16 kHz anyway (size)
+- When matching, the format is **`16 kHz / stereo / PCM 16-bit signed LE`**
+- The SDK up-mixes mono sources to stereo (L=R)
 
 ### Auto-normalize via Studio (since 2026-05-24)
 
 - **Live streaming** (playback in Studio Devices tab): auto-resampled and up-mixed to **2ch / 16 kHz / PCM16** on send
 - **Kit deploy** (Helper's `pack_normalize`): normalized using `ffmpeg -ar 16000 -ac 2 -acodec pcm_s16le`
 
-**When using Studio, no manual action is required.** Even if the source WAV is mono or 22.05 kHz, it is automatically normalized before delivery.
+**When using Studio, no manual action is required.** Even if the source WAV is mono or 22.05 kHz, it is normalized to the unified format before delivery.
 
 ### If Not Using Studio
 
-The following cases bypass Studio's auto-normalize — you must **manually prepare WAVs in 16 kHz / 2ch / PCM16 format**:
+The following cases bypass Studio's auto-normalize — it is recommended to **prepare WAVs in 16 kHz / 2ch / PCM16 format** (StreamClip sent from Unity is converted by the SDK, so playback still works):
 
 - AudioClips imported directly via the Unity AssetDatabase and passed to `HapbeatManager.StreamAudioClip`
 - WAVs copied directly into a Kit without going through Studio
@@ -115,10 +113,6 @@ Use this for batch conversion in CI or shell scripts.
 1. File → Export → WAV (Microsoft, 16-bit PCM)
 2. Set "Sample Rate" to 16000 Hz
 3. For mono files: run "Tracks → Stereo" first
-
-### Single Clip Only — No Format Constraint
-
-If only **one stream is active at a time** (e.g. a single looping clip playing like background music), format normalization is not required. The first clip sets the session format. The constraint only applies when **playing multiple clips simultaneously or in rapid succession**.
 
 ## Related
 

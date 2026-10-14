@@ -6,7 +6,7 @@ sidebar:
 description: How to use HapbeatParameterBinding to dynamically map game state (movement, velocity, distance) to StreamGain / StreamPan.
 ---
 
-`HapbeatParameterBinding` is a component that writes to the **gain** and **pan** of an active StreamClip playback every frame, driven by game state such as Transform position, Rigidbody velocity, or Animator parameters.
+`HapbeatParameterBinding` is a component that writes to the **gain** and **pan** of an active StreamClip playback every frame, driven by game state such as Transform position / scale, Rigidbody velocity, or a UI Slider value.
 
 It lets you create continuous haptic expressions — like a stronger grip feeling as a grabbed box is moved, or foot vibration that intensifies with walking speed — without writing any code.
 
@@ -33,9 +33,9 @@ ParameterBinding **dynamically multiplies streaming samples**. It has no effect 
 | Field | Purpose |
 |---|---|
 | Source Transform Path | The Transform to read from. Empty = this GameObject itself |
-| Source Property | Choose from `LocalPositionX` / `LocalPositionY` / `VelocityMagnitude` / `AngularVelocityMagnitude` / `PositionDeltaMagnitude` / `LocalRotationY` / `SliderValue` (UI Slider) / `External` (push via `binding.SetValue()` from script) and more |
+| Source Property | Choose from `LocalPositionX` / `LocalPositionY` / `LocalPositionZ` / `LocalScaleX` / `LocalScaleY` / `LocalScaleZ` / `VelocityMagnitude` / `AngularVelocityMagnitude` / `PositionDeltaMagnitude` / `SliderValue` (UI Slider) / `External` (push via `binding.SetValue()` from script) |
 | Input Min / Max | The source value range to normalize to 0..1 |
-| Curve Type | `Linear` / `EaseIn` / `EaseOut` / `EaseInOut` / `Custom` |
+| Curve Type | `Linear` / `EaseIn` / `EaseOut` / `Exponential` / `Custom` |
 | Output Parameter | `StreamGain` (0..2) or `StreamPan` (-1..+1) |
 | Output Min / Max | Output range |
 | Debug Log | Log input/output to the Console periodically when true (useful for debugging) |
@@ -49,17 +49,17 @@ Settings (`HapbeatParameterBinding` on the `Z3_Fishing` root):
 | Field | Value |
 |---|---|
 | Source Transform Path | `FishingObject` (relative from root) |
-| Source Property | `PositionDeltaMagnitude` |
-| Input Min / Max | 0 / 0.5 |
-| Curve Type | `EaseInOut` |
+| Source Property | `VelocityMagnitude` |
+| Input Min / Max | 0 / 3 |
+| Curve Type | `Linear` |
 | Output Parameter | `StreamGain` |
-| Output Min / Max | 0.2 / 1.5 |
+| Output Min / Max | 0 / 1.5 |
 
 Behavior:
-- **Hold `FishingObject` still**: `PositionDeltaMagnitude = 0` → normalized 0 → curve 0 → output 0.2 (quiet loop)
-- **Swing it vigorously**: `PositionDeltaMagnitude > 0.5` → normalized 1 → output 1.5 (strong loop)
+- **Hold `FishingObject` still**: `VelocityMagnitude = 0` → normalized 0 → output 0 (the loop is silent)
+- **Swing it vigorously**: `VelocityMagnitude ≥ 3` → normalized 1 → output 1.5 (strong loop)
 
-`FishingController` (script) only calls `Sequence.Fire() / Stop()` based on mouse input. The binding is registered as a preset on the EventMap entry (`grab_loop`), so `HapbeatParameterBinding` is automatically attached to `Z3_Fishing` via BatchSetup or the Apply Binding button.
+`FishingController` (script) only calls `Sequence.Fire() / Stop()` based on mouse input. The binding is registered as a preset on the EventMap entry (`Z3_hook_loop`), so `HapbeatParameterBinding` is automatically attached to `Z3_Fishing` via BatchSetup or the `Sync Scene` button in the EventMap window (add presets with `+ Binding` in the Parameter Bindings section).
 
 ## Linked Preset vs. Standalone
 
@@ -109,17 +109,20 @@ When the **binding source cannot be a descendant of the Trigger** (e.g. a UI can
 
 ```csharp
 // Excerpt from Z5 ChargeShooter
+// When charging starts: _loopPlayback = HapbeatManager.Instance.StreamAudioClip(...);
 private void Update() {
     if (_charging) {
         float t = ...;
-        _sequenceTrigger.GainMultiplier = _gainCurve.Evaluate(t);
-        // ↑ setter calls ApplyGainModulation → modulates playback.Gain
+        if (_loopPlayback != null && !_loopPlayback.IsStopped)
+            _loopPlayback.ApplyGainModulation(_gainCurve.Evaluate(t));
+        // ↑ Gain = BaselineGain × modulator. The same entry point as ParameterBinding
     }
 }
 ```
 
 - No ParameterBinding attached or used
-- Write `Trigger.GainMultiplier = v` every frame (internally calls `playback.ApplyGainModulation(v)` — the same entry point as ParameterBinding)
+- Call `ApplyGainModulation(v)` every frame on the value returned by `HapbeatManager.StreamAudioClip(...)` (a `HapbeatStreamPlayback`) — the same entry point as ParameterBinding rewrites gain
+- When playing through a Trigger, writing `Trigger.GainMultiplier = v` has the same effect (the setter calls `ApplyGainModulation(v)` internally)
 - Ideal for complex game state (accumulated values / threshold detection / multi-state composition)
 
 → Showcase Z5 ChargeShooter (`Samples~/Showcase/Scripts/ChargeShooter.cs`) is the reference implementation. The Blaster's Trigger and the chargeBar Slider (under a UI canvas) are in different hierarchies, making presets impossible → script-driven is used.
@@ -141,7 +144,7 @@ Instead of ParameterBinding, you can write directly to `HapbeatTriggerBase.GainM
 
 Showcase reference examples:
 - **Z4 Stream Console**: ParameterBinding (Slider → StreamGain / StreamPan) — declarative. Wiring is complete in the EventMap window
-- **Z5 Charge Shooter**: `_sequenceTrigger.GainMultiplier = curve(chargeT)` written every frame — imperative. Works well with custom calculation logic (`AnimationCurve` evaluation) or mid-flow logic (threshold detection)
+- **Z5 Charge Shooter**: calls `ApplyGainModulation(curve(chargeT))` every frame on the value returned by `StreamAudioClip(...)` — imperative. Works well with custom calculation logic (`AnimationCurve` evaluation) or mid-flow logic (threshold detection)
 
 Decision guide:
 - Game state is simple (Transform / Rigidbody / Slider) → ParameterBinding

@@ -112,7 +112,7 @@ void Update() {
 }
 ```
 
-Reference implementation: Showcase **Z5 ChargeShooter** (`Samples~/Showcase/Scripts/ChargeShooter.cs`).
+Note that Showcase **Z5 ChargeShooter** (`Samples~/Showcase/Scripts/ChargeShooter.cs`) does not use the Trigger's `GainMultiplier`; instead it calls `ApplyGainModulation(curve)` every frame on the value returned by `HapbeatManager.StreamAudioClip(...)` (a `HapbeatStreamPlayback`) to reflect the charge amount (the path in C below).
 
 ### C. Call Manager.Play() / StreamAudioClip() directly (mode-specific APIs, special cases)
 
@@ -127,6 +127,8 @@ HapbeatManager.Instance?.Play(
 );
 ```
 
+`Play` also has optional arguments `displayName` (for logs) and `pan` (left/right balance: -1 = left only / 0 = center / +1 = right only, default 0).
+
 **Clip**:
 ```csharp
 [SerializeField] private AudioClip _footstepClip;
@@ -136,7 +138,7 @@ void OnFootstep() {
         clip: _footstepClip,
         gain: 0.7f
     );
-    // optionally: playback.SetGain(0.5f) / playback.Stop()
+    // optionally: playback.Gain = 0.5f; / playback.Stop();
 }
 ```
 

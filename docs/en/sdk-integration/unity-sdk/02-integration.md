@@ -41,7 +41,7 @@ Running it again on an already-configured scene is safe — the existing Router 
 ### 1-2. Define entries in EventMap
 ![unity-eventmap](@assets/unity/unity-eventmap.jpg)
 
-Open `Hapbeat → Open Event Map` and click **+ Add Event** to add entries (opening the window alone does not create an asset — the asset from step 1-1 is assumed to exist).
+Open `Hapbeat → Open Event Map` and add entries with the **`+`** button in the toolbar (opening the window alone does not create an asset — the asset from step 1-1 is assumed to exist).
 
 Key fields (**frequently used fields only**; see [](/en/docs/sdk-integration/unity-sdk/event-map/) for the full list including loop, bindings, delayOffsetSeconds, notes, and manifestOverride):
 
@@ -64,32 +64,36 @@ Attach a Hapbeat Trigger component (or `HapbeatStateBehaviour`) to a GameObject 
 
 | Component / Behaviour | Use case | Reference Showcase Zone |
 |---|---|---|
-| **HapbeatCollisionTrigger** | Physics collision / Trigger Enter / Exit. VelocityScaled links intensity to impact force | **Z1 Bowling** (6 Pins set up via BatchSetup) |
+| **HapbeatCollisionTrigger** | Physics collision / Trigger Enter / Exit. VelocityScaled links intensity to impact force | **Z1 Bowling** (attached to `BowlingPin.prefab`, shared by all 6 pins) |
 | **HapbeatStateBehaviour** | Fires on Animator state Enter/Exit. Attach directly to a state as a StateMachineBehaviour | **Z2 Door** (attached to Open / Closed states) |
 | **HapbeatSequenceTrigger** | Manages Grab / Hold / Release in a single component | **Z3 Fishing** (Sequence + ParameterBinding) |
 | **HapbeatTickEmitter** | Snap-fires based on the magnitude of change in a continuous value (Slider, etc.) | **Z4 Stream Console** (Slider via BatchSetup) |
-| **HapbeatUnityEventTrigger** | Calls `Fire()` from any UnityEvent. Button / XR Interactable / Animation Event, etc. | **Z5 Charge** (TargetReceiver.OnHit → Fire) |
+| **HapbeatUnityEventTrigger** | Calls `Fire()` from any UnityEvent. Button / XR Interactable / Animation Event, etc. | **Z5 Target** (TargetReceiver.OnHitLight / OnHitHeavy → Fire) |
 
 Component details: [](/en/docs/sdk-integration/unity-sdk/triggers/)
 
 #### B. Call Trigger from script (via EventMap)
 
-Hold a Trigger reference in your script and call `trigger.Fire()` from game logic. Because it goes through an EventMap entry, gain / target / latency / manifest intensity compensation all apply automatically. Writing to `GainMultiplier` every frame enables dynamic modulation.
+Place a `HapbeatUnityEventTrigger` on a GameObject and select the EventMap and entry in the Inspector, then hold a reference to that Trigger in your own script and call `Fire()`. Because it goes through an EventMap entry, gain / target / latency compensation / Kit intensity all apply automatically.
 
 ```csharp
-public class ChargeShooter : MonoBehaviour
-{
-    [SerializeField] private HapbeatUnityEventTrigger _trigger;
-    [SerializeField] private AnimationCurve _gainCurve;
+using UnityEngine;
+using Hapbeat;
 
-    void Release(float chargeT) {
-        _trigger.GainMultiplier = _gainCurve.Evaluate(chargeT);
-        _trigger.Fire();
+public class PlayerHealth : MonoBehaviour
+{
+    // Drag a HapbeatUnityEventTrigger onto this field in the Inspector
+    [SerializeField] private HapbeatUnityEventTrigger _damageHaptic;
+
+    public void TakeDamage(int amount)
+    {
+        _damageHaptic.GainMultiplier = Mathf.Clamp01(amount / 50f); // intensity multiplier (0–2)
+        _damageHaptic.Fire();
     }
 }
 ```
 
-Reference implementation: Showcase **Z5 ChargeShooter** (`Samples~/Showcase/Scripts/ChargeShooter.cs`).
+For the full procedure, starting / stopping loops, and changing intensity during playback, see [](/en/docs/sdk-integration/unity-sdk/scripting/); for the list of methods and properties a Trigger exposes, see [](/en/docs/sdk-integration/unity-sdk/script-api/). In the Showcase, **Z3 Fishing** (`FishingController.cs`) and **Z4 Stream Console** (`StreamDemoController.cs`) follow this pattern.
 
 The distinction from A is whether the firing condition is fully expressible as an Inspector declaration or requires calculation in script logic. Both approaches can coexist.
 
@@ -131,7 +135,7 @@ Decision criteria: [](/en/docs/sdk-integration/unity-sdk/fire-vs-clip/).
 A mechanism for writing gain / pan on every frame during StreamClip playback so it tracks game state (movement, velocity, distance, etc.).
 
 - **Parameter Binding** — Declaratively map Transform / Rigidbody / Slider etc. to gain / pan in the Inspector (Showcase Z3 / Z4)
-- **Script** — Write `trigger.GainMultiplier = curve(t)` every frame (Showcase Z5)
+- **Script** — Write `trigger.GainMultiplier = curve(t)` every frame (→ [](/en/docs/sdk-integration/unity-sdk/scripting/). Showcase Z5's `ChargeShooter.cs` is an example that calls `ApplyGainModulation()` directly on the playback handle)
 
 Details and guidance: [](/en/docs/sdk-integration/unity-sdk/parameter-binding/)
 
@@ -139,6 +143,7 @@ Details and guidance: [](/en/docs/sdk-integration/unity-sdk/parameter-binding/)
 
 ## Next steps
 
+- [](/en/docs/sdk-integration/unity-sdk/scripting/) — Fire haptics from your own script
 - [](/en/docs/sdk-integration/unity-sdk/triggers/) — Configuration examples for each trigger
 - [](/en/docs/sdk-integration/unity-sdk/event-map/) — Visualize and manage wiring in one place
 - [](/en/docs/sdk-integration/unity-sdk/parameter-binding/) — Dynamically map game state to gain / pan
