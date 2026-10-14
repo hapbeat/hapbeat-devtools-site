@@ -8,7 +8,6 @@
  * 絞り込みは radio + :has() の CSS のみで行い、JS は使わない。
  */
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import OfficialSiteCta from '../../../components/OfficialSiteCta.astro';
 import ShowcaseCard from '../../../components/ShowcaseCard.astro';
 import { PUBLISHED_SHOWCASE_DEMOS, SHOWCASE_CATEGORIES } from '../../../data/showcase';
 
@@ -34,13 +33,7 @@ const filterCss = categories
   <style is:inline set:html={filterCss} />
   <div class="hb-sc not-content">
     <div class="hb-sc__head">
-      <div>
-        <p class="hb-sc__lead">体験したいデモを選んでください。タップすると内容と体験の流れを確認できます。</p>
-        <p class="hb-sc__official">
-          製品情報・購入・貸出は
-          <a href="https://hapbeat.com/" target="_blank" rel="noopener noreferrer">Hapbeat 公式サイト ↗</a>
-        </p>
-      </div>
+      <p class="hb-sc__lead">体験したいデモを選んでください。タップすると内容と体験の流れを確認できます。</p>
       <a class="hb-sc__preset" href="/demos/showcase/plan/">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <line x1="12" y1="5" x2="12" y2="19" />
@@ -68,8 +61,6 @@ const filterCss = categories
     <div class="hb-sc__grid">
       {demos.map((d) => <ShowcaseCard demo={d} />)}
     </div>
-
-    <OfficialSiteCta />
   </div>
 </StarlightPage>
 
@@ -108,16 +99,6 @@ const filterCss = categories
     font-size: 16px;
     line-height: 1.7;
     color: var(--hb-ink-soft);
-  }
-
-  .hb-sc__official {
-    margin: 4px 0 0;
-    font-size: 14px;
-    color: var(--hb-ink-mute);
-  }
-  .hb-sc__official a {
-    color: var(--hb-purple-ink);
-    font-weight: 600;
   }
 
   .hb-sc__filter {
