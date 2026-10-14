@@ -32,7 +32,7 @@ frameworks in `platformio.ini`:
 platform = espressif32
 framework = arduino, espidf
 board = esp32dev
-lib_deps = hapbeat/arduino@^0.1.0
+lib_deps = hapbeat/arduino@^0.2.0
 ```
 
 Arduino APIs (`WiFiUDP`, etc.) are then available inside the IDF project and the

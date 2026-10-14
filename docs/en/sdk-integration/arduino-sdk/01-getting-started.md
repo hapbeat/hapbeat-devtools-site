@@ -11,6 +11,14 @@ An Arduino library to drive Hapbeat haptic devices over **Wi-Fi UDP** from an
 ESP32 / M5Stack / ESP8266 / Arduino-compatible Wi-Fi board. Press a button →
 the Hapbeat buzzes, in the fewest steps.
 
+:::caution[Sine streams are silent on device firmware 0.5.0 and later]
+This library (v0.2.0) sends sine streams in the older stream format. Device
+firmware **0.5.0 and later** accepts only the new stream format, so `playSine` /
+`beginSine` / `pumpSine` / `endSine` **produce no vibration** there. `play()`
+(command mode, firing a kit event) still works. On firmware 0.4.x and earlier,
+sine streams work too.
+:::
+
 :::tip[For AI coding agents]
 To have an AI understand the Hapbeat Arduino library, enter the prompt below.
 
@@ -33,13 +41,14 @@ The library itself has **zero dependencies**. Only the examples use M5Unified.
   Include Library → Add .ZIP Library* from a repo ZIP.)
 - **PlatformIO**: add to `lib_deps`
   ```ini
-  lib_deps = hapbeat/arduino@^0.1.0
+  lib_deps = hapbeat/arduino@^0.2.0
   ```
 
 ## First buzz (no kit needed)
 
 The quickest check is the **synthesized sine**. It needs no kit on the Hapbeat —
-if a powered Hapbeat is on the same LAN, it just buzzes.
+if a powered Hapbeat is on the same LAN, it just buzzes. (Not on device firmware
+0.5.0 and later — see the caution above and check with command mode below.)
 
 ```cpp
 #include <WiFi.h>        // ESP8266: <ESP8266WiFi.h>

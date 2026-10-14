@@ -10,6 +10,14 @@ sidebar:
 Synthesize a 16 kHz mono PCM16 sine on the MCU and stream it to the Hapbeat. No
 stored audio, and frequency / intensity are live.
 
+:::caution[Sine streams are silent on device firmware 0.5.0 and later]
+This library (v0.2.0) sends sine streams in the older stream format. Device
+firmware **0.5.0 and later** accepts only the new stream format, so `playSine` /
+`beginSine` / `pumpSine` / `endSine` **produce no vibration** there. `play()`
+(command mode, firing a kit event) still works. On firmware 0.4.x and earlier,
+sine streams work too.
+:::
+
 ## One-shot
 
 ```cpp
