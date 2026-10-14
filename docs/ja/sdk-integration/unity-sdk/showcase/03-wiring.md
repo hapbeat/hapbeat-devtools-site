@@ -6,7 +6,7 @@ sidebar:
 description: Showcase の各 Zone がどう wire されているか — どの GameObject にどの Trigger が貼られ、どの script がどの API を呼んでいるかの実装リファレンス。
 ---
 
-[Showcase Sample](./) の各 Zone の **wiring 実装リファレンス** です。Unity で `Showcase.unity` を開きながら、各 GameObject の Inspector と見比べる用途を想定しています。
+[Showcase Sample](/docs/sdk-integration/unity-sdk/showcase/overview/) の各 Zone の **wiring 実装リファレンス** です。Unity で `Showcase.unity` を開きながら、各 GameObject の Inspector と見比べる用途を想定しています。
 
 ## やりたい入力 → 参照 Zone
 
@@ -15,113 +15,117 @@ description: Showcase の各 Zone がどう wire されているか — どの G
 | やりたいこと | 参照 Zone | 中で使う SDK 要素 |
 |---|---|---|
 | 物理 Collision に直結 | **Z1 Bowling** (Pin) | `HapbeatCollisionTrigger` + velocity gain |
-| Animator state に紐付けて自動発火 | **Z2 Door** | `HapbeatStateBehaviour` (AnimatorController state に attach) |
-| UI Toggle / Button から発火 (UnityEvent → Trigger) | **Z4 Stream Console** | UI Toggle.onValueChanged → `HapbeatUnityEventTrigger.Fire` |
-| Slider 連動で gain / pan を連続 modulate (declarative) | **Z4 Stream Console** | Slider + `HapbeatParameterBinding` (Source=SliderValue, Output=StreamGain/Pan) |
-| 自前 script が判定 → UnityEvent emit → Trigger | **Z5 TargetBoard** | `TargetReceiver.OnHit` (UnityEvent) → `HapbeatUnityEventTrigger.Fire` |
-| Custom 物理ロジックから script で Fire/Stop 直叩き | **Z3 Fishing** / **Z5 ChargeShooter** | `_sequenceTrigger.Fire()` / `.Stop()` |
-| 物理計算結果を script から binding に流す (External source) | **Z3 Fishing** | `HapbeatParameterBinding` (Source=External) + `binding.SetValue(v)` |
-| Manager API 直叩き (Trigger を介さない最上級) | (Z5 の発展形) | `HapbeatManager.Instance.StreamAudioClip(...)` |
+| Animator state に紐付けて自動発火 | **Z2 Door** | `HapbeatStateBehaviour` (AnimatorController の state に attach) |
+| 自前 script から `Fire()` / `Stop()` を呼ぶ | **Z3 Fishing** / **Z4 Stream Console** | `HapbeatSequenceTrigger` / `HapbeatUnityEventTrigger` への参照を script に持たせる |
+| Slider 連動で gain / pan を連続 modulate (declarative) | **Z4 Stream Console** | Slider + `HapbeatParameterBinding` (Source=SliderValue, Output=StreamGain / StreamPan) |
+| 物体の動きで loop の gain を変える (declarative) | **Z3 Fishing** | `HapbeatParameterBinding` (Source=VelocityMagnitude, Output=StreamGain) |
+| 自前 script が判定 → UnityEvent emit → Trigger | **Z5 TargetBoard** | `TargetReceiver.OnHitLight / OnHitHeavy` (UnityEvent) → `HapbeatUnityEventTrigger.Fire` |
+| キー入力をコードなしで Trigger に wire | Global hotkeys | `HapbeatKeyDispatcher` → `HapbeatUnityEventTrigger.Fire` / `HapbeatActionHelper.Ping` |
+| Trigger を使わず Manager API を直接呼ぶ (上級) | **Z5 ChargeShooter** | EventMap からエントリを読み、`HapbeatManager.StreamAudioClip(...)` を呼ぶ |
 
-→ **1 ゾーン = 1 パターン専用** ではなく、各 Zone 内に複数パターンが混在する設計。
+→ **1 ゾーン = 1 パターン専用** ではなく、各 Zone 内に複数パターンが混在する設計。スクリプトからの呼び方の手順は [](/docs/sdk-integration/unity-sdk/scripting/) にまとめています。
 
 ## 実装方式の使い分け
 
-Showcase は **コンポーネント方式 (Inspector で Trigger を wire)** と **スクリプト方式 (API を直接呼ぶ)** を Zone ごとに使い分けています。使い分けの判断基準は [BatchSetup vs スクリプト](./method-choice/) を参照。
+Showcase は **コンポーネント方式 (Inspector で Trigger を wire)** と **スクリプト方式 (自前 script から呼ぶ)** を Zone ごとに使い分けています。使い分けの判断基準は [BatchSetup vs スクリプト](/docs/sdk-integration/unity-sdk/showcase/method-choice/) を参照。
 
 ### コンポーネント方式
 
 | Zone | コンポーネント | なぜこちらか |
 |---|---|---|
-| Z1 Bowling | `HapbeatCollisionTrigger` (BatchSetup で Pin 6 個に一括) | 同じ設定を多数オブジェクトに貼る典型例。BatchSetup の真骨頂 |
+| Z1 Bowling | `HapbeatCollisionTrigger` (`BowlingPin.prefab` に付いており、6 本のピンが共有) | 同じ設定を多数オブジェクトに貼る典型例 |
 | Z2 Door | `HapbeatStateBehaviour` (Animator state に attach) | Animator state Enter は UnityEvent 不要、コンポーネントで宣言的 |
-| Z3 Fishing | `HapbeatSequenceTrigger` + `HapbeatParameterBinding` | Fire→Loop→Stop と運動量 modulation を Inspector で完結 |
-| Z4 Slider Tick | `HapbeatTickEmitter` (BatchSetup) | Slider.onValueChanged を自動 wire できる |
-| Z5 Hit | `HapbeatUnityEventTrigger` (TargetReceiver の OnHit から wiring) | UnityEvent wiring の典型例 |
+| Z3 Fishing | `HapbeatParameterBinding` (FishingObject の速度 → loop の gain) | 運動量 modulation を Inspector で完結 |
+| Z4 Slider | `HapbeatTickEmitter` + `HapbeatParameterBinding` (Gain / Pan Slider) | Slider の値変化をコードなしで tick と gain / pan に流す |
+| Z5 Hit | `HapbeatUnityEventTrigger` (TargetReceiver の OnHitLight / OnHitHeavy から wiring) | UnityEvent wiring の典型例 |
 | Hotkeys | `HapbeatKeyDispatcher` + `HapbeatActionHelper` + `HapbeatUnityEventTrigger` | キー操作を UnityEvent で宣言的に wire |
 
 ### スクリプト方式
 
-| Zone | 呼び出す API | なぜこちらか |
-|---|---|---|
-| Z4 Stream | `StreamPlayback.Gain / Pan` 直接書き換え (`StreamDemoController`) | runtime で gain/pan を毎フレーム計算する |
-| Z5 Charge | `_trigger.GainMultiplier = curve(chargeT)` (`ChargeShooter`) | charge state を `AnimationCurve` で動的 mapping |
+| Zone | script | 呼び出す API | なぜこちらか |
+|---|---|---|---|
+| Z3 Fishing | `FishingController` | `HapbeatSequenceTrigger.Fire()` / `Stop()` | 「つかんだ / 離した」の判定が自前の物理ロジックにある |
+| Z4 Stream | `StreamDemoController` | `HapbeatUnityEventTrigger.Fire()` / `Stop()` + `ActivePlayback` | Space キーで再生 / 停止をトグルし、再生中かを判定する |
+| Z5 Charge | `ChargeShooter` | `HapbeatManager.StreamAudioClip(...)` + `HapbeatStreamPlayback.ApplyGainModulation(...)` | チャージ量に応じて loop の強さを毎フレーム変え、しきい値・発射の強弱でエントリを切り替える |
 
 ## Zone 別の wiring 詳細
 
 ### Z1 Bowling Lane
 
-ボールをピンにぶつけて倒すと、各ピンの `HapbeatCollisionTrigger` が collision velocity に応じた gain で発火する。
+LMB でボールを発射（Space でピンをリセット）。ピンに当たると、各ピンの `HapbeatCollisionTrigger` が衝突速度に応じた gain で発火する。
 
-- `Z1_Bowling/Pin_1`〜`Pin_6` の各オブジェクトに `HapbeatCollisionTrigger`
-  - **EventMap**: `ShowcaseEventMap`, **Entry**: `pin_hit`
-  - **Trigger Event**: `OnCollisionEnter`
-  - **Gain Mode**: `VelocityScaled`, **Min / Max Velocity**: 0.5 / 5
-- `BallLauncher` は物理 (ball reset + launch) のみ。Hapbeat 系コンポーネントは触らない
+- `Prefabs/BowlingPin.prefab` に `HapbeatCollisionTrigger`（6 本のピンはこの prefab のインスタンス）
+  - **Event Map**: `ShowcaseEventMap`, **Event**: `Z1_pin_hit`
+  - **Trigger Event**: `CollisionEnter`
+  - **Gain Mode**: `VelocityScaled`（衝突速度が **Max Velocity** に近いほど強い）
+- `BallLauncher`（`Z1_Bowling`）は発射とリセットのみ。Hapbeat 系コンポーネントは触らない
 
 ### Z2 Swing Door
 
-F キーで Animator の `IsOpen` bool をトグル → state Enter が発火し、`HapbeatStateBehaviour` 経由で触覚 event を呼ぶ。
+F で開閉、G で叩きつけ、L で施錠 / 解錠。`DoorController` が Animator のパラメータを操作し、遷移先の state に付いた `HapbeatStateBehaviour` が触覚を発火する。
 
-- `Z2_Door/Door` に `Animator` + `DoorController` (F キーで `IsOpen` bool トグル)
-- `DoorAnimator.controller` の `Open` / `Closed` state にそれぞれ `HapbeatStateBehaviour` を attach
-  - Open state: **Entry**: `door_open`, **Event**: `OnStateEnter`
-  - Closed state: **Entry**: `door_close`, **Event**: `OnStateEnter`
+- `Z2_Door/Door` に `Animator` + `DoorController`（キー → Animator Trigger: F → `DoorAction`, G → `Slam`, L → `LockToggle`）
+- `DoorAnimator.controller` の各 state に `HapbeatStateBehaviour`（いずれも **Entry On Enter**）
+
+| state | Event | Required Previous State |
+|---|---|---|
+| `Open` | `Z2_door_open` | `Closed` |
+| `Closed` | `Z2_door_close` | `Open` |
+| `Slam` | `Z2_door_slam` | `Open` |
+| `LockEngage` | `Z2_door_lock` | — |
+| `LockRelease` | `Z2_door_unlock` | — |
+| `LockedRattle` | `Z2_door_rattle` | — |
 
 ### Z3 Fishing Rod
 
-LMB hold で物体が釣り糸に attach。Hold 中は Sequence loop が走り、`HapbeatParameterBinding` が物体の運動量を gain にリアルタイム反映する。
+LMB hold で物体が釣り糸に吊られ、離すと落ちる。吊っている間は Sequence の loop が鳴り、`HapbeatParameterBinding` が物体の速度を loop の gain に反映する。
 
-- `Z3_Fishing` root に `HapbeatSequenceTrigger`
-  - **EventMap**: `ShowcaseEventMap`
-  - **On Start Entry**: `grab_start`
-  - **Loop Entry**: `grab_loop` (loop=true)
-  - **On Stop Entry**: `grab_release`
-- 同じ root に `HapbeatParameterBinding` (`grab_loop` の preset から auto-attach)
-  - **Source Transform Path**: `FishingObject` (root からの相対)
-  - **Source Property**: `PositionDeltaMagnitude`
-  - **Output**: `StreamGain`, range 0.2〜1.5, curve `EaseInOut`
-- `FishingController` (script) は LMB hold に応じて `Sequence.Fire() / Stop()` を呼ぶだけ
+- `Z3_Fishing` に `HapbeatSequenceTrigger`
+  - **On Start**: `Z3_hook_start`
+  - **Loop (hold)**: `Z3_hook_loop`（StreamClip, loop）
+  - **On Stop**: `Z3_hook_release`
+- `Z3_Fishing/FishingObject` に `HapbeatParameterBinding`（`Z3_hook_loop` エントリの Bindings から生成）
+  - **Source Property**: `VelocityMagnitude`, **Output**: `StreamGain`
+- `FishingController`（`Z3_Fishing`）は LMB の押下 / 解放で `_sequence.Fire()` / `_sequence.Stop()` を呼ぶだけ。触覚に関わるコードはこの 2 行
 
 ### Z4 Stream Console
 
-Space で stream をトグル開始 / 停止、Gain / Pan slider で再生中の値を動的変調する。
+Space で stream の再生 / 停止をトグル。Gain / Pan Slider で再生中の強さと左右を変える（Slider を動かすと tick も鳴る）。
 
-- `Z4_Stream/StreamPanel` に `HapbeatUnityEventTrigger`
-  - **EventMap**: `ShowcaseEventMap`, **Entry**: `stream_demo` (StreamClip, loop=true)
-- `StreamDemoController` (script): Space キー → `trigger.Fire() / Stop()`
-  - 同 script が毎フレーム `trigger.ActivePlayback.Gain = gainSlider.value`、`Pan = panSlider.value` で gain / pan をリアルタイム更新
-- Gain / Pan Slider に `HapbeatTickEmitter` (BatchSetup)
-  - **Entry**: `slider_tick`, **Tick Threshold**: 0.05
+- `Z4_Stream/StreamCanvas/StreamPanelHud` に `HapbeatUnityEventTrigger`（**Event**: `Z4_stream_loop`, StreamClip, loop）+ `StreamDemoController`
+  - `StreamDemoController` は Space で `ActivePlayback` を見て、再生中なら `Stop()`、停止中なら `Fire()` を呼ぶ
+- `GainSlider` / `PanSlider` にそれぞれ
+  - `HapbeatParameterBinding`（**Source Property**: `SliderValue`, **Output**: `StreamGain` / `StreamPan`）
+  - `HapbeatTickEmitter`（**Event**: `Z4_slider_tick`）
+- `Z4_Stream/AddressOverridePanel` で player / group の実行時 override を試せる（→ [](/docs/sdk-integration/unity-sdk/targeting/)）
+
+> `StreamDemoController.cs` には、Binding の代わりに script から `ActivePlayback.Gain` / `Pan` を書く方式もコメントで残してある。どちらでも同じ挙動。
 
 ### Z5 Charge & Shoot
 
-LMB hold でチャージ → release で発射。`AnimationCurve` で charge 量を gain に mapping。命中時は別 Trigger が発火。
+LMB hold でチャージ → release で発射。チャージ中は rumble の loop が強くなり、しきい値を超えると 1 回鳴る。発射時はチャージ量で弱 / 強の 2 種類を出し分ける。的に当たると別の Trigger が鳴る。
 
-- 発射台に `HapbeatUnityEventTrigger`
-  - **EventMap**: `ShowcaseEventMap`, **Entry**: `charge_release`
-- `ChargeShooter` (script) が LMB hold で charge → release 時に:
-  ```csharp
-  _trigger.GainMultiplier = _gainCurve.Evaluate(chargeT);
-  _trigger.Fire();
-  ```
-- `Z5_Target/TargetBoard` に `TargetReceiver` + 別の `HapbeatUnityEventTrigger`
-  - **Entry**: `target_hit`
-  - `TargetReceiver.OnHit` (UnityEvent) → `HapbeatUnityEventTrigger.Fire()` を wire
+- `Z5_ChargeShot` に `ChargeShooter`（**Trigger コンポーネントを使わない**スクリプト方式の例）
+  - Inspector で `ShowcaseEventMap` と 4 つのエントリ（`Z5_charge_loop` / `Z5_charge_thd` / `Z5_shot_light` / `Z5_shot_heavy`）を選ぶ
+  - チャージ開始: `HapbeatManager.StreamAudioClip(...)` で `Z5_charge_loop` を開始し、毎フレーム `ApplyGainModulation(_gainCurve.Evaluate(chargeT))`
+  - 発射: loop を `Stop()` し、チャージ量で `Z5_shot_light` / `Z5_shot_heavy` を 1 回鳴らす
+  - gain / target / clip は EventMap のエントリから読む（`entry.GetEffectiveGain()` / `entry.target` / `entry.streamClip`）ので、EventMap ウィンドウの編集がそのまま効く
+- `Z5_ChargeShot/TargetBoard` に `TargetReceiver`、子の `Event_Hit_Light` / `Event_Hit_Heavy` に `HapbeatUnityEventTrigger`（`Z5_tar_hit_light` / `Z5_tar_hit_heavy`）
+  - `TargetReceiver.OnHitLight` → `Event_Hit_Light` の `Fire()`、`OnHitHeavy` → `Event_Hit_Heavy` の `Fire()`
 
 ### Global hotkeys
 
-Q / P キーは UnityEvent ベースで wire。script はログ表示のみ。
+Q / P キーは UnityEvent ベースで wire。script は HUD 表示のみ。
 
-- `[Hapbeat Event Router]` GameObject に以下を集約:
+- `[Hapbeat Event Router]` に以下を集約:
   - `HapbeatManager` (singleton)
   - `HapbeatKeyDispatcher` — Bindings リストで Q / P を UnityEvent として宣言的に wire
   - `HapbeatActionHelper` — `Ping()` を提供
-  - `HapbeatUnityEventTrigger` (entry: `manual_fire`)
+  - `HapbeatUnityEventTrigger`（**Event**: `Z5_tar_hit_light`）
 - Wiring:
-  - Q → `HapbeatUnityEventTrigger.Fire()` (entry: `manual_fire`)
-  - P → `HapbeatActionHelper.Ping()`
-- `GlobalHotkeys` (script) は Pong 受信時に HUD テキストを更新するだけ
+  - Q → `HapbeatUnityEventTrigger.Fire()`
+  - P → `HapbeatActionHelper.Ping()` + `GlobalHotkeys.NotifyPingSent()`
+- `GlobalHotkeys` (script) は Pong 受信時に HUD の RTT 表示を更新するだけ
 
 ## WASD と UI nav の衝突への対処
 

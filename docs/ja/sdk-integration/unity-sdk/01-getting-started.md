@@ -57,13 +57,13 @@ https://github.com/Hapbeat/hapbeat-unity-sdk.git
 | **Basic Example** | **必須** | このチュートリアルで使う最小サンプル (キー操作で発火) |
 | **Showcase** | **強く推奨**（任意） | SDK の触覚配線パターンを 1 シーン × 5 ゾーンで一覧できる実装カタログ。組み込み時の参考に必ず役立つので、Basic Example と一緒に Import しておくのがおすすめ |
 
-サンプル一式（Scene / EventMap / Kit）が `Assets/HapbeatSDK/SDK_Samples/` 配下に展開され、**そのまま Play できる状態** で配置されます。インポート完了後、**`Hapbeat`** メニューがメニューバーに現れます。
+サンプル一式（Scene / EventMap / Kit）が `Assets/Samples/Hapbeat SDK/<バージョン>/` 配下に展開され、**そのまま Play できる状態** で配置されます。インポート完了後、**`Hapbeat`** メニューがメニューバーに現れます。
 
 バージョン固定・更新・トラブルシューティングの詳細は [](/docs/sdk-integration/unity-sdk/installation/) を参照。
 
 ## 2. Play して振動を確認（Stream）
 
-`Assets/HapbeatSDK/SDK_Samples/BasicExample/Scenes/BasicExample.unity` を開いて **Play** します（シーン・EventMap・Kit はサンプル同梱なので、追加の生成作業は不要です）。
+`Assets/Samples/Hapbeat SDK/<バージョン>/BasicExample/BasicExample.unity` を開いて **Play** します（シーン・EventMap・Kit はサンプル同梱なので、追加の生成作業は不要です）。
 
 画面にキー操作ガイドが表示されます:
 
@@ -114,7 +114,7 @@ EventMap の詳細: [](/docs/sdk-integration/unity-sdk/event-map/)
 Command モード（F キー）を動かすには、デバイスに `basic-exam-kit` をインストールします。Studio からのデプロイには **hapbeat-helper** が必要です（[](/docs/tools/studio/initial-setup/) 参照）。
 
 1. **Hapbeat Studio** を開く（`https://studio.hapbeat.com/`）
-2. **Kit タブ（右側）** → フォルダ選択（「フォルダを開く」）で Unity の `Assets/HapbeatSDK/SDK_Samples/BasicExample/Kit/` を指定
+2. **Kit タブ（右側）** → フォルダ選択（「フォルダを開く」）で Unity の `Assets/Samples/Hapbeat SDK/<バージョン>/BasicExample/Kit/` を指定
 3. `basic-exam-kit` が一覧に表示されたら選択
 4. デバイスが選択されていることを確認（ページ内右上）→ **Deploy** を実行
 
@@ -145,6 +145,7 @@ Command モード（F キー）を動かすには、デバイスに `basic-exam-
 ## 次のステップ
 
 - [](/docs/sdk-integration/unity-sdk/integration/) — 自分のシーンへの追加手順と Showcase サンプル紹介
+- [](/docs/sdk-integration/unity-sdk/scripting/) — 自分の C# スクリプトから触覚を鳴らす
 - [](/docs/sdk-integration/unity-sdk/triggers/) — Collision / Sequence / UnityEvent / TickEmitter / StateBehaviour
 - [](/docs/sdk-integration/unity-sdk/event-map/) — Event ID と波形の対応を GUI 管理
 - [](/docs/sdk-integration/unity-sdk/parameter-binding/) — ゲーム状態を gain / pan に動的マッピング

@@ -18,7 +18,7 @@ Trigger 系は [](/docs/sdk-integration/unity-sdk/triggers/)、Parameter Binding
 
 ## Hapbeat Address Override Panel
 
-GameObject に 1 つ追加するだけで、Player -/+ ・ Group -/+ ・ Play ・ Apply ・ Exit を備えた実行時 UI が生成される。シーン側で UI 階層を組む必要はない。用途と設計の背景は [](/docs/sdk-integration/unity-sdk/targeting/#override-targeting) を参照。
+GameObject に 1 つ追加するだけで、Player -/+ ・ Group -/+ ・ Play ・ Apply ・ Exit を備えた実行時 UI が生成される。シーン側で UI 階層を組む必要はない。用途と設計の背景は [](/docs/sdk-integration/unity-sdk/targeting/#address-override) を参照。
 
 ### 主な設定
 

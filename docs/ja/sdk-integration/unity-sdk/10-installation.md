@@ -30,7 +30,7 @@ https://github.com/Hapbeat/hapbeat-unity-sdk.git
 特定バージョンを固定する場合は末尾にタグを付けます。指定できるタグは [Releases](https://github.com/Hapbeat/hapbeat-unity-sdk/releases) を参照してください:
 
 ```
-https://github.com/Hapbeat/hapbeat-unity-sdk.git#v0.3.0
+https://github.com/Hapbeat/hapbeat-unity-sdk.git#v0.6.0
 ```
 
 ### 2. 更新
@@ -47,7 +47,7 @@ https://github.com/Hapbeat/hapbeat-unity-sdk.git#v0.3.0
 
 ### 3. SDK フォルダを作成 (任意・初回のみ便利)
 
-`Hapbeat → Setup → Create HapbeatSDK Folder` を実行すると以下が生成されます:
+`Hapbeat → Create HapbeatSDK Folder` を実行すると以下が生成されます:
 
 ```
 Assets/HapbeatSDK/
@@ -56,7 +56,7 @@ Assets/HapbeatSDK/
   EventMaps/   ← EventMap.asset
 ```
 
-サンプルの Build メニューを使う場合は自動で生成されるので、明示的に呼ぶ必要はありません。
+`Hapbeat → Initial Scene Setup` を実行する場合は内部で自動生成されるので、明示的に呼ぶ必要はありません。
 
 ## サンプル
 
@@ -64,18 +64,18 @@ Package Manager で Hapbeat SDK を選択 → 右パネル **Samples** タブか
 
 | サンプル | 内容 | 動作要件 |
 |---|---|---|
-| **Basic Example** | Trigger × 3 + Helper + Dispatcher + StatusOverlay の最小組合せ。Space/R/F/S/C キーで動作確認 | デバイス + Studio または Helper 起動 |
+| **BasicExample** | Trigger × 3 + Helper + Dispatcher + StatusOverlay の最小組合せ。Space/R/F/S/C キーで動作確認 | デバイス + Studio または Helper 起動 |
 | **Showcase** | 5 ゾーン構成の SDK 全機能ショーケース (Bowling / Door / Fishing / Stream Console / Target Range)。キーマウスで完結、XR 不要 | 同上 |
-| **XR Helpers** | XR Interaction Toolkit 連携フィルター (XRGrabFilter / XRSocketFilter) | XRI パッケージが入っているプロジェクトのみ |
+| **XR Helpers** | XR Interaction Toolkit 連携コンポーネント (HapbeatXRGrabFilter / HapbeatXRSocketFilter / 左右の手で UnityEvent を振り分ける HapbeatXRHandSideRouter) | XRI パッケージが入っているプロジェクトのみ |
 | **XRI Hand Demo (haptics add-on)** | XRI の Hands Interaction Demo に haptics を追加する EventMap + Kit。シーンは非同梱で、Editor コマンドで配線を適用 → [](/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/) | XRI + XR Helpers + ハンドトラッキング HMD |
 | **VR Config Example** | VR 実機での確認用の最小シーン。override の設定とテスト発火のみ。XRI 非依存 → [](/docs/sdk-integration/unity-sdk/targeting/) | Quest 等の VR 実機 |
 
-Sample は `Assets/Samples/Hapbeat SDK/<version>/<sample>/` に展開されます。Import 直後にシーン (`Scenes/*.unity`) を開いて Play すれば動作確認できます — 追加のビルド手順は不要です。
+Sample は `Assets/Samples/Hapbeat SDK/<version>/<sample>/` に展開されます。Import 直後にシーンを開いて Play すれば動作確認できます — 追加のビルド手順は不要です。BasicExample / Showcase のシーンはサンプル直下 (`BasicExample.unity` / `Showcase.unity`)、VR Config Example は `Scenes/VRConfigExample.unity` にあります。
 
 ## 動作確認
 
 1. **Hapbeat Studio** または **Hapbeat Helper** を起動し、デバイスがオンライン表示になることを確認
-2. Unity で `Assets/HapbeatSDK/Scenes/BasicExample.unity` を開く
+2. Unity で `Assets/Samples/Hapbeat SDK/<version>/BasicExample/BasicExample.unity` を開く
 3. Play モード突入
 4. **Space** キーで Stream 1-shot, **F** キーで Command (Fire) が再生され、デバイスから振動が出れば成功（**R** = Stream loop, **S** = Stop all, **C** = Ping）
 
