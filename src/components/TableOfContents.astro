@@ -10,12 +10,18 @@
  *   - 「目次」h2 と同一行右端にしたいが h2 は Default 内部にあるため、
  *     position: absolute で wrap → starlight-toc を覆う形にする。
  *   - 右サイドバーの sl-container を relative にする CSS は global で当てる。
+ *
+ * 右サイドバーの下端には公式サイト (hapbeat.com) へのリンクを固定表示する。
+ * 開発者向けナビ (ヘッダー・左サイドバー) には並べず、余白になりがちな
+ * 右サイドバー下端に置く。右サイドバーが出ない幅ではフッターのリンクに任せる。
  */
 import Default from '@astrojs/starlight/components/TableOfContents.astro';
 import KindBadge from './KindBadge.astro';
 
 const entry = (Astro.locals as any)?.starlightRoute?.entry;
 const kind: string | undefined = entry?.data?.kind;
+const isEn = Astro.url.pathname === '/en' || Astro.url.pathname.startsWith('/en/');
+const officialLabel = isEn ? 'Hapbeat official site' : 'Hapbeat 公式サイト';
 ---
 {kind && (
   <div class="toc-kind-anchor">
@@ -23,6 +29,16 @@ const kind: string | undefined = entry?.data?.kind;
   </div>
 )}
 <Default {...Astro.props} />
+<div class="hb-toc-official">
+  <a href="https://hapbeat.com/" target="_blank" rel="noopener noreferrer">
+    {officialLabel}
+    <svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <line x1="5" y1="9" x2="13" y2="1"/>
+      <polyline points="8.5,1 13,1 13,5.5"/>
+      <path d="M7,1.5 H2.5 C1.67,1.5 1,2.17 1,3 V11.5 C1,12.33 1.67,13 2.5,13 H11.5 C12.33,13 13,12.33 13,11.5 V8"/>
+    </svg>
+  </a>
+</div>
 
 <style>
   /* 右サイドバー panel の sl-container を相対配置にして、その中で
@@ -44,5 +60,34 @@ const kind: string | undefined = entry?.data?.kind;
     /* h2 のフォントサイズに合わせて若干小さく */
     font-size: 0.7rem;
     padding: 0.15em 0.55em;
+  }
+
+  /* 右サイドバー (.right-sidebar, position:fixed) の下端に貼り付ける。
+     目次が長くても末尾が隠れないよう、panel 側に同じ高さの余白を取る。 */
+  .hb-toc-official {
+    position: fixed;
+    bottom: 0;
+    inset-inline-end: 0;
+    width: var(--hb-toc-w);
+    padding: 10px 1rem;
+    border-top: 1px solid var(--hb-line);
+    border-inline-start: 1px solid var(--hb-line);
+    background: var(--sl-color-bg-sidebar);
+  }
+  :global(.right-sidebar-panel) {
+    padding-bottom: 56px !important;
+  }
+  .hb-toc-official a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: var(--hb-ink-mute);
+    text-decoration: none;
+  }
+  .hb-toc-official a:hover {
+    color: var(--hb-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 </style>
