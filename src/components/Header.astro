@@ -3,7 +3,7 @@
  * Header override.
  *
  * design の .topbar レイアウトを再現:
- *   [ brand | search | nav (Docs / Support / 公式サイト / Studio) | lang-switch | theme | github ]
+ *   [ brand | search | nav (Downloads / FAQ) | lang-switch | theme | github ]
  *
  * サイドバー / TOC は viewport 幅で自動レスポンシブ (components.css 参照)。
  * 開閉トグルは持たない。
@@ -24,12 +24,6 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
 const isEn = Astro.url.pathname === '/en' || Astro.url.pathname.startsWith('/en/');
 const lp = isEn ? '/en' : '';  // locale prefix for /docs/ links
 const studioHref = isEn ? '/studio/en/' : '/studio/';
-// 公式サイト (製品・購入・問い合わせ) への導線。デモ一覧などを外部に共有した時の
-// 入口になるので、フッターだけでなくヘッダーにも常時出す。
-const officialLabel = isEn ? 'hapbeat.com' : '公式サイト';
-const officialTitle = isEn
-  ? 'Hapbeat official site: products, purchase and contact'
-  : 'Hapbeat 公式サイト（製品・購入・お問い合わせ）';
 ---
 
 <div class="hb-topbar">
@@ -48,14 +42,6 @@ const officialTitle = isEn
     <nav class="hb-topbar__nav" aria-label="主要セクション">
       <a href={`${lp}/docs/start-here/getting-started/`} class="hb-topbar__nav--lvl1">Docs</a>
       <a href={`${lp}/docs/support/contact/`} class="hb-topbar__nav--lvl3">Support</a>
-      <a href="https://hapbeat.com/" class="hb-topbar__official" title={officialTitle} target="_blank" rel="noopener noreferrer">
-        {officialLabel}
-        <svg class="hb-topbar__cta-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="5" y1="9" x2="13" y2="1"/>
-          <polyline points="8.5,1 13,1 13,5.5"/>
-          <path d="M7,1.5 H2.5 C1.67,1.5 1,2.17 1,3 V11.5 C1,12.33 1.67,13 2.5,13 H11.5 C12.33,13 13,12.33 13,11.5 V8"/>
-        </svg>
-      </a>
       <a href={studioHref} class="hb-topbar__cta" target="_blank" rel="noopener noreferrer">
         Studio
         <svg class="hb-topbar__cta-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -120,7 +106,6 @@ const officialTitle = isEn
     display: inline-flex;
     align-items: center;
     text-decoration: none !important;
-    white-space: nowrap;
     transition: background 0.15s, color 0.15s;
   }
   .hb-topbar__nav a:hover {
@@ -145,11 +130,6 @@ const officialTitle = isEn
     color: var(--hb-purple-ink);
     background: var(--hb-purple-soft);
   }
-  .hb-topbar__nav a.hb-topbar__official {
-    gap: 5px;
-    color: var(--hb-ink);
-    font-weight: 500;
-  }
   .hb-topbar__cta-icon {
     width: 12px;
     height: 12px;
@@ -168,7 +148,7 @@ const officialTitle = isEn
   /* 段階的 hide。優先度順 (高 → 低):
      右「| 以降の icons」グループ (lang/theme/github) は nav よりも低優先度。
      icons が先に消え、次に nav の lvl3 → lvl2 の順で消える。
-     Docs (lvl1) と公式サイトは常時表示。
+     Docs (lvl1) は常時表示。
 
      最小幅試算 (icons 全消し時):
        brand "Hapbeat" 96 + hamburger 92 + nav 160(Docs+Support) + 余白 ≈ 380px
@@ -192,23 +172,9 @@ const officialTitle = isEn
       display: none;
     }
   }
-  /* nav: Support (lvl3) は狭い画面で非表示、Docs (lvl1) と公式サイトは常時表示 */
+  /* nav: Support (lvl3) は狭い画面で非表示、Docs (lvl1) は常時表示 */
   @media (max-width: calc(28rem - 0.01px)) {
     .hb-topbar__nav a.hb-topbar__nav--lvl3 {
-      display: none;
-    }
-    /* スマホ幅で Docs / 公式サイト / Studio の 3 つを 1 行に収める */
-    .hb-topbar__nav {
-      gap: 2px;
-    }
-    .hb-topbar__nav a,
-    .hb-topbar__nav a.hb-topbar__cta {
-      padding: 0 8px;
-    }
-    .hb-topbar__nav a.hb-topbar__cta {
-      margin-left: 0;
-    }
-    .hb-topbar__cta-icon {
       display: none;
     }
   }
