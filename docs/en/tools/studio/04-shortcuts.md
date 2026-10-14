@@ -38,6 +38,7 @@ The same keys as the Kit Editor. Click a card (an AI trial candidate, or a mater
 | `↑` / `↓` | Move to the previous / next card (shown in the waveform panel; stops playback; scrolls into view) |
 | `Space` | Play / stop the focused card |
 | `←` / `→` | On the strength slider: strength ±1% (`Shift`: ±10%) |
+| `Tab` | Between a card and its strength slider (★, comments and buttons are for the mouse; Tab skips them) |
 
 - While typing (comment fields) or with a rating ★ focused, the arrow keys stay with that field.
 - On the strength slider, `←` / `→` change the strength and `↑` / `↓` move between cards (like the Kit Amp slider).
