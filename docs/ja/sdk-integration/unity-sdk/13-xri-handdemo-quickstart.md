@@ -37,10 +37,10 @@ Unity 公式の [XR Interaction Toolkit (XRI)](https://docs.unity3d.com/Packages
      https://github.com/Hapbeat/hapbeat-unity-sdk.git
      ```
 
-   - バージョン固定は末尾にタグを付与（例 `#v0.3.0`）
+   - バージョン固定は末尾にタグを付与（例 `#v0.6.0`）
 
 4. **Hapbeat SDK の Samples から *XR Helpers* と *XRI Hand Demo (haptics add-on)* を Import**
-   - **両方必要**。前者は XRI 用のフィルタコンポーネント、後者は EventMap と Kit
+   - **両方必要**。前者は XRI 用のフィルタコンポーネントと、操作した手（左右）で UnityEvent を振り分ける `HapbeatXRHandSideRouter`。後者は左右 2 つの EventMap（`HandsDemoLeftEventMap.asset` / `HandsDemoRightEventMap.asset`）と Kit
 
 5. **`HandsDemoScene.unity` を開く**
 
@@ -54,23 +54,24 @@ Unity 公式の [XR Interaction Toolkit (XRI)](https://docs.unity3d.com/Packages
    - 未設定だと掴めない。poke は指の位置だけで成立するが、grab はピンチ = select 入力を要し、それを供給するのが Hand Interaction Profile
 
 8. **Hapbeat を同じ Wi-Fi に接続して Play**
+   - EventMap は左右で同じ 10 エントリを持ち、target だけが異なる（左 `player_1/pos_l_wrist` / 右 `player_1/pos_r_wrist`）。手首の Hapbeat 2 台をそれぞれ `player_1/pos_l_wrist/group_1` / `player_1/pos_r_wrist/group_1` に設定する
 
 :::tip[配線先を検討したいとき]
 手順 6 の代わりに `Hapbeat > Samples > Augment XRI Hand Demo (+ diagnostic Event Logger)` を実行すると、Poke ボタンの XRI イベントがすべて Console に出力されます。
 :::
 
 :::note[Kit のデプロイは不要です]
-同梱 EventMap の 10 エントリはすべて CLIP（StreamClip）で、波形はアプリからストリーミングされます。同梱の `hand-demo-kit-manifest.json` は、EventMap 上で基準 intensity をプレビューするためのものです。FIRE との違いは [](/docs/sdk-integration/unity-sdk/fire-vs-clip/) を参照してください。
+同梱 EventMap（左右 各 10 エントリ）はすべて CLIP（StreamClip）で、波形はアプリからストリーミングされます。同梱の `hand-demo-kit-manifest.json` は、EventMap 上で基準 intensity をプレビューするためのものです。FIRE との違いは [](/docs/sdk-integration/unity-sdk/fire-vs-clip/) を参照してください。
 :::
 
 ## 動作しないとき
 
 | 症状 | 対処 |
 |---|---|
-| `HandsDemoEventMap.asset` が見つからない | サンプル *XRI Hand Demo (haptics add-on)* が未 Import → 手順 4 |
+| `HandsDemoLeftEventMap.asset` / `HandsDemoRightEventMap.asset` が見つからない | サンプル *XRI Hand Demo (haptics add-on)* が未 Import → 手順 4 |
 | 開いているシーンが Hands Interaction Demo ではない | シーン違い、または XRI のバージョン差。見つからなかったパスはダイアログに列挙 |
 | Console に `GameObject '…' not found` | XRI 側で改名・移動。警告に出たパスを手動で配線（[](/docs/sdk-integration/unity-sdk/triggers/)） |
-| Console に `type '…HapbeatXRGrabFilter' not found` | サンプル *XR Helpers* が未 Import → 手順 4 |
+| Console に `type '…HapbeatXRGrabFilter' not found`、またはダイアログに `HapbeatXRHandSideRouter was not found` | サンプル *XR Helpers* が未 Import → 手順 4 |
 | 掴めない | Hand Interaction Profile と Hand Tracking Subsystem を有効化 → 手順 7 |
 | 触覚フィードバックが出ない | [](/docs/support/faq/) の接続関連を参照 |
 

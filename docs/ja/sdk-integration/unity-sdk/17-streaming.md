@@ -31,12 +31,12 @@ SDK は常に「実時間より sendAhead 秒先まで」のサンプルを送�
 
 ## 設定方法
 
-[](/docs/sdk-integration/unity-sdk/installation/) の `streamSendAheadSeconds` で変更できます:
+`Hapbeat → Open Settings` の **Stream Buffer (s)**（`HapbeatConfig.streamSendAheadSeconds`）で変更できます:
 
 ```
-HapbeatConfig
+Hapbeat Settings
   Behavior
-    streamSendAheadSeconds: 0.05  ← デフォルト 50ms
+    Stream Buffer (s): 0.05  ← デフォルト 50ms
 ```
 
 範囲: 10ms 〜 200ms。
@@ -59,31 +59,29 @@ HapbeatConfig
 
 `HapbeatActionHelper.StopEverything()` は両方に対して停止指示を送るので、Command の音は瞬時に止まり、Stream の音だけ ~sendAhead 秒の残響があります。
 
-## clip フォーマットの統一 (StreamClip 同時再生)
+## clip フォーマット (StreamClip)
 
-Hapbeat の stream session は **単一フォーマットで固定** されます。つまり 1 つの session 中で **sample rate / channel count が同一の clip しか同時 stream できません**。フォーマットが違う 2 つ目以降の clip は SDK で reject されます:
-
-```
-[Hapbeat] StreamAudioClip: rate/channel mismatch with active session
-(session=16000Hz/2ch, new=16000Hz/1ch). Rejecting new source.
-```
+SDK は StreamClip の source ごとに **16 kHz / stereo へ resample・up-mix してから mix** し、デバイスへ送ります。そのため sample rate / channel count が異なる clip も同時に再生できます。
 
 ### 推奨フォーマット: **16 kHz / 2ch (stereo) PCM16**
 
-- 全 StreamClip 用 WAV を **`16 kHz / stereo / PCM 16-bit signed LE`** に揃えてください
-- mono ソースは stereo に up-mix (L=R duplicate) する
-- 異なる sample rate / channel count の clip を混ぜると同時再生不可
+フォーマットを揃えるのは必須ではありませんが、次の理由で推奨します:
+
+- 素材を送信フォーマットと同じにしておくと、SDK 側の resample が不要になり、意図どおりの波形がそのまま届く (事前正規化)
+- 高い sample rate の素材はアセットサイズが大きくなるだけで、送信は 16 kHz に揃えられる (サイズ)
+- 揃える場合の形式は **`16 kHz / stereo / PCM 16-bit signed LE`**
+- mono ソースは SDK が stereo に up-mix (L=R) する
 
 ### Studio 経由なら自動 normalize (2026-05-24 以降)
 
 - **Live streaming** (Studio Devices タブの再生): 送信時に **2ch / 16 kHz / PCM16 に auto-resample + up-mix**
 - **Kit deploy** (Helper の `pack_normalize`): `ffmpeg -ar 16000 -ac 2 -acodec pcm_s16le` で同じく統一
 
-つまり **Studio を経由している限りユーザは何もしなくて良い**。ソース WAV が mono / 22.05 kHz でも勝手に統一フォーマットに揃って配信される。
+つまり **Studio を経由している限りユーザは何もしなくて良い**。ソース WAV が mono / 22.05 kHz でも統一フォーマットに揃って配信される。
 
 ### Studio を経由しない場合は注意
 
-以下のケースは Studio の auto-normalize を通らないので、**自分で WAV を 16 kHz / 2ch / PCM16 に揃える必要があります**:
+以下のケースは Studio の auto-normalize を通らないので、**WAV を 16 kHz / 2ch / PCM16 に揃えておくことを推奨します** (Unity から StreamClip で送る分は SDK が変換するので再生はできます):
 
 - Unity AssetDatabase で直接 import した AudioClip を `HapbeatManager.StreamAudioClip` に渡す
 - 外部ツールで生成した WAV を Kit に直接コピー (Studio 経由でなく)
@@ -115,10 +113,6 @@ CI / シェルスクリプトで一括変換したい場合に。
 1. ファイル → 書き出し → WAV (Microsoft, 16-bit PCM)
 2. 「サンプリング周波数」を 16000 Hz に
 3. mono の場合: 「トラック → ステレオに変換」を先に実行
-
-### 単一 clip のみ stream する用途なら format 不問
-
-session 中に **1 つの stream しか動かさない** 場合 (例: BGM 的に 1 つの clip だけループ) は format 統一は不要。session の最初の clip がそのまま format を決めるので。複数 clip の **同時再生 / 短時間 sequential 再生** で初めて問題になります。
 
 ## 関連
 

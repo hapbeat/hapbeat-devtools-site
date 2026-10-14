@@ -225,7 +225,7 @@ UI に effective delay を ms 単位で readout 表示。
 | `debugLogInterval` | `float` | `0.1` | log throttle (秒) |
 | `debugLogChangeThreshold` | `float` | `0.02` | 正規化値がこれ以上動かないと log を出さない |
 
-### 4.1 BindingSourceProperty (10 値)
+### 4.1 BindingSourceProperty (11 値)
 
 | 値 | 入力 | 必要 ref |
 |---|---|---|
@@ -288,6 +288,7 @@ UI に effective delay を ms 単位で readout 表示。
 | `Event Map:` Object Field | 編集対象 EventMap を切替（GUID で persist） |
 | `● Save` / `✓ Saved` | dirty 状態と手動保存ボタン |
 | (FlexibleSpace) | |
+| `Bulk Edit` | mode / gain / target / delay / manifest / notes を複数 entry にまとめて適用する modal を開く。既定は全 entry 対象、modal の `Select all` を外すと Table view で選択中の行だけに適用 |
 | `Batch Setup` | `HapbeatBatchSetupWindow` を開く |
 | `Scan Scene` | scene 内 Trigger / State / Script wiring を再スキャン |
 | `↻` | manifest intensity cache を全 entry 分 refresh |
@@ -356,7 +357,7 @@ UI に effective delay を ms 単位で readout 表示。
 - ボタン: `▶ Test Play` (green) ⇔ `■ Stop` (red) の toggle
   - Play 中: `HapbeatManager.Instance` 経由
   - Edit 中: `HapbeatEditorTransport` を lazy open
-- 右側: **Manifest** 行（`Hapbeat → Open Settings` で設定する `HapbeatConfig` の port/group を使う）
+- 右側: **Manifest** 行（`Hapbeat → Open Settings` で設定する `HapbeatConfig` の port を使う）
   - Label `Manifest`
   - Picker (`*-manifest.json` 限定 TextAsset field) — `manifestOverride` を設定
   - `↻` Refresh ボタン — clip の所属フォルダを walk up して `*-manifest.json` を auto-attach
@@ -454,14 +455,12 @@ heuristic なので false positive あり得る。
 |---|---|---|
 | `☰` | drag handle | 20px |
 | `#` | list index | 28px |
-| `Mode` | popup (`FIRE` / `CLIP` / `LIVE`*) | 70px |
+| `Mode` | popup (`FIRE` / `CLIP`) | 70px |
 | `Name` | `displayName` TextField | flex |
 | `Event ID / Clip` | Command: `category.eventName` 結合表示 / StreamClip: `AudioClip` picker | 180px |
 | `Gain` | FloatField | 48px |
-| `Target` | read-only summary | 110px |
+| `Target` | クリックで target 編集 popup を開く（multi-select 中の行ならその全行に適用） | 110px |
 | `×` | delete | 20px |
-
-*Table view の Mode popup には `LIVE` が残置されているが、enum 上の `StreamClip` 1 値しかないため LIVE 選択は no-op になる。
 
 ### 9.2 選択 / 一括編集
 
@@ -477,6 +476,7 @@ heuristic なので false positive あり得る。
 - Set Mode/FIRE (Command)
 - Set Mode/CLIP (Stream Clip)
 - Set Gain.../0.5 / 1.0 / 2.0
+- Set Target...（target 編集 popup を選択行すべてに適用）
 - Duplicate All
 - Delete All
 

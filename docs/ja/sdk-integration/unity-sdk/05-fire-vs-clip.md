@@ -112,7 +112,7 @@ void Update() {
 }
 ```
 
-実装例: Showcase **Z5 ChargeShooter** (`Samples~/Showcase/Scripts/ChargeShooter.cs`)。
+なお Showcase **Z5 ChargeShooter** (`Samples~/Showcase/Scripts/ChargeShooter.cs`) は Trigger の `GainMultiplier` ではなく、`HapbeatManager.StreamAudioClip(...)` の返り値 (`HapbeatStreamPlayback`) に毎フレーム `ApplyGainModulation(curve)` を呼んでチャージ量を反映しています（下記 C の経路）。
 
 ### C. Manager.Play() / StreamAudioClip() を直接呼ぶ (mode 別 API、特殊ケース)
 
@@ -127,6 +127,8 @@ HapbeatManager.Instance?.Play(
 );
 ```
 
+`Play` には任意引数 `displayName`（ログ用）と `pan`（左右バランス。-1 = 左のみ / 0 = 中央 / +1 = 右のみ、既定 0）もあります。
+
 **Clip**:
 ```csharp
 [SerializeField] private AudioClip _footstepClip;
@@ -136,7 +138,7 @@ void OnFootstep() {
         clip: _footstepClip,
         gain: 0.7f
     );
-    // 必要なら playback.SetGain(0.5f) / playback.Stop()
+    // 必要なら playback.Gain = 0.5f; / playback.Stop();
 }
 ```
 

@@ -12,7 +12,7 @@ Hapbeat SDK は Unity Editor のトップレベルメニュー **`Hapbeat`** に
 Hapbeat/
   Open Event Map                           ← Window (Event ID + Wiring 管理メイン画面)
   Open Batch Setup                         ← Window (複数 GO に Trigger を一括設定)
-  Open Settings                            ← Window (接続設定 / Bridge / Override Addressing)
+  Open Settings                            ← Window (接続設定 / Override Addressing / 遅延補正)
   Open Runtime Status                      ← Window (実行中の override / appName の解決結果)
   ─────────────────────────────
   Samples/Augment XRI Hand Demo            ← XRI サンプルシーンに haptics 配線を適用
@@ -41,7 +41,6 @@ Hapbeat/
   Diagnostics/Check for SDK Updates        ← 新しい SDK が出ていないか今すぐ確認
   Diagnostics/Check for SDK Updates on Startup ← 起動時の自動確認の ON/OFF
   ─────────────────────────────
-  Developer/Build Basic Example            ← Basic サンプル一式の scaffold (Local/Embedded install のみ)
   Developer/Sync HapbeatSDK → Samples~ (Showcase)
   Developer/Sync HapbeatSDK → Samples~ (BasicExample)
 ```
@@ -51,16 +50,16 @@ Hapbeat/
 1. **Window 系** (top): ウィンドウを開く操作。よく使うので最上段に配置。
 2. **Samples**: Import 済みサンプルに対して配線を適用するコマンド。
 3. **Create 系**: 日常的な author 操作。Event Router / Event Map を個別に作成。
-3. **Initial / 1 回限り**: 初期セットアップや特殊ケースで実行するもの。Initial Scene Setup は (Router + EventMap + フォルダ) の一括コマンド、Deploy Imported Sample は Samples フォルダから HapbeatSDK/ への展開。
-4. **Authoring tools**: EventMap export / Audio フォーマット変換 (アセット成果物の加工)。
-5. **Diagnostics**: 配線テスト・ログ記録・transport 緊急クローズ・冗長ログ一括 OFF。デバッグ目的。
-6. **Developer** (gate hidden in UPM consumer installs): SDK 開発者専用。`HapbeatDevModeMenuGate` で UPM Git URL / registry installs では非表示。
+4. **Initial / 1 回限り**: 初期セットアップや特殊ケースで実行するもの。Initial Scene Setup は (Router + EventMap + フォルダ) の一括コマンド。
+5. **Authoring tools**: EventMap export / Audio フォーマット変換 (アセット成果物の加工)。
+6. **Diagnostics**: 配線テスト・ログ記録・transport 緊急クローズ・冗長ログ一括 OFF・サンプル版 / SDK 更新の確認。デバッグ目的。
+7. **Developer** (gate hidden in UPM consumer installs): SDK 開発者専用。`HapbeatDevModeMenuGate` で UPM Git URL / registry installs では非表示。
 
 加えて以下のメニュー位置にも Hapbeat エントリがあります:
 
 - **GameObject → Hapbeat → Event Router** (Hierarchy 右クリック含む) — `Create Event Router` と同じ
 - **Assets → Create → Hapbeat → Config / Event Map** — ScriptableObject 生成
-- **Add Component → Hapbeat/...** — 各種 Trigger / Bridge / Helper をコンポーネントとして追加
+- **Add Component → Hapbeat/...** — 各種 Trigger / Helper をコンポーネントとして追加
 
 ---
 
@@ -72,15 +71,16 @@ Hapbeat/
 
 | 設定 | 用途 |
 |---|---|
-| Port | UDP ポート (デフォルト 7700) |
-| アプリ名 | Hapbeat デバイスのディスプレイに表示するクライアントアプリ名。**Max 16 文字** (display grid 幅)。デフォルトの `app_name` 要素 (8x1) では先頭 8 文字のみ表示。空欄なら `Application.productName` が自動使用 (16 文字超過時は切り詰め)。`<p>` / `<g>` は送信直前に override 値へ置換 |
+| UDP Port | UDP ポート (デフォルト 7700) |
+| App Name | Hapbeat デバイスのディスプレイに表示するクライアントアプリ名。**Max 16 文字** (display grid 幅)。デフォルトの `app_name` 要素 (8x1) では先頭 8 文字のみ表示。空欄なら `Application.productName` が自動使用 (16 文字超過時は切り詰め)。`<p>` / `<g>` は送信直前に override 値へ置換 |
 | **Override Addressing (this build)** | ビルド全体で固定する player / group。空欄 (無効) なら EventMap のターゲットをそのまま使用 → [](/docs/sdk-integration/unity-sdk/targeting/) |
-| Use Bridge / Bridge Host | ESP-NOW 経由 (上位構成) を使う場合のみ ON |
-| Ping Interval | キープアライブ送信間隔 (秒) |
-| Haptic Delay | 全発火に一律で足す遅延 (ms)。映像との同期合わせ用 |
-| Stream Send Ahead | CLIP 送信の先行時間 (秒) |
-| Stream / Command Unicast | 既知デバイスへ unicast で送る (既定 ON) → [](/docs/concepts/communication-model/) |
-| Enable / Verbose Logging | Console ログの出力量 |
+| Auto Reconnect | ソケットエラーで切れた接続を自動で開き直す (2 秒から倍々で最大 30 秒の間隔)。無人運用では ON のまま |
+| Ping Interval (s) | キープアライブ送信間隔 (秒) |
+| Stream Buffer (s) | CLIP (StreamClip) 送信の先行バッファ (秒)。短いほど Stop の反応が速く、長いほど安定。範囲 10〜200 ms、既定 50 ms |
+| Command Unicast | Play / Stop / StopAll を既知デバイスへ unicast で送る (既定 ON) → [](/docs/concepts/communication-model/) |
+| Enable Logging | Play / Stop / 接続 / エラーを Console に出す |
+| Verbose Log | PONG / キープアライブ / プロトコル詳細も出す (デバッグ用) |
+| Latency Compensation → Haptic Delay (ms) | Trigger / StateBehaviour 経由の発火に一律で足す遅延 (ms)。音声出力デバイスとの同期合わせ用。エントリごとの Delay Offset がさらに加算される |
 
 実機との Ping テストや、シーン外からの設定編集に使います。`Assets/Create/Hapbeat/Config` で生成した `HapbeatConfig` ScriptableObject の Inspector と内容は同じ。
 
@@ -89,7 +89,9 @@ Hapbeat/
 Play モード中の**解決結果**を確認する Window。設定値そのものではなく「いま実際に何が送られているか」を表示します。
 
 - **Override Addressing (this device)** — 実行時 API / 設定パネルで設定された player / group の現在値
+  - **Edit (works outside Play Mode too)** — Player / Group を入力して **Save to this device** で保存 (Play モード外でも可)
 - **App Name** — `appName` のテンプレートと、`<p>` / `<g>` 置換後の実際の送信文字列
+- **Connection** (Play モード中のみ) — Connected / Transport / Port / Alive devices と、発見済みデバイスの一覧
 
 override が効いているか、OLED に出るはずの文字列が想定どおりかを、実機を見ずに確認できます。
 
@@ -104,7 +106,7 @@ override が効いているか、OLED に出るはずの文字列が想定どお
 - Wiring セクション: 選択中エントリを発火する Trigger を逆引きスキャン
 - Play モード中の Test 再生 / Snapshot/Restore (実機調整時の値を保存・復元)
 
-詳細: [Event Map ウィンドウ](./event-map.md)
+詳細: [Event Map ウィンドウ](/docs/sdk-integration/unity-sdk/event-map/)
 
 ### Batch Setup
 
@@ -186,7 +188,7 @@ Assets/HapbeatSDK/
 - `Selected` — Project ビューで選択中の EventMap だけ
 - `All in Project` — `t:HapbeatEventMap` で project 全体を一括書き出し
 
-詳細: [AI 支援ワークフロー](./ai-assisted-workflow.md)
+詳細: [AI 支援ワークフロー](/docs/sdk-integration/unity-sdk/ai-assisted-workflow/)
 
 ---
 
@@ -198,7 +200,7 @@ Assets/HapbeatSDK/
 
 選択中 GameObject の UnityEvent (XR Interactable の `selectEntered` など) を Console にログ出力する補助配線を追加 / 解除します。
 
-何が起きているか可視化したい時、Trigger を仕込む前の発火タイミング確認に便利。AI 支援で wiring を組むときも、まずこれで「どのイベントがいつ飛ぶか」を観察すると設計がブレません。詳細: [AI 支援ワークフロー](./ai-assisted-workflow.md)。
+何が起きているか可視化したい時、Trigger を仕込む前の発火タイミング確認に便利。AI 支援で wiring を組むときも、まずこれで「どのイベントがいつ飛ぶか」を観察すると設計がブレません。詳細: [AI 支援ワークフロー](/docs/sdk-integration/unity-sdk/ai-assisted-workflow/)。
 
 ### Logs/
 
@@ -230,12 +232,6 @@ Edit-mode で開いている UDP / mDNS transport を強制クローズします
 
 SDK 開発者向け。end-user の UPM Git URL / registry / tarball install では `HapbeatDevModeMenuGate` により非表示になり、メニュー自体が現れません。
 
-### Build Basic Example
-
-Basic Example サンプル一式 (Kit / EventMap / Scene) を `Assets/HapbeatSDK/SDK_Samples/BasicExample/` に scaffold します。Package Manager で Basic Example を Import 済みであることが前提。
-
-End user は Package Manager の Sample Import で直接 Scene を開けるため、このメニューは通常不要です。
-
 ### Sync HapbeatSDK → Samples~ (Showcase) / (BasicExample)
 
 `Assets/HapbeatSDK/SDK_Samples/<sample>/` で編集した Scene / EventMap / Animation を package の `Samples~/<sample>/` に書き戻します。SDK 自体を編集している人向けの maintainer 専用コマンド。
@@ -263,14 +259,15 @@ GameObject の Inspector → Add Component → 検索欄に `Hapbeat`:
 |---|---|
 | Hapbeat Collision Trigger | 物理衝突 / Trigger Enter / Exit で発火 |
 | Hapbeat Sequence Trigger | grab / hold / release を 1 component で扱う |
-| Hapbeat Tick Emitter | 連続値 (Slider 等) の変化量に応じてスナップ触覚 |
-| Hapbeat Unity Event Trigger | UnityEvent の `Fire()` メソッドから任意発火 |
+| Hapbeat Tick Trigger | 連続値 (Slider 等) の変化量に応じてスナップ触覚 (クラス名 `HapbeatTickEmitter`) |
+| Hapbeat UnityEvent Trigger | UnityEvent の `Fire()` メソッドから任意発火 |
 | Hapbeat Parameter Binding | Transform / Rigidbody → gain / pan のリアルタイムマッピング |
 | Hapbeat Action Helper | Stop / StopAll / Ping を UnityEvent から呼ぶラッパ |
-| Hapbeat Event Logger | UnityEvent 発火を Console に流す (Debug 用) |
+| Hapbeat Event Logger (Diagnostic) | UnityEvent 発火を Console に流す (Debug 用) |
 | Hapbeat Key Dispatcher | キー押下を UnityEvent にマップ (sample / proto 用) |
 | Hapbeat Status Overlay | 接続状態と Log を Canvas に表示 |
+| Hapbeat Address Override Panel | 実行時に player / group を切り替えるパネル (Override Addressing (this device)) |
 
-> Animator state からの発火は **`HapbeatStateBehaviour`** を使います。これは StateMachineBehaviour なので、GameObject の Add Component ではなく **Animator window で state を選択 → Inspector → Add Behaviour** から追加します。詳細: [Trigger コンポーネント](./triggers.md#hapbeatstatebehaviour)。
+> Animator state からの発火は **`HapbeatStateBehaviour`** を使います。これは StateMachineBehaviour なので、GameObject の Add Component ではなく **Animator window で state を選択 → Inspector → Add Behaviour** から追加します。詳細: [Trigger コンポーネント](/docs/sdk-integration/unity-sdk/triggers/#hapbeatstatebehaviour)。
 
-詳細: [Trigger コンポーネント](./triggers.md) / [Parameter Binding](./parameter-binding.md)
+詳細: [Trigger コンポーネント](/docs/sdk-integration/unity-sdk/triggers/) / [Parameter Binding](/docs/sdk-integration/unity-sdk/parameter-binding/)

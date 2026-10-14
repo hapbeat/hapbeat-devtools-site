@@ -40,7 +40,7 @@ sidebar:
 ### 1-2. EventMap でエントリを定義する
 ![unity-eventmap](@assets/unity/unity-eventmap.jpg)
 
-`Hapbeat → Open Event Map` ウィンドウを開き、**+ Add Event** からエントリを追加します（ウィンドウを開くだけでは asset は作られません — 1-1 で作成済みの前提）。
+`Hapbeat → Open Event Map` ウィンドウを開き、ツールバーの **`+`** ボタンでエントリを追加します（ウィンドウを開くだけでは asset は作られません — 1-1 で作成済みの前提）。
 
 主な設定項目（**頻繁に触る項目のみ抜粋**。loop / bindings / delayOffsetSeconds / notes / manifestOverride を含む全項目の詳細は [](/docs/sdk-integration/unity-sdk/event-map/) を参照）:
 
@@ -63,32 +63,36 @@ GameObject に Hapbeat 系の Trigger コンポーネント（または `Hapbeat
 
 | コンポーネント / Behaviour | 用途 | 参考 Showcase Zone |
 |---|---|---|
-| **HapbeatCollisionTrigger** | 物理衝突 / Trigger Enter / Exit。VelocityScaled で衝撃連動可 | **Z1 Bowling** (Pin × 6 を BatchSetup で一括) |
+| **HapbeatCollisionTrigger** | 物理衝突 / Trigger Enter / Exit。VelocityScaled で衝撃連動可 | **Z1 Bowling** (`BowlingPin.prefab` に付けて 6 本で共有) |
 | **HapbeatStateBehaviour** | Animator state Enter/Exit で発動。state に直接 attach する StateMachineBehaviour | **Z2 Door** (Open / Closed state に attach) |
 | **HapbeatSequenceTrigger** | Grab / Hold / Release を 1 component で管理 | **Z3 Fishing** (Sequence + ParameterBinding) |
 | **HapbeatTickEmitter** | 連続値（Slider 等）の変化量に応じてスナップ発動 | **Z4 Stream Console** (Slider に BatchSetup) |
-| **HapbeatUnityEventTrigger** | 任意の UnityEvent から `Fire()` を呼ぶ。Button / XR Interactable / Animation Event 等 | **Z5 Charge** (TargetReceiver.OnHit → Fire) |
+| **HapbeatUnityEventTrigger** | 任意の UnityEvent から `Fire()` を呼ぶ。Button / XR Interactable / Animation Event 等 | **Z5 Target** (TargetReceiver.OnHitLight / OnHitHeavy → Fire) |
 
 各要素の詳細: [](/docs/sdk-integration/unity-sdk/triggers/)
 
 #### B. スクリプトから Trigger を呼ぶ (EventMap 経由)
 
-Script に Trigger 参照を持たせ、ゲームロジックの中で `trigger.Fire()` を呼びます。EventMap entry を介すので gain / target / latency / manifest intensity 補正がすべて自動で効きます。`GainMultiplier` を毎フレーム書けば動的 modulation も可能です。
+GameObject に `HapbeatUnityEventTrigger` を置いて Inspector で EventMap とエントリを選び、自分のスクリプトにはその Trigger への参照を持たせて `Fire()` を呼びます。EventMap entry を介すので gain / target / 遅延補正 / Kit の intensity がすべて自動で効きます。
 
 ```csharp
-public class ChargeShooter : MonoBehaviour
-{
-    [SerializeField] private HapbeatUnityEventTrigger _trigger;
-    [SerializeField] private AnimationCurve _gainCurve;
+using UnityEngine;
+using Hapbeat;
 
-    void Release(float chargeT) {
-        _trigger.GainMultiplier = _gainCurve.Evaluate(chargeT);
-        _trigger.Fire();
+public class PlayerHealth : MonoBehaviour
+{
+    // Inspector で HapbeatUnityEventTrigger をドラッグして割り当てる
+    [SerializeField] private HapbeatUnityEventTrigger _damageHaptic;
+
+    public void TakeDamage(int amount)
+    {
+        _damageHaptic.GainMultiplier = Mathf.Clamp01(amount / 50f); // 強さの倍率 (0〜2)
+        _damageHaptic.Fire();
     }
 }
 ```
 
-実装例: Showcase **Z5 ChargeShooter** (`Samples~/Showcase/Scripts/ChargeShooter.cs`)。
+手順の詳細・ループの開始 / 停止・再生中の強さ変更は [](/docs/sdk-integration/unity-sdk/scripting/)、Trigger が持つメソッド・プロパティの一覧は [](/docs/sdk-integration/unity-sdk/script-api/) を参照してください。Showcase では **Z3 Fishing**（`FishingController.cs`）と **Z4 Stream Console**（`StreamDemoController.cs`）がこの形です。
 
 A との使い分けは「呼び出し条件が Inspector の宣言で完結するか / script ロジックで計算する必要があるか」の違いです。両方のパターンを併用できます。
 
@@ -130,7 +134,7 @@ EventMap entry の **Mode** で選びます:
 StreamClip 中の gain / pan を毎フレーム書き換えて、ゲーム状態（移動量・速度・距離など）に追従させる仕組み。
 
 - **Parameter Binding** — Inspector で declarative に Transform / Rigidbody / Slider 等を gain / pan にマッピング (Showcase Z3 / Z4)
-- **スクリプト** — `trigger.GainMultiplier = curve(t)` のように毎フレーム書く (Showcase Z5)
+- **スクリプト** — `trigger.GainMultiplier = curve(t)` のように毎フレーム書く（→ [](/docs/sdk-integration/unity-sdk/scripting/)。Showcase Z5 の `ChargeShooter.cs` は再生ハンドルの `ApplyGainModulation()` を直接呼ぶ例）
 
 詳細・使い分け: [](/docs/sdk-integration/unity-sdk/parameter-binding/)
 
@@ -138,6 +142,7 @@ StreamClip 中の gain / pan を毎フレーム書き換えて、ゲーム状態
 
 ## 次のステップ
 
+- [](/docs/sdk-integration/unity-sdk/scripting/) — 自分のスクリプトから触覚を鳴らす
 - [](/docs/sdk-integration/unity-sdk/triggers/) — 各トリガーの設定例
 - [](/docs/sdk-integration/unity-sdk/event-map/) — Wiring の可視化・一括管理
 - [](/docs/sdk-integration/unity-sdk/parameter-binding/) — ゲーム状態を gain / pan に動的マッピング

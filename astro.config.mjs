@@ -650,6 +650,7 @@ export default defineConfig({
               items: [
                 pub('docs/sdk-integration/unity-sdk/getting-started'),
                 pub('docs/sdk-integration/unity-sdk/integration'),
+                pub('docs/sdk-integration/unity-sdk/scripting'),
                 {
                   label: 'Samples',
                   items: [
@@ -667,6 +668,7 @@ export default defineConfig({
                 pub('docs/sdk-integration/unity-sdk/targeting'),
                 pub('docs/sdk-integration/unity-sdk/ai-assisted-workflow'),
                 // reference: コンポーネント類をまとめ、その後に画面 / 仕様
+                pub('docs/sdk-integration/unity-sdk/script-api'),
                 pub('docs/sdk-integration/unity-sdk/triggers'),
                 pub('docs/sdk-integration/unity-sdk/parameter-binding'),
                 pub('docs/sdk-integration/unity-sdk/components'),

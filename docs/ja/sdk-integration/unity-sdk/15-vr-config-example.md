@@ -40,7 +40,7 @@ Player -/+ ・ Group -/+ ・ Play ・ Apply ・ Exit のすべてがパネル内
 
 `VRConfigExampleController` の **Return Scene** に戻り先シーンを指定すると、Exit で自分のシーンへ復帰する。これにより、**このシーンをそのまま「Hapbeat 設定画面」として使える**。
 
-自前の UI を作りたい場合は、`HapbeatAddressOverridePanel` を GameObject に 1 つ追加するだけでも同等の設定 UI が生成される（→ [](/docs/sdk-integration/unity-sdk/targeting/#override-targeting)）。
+自前の UI を作りたい場合は、`HapbeatAddressOverridePanel` を GameObject に 1 つ追加するだけでも同等の設定 UI が生成される（→ [](/docs/sdk-integration/unity-sdk/targeting/#設定パネルを置く)）。
 
 ## 関連
 

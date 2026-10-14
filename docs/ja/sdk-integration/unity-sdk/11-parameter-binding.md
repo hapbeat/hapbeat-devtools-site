@@ -6,7 +6,7 @@ sidebar:
 description: HapbeatParameterBinding でゲーム状態 (移動量・速度・距離) を StreamGain / StreamPan に動的にマッピングする方法。
 ---
 
-`HapbeatParameterBinding` は、StreamClip 再生中の **gain** や **pan** をゲーム状態 (Transform の位置、Rigidbody の速度、Animator のパラメータなど) に応じて毎フレーム書き換えるコンポーネントです。
+`HapbeatParameterBinding` は、StreamClip 再生中の **gain** や **pan** をゲーム状態 (Transform の位置・スケール、Rigidbody の速度、UI Slider の値など) に応じて毎フレーム書き換えるコンポーネントです。
 
 「掴んだ箱を動かしている間だけ手応えが強くなる」「歩く速度に応じて足元の振動が強まる」といった連続的な触覚表現を、コードを書かずに実現できます。
 
@@ -33,9 +33,9 @@ ParameterBinding は `HapbeatTriggerBase` の **ActivePlayback** (StreamClip 再
 | フィールド | 役割 |
 |---|---|
 | Source Transform Path | source として読む Transform。空 = この GameObject 自身 |
-| Source Property | `LocalPositionX` / `LocalPositionY` / `VelocityMagnitude` / `AngularVelocityMagnitude` / `PositionDeltaMagnitude` / `LocalRotationY` / `SliderValue` (UI Slider 連動) / `External` (スクリプト `binding.SetValue()` で外部入力) 等から選択 |
+| Source Property | `LocalPositionX` / `LocalPositionY` / `LocalPositionZ` / `LocalScaleX` / `LocalScaleY` / `LocalScaleZ` / `VelocityMagnitude` / `AngularVelocityMagnitude` / `PositionDeltaMagnitude` / `SliderValue` (UI Slider 連動) / `External` (スクリプト `binding.SetValue()` で外部入力) から選択 |
 | Input Min / Max | source 値をどの範囲で 0..1 に正規化するか |
-| Curve Type | `Linear` / `EaseIn` / `EaseOut` / `EaseInOut` / `Custom` |
+| Curve Type | `Linear` / `EaseIn` / `EaseOut` / `Exponential` / `Custom` |
 | Output Parameter | `StreamGain` (0..2) または `StreamPan` (-1..+1) |
 | Output Min / Max | 出力範囲 |
 | Debug Log | true で Console に input/output を周期出力 (動作確認に便利) |
@@ -49,17 +49,17 @@ ParameterBinding は `HapbeatTriggerBase` の **ActivePlayback** (StreamClip 再
 | 項目 | 値 |
 |---|---|
 | Source Transform Path | `FishingObject` (root からの相対) |
-| Source Property | `PositionDeltaMagnitude` |
-| Input Min / Max | 0 / 0.5 |
-| Curve Type | `EaseInOut` |
+| Source Property | `VelocityMagnitude` |
+| Input Min / Max | 0 / 3 |
+| Curve Type | `Linear` |
 | Output Parameter | `StreamGain` |
-| Output Min / Max | 0.2 / 1.5 |
+| Output Min / Max | 0 / 1.5 |
 
 挙動:
-- `FishingObject` を **静止** させていると `PositionDeltaMagnitude = 0` → 正規化 0 → curve 0 → output 0.2 (静かな loop)
-- **激しく振り回す** と `PositionDeltaMagnitude > 0.5` → 正規化 1 → output 1.5 (強い loop)
+- `FishingObject` を **静止** させていると `VelocityMagnitude = 0` → 正規化 0 → output 0 (loop は無音)
+- **激しく振り回す** と `VelocityMagnitude ≥ 3` → 正規化 1 → output 1.5 (強い loop)
 
-`FishingController` (script) はマウス入力に応じて `Sequence.Fire() / Stop()` を呼ぶだけ。binding は EventMap entry (`grab_loop`) に preset として登録されているので、BatchSetup や Apply Binding ボタン経由で自動的に `Z3_Fishing` に `HapbeatParameterBinding` が貼られます。
+`FishingController` (script) はマウス入力に応じて `Sequence.Fire() / Stop()` を呼ぶだけ。binding は EventMap entry (`Z3_hook_loop`) に preset として登録されているので、BatchSetup や EventMap ウィンドウの `Sync Scene` ボタン経由で自動的に `Z3_Fishing` に `HapbeatParameterBinding` が貼られます (preset は Parameter Bindings セクションの `+ Binding` で追加)。
 
 ## EventMap preset と standalone の違い
 
@@ -109,17 +109,20 @@ binding source を **Trigger の子孫にできない** ケース (例: UI canva
 
 ```csharp
 // Z5 ChargeShooter 抜粋
+// チャージ開始時: _loopPlayback = HapbeatManager.Instance.StreamAudioClip(...);
 private void Update() {
     if (_charging) {
         float t = ...;
-        _sequenceTrigger.GainMultiplier = _gainCurve.Evaluate(t);
-        // ↑ setter が ApplyGainModulation を呼ぶ → playback.Gain modulate
+        if (_loopPlayback != null && !_loopPlayback.IsStopped)
+            _loopPlayback.ApplyGainModulation(_gainCurve.Evaluate(t));
+        // ↑ Gain = BaselineGain × modulator。ParameterBinding と同じ entry point
     }
 }
 ```
 
 - ParameterBinding を attach しない / 使わない
-- `Trigger.GainMultiplier = v` を毎フレーム書く (内部で `playback.ApplyGainModulation(v)` が走り、ParameterBinding と同じ entry point で gain が書き換わる)
+- `HapbeatManager.StreamAudioClip(...)` の返り値 (`HapbeatStreamPlayback`) に毎フレーム `ApplyGainModulation(v)` を呼ぶ (ParameterBinding と同じ entry point で gain が書き換わる)
+- Trigger 経由で再生している場合は `Trigger.GainMultiplier = v` を書いても同じ (setter が内部で `ApplyGainModulation(v)` を呼ぶ)
 - ゲーム状態の取得が複雑な場合 (時間累積 / 閾値検知 / 複数 state 合成等) も script なら自由
 
 → Showcase Z5 ChargeShooter (`Samples~/Showcase/Scripts/ChargeShooter.cs`) がこの実装の参考例。Blaster の Trigger と chargeBar Slider (UI canvas 配下) が別 hierarchy なため、preset 経由は不可 → script 駆動を採用。
@@ -141,7 +144,7 @@ ParameterBinding を使わず、スクリプトで直接 `HapbeatTriggerBase.Gai
 
 Showcase の対応例:
 - **Z4 Stream Console**: ParameterBinding (Slider → StreamGain / StreamPan) — declarative。EventMap window で wiring 完結
-- **Z5 Charge Shooter**: script から `_sequenceTrigger.GainMultiplier = curve(chargeT)` を毎フレーム書込み — imperative。custom 計算ロジック (`AnimationCurve` 評価) や mid-flow ロジック (閾値超え検知) と相性が良い
+- **Z5 Charge Shooter**: `StreamAudioClip(...)` の返り値に `ApplyGainModulation(curve(chargeT))` を毎フレーム呼ぶ — imperative。custom 計算ロジック (`AnimationCurve` 評価) や mid-flow ロジック (閾値超え検知) と相性が良い
 
 判断基準:
 - ゲーム状態の取得が単純 (Transform / Rigidbody / Slider) → ParameterBinding

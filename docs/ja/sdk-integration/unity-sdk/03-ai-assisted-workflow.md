@@ -10,14 +10,14 @@ Hapbeat SDK は GameObject / Trigger / EventMap のシンプルな構成なの�
 
 このページでは、AI に「まっさらなシーン」を読ませて触覚フィードバックを設計・実装させる、4 ステップのワークフローと、各ステップで使えるおすすめプロンプトを示します。
 
-> Hapbeat SDK 開発時に作者自身が Claude Code を使って `Showcase` / `XriHandDemoAugment` サンプルを実装したフローをそのまま外部ユーザー向けに整理したものです。
+> Hapbeat SDK 開発時に作者自身が Claude Code を使って `Showcase` サンプルと XRI Hand Demo の配線コマンド (`Hapbeat → Samples → Augment XRI Hand Demo`) を実装したフローをそのまま外部ユーザー向けに整理したものです。
 
 ---
 
 ## 必要な前提
 
 - **Unity プロジェクト** が AI から読める状態 (Claude Code / Cursor 等を該当プロジェクトのルートで起動済み)
-- **Hapbeat SDK** インストール済み ([インストール手順](./installation.md))
+- **Hapbeat SDK** インストール済み ([インストール手順](/docs/sdk-integration/unity-sdk/installation/))
 - **触覚を載せたい既存シーン** が `Assets/` 配下に保存済み
 - AI が `.unity` シーンファイル (YAML) と SDK の Trigger / EventMap 定義を読める権限を持つこと
 
@@ -106,7 +106,7 @@ Step 1 の結果をレビューしたら、EventMap (Event ID 一覧) を設計�
 - gain: 0.0〜1.0 (touch design 段階では 0.5 を起点に)
 - target: 触覚デバイスのターゲット (空文字 = 全 group / "neck" / "arm" 等)
 
-参考: `Packages/com.hapbeat.sdk/docs/event-map.md` の仕様を読んでから決めて
+参考: https://devtools.hapbeat.com/docs/sdk-integration/unity-sdk/event-map/ の仕様を読んでから決めて
 ください。
 
 出力は以下の C# 配列リテラル形式 (Editor スクリプト埋め込み用):
@@ -173,8 +173,8 @@ source event はその Trigger をどう発火させるかの具体的設定:
 4. Undo: Ctrl+Z 1 回で全配線が巻き戻ること
 5. 実行後ユーザーがレビューして手動微調整できるよう、シーンの自動保存はしない
 
-参考: 既存サンプルの BasicExampleSceneBuilder.cs / ShowcaseSceneBuilder.cs を
-読んで、API や namespace を合わせてください。
+参考: SDK の `Editor/HapbeatHandDemoAugmentor.cs` (XRI Hand Demo に配線を適用する
+Editor コマンド) を読んで、API や namespace を合わせてください。
 ````
 
 **メリット:**
@@ -218,8 +218,8 @@ source event はその Trigger をどう発火させるかの具体的設定:
 
 - `Runtime/Hapbeat*Trigger.cs` の各 Trigger 実装
 - `Runtime/HapbeatEventMap.cs` / `HapbeatEventEntry.cs`
-- `docs/triggers.md` / `docs/event-map.md`
-- `Samples~/Showcase/Editor/ShowcaseSceneBuilder.cs` (実装パターンの好例)
+- 公開ドキュメントの [Trigger コンポーネント](/docs/sdk-integration/unity-sdk/triggers/) / [Event Map ウィンドウ](/docs/sdk-integration/unity-sdk/event-map/)
+- `Editor/HapbeatHandDemoAugmentor.cs` (Editor コマンドで配線を適用する実装パターンの好例)
 
 ### 触覚デザインは AI に任せきらない
 
@@ -251,12 +251,8 @@ Step 4 で生成させた Augmentor は **冪等** (同じ実行を 2 回して�
 
 ---
 
-## 参考: Hapbeat SDK 自体の開発で使ったプロンプト
+## 参考: Hapbeat SDK 自体の Augmentor 実装
 
-`Showcase` / `XriHandDemoAugment` サンプル実装時に Claude Code に渡した
-詳細指示書 (テスト基準 / scene path 表 / Undo 要件 / 環境チェック) が、SDK
-リポジトリの `instructions/later/` 配下にあります:
-
-- [`instructions-xri-handdemo-augment-202605051200.md`](https://github.com/Hapbeat/hapbeat-unity-sdk/blob/master/instructions/later/instructions-xri-handdemo-augment-202605051200.md) — XRI HandDemo に Editor メニュー 1 クリックで触覚を後付けする Augmentor の設計指示書
+XRI Hand Demo に Editor メニュー 1 クリックで触覚を後付けする実装が、SDK の `Editor/HapbeatHandDemoAugmentor.cs` (メニュー `Hapbeat → Samples → Augment XRI Hand Demo`) です。冪等性・Undo 1 回での巻き戻し・見つからない scene path の warning 報告を備えています。使い方は [](/docs/sdk-integration/unity-sdk/xri-handdemo-quickstart/) を参照。
 
 「触覚を後付けする Editor ツールをどこまで丁寧に書けばよいか」の参考としてお使いください。
