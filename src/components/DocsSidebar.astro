@@ -3,8 +3,49 @@ import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
 import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
 import DocsSidebarSublist from './DocsSidebarSublist.astro';
 const { sidebar } = Astro.locals.starlightRoute;
+// 公式サイトへの導線。開発者向けナビ (ヘッダー) には並べず、サイドバー下端に
+// 常に見える形で置く (フッターまでスクロールしなくても見つかるように)。
+const isEn = Astro.url.pathname === '/en' || Astro.url.pathname.startsWith('/en/');
+const officialLabel = isEn ? 'Hapbeat official site' : 'Hapbeat 公式サイト';
 ---
 <SidebarPersister>
   <DocsSidebarSublist sublist={sidebar} />
 </SidebarPersister>
+<div class="hb-sidebar-official">
+  <a href="https://hapbeat.com/" target="_blank" rel="noopener noreferrer">
+    {officialLabel}
+    <svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <line x1="5" y1="9" x2="13" y2="1"/>
+      <polyline points="8.5,1 13,1 13,5.5"/>
+      <path d="M7,1.5 H2.5 C1.67,1.5 1,2.17 1,3 V11.5 C1,12.33 1.67,13 2.5,13 H11.5 C12.33,13 13,12.33 13,11.5 V8"/>
+    </svg>
+  </a>
+</div>
 <div class="md:sl-hidden"><MobileMenuFooter /></div>
+
+<style>
+  /* .sidebar-content (flex column) の下端に寄せ、項目が長くても
+     スクロール容器 (.sidebar-pane) の下端に貼り付けて常に見せる */
+  .hb-sidebar-official {
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    margin-inline: calc(-1 * var(--sl-sidebar-pad-x));
+    padding: 10px var(--sl-sidebar-pad-x);
+    border-top: 1px solid var(--hb-line);
+    background: var(--sl-color-bg-sidebar);
+  }
+  .hb-sidebar-official a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: var(--hb-ink-mute);
+    text-decoration: none;
+  }
+  .hb-sidebar-official a:hover {
+    color: var(--hb-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>
