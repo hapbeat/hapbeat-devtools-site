@@ -31,7 +31,7 @@ ESP-IDF は **arduino-esp32 を component** として取り込めます。Platfo
 platform = espressif32
 framework = arduino, espidf
 board = esp32dev
-lib_deps = hapbeat/arduino@^0.1.0
+lib_deps = hapbeat/arduino@^0.2.0
 ```
 
 これで Arduino API（`WiFiUDP` 等）が IDF プロジェクト内で使え、ライブラリは**そのまま**動きます。

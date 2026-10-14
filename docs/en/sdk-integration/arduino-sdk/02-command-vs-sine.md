@@ -28,6 +28,7 @@ hb.playSine(160.0f, 0.7f, 400);     // frequency, intensity, duration
 ```
 
 - The waveform is **synthesized on the MCU** in real time. No kit, no WAV, no Studio.
+- **Silent on device firmware 0.5.0 and later** (v0.2.0 streams use the older format). Command mode still works.
 - Frequency and intensity are **live parameters** you can vary with input.
 - **Good for**: the quickest check, sensor/UI-driven expression, no files to prepare.
 

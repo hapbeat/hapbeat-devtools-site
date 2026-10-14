@@ -10,6 +10,13 @@ sidebar:
 ESP32 / M5Stack / Arduino 互換の Wi-Fi ボードから、Hapbeat を **Wi-Fi UDP** で駆動する
 Arduino ライブラリです。ボタンを押す → Hapbeat が振動、を最短で実現します。
 
+:::caution[デバイスファーム 0.5.0 以降では sine ストリームが鳴りません]
+このライブラリ（v0.2.0）の sine ストリームは旧形式のストリームです。デバイスファーム
+**0.5.0 以降**は新形式のストリームしか受け付けないため、`playSine` / `beginSine` /
+`pumpSine` / `endSine` は **鳴りません**。`play()`（kit のイベントを鳴らす command モード）は
+動きます。ファーム 0.4.x 以前のデバイスでは sine ストリームも動作します。
+:::
+
 :::tip[AI コーディングエージェントを使う方へ]
 Hapbeat Arduino ライブラリを AI に把握させるには、下記プロンプトを入力してください。
 
@@ -32,13 +39,14 @@ Hapbeat Arduino ライブラリを使います。https://raw.githubusercontent.c
   repo の ZIP を *スケッチ → ライブラリをインクルード → .ZIP 形式のライブラリをインストール*。
 - **PlatformIO**: `lib_deps` に追加
   ```ini
-  lib_deps = hapbeat/arduino@^0.1.0
+  lib_deps = hapbeat/arduino@^0.2.0
   ```
 
 ## まずは振動させる（kit 不要・最短）
 
 最初の動作確認は **合成 sine** が最短です。Hapbeat 側に kit を入れる必要がなく、
-電源の入った Hapbeat が同じ LAN にいれば、そのまま振動します。
+電源の入った Hapbeat が同じ LAN にいれば、そのまま振動します（デバイスファーム 0.5.0 以降では
+鳴りません。冒頭の注意を参照し、下の command モードで確認してください）。
 
 ```cpp
 #include <WiFi.h>        // ESP8266 の場合は <ESP8266WiFi.h>
