@@ -44,6 +44,7 @@ Requests from Studio to the agent (request a sound, remake, go to haptics, reass
 Manage each cue's sound and haptic materials.
 
 - **Material pool**: an event can have several materials. The first (★) is the **representative**, used for editor auditions and one-off moments.
+- **Group or each variant**: for an event with variants (soft / hard, …), its sound and its haptics are each set either by the group (the parent event) or per variant. The side that does not hold one shows no state or buttons, only "Set by the group" / "Set per variant", with the switch: "Separate per variant" copies the parent's materials to every variant; "Share in the group" gathers the variants' materials on the parent (the first variant's starred ones play, the rest stay unstarred).
 - **Events without a ★**: the last ★ can come off too. A sound or haptic without a ★ plays nothing in the game, and the event gets a ▲ in the Events list. When it should stay silent, press "Set to none" (a decision, so no ▲).
 - **Tentative / OK**: an assigned material starts tentative; approve it once checked. Every cue table change is saved automatically.
 - **Adjust**: adjust a material in place with effects (LPF, …) and the **strength slider**. Changes go straight to the event's WAV; the original audio and the effects stay in `adjust/` of the editor folder.
