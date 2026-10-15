@@ -145,7 +145,7 @@ Command モード（F キー）を動かすには、デバイスに `basic-exam-
 ## 次のステップ
 
 - [](/docs/sdk-integration/unity-sdk/integration/) — 自分のシーンへの追加手順と Showcase サンプル紹介
-- [](/docs/sdk-integration/unity-sdk/scripting/) — 自分の C# スクリプトから触覚を鳴らす
+- [](/docs/sdk-integration/unity-sdk/scripting/) — 自分の C# スクリプトから触覚を再生する
 - [](/docs/sdk-integration/unity-sdk/triggers/) — Collision / Sequence / UnityEvent / TickEmitter / StateBehaviour
 - [](/docs/sdk-integration/unity-sdk/event-map/) — Event ID と波形の対応を GUI 管理
 - [](/docs/sdk-integration/unity-sdk/parameter-binding/) — ゲーム状態を gain / pan に動的マッピング

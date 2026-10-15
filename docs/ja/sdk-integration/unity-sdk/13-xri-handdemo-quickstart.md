@@ -4,7 +4,7 @@ kind: howto
 description: XR Interaction Toolkit の Hands Interaction Demo に、Editor メニュー 1 回で Hapbeat の触覚フィードバックを追加する手順。
 sidebar:
   order: 200
-  label: XRI デモに haptics 追加
+  label: 触覚を追加する
 ---
 
 Unity 公式の [XR Interaction Toolkit (XRI)](https://docs.unity3d.com/Packages/com.unity.xr.interaction.toolkit@3.3/manual/index.html) のサンプル「Hands Interaction Demo」に、Hapbeat の触覚フィードバックを後付けで追加する。掴む・押す・スナップする・こするといった操作すべてに haptics が追加される。

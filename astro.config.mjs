@@ -440,8 +440,12 @@ export default defineConfig({
     // Tutorial → Showcase rename (2026-05-24). 旧 URL は外部から参照されている
     // 可能性があるためリダイレクトで温存。
     '/docs/sdk-integration/unity-sdk/tutorial': '/docs/sdk-integration/unity-sdk/showcase/',
-    '/docs/sdk-integration/unity-sdk/tutorial/walkthrough': '/docs/sdk-integration/unity-sdk/showcase/walkthrough/',
-    '/docs/sdk-integration/unity-sdk/tutorial/method-choice': '/docs/sdk-integration/unity-sdk/showcase/method-choice/',
+    '/docs/sdk-integration/unity-sdk/tutorial/walkthrough': '/docs/sdk-integration/unity-sdk/showcase/zones/',
+    '/docs/sdk-integration/unity-sdk/tutorial/method-choice': '/docs/sdk-integration/unity-sdk/integration/',
+    // Showcase の 4 ページを概要 + ゾーン詳細の 2 ページに統合 (2026-10-15)
+    '/docs/sdk-integration/unity-sdk/showcase/walkthrough': '/docs/sdk-integration/unity-sdk/showcase/zones/',
+    '/docs/sdk-integration/unity-sdk/showcase/wiring': '/docs/sdk-integration/unity-sdk/showcase/zones/',
+    '/docs/sdk-integration/unity-sdk/showcase/method-choice': '/docs/sdk-integration/unity-sdk/integration/',
     // Reference トップレベル廃止 (2026-05-24): Contracts を Concepts 配下に移動
     '/docs/reference': '/docs/concepts/',
     '/docs/reference/contracts': '/docs/concepts/contracts/',
@@ -652,15 +656,25 @@ export default defineConfig({
                 pub('docs/sdk-integration/unity-sdk/integration'),
                 pub('docs/sdk-integration/unity-sdk/scripting'),
                 {
+                  // サンプルごとにまとめる。Showcase は概要 (ゾーン一覧) と
+                  // ゾーン詳細の 2 ページ。
                   label: 'Samples',
                   items: [
-                    pub('docs/sdk-integration/unity-sdk/showcase/overview'),
-                    pub('docs/sdk-integration/unity-sdk/showcase/walkthrough'),
-                    pub('docs/sdk-integration/unity-sdk/showcase/wiring'),
-                    pub('docs/sdk-integration/unity-sdk/showcase/method-choice'),
+                    {
+                      label: 'Showcase',
+                      items: [
+                        pub('docs/sdk-integration/unity-sdk/showcase/overview'),
+                        pub('docs/sdk-integration/unity-sdk/showcase/zones'),
+                      ].filter(Boolean),
+                    },
                     pub('docs/sdk-integration/unity-sdk/vr-config-example'),
-                    pub('docs/sdk-integration/unity-sdk/xri-handdemo-quickstart'),
-                    pub('docs/sdk-integration/unity-sdk/xri-handdemo-apk'),
+                    {
+                      label: 'XRI Hand Demo',
+                      items: [
+                        pub('docs/sdk-integration/unity-sdk/xri-handdemo-quickstart'),
+                        pub('docs/sdk-integration/unity-sdk/xri-handdemo-apk'),
+                      ].filter(Boolean),
+                    },
                   ].filter(Boolean),
                 },
                 // howto / explanation (mode 判断 → 送信先の決め方 → ワークフロー支援)
