@@ -16,13 +16,25 @@ Hapbeat Studio is a haptic content design tool that runs entirely client-side in
 - To transfer Kits to a device, `hapbeat-helper` must be installed and running ([](/en/docs/tools/studio/initial-setup/))
 - A Hapbeat device with firmware flashed must be connected to Wi-Fi
 
-## 1. Open the Library Folder
+## 1. Choose a Work Folder
 
-On first launch, you will see "Please select a Library folder." The Library is the **location where your WAV clips are stored**. Select any folder you like.
+The first time you open Studio, every tab shows "**First, choose a work folder**" at the top of the screen. The work folder is a folder on your computer that holds the vibration clips (WAV) and Kit data.
 
-Sample clips are built in and will be automatically copied to an empty folder. You can also add WAV files later by drag-and-drop.
+![The first screen. The guide at the top and ① the Choose work folder button](@assets/studio/getting-started-work-folder.png)
 
-> 💡 You can optionally configure a **Kit folder** separately (via the `+ Kit` chip in the upper-right of the Kit panel). For example, pointing it to `<Project>/Assets/HapbeatSDK/Kits/` in your Unity project lets the Unity SDK read Kits created by Studio directly. If not specified, a Kit folder will be created inside the Library folder.
+1. Make a new empty folder (for example `Hapbeat` in Documents).
+2. Press ① **Choose work folder** and select that folder.
+3. Allow access if the browser asks.
+
+When you choose an empty folder, the built-in sample clips are copied into its `template/` folder and listed in the Clips panel of the Kit tab. Press ▶ to preview one.
+
+![The Kit tab after choosing a work folder. The sample vibration clips are listed in the Clips panel](@assets/studio/getting-started-sample-clips.png)
+
+If the folder already contains WAV files, Studio loads them as they are. You can also add WAV files later by drag-and-drop or `+ Import`.
+
+Studio opens the same folder next time. If the browser's permission has expired, it shows "Open your work folder again"; press **Open “(folder name)”** and allow access.
+
+> 💡 You can optionally configure a **Kit folder** separately (via the `+ Kit` chip in the upper-right of the Kit panel). For example, pointing it to `<Project>/Assets/HapbeatSDK/Kits/` in your Unity project lets the Unity SDK read Kits created by Studio directly. If not specified, a Kit folder will be created inside the work folder.
 
 ## 2. Create a New Kit
 

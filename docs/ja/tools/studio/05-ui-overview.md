@@ -94,13 +94,13 @@ Studio は **完全クライアントサイド** で、サーバーには何も�
 
 | データ | 保存先 | 補足 |
 |---|---|---|
-| Library / Kit の WAV・`manifest.json` | ユーザー指定の **ローカルフォルダ** | disk が真実（disk-as-truth）。詳細は [Kit タブ](/docs/tools/studio/kit-tab/) |
+| Library / Kit の WAV・`manifest.json` | ユーザー指定の **ローカルフォルダ**（作業フォルダ / Kit フォルダ） | disk が真実（disk-as-truth）。詳細は [Kit タブ](/docs/tools/studio/kit-tab/) |
 | Library / Kit メタ・エンコード済み WAV キャッシュ | ブラウザの **IndexedDB** | 素材の再エンコード skip 等に利用 |
 | UI（Display / LED / Volume / Hold）設定 | **localStorage** + IndexedDB、Deploy 時にデバイス NVS | 詳細は [UI タブ](/docs/tools/studio/ui-tab/) |
 | デバイス設定（Wi-Fi / 名前 / アドレス / AP 等） | デバイスの **NVS**（本体側） | Studio 側キャッシュは表示用。詳細は [Manage タブ](/docs/tools/studio/manage-tab/) |
 | 並び順・view mode・入力履歴などの UI 状態 | **localStorage** | マシンごと |
 
-別マシンへの移行は、基本的に Library / Kit フォルダを共有するだけで済みます。
+別マシンへの移行は、基本的に作業フォルダ / Kit フォルダを共有するだけで済みます。
 
 ---
 

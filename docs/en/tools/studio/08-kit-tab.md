@@ -43,13 +43,13 @@ The selected view persists. The toolbar also provides:
 
 ## Library
 
-![Library panel. Labels: Library folder, search, flat/tree, import, and Amp presets.](@assets/studio/kit-detail-library.png)
+![Library panel. Labels: work folder, search, flat/tree, import, and Amp presets.](@assets/studio/kit-detail-library.png)
 
-The Library lists source haptic WAV files. Studio imports them from the chosen Library folder.
+The Library lists source haptic WAV files. Studio imports them from the chosen work folder.
 
 ### Folder and toolbar
 
-- **Library folder**: choose the folder containing source files. Studio reads and writes `clips/` and metadata there. Use `+ Library` when it is unset; use `⇄` to change it or `×` to clear it.
+- **Work folder**: the folder containing source files. Studio reads and writes `clips/` and metadata there. When it is unset, use "Choose work folder" in the Clips panel or the guide at the top (or "Open “(folder name)”" when the permission for the previous folder has expired); use `⇄` to change it or `×` to disconnect it.
 - **Search**: filters by name, tag, or group.
 - **Sort**: name ascending / descending, modified newest / oldest, or duration shortest / longest. The selection persists.
 - **+ Import**: imports WAV, mp3, ogg, flac, aac, or m4a from the file picker. Multiple imports show progress.
@@ -86,7 +86,7 @@ The Edit dialog supports Name (max 64, lower-case / digits / `-` / `_`), free-fo
 
 The Kit Editor lists events in the selected Kit.
 
-- **Kit folder** is the output location for `manifest.json`, `install-clips/`, and `stream-clips/`. When unset, Studio creates `<kitId>/` under the Library. Choose a Unity `Assets/.../Kits/` folder when the Unity SDK should read the Kit directly.
+- **Kit folder** is the output location for `manifest.json`, `install-clips/`, and `stream-clips/`. When unset, Studio creates `<kitId>/` inside the work folder. Choose a Unity `Assets/.../Kits/` folder when the Unity SDK should read the Kit directly.
 - **Create** uses the entered Kit name. A Kit name is also its folder name, `manifest.name`, and Event ID prefix; it follows `^[a-z][a-z0-9-]*$`.
 - **Name** is editable with the same rule; **Version** follows semver convention but is not enforced.
 - **Target Device** is optional metadata: Board, minimum firmware, and baseline volume. `⟳ Import from device` reads the current connected-device value.
@@ -114,8 +114,8 @@ Changing a mode, including bulk change, stops any preview. The Event Edit dialog
 
 | Button | Action | Requires |
 | --- | --- | --- |
-| **Save Folder** | Writes `manifest.json` and WAV files to the Kit folder; does not send to a device. | Library and Kit folders |
-| **Deploy** | Builds the same output and transfers its zip through Helper. | Library / Kit folders, Helper, and an online playback device |
+| **Save Folder** | Writes `manifest.json` and WAV files to the Kit folder; does not send to a device. | Work folder and Kit folder |
+| **Deploy** | Builds the same output and transfers its zip through Helper. | Work folder / Kit folder, Helper, and an online playback device |
 
 Unchanged audio skips WAV re-encoding, so Amp-only changes are fast. Status beside the buttons reports missing folders, invalid Kit name, saving, saved, and device readiness. With multiple devices, Studio transfers to each in turn and shows per-device progress.
 
@@ -125,9 +125,9 @@ Deployment is blocked until a Kit folder is selected, all Events have non-empty 
 
 | Data | Storage |
 | --- | --- |
-| Clip WAV and Kit output | Local Library / Kit folder (source of truth) |
+| Clip WAV and Kit output | Local work folder / Kit folder (source of truth) |
 | Clip audio and encoded WAV cache | Browser IndexedDB |
-| Clip / Kit metadata and Amp presets | JSON in the Library folder (`clips-meta.json`, `kits-meta.json`, `amp-presets.json`) |
+| Clip / Kit metadata and Amp presets | JSON in the work folder (`clips-meta.json`, `kits-meta.json`, `amp-presets.json`) |
 | View, sort, and info-toggle UI state | `localStorage` |
 
 Disk changes require **Refresh** or returning focus to the window. Kit metadata auto-saves after edits; Kit-folder WAV / manifest change only after Save Folder or Deploy.

@@ -107,8 +107,8 @@ After this step, the USB cable is generally no longer needed. All SDKs assume Ha
 
 Confirm that Studio can trigger vibration on Hapbeat over Wi-Fi UDP. You do not need to create or deploy a Kit at this stage.
 
-1. **Select a working directory** (first time only)
-   Click [Choose Folder] in the left panel and select any folder on your PC. This will be the location where Kits are created and saved.
+1. **Choose a work folder** (first time only)
+   Click [Choose work folder] in the guide at the top of the screen and select a folder on your PC (a new empty folder is recommended). The sample vibration clips are copied into it, and it is also where Kits are created and saved later.
 
 2. **Select a template waveform from the library in the left panel.**
    A list of built-in sample waveforms will appear.

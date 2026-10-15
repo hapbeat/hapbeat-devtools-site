@@ -62,21 +62,21 @@ Kit タブは 2 ペイン構成です。
 
 ## Library パネル
 
-![Library パネル。① Library フォルダ / ② 検索 / ③ フラット・ツリー / ④ Import / ⑤ Amp プリセット](@assets/studio/kit-detail-library.png)
+![Library パネル。① 作業フォルダ / ② 検索 / ③ フラット・ツリー / ④ Import / ⑤ Amp プリセット](@assets/studio/kit-detail-library.png)
 
-1. **Library フォルダ** — WAV 素材フォルダの指定
+1. **作業フォルダ** — WAV 素材フォルダの指定
 2. **検索** — 名前 / タグ / グループでフィルタ
 3. **フラット / ツリー** — 一覧表示の切替
 4. **Import** — WAV を追加（隣の Refresh でディスク再スキャン）
 5. **Amp プリセット** — Amp 設定の保存 / 読込
 
-WAV 触覚素材ファイルの一覧です。Library フォルダから自動 import されます。
+WAV 触覚素材ファイルの一覧です。作業フォルダから自動 import されます。
 
-### Library フォルダチップ（📁 Library）
+### 作業フォルダチップ（📁）
 
-WAV 素材を置くフォルダを指定します。ここから Studio が `clips/` / メタデータを読み書きします。
+WAV 素材を置くフォルダ（作業フォルダ）を指定します。ここから Studio が `clips/` / メタデータを読み書きします。
 
-- **未指定時**: `+ Library` ボタンでフォルダを選択
+- **未指定時**: Clips 欄と画面上部の案内の「作業フォルダを選ぶ」でフォルダを選択（前回のフォルダへの許可が切れているときは「（フォルダ名）を開く」）
 - **指定済み時**: フォルダ名表示 + `⇄`（変更） / `×`（解除）
 
 ### Library ツールバー
@@ -139,7 +139,7 @@ Library 側の Amp（`libraryIntensity`）を一括で保存 / 読込します�
 
 ### Kit フォルダチップ（📦 Kit）
 
-Kit のビルド成果物（`manifest.json` + `install-clips/` + `stream-clips/`）の書き出し先。**未指定なら Library フォルダ直下に `<kitId>/` を作成**します。Unity の `Assets/.../Kits/` を指定すると SDK が Kit を直接読めます（[Kit を作って配布する](/docs/tools/studio/kit-design/)）。
+Kit のビルド成果物（`manifest.json` + `install-clips/` + `stream-clips/`）の書き出し先。**未指定なら作業フォルダの中に `<kitId>/` を作成**します。Unity の `Assets/.../Kits/` を指定すると SDK が Kit を直接読めます（[Kit を作って配布する](/docs/tools/studio/kit-design/)）。
 
 ### 新規 Kit 作成
 
@@ -218,7 +218,7 @@ Kit 詳細の下部に 2 つのボタンが並びます（手順は [Kit を作�
 
 | ボタン | 動作 | 必要なもの |
 |---|---|---|
-| **Save Folder** | `manifest.json` + WAV を Kit フォルダに書き出す（デバイスには送らない） | Library / Kit フォルダ |
+| **Save Folder** | `manifest.json` + WAV を Kit フォルダに書き出す（デバイスには送らない） | 作業フォルダ / Kit フォルダ |
 | **Deploy** | 同じビルドを行い、その zip を Helper 経由でデバイスに転送 | + Helper + オンラインの再生デバイス |
 
 - 音声が前回保存から変わっていない Event は WAV 再エンコードがキャッシュで skip されます（Amp 調整だけなら高速）
@@ -233,9 +233,9 @@ Kit 詳細の下部に 2 つのボタンが並びます（手順は [Kit を作�
 
 | データ | 保存先 |
 |---|---|
-| クリップ WAV / Kit 出力（`manifest.json` / `install-clips/` / `stream-clips/`） | Library / Kit **ローカルフォルダ**（disk が真実） |
+| クリップ WAV / Kit 出力（`manifest.json` / `install-clips/` / `stream-clips/`） | 作業フォルダ / Kit フォルダ（**ローカルフォルダ**、disk が真実） |
 | クリップ音声・エンコード済み WAV キャッシュ | ブラウザ **IndexedDB** |
-| クリップ / Kit メタ・Amp プリセット | Library フォルダ内の JSON（`clips-meta.json` / `kits-meta.json` / `amp-presets.json`） |
+| クリップ / Kit メタ・Amp プリセット | 作業フォルダ内の JSON（`clips-meta.json` / `kits-meta.json` / `amp-presets.json`） |
 | view mode・sort・info toggle 等の UI 状態 | `localStorage` |
 
 ディスクの変更は自動検出されません（**Refresh** ボタン、またはウィンドウ復帰で再スキャン）。Kit メタは編集ごとに自動保存されますが、**Kit フォルダ内の WAV / manifest は Save Folder / Deploy を押すまで書き換わりません**。Kit / manifest の構造は [](/docs/concepts/event-id-and-kit/) を参照。

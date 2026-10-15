@@ -17,12 +17,12 @@ This page focuses on the **hands-on workflow for assembling a Kit in the Studio 
 
 ## 1. Library Folder and Kit Folder
 
-Studio manages WAV clips in a **Library folder** and writes Kit build output to a **Kit folder**.
+Studio manages WAV clips in a **work folder** and writes Kit build output to a **Kit folder**.
 
 | Role | Location |
 |---|---|
-| Library | Specified via the `+ Library` chip in the upper-right of the clip panel. Stores WAV clips |
-| Kit folder | Specified via the `+ Kit` chip in the upper-right of the Kit panel (optional). Defaults to a subfolder inside the Library folder if not set |
+| Work folder | Chosen with "Choose work folder" in the first-run guide (change it with `⇄` on the folder chip in the upper-right of the clip panel). Stores WAV clips |
+| Kit folder | Specified via the `+ Kit` chip in the upper-right of the Kit panel (optional). Defaults to a subfolder inside the work folder if not set |
 
 **Unity project integration**: point the Kit folder to `<Project>/Assets/HapbeatSDK/Kits/` so the Unity SDK can read Kits as first-class assets directly (recommended).
 
