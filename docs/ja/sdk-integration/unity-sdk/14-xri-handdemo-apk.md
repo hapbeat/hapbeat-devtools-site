@@ -4,7 +4,7 @@ kind: howto
 description: Hapbeat の触覚フィードバックを追加した XRI Hands Interaction Demo のビルド済み APK を Quest 3 / 3S に入れて体験する手順。リリースチャンネル / CLI / SideQuest の 3 通り。
 sidebar:
   order: 200
-  label: XRI デモを APK で試す
+  label: APK で試す
 ---
 
 [XR Interaction Toolkit](https://docs.unity3d.com/Packages/com.unity.xr.interaction.toolkit@3.3/manual/index.html) の **Hands Interaction Demo** に Hapbeat の触覚フィードバックを追加した、**ビルド済み APK** を配布中。Unity を開かずに体験可能。

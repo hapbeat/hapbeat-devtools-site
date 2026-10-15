@@ -81,13 +81,14 @@ using Hapbeat;
 
 public class PlayerHealth : MonoBehaviour
 {
-    // Inspector で HapbeatUnityEventTrigger をドラッグして割り当てる
+    // HapbeatUnityEventTrigger を Inspector でドラッグして割り当てる。
+    // 再生する EventMap とエントリは、その Trigger の Inspector で選んである。
     [SerializeField] private HapbeatUnityEventTrigger _damageHaptic;
 
     public void TakeDamage(int amount)
     {
         _damageHaptic.GainMultiplier = Mathf.Clamp01(amount / 50f); // 強さの倍率 (0〜2)
-        _damageHaptic.Fire();
+        _damageHaptic.Fire();   // 選んだエントリを再生
     }
 }
 ```
@@ -107,6 +108,19 @@ HapbeatManager.Instance?.Play("my-kit.enemy_hit", gain: 0.8f);
 **この経路は EventMap 一元管理の利点（デザイナーが Inspector で値調整できる・wiring 一覧が見える・latency 補正が効くなど）を失います**。EventMap で扱える範囲を超える規模・動的性が求められる場合に限定して使うのが目安です。
 
 たとえば「100 プレイヤーぶんの heartbeat を player ID 付きで個別管理したい」ケース。EventMap に静的列挙すると数百エントリが必要になり GUI 管理が現実的でない、加えて Event ID を runtime に動的構築する (`Play($"heartbeat.player_{id}")`) 必要がある、という条件が組み合わさったとき C が有効です。
+
+### 1-4. コンポーネントとスクリプトの使い分け
+
+| 状況 | 向いている方法 |
+|---|---|
+| 同じ Trigger を 3 個以上のオブジェクトに付ける | A（[Batch Setup](/docs/sdk-integration/unity-sdk/editor-menus/#batch-setup) で一括） |
+| 再生の条件が「衝突した・スライダーが動いた・state が変わった」だけで決まる | A |
+| 強さはエントリの Gain のまま、または衝突の速さに比例させるだけでよい | A |
+| 再生の条件に複数のゲーム状態（チャージ量、所持アイテム、HP など）が関わる | B |
+| 強さ・左右を実行時に計算したい | B（`GainMultiplier` / `Pan`） |
+| 1 つの出来事から、条件によって別のエントリを再生し分けたい | B（エントリごとに Trigger を用意して呼び分ける） |
+
+A と B は同じシーンで併用できます。たとえば Showcase の Z3 は、Fire → Loop → Stop の構造を `HapbeatSequenceTrigger`（A）で、再生と停止のタイミングを自前のスクリプト（B）で、ループ中の強さを `HapbeatParameterBinding`（A）で受け持っています。
 
 ---
 
@@ -142,7 +156,7 @@ StreamClip 中の gain / pan を毎フレーム書き換えて、ゲーム状態
 
 ## 次のステップ
 
-- [](/docs/sdk-integration/unity-sdk/scripting/) — 自分のスクリプトから触覚を鳴らす
+- [](/docs/sdk-integration/unity-sdk/scripting/) — 自分のスクリプトから触覚を再生する
 - [](/docs/sdk-integration/unity-sdk/triggers/) — 各トリガーの設定例
 - [](/docs/sdk-integration/unity-sdk/event-map/) — Wiring の可視化・一括管理
 - [](/docs/sdk-integration/unity-sdk/parameter-binding/) — ゲーム状態を gain / pan に動的マッピング

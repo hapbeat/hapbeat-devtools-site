@@ -158,6 +158,6 @@ Showcase の対応例:
 
 ## 参考
 
-- [](/docs/sdk-integration/unity-sdk/showcase/wiring/#z3-fishing-rod) — Z3 の wire 詳細
-- [](/docs/sdk-integration/unity-sdk/showcase/method-choice/) — コンポーネント vs スクリプトの使い分け
+- [](/docs/sdk-integration/unity-sdk/showcase/zones/#z3-fishing-rod) — Showcase Z3 の配線
+- [](/docs/sdk-integration/unity-sdk/integration/#1-4-コンポーネントとスクリプトの使い分け) — コンポーネントとスクリプトの使い分け
 - [](/docs/sdk-integration/unity-sdk/triggers/) — `HapbeatSequenceTrigger` の詳細

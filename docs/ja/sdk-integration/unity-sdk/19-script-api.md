@@ -17,10 +17,10 @@ C# スクリプトから使う主なクラスの public メンバーの一覧で
 
 | やりたいこと | 使うもの |
 |---|---|
-| EventMap のエントリを鳴らす・止める | [HapbeatUnityEventTrigger](#hapbeatunityeventtrigger) |
+| EventMap のエントリを再生・停止する | [HapbeatUnityEventTrigger](#hapbeatunityeventtrigger) |
 | つかむ → 持つ → 離すの 3 段 | [HapbeatSequenceTrigger](#hapbeatsequencetrigger) |
 | 再生中の CLIP の強さ・左右を変える | Trigger の `GainMultiplier` / `Pan`、または [HapbeatStreamPlayback](#hapbeatstreamplayback) |
-| EventMap を通さずに鳴らす、接続状態を見る | [HapbeatManager](#hapbeatmanager) |
+| EventMap を通さずに再生する、接続状態を見る | [HapbeatManager](#hapbeatmanager) |
 | スクリプトからエントリの設定を読む | [HapbeatEventMap / HapbeatEventEntry](#hapbeateventmap--hapbeatevententry) |
 
 ## Trigger 共通のメンバー
@@ -31,7 +31,7 @@ C# スクリプトから使う主なクラスの public メンバーの一覧で
 |---|---|---|
 | `GainMultiplier` | `float`（0〜2） | このコンポーネント固有の倍率。最終 gain = エントリの Gain × Kit の intensity × `GainMultiplier`。CLIP の再生中に書き換えると即座に反映される |
 | `Pan` | `float`（−1〜+1） | 左右バランス。−1 = 左のみ、0 = 中央、+1 = 右のみ。CLIP の再生中に書き換えると即座に反映される |
-| `TriggerEnabled` | `bool` | `false` の間は `Fire()` しても鳴らない |
+| `TriggerEnabled` | `bool` | `false` の間は `Fire()` しても再生されない |
 | `ActivePlayback` | [`HapbeatStreamPlayback`](#hapbeatstreamplayback) | このコンポーネントが再生中の CLIP のハンドル。再生していなければ `null` |
 | `EventMap` | `HapbeatEventMap`（読み取り専用） | Inspector で割り当てた EventMap |
 | `EntryId` | `string`（読み取り専用） | 選択中エントリの ID（GUID） |
@@ -41,13 +41,13 @@ Inspector だけで設定する項目（スクリプトからは変更できな�
 
 ## HapbeatUnityEventTrigger
 
-**Add Component → Hapbeat → Hapbeat UnityEvent Trigger**。EventMap のエントリを 1 つ鳴らすための汎用 Trigger です。スクリプトから呼ぶ場合も、Button の OnClick などの UnityEvent から呼ぶ場合も、このコンポーネントを使います。
+**Add Component → Hapbeat → Hapbeat UnityEvent Trigger**。EventMap のエントリを 1 つ再生するための汎用 Trigger です。スクリプトから呼ぶ場合も、Button の OnClick などの UnityEvent から呼ぶ場合も、このコンポーネントを使います。
 
 | メソッド | 内容 |
 |---|---|
-| `Fire()` | エントリを鳴らす。FIRE（Command）なら Event ID を送信、CLIP（Stream）なら AudioClip を送信する。Loop のエントリは `Stop()` まで鳴り続ける |
-| `Stop()` | このコンポーネントが鳴らしている触覚を止める |
-| `FireWithGain(float gain)` | 指定した値を最終 gain として鳴らす（エントリの Gain・Kit の intensity・`GainMultiplier` は掛からない）。**FIRE（Command）のエントリ専用**。CLIP のエントリの強さを変えるときは `GainMultiplier` を設定してから `Fire()` を呼ぶ |
+| `Fire()` | エントリを再生する。FIRE（Command）なら Event ID を送信、CLIP（Stream）なら AudioClip を送信する。Loop のエントリは `Stop()` まで鳴り続ける |
+| `Stop()` | このコンポーネントが再生している触覚を止める |
+| `FireWithGain(float gain)` | 指定した値を最終 gain として再生する（エントリの Gain・Kit の intensity・`GainMultiplier` は掛からない）。**FIRE（Command）のエントリ専用**。CLIP のエントリの強さを変えるときは `GainMultiplier` を設定してから `Fire()` を呼ぶ |
 
 加えて [Trigger 共通](#trigger-共通のメンバー) のメンバーを使えます。
 
@@ -67,8 +67,8 @@ void OnHit(float power)
 
 | メンバー | 内容 |
 |---|---|
-| `Fire()` | On Start の一発を鳴らし、続けて Loop を開始する |
-| `Stop()` | Loop を止め、On Stop の一発を鳴らす |
+| `Fire()` | On Start の一発を再生し、続けて Loop を開始する |
+| `Stop()` | Loop を止め、On Stop の一発を再生する |
 | `FireWithStartGain(float gainMultiplier)` | `Fire()` と同じだが、On Start の一発だけ倍率を掛ける（Loop はエントリの gain のまま） |
 | `StartShotDelay` | On Start から Loop 開始までの待ち時間（秒）。−1 = On Start のクリップの長さだけ待つ（既定） |
 | `StopShotDelay` | Loop 停止から On Stop までの待ち時間（秒、既定 0.05） |
@@ -81,9 +81,9 @@ void OnHit(float power)
 
 | クラス | メンバー | 内容 |
 |---|---|---|
-| `HapbeatTickEmitter` | `Fire(float value)` / `Fire(Vector2 value)` | 連続値を渡す。前回からの変化量がしきい値を超えるたびに鳴らす |
-| | `FireNow()` | しきい値に関係なく 1 回鳴らす |
-| | `TickThreshold` | 何だけ値が変わったら鳴らすか |
+| `HapbeatTickEmitter` | `Fire(float value)` / `Fire(Vector2 value)` | 連続値を渡す。前回からの変化量がしきい値を超えるたびに再生する |
+| | `FireNow()` | しきい値に関係なく 1 回再生する |
+| | `TickThreshold` | 何だけ値が変わったら再生するか |
 | | `ResetReference()` | 変化量の基準をリセットする |
 | `HapbeatParameterBinding` | `SetValue(float v)` | Source Property が `External` のとき、スクリプトから入力値を渡す |
 
@@ -106,16 +106,16 @@ CLIP（Stream）の再生 1 本ごとのハンドルです。Trigger の `Active
 
 `[Hapbeat Event Router]` 上にあるシングルトンで、デバイスとの通信を受け持ちます。`HapbeatManager.Instance` で取得します（シーンに無いときは `null`）。
 
-### 鳴らす・止める
+### 再生・停止
 
 EventMap を通さずに直接送ります。EventMap の Gain・Target・Kit の intensity 補正・遅延補正は掛からないので、値はすべて引数で渡します。
 
 | メソッド | 内容 |
 |---|---|
-| `Play(string eventId, float gain = 1, string displayName = null, string target = null, float pan = 0)` | FIRE（Command）。デバイスに deploy 済みの Kit から `eventId`（`<kit名>.<イベント名>`）を鳴らす。`target` は送信先（空 = 全デバイス。書式は [](/docs/sdk-integration/unity-sdk/targeting/)） |
+| `Play(string eventId, float gain = 1, string displayName = null, string target = null, float pan = 0)` | FIRE（Command）。デバイスに deploy 済みの Kit から `eventId`（`<kit名>.<イベント名>`）を再生する。`target` は送信先（空 = 全デバイス。書式は [](/docs/sdk-integration/unity-sdk/targeting/)） |
 | `Stop(string eventId, string displayName = null, string target = null)` | 指定した Event ID の再生を止める |
 | `StopAll(string target = null)` | デバイス上の再生をすべて止める |
-| `StreamAudioClip(AudioClip clip, float gain = 1, string target = null, bool loop = false)` | CLIP（Stream）。AudioClip を送って鳴らし、[`HapbeatStreamPlayback`](#hapbeatstreamplayback) を返す（未接続・clip が null なら `null`） |
+| `StreamAudioClip(AudioClip clip, float gain = 1, string target = null, bool loop = false)` | CLIP（Stream）。AudioClip を送って再生し、[`HapbeatStreamPlayback`](#hapbeatstreamplayback) を返す（未接続・clip が null なら `null`） |
 | `StopStream()` | 送信中の CLIP をすべて止める |
 
 ### 接続状態
@@ -156,7 +156,7 @@ EventMap（`.asset`）の中身をスクリプトから読むためのクラス�
 | `target` / `HasTarget` | 送信先 / 送信先が指定されているか |
 
 ```csharp
-// EventMap の設定を使って、Manager から直接 CLIP を鳴らす
+// EventMap の設定を使って、Manager から直接 CLIP を再生する
 var entry = _eventMap.FindByName("player_damage");
 if (entry != null && entry.mode == HapticMode.StreamClip)
 {

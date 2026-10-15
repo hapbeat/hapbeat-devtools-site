@@ -265,3 +265,32 @@ html .sl-markdown-content tbody td a code {
   font-variant-ligatures: none;
   font-feature-settings: "liga" 0, "calt" 0;
 }
+
+/* Two-column card grid for sample overviews (e.g. Unity Showcase zones).
+ * Markdown inside: blank lines around the inner content so images and links are parsed. */
+.sl-markdown-content .hb-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+}
+.sl-markdown-content .hb-card-grid > div {
+  margin-top: 0;
+}
+.sl-markdown-content .hb-card-grid > div > * {
+  margin-top: 0.5rem;
+}
+.sl-markdown-content .hb-card-grid > div > :first-child {
+  margin-top: 0;
+}
+.sl-markdown-content .hb-card-grid img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 6px;
+}
+@media (max-width: 50rem) {
+  .sl-markdown-content .hb-card-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
