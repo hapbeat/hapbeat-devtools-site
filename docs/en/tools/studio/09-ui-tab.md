@@ -77,7 +77,7 @@ LED conditions are independently enabled and ordered: lower numeric priority win
 | --- | --- | --- | --- | --- | --- |
 | `battery_critical` | battery ≤5%, device will stop soon | 128,0,0 | 0.5 s | smooth | 1 |
 | `battery_low` | battery ≤15%, charging recommended | 255,120,0 | 2 s | smooth | 2 |
-| `wifi_disconnected` | configured Wi-Fi is disconnected | 255,200,0 | 1 s | immediate | 3 |
+| `wifi_disconnected` | not connected to a Wi-Fi router (includes not configured, connecting, and waiting to retry; never shown in AP mode) | 255,200,0 | 1 s | immediate | 3 |
 | `volume_mute` | volume is 0, so no haptics | 180,0,255 | steady | immediate | 4 |
 | `app_connected` | receiving CONNECT_STATUS from an app | 0,42,255 | steady | immediate | 6 |
 | `idle_wifi` | Wi-Fi connected, no app connection | 0,255,0 | steady | immediate | 7 |
