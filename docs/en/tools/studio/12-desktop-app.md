@@ -39,7 +39,6 @@ Every tab works the same as in the web version. The differences are:
 - **Tabs shown**: Kit, UI and Manage. Turn on "Show all features" in the panel opened from "Connection" at the top right to add the editor and scene tabs.
 - **"Connection" at the top right**: where the web version shows "Helper". It opens the app panel: built-in Helper status, Restart Helper, Open the log folder, Reset device discovery, Check for updates and the display switch.
 - **USB**: with a single Hapbeat on USB, the port is chosen without a chooser. A port chosen once stays usable after restarting the app.
-- **PC sound**: the PC sound block in the Manage tab's playback test plays what this PC plays (videos, games, music) as vibration on the chosen Hapbeats. In the app there is nothing to pick (in the web version, choose "Entire screen" and turn on sharing the system audio in the browser's share dialog).
 
 ## Updates
 
