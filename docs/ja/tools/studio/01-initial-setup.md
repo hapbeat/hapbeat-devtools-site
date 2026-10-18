@@ -24,7 +24,7 @@ Hapbeat を初めて使えるようにするまでの作業です。**Studio の
 - **USB ケーブル** (デバイスとデータ通信できる USB-C ケーブル — 充電専用ケーブルは NG)
 - **PC** (Windows / macOS / Linux、Chrome または Edge ブラウザ)
 - **Wi-Fi ネットワーク** (2.4 GHz が前提。SSID とパスワード)
-- **`hapbeat-helper`** がインストールされ起動済みであること (`pipx install hapbeat-helper`)
+- **`hapbeat-helper`** がインストールされ起動済みであること (`pipx install hapbeat-helper`)。Windows で Python を入れたくない場合は、Helper 内蔵のデスクトップアプリでも構いません（Step 0 の「Python を入れたくない場合」）
 
 ## ワークフロー全体図
 
@@ -42,6 +42,15 @@ flowchart TD
 ```
 
 ## Step 0: Studio を開いて Helper を起動
+
+:::tip[Python を入れたくない場合（Windows）]
+Windows では、Helper を内蔵した **Hapbeat Studio デスクトップアプリ** を使えます。Python・pipx・コマンド操作は不要です。
+[ダウンロードページ](https://github.com/hapbeat/hapbeat-studio-desktop/releases/latest) から `HapbeatStudio-Setup-<版>.exe` を取得して実行すると、インストールされてそのまま起動します（管理者権限は不要）。
+- 画面は Studio（Web）と同じで、起動のたびに最新版を読み込みます。ネットにつながらないときは前回の版で起動します。
+- アプリの起動中は内蔵の Helper が動くので、同じ PC のブラウザで開いた Studio もそのまま使えます。
+- 署名のないアプリのため、初回に「Windows によって PC が保護されました」と出たら「詳細情報」→「実行」を選んでください。Windows ファイアウォールの確認には「アクセスを許可する」を選んでください。
+- macOS には未対応です（Studio（Web）+ Helper を使ってください）。
+:::
 
 1. ブラウザで Studio を開く: <https://studio.hapbeat.com/>
 2. `hapbeat-helper` が起動していることを確認。初回は `hapbeat-helper install-service` で自動起動を登録（推奨）、または `hapbeat-helper start` で手動起動。Studio 上部に **「Helper 接続中」** と緑色で表示されれば OK。

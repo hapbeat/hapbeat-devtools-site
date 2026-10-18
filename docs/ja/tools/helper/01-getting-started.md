@@ -30,6 +30,15 @@ hapbeat-helper                  ← この CLI
 
 > Studio 側で「Helper 接続中」（緑バッジ）が出ない場合は、Helper が起動していないかポート 7703 が塞がっています。
 
+:::tip[Python を入れたくない場合（Windows）]
+Windows では、Helper を内蔵した **Hapbeat Studio デスクトップアプリ** を使えます。Python・pipx・コマンド操作は不要です。
+[ダウンロードページ](https://github.com/hapbeat/hapbeat-studio-desktop/releases/latest) から `HapbeatStudio-Setup-<版>.exe` を取得して実行すると、インストールされてそのまま起動します（管理者権限は不要）。
+- 画面は Studio（Web）と同じで、起動のたびに最新版を読み込みます。ネットにつながらないときは前回の版で起動します。
+- アプリの起動中は内蔵の Helper が動くので、同じ PC のブラウザで開いた Studio もそのまま使えます。
+- 署名のないアプリのため、初回に「Windows によって PC が保護されました」と出たら「詳細情報」→「実行」を選んでください。Windows ファイアウォールの確認には「アクセスを許可する」を選んでください。
+- macOS には未対応です（Studio（Web）+ Helper を使ってください）。
+:::
+
 ## クイックスタート（3 分で完了）
 
 Studio を開いて「Helper 未接続」と表示されている場合は、以下の 3 ステップで解決します。
