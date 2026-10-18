@@ -44,7 +44,7 @@ flowchart TD
 ## Step 0: Studio を開いて Helper を起動
 
 :::tip[Python を入れたくない場合（Windows）]
-Helper を内蔵した Hapbeat Studio デスクトップアプリを使えます。[ダウンロードページ](https://github.com/hapbeat/hapbeat-studio-desktop/releases/latest)から `HapbeatStudio-Setup-<ver>.exe` を実行してください。詳細は [](/docs/tools/studio/desktop-app/)。
+Helper を内蔵した Hapbeat Studio デスクトップアプリを利用できます。[ダウンロードページ](https://github.com/hapbeat/hapbeat-studio-desktop/releases/latest)から `HapbeatStudio-Setup-<ver>.exe` を実行してください。詳細は [](/docs/tools/studio/desktop-app/)。
 :::
 
 1. ブラウザで Studio を開く: <https://studio.hapbeat.com/>

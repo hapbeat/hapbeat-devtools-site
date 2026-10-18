@@ -31,7 +31,7 @@ hapbeat-helper                  ← この CLI
 > Studio 側で「Helper 接続中」（緑バッジ）が出ない場合は、Helper が起動していないかポート 7703 が塞がっています。
 
 :::tip[Python を入れたくない場合（Windows）]
-Helper を内蔵した Hapbeat Studio デスクトップアプリを使えます。[ダウンロードページ](https://github.com/hapbeat/hapbeat-studio-desktop/releases/latest)から `HapbeatStudio-Setup-<ver>.exe` を実行してください。詳細は [](/docs/tools/studio/desktop-app/)。
+Helper を内蔵した Hapbeat Studio デスクトップアプリを利用できます。[ダウンロードページ](https://github.com/hapbeat/hapbeat-studio-desktop/releases/latest)から `HapbeatStudio-Setup-<ver>.exe` を実行してください。詳細は [](/docs/tools/studio/desktop-app/)。
 :::
 
 ## クイックスタート（3 分で完了）

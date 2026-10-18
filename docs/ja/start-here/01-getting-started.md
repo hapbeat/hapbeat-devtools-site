@@ -49,7 +49,7 @@ Hapbeat SDK には **設定・デザインフロー**（Studio + Helper）と、
 ## Step 1 — Helper をインストール
 
 :::tip[Python を入れたくない場合（Windows）]
-Helper を内蔵した Hapbeat Studio デスクトップアプリを使えます。[ダウンロードページ](https://github.com/hapbeat/hapbeat-studio-desktop/releases/latest)から `HapbeatStudio-Setup-<ver>.exe` を実行してください。詳細は [](/docs/tools/studio/desktop-app/)。
+Helper を内蔵した Hapbeat Studio デスクトップアプリを利用できます。[ダウンロードページ](https://github.com/hapbeat/hapbeat-studio-desktop/releases/latest)から `HapbeatStudio-Setup-<ver>.exe` を実行してください。詳細は [](/docs/tools/studio/desktop-app/)。
 :::
 
 コマンドプロンプト / PowerShell（Windows）またはターミナル（macOS）を開き、以下を実行します。**実行するディレクトリはどこでも構いません。**
