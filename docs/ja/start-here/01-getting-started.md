@@ -37,7 +37,7 @@ Hapbeat SDK には **設定・デザインフロー**（Studio + Helper）と、
 ### 用意するもの
 
 - **PC** (Windows / macOS)
-- **Python 3.9 以上**（Helper の導入に使います。インストール済みか事前に確認してください。Windows で Python を入れたくない場合は Step 1 の「Python を入れたくない場合」を参照）
+- **Python 3.9 以上**（インストール済みか事前に確認してください。Windows で入れたくない場合は Step 1 のヒントを参照）
   - 無い場合は公式よりDL→ https://www.python.org/downloads/
 - **Chrome または Edge ブラウザ** (Web Serial / File System Access が必要)
 - **USB-C ケーブル** (データ通信対応 — 充電専用ケーブル不可)
@@ -49,12 +49,7 @@ Hapbeat SDK には **設定・デザインフロー**（Studio + Helper）と、
 ## Step 1 — Helper をインストール
 
 :::tip[Python を入れたくない場合（Windows）]
-Windows では、Helper を内蔵した **Hapbeat Studio デスクトップアプリ** を使えます。Python・pipx・コマンド操作は不要です。
-[ダウンロードページ](https://github.com/hapbeat/hapbeat-studio-desktop/releases/latest) から `HapbeatStudio-Setup-<版>.exe` を取得して実行すると、インストールされてそのまま起動します（管理者権限は不要）。
-- 画面は Studio（Web）と同じで、起動のたびに最新版を読み込みます。ネットにつながらないときは前回の版で起動します。
-- アプリの起動中は内蔵の Helper が動くので、同じ PC のブラウザで開いた Studio もそのまま使えます。
-- 署名のないアプリのため、初回に「Windows によって PC が保護されました」と出たら「詳細情報」→「実行」を選んでください。Windows ファイアウォールの確認には「アクセスを許可する」を選んでください。
-- macOS には未対応です（Studio（Web）+ Helper を使ってください）。
+Helper を内蔵した Hapbeat Studio デスクトップアプリを使えます。[ダウンロードページ](https://github.com/hapbeat/hapbeat-studio-desktop/releases/latest)から `HapbeatStudio-Setup-<ver>.exe` を実行してください。詳細は [](/docs/tools/studio/desktop-app/)。
 :::
 
 コマンドプロンプト / PowerShell（Windows）またはターミナル（macOS）を開き、以下を実行します。**実行するディレクトリはどこでも構いません。**

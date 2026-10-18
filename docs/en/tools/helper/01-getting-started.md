@@ -23,12 +23,7 @@ hapbeat-helper                  ← this CLI
 > If the Studio does not show "Helper connected" (green badge), Helper is either not running or port 7703 is blocked.
 
 :::tip[If you would rather not install Python (Windows)]
-On Windows you can use the **Hapbeat Studio desktop app**, which has the Helper built in: no Python, no pipx, no command line.
-Get `HapbeatStudio-Setup-<version>.exe` from the [download page](https://github.com/hapbeat/hapbeat-studio-desktop/releases/latest) and run it; it installs and starts (no administrator rights).
-- The screens are the same as Studio (web) and load the latest version at every launch. Without a network it opens the last version it saved.
-- While the app runs, its built-in Helper serves Studio opened in a browser on the same PC too.
-- The app is not code-signed: if "Windows protected your PC" appears the first time, choose More info → Run anyway. Choose Allow access if Windows Firewall asks.
-- Not available for macOS (use Studio (web) + the Helper).
+Use the Hapbeat Studio desktop app, which has the Helper built in: run `HapbeatStudio-Setup-<ver>.exe` from the [download page](https://github.com/hapbeat/hapbeat-studio-desktop/releases/latest). Details: [](/docs/tools/studio/desktop-app/).
 :::
 
 ## Quick start (3 minutes)

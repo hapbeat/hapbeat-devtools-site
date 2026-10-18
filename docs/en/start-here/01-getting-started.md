@@ -29,7 +29,7 @@ The Hapbeat SDK has two flows: the **Setup & Design flow** (Studio + Helper) and
 ### What You Need
 
 - **PC** (Windows / macOS)
-- **Python 3.9 or later** (used to install the Helper; verify it is installed before proceeding. On Windows without Python, see "If you would rather not install Python" in Step 1)
+- **Python 3.9 or later** (verify it is installed before proceeding; on Windows without Python, see the tip in Step 1)
   - If not installed, download from: https://www.python.org/downloads/
 - **Chrome or Edge browser** (Web Serial / File System Access APIs required)
 - **USB-C cable** (data-capable — charging-only cables will not work)
@@ -41,12 +41,7 @@ The Hapbeat SDK has two flows: the **Setup & Design flow** (Studio + Helper) and
 ## Step 1 — Install Helper
 
 :::tip[If you would rather not install Python (Windows)]
-On Windows you can use the **Hapbeat Studio desktop app**, which has the Helper built in: no Python, no pipx, no command line.
-Get `HapbeatStudio-Setup-<version>.exe` from the [download page](https://github.com/hapbeat/hapbeat-studio-desktop/releases/latest) and run it; it installs and starts (no administrator rights).
-- The screens are the same as Studio (web) and load the latest version at every launch. Without a network it opens the last version it saved.
-- While the app runs, its built-in Helper serves Studio opened in a browser on the same PC too.
-- The app is not code-signed: if "Windows protected your PC" appears the first time, choose More info → Run anyway. Choose Allow access if Windows Firewall asks.
-- Not available for macOS (use Studio (web) + the Helper).
+Use the Hapbeat Studio desktop app, which has the Helper built in: run `HapbeatStudio-Setup-<ver>.exe` from the [download page](https://github.com/hapbeat/hapbeat-studio-desktop/releases/latest). Details: [](/docs/tools/studio/desktop-app/).
 :::
 
 Open Command Prompt / PowerShell (Windows) or Terminal (macOS) and run the commands below. **The working directory does not matter.**
