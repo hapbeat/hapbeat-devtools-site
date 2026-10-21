@@ -657,25 +657,16 @@ export default defineConfig({
                 pub('docs/sdk-integration/unity-sdk/integration'),
                 pub('docs/sdk-integration/unity-sdk/scripting'),
                 {
-                  // サンプルごとにまとめる。Showcase は概要 (ゾーン一覧) と
-                  // ゾーン詳細の 2 ページ。
+                  // Samples はサイドバーの部品が静的なグループとして描く
+                  // (入れ子のグループにしない。scripts/check-unreal-docs.mjs)。
+                  // Showcase は概要 (ゾーン一覧) とゾーン詳細の 2 ページ。
                   label: 'Samples',
                   items: [
-                    {
-                      label: 'Showcase',
-                      items: [
-                        pub('docs/sdk-integration/unity-sdk/showcase/overview'),
-                        pub('docs/sdk-integration/unity-sdk/showcase/zones'),
-                      ].filter(Boolean),
-                    },
+                    pub('docs/sdk-integration/unity-sdk/showcase/overview'),
+                    pub('docs/sdk-integration/unity-sdk/showcase/zones'),
                     pub('docs/sdk-integration/unity-sdk/vr-config-example'),
-                    {
-                      label: 'XRI Hand Demo',
-                      items: [
-                        pub('docs/sdk-integration/unity-sdk/xri-handdemo-quickstart'),
-                        pub('docs/sdk-integration/unity-sdk/xri-handdemo-apk'),
-                      ].filter(Boolean),
-                    },
+                    pub('docs/sdk-integration/unity-sdk/xri-handdemo-quickstart'),
+                    pub('docs/sdk-integration/unity-sdk/xri-handdemo-apk'),
                   ].filter(Boolean),
                 },
                 // howto / explanation (mode 判断 → 送信先の決め方 → ワークフロー支援)

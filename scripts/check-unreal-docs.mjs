@@ -38,7 +38,7 @@ for (const [slug, kind] of Object.entries(kinds)) {
   const sampleSection = sampleSections.find(section => section.includes(prefix));
   const unitySamples = sampleSections.find(section => section.includes('/docs/sdk-integration/unity-sdk/'));
   assert.ok(unitySamples && !unitySamples.includes('<details'), 'Unity Samples must be a static group');
-  for (const page of ['showcase/overview', 'showcase/walkthrough', 'showcase/wiring', 'showcase/method-choice', 'vr-config-example', 'xri-handdemo-quickstart', 'xri-handdemo-apk']) {
+  for (const page of ['showcase/overview', 'showcase/zones', 'vr-config-example', 'xri-handdemo-quickstart', 'xri-handdemo-apk']) {
     assert.ok(unitySamples.includes(`/docs/sdk-integration/unity-sdk/${page}/`), `Unity Samples missing ${page}`);
   }
   assert.ok(sampleSection?.includes('class="sample-label'), `${slug}: missing Samples heading`);

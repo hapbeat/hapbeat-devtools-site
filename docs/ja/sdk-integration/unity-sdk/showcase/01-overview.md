@@ -2,7 +2,7 @@
 title: Showcase サンプル
 kind: explanation
 sidebar:
-  label: 概要
+  label: Showcase 概要
   order: 100
 description: SDK の触覚の組み込み方を 1 シーン × 5 ゾーンで一覧できる Unity サンプル。各ゾーンの内容と、やりたいことから参照するゾーンの早見表。
 ---

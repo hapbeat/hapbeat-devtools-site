@@ -2,7 +2,7 @@
 title: Showcase のゾーン詳細
 kind: reference
 sidebar:
-  label: ゾーン詳細
+  label: Showcase ゾーン詳細
   order: 200
 description: Showcase の各ゾーンの操作・配線（どの GameObject にどのコンポーネントが付いているか）・スクリプト・試せる改造と、FIRE モードでの再生、トラブルシューティング。
 ---
