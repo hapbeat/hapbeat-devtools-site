@@ -4,8 +4,8 @@
   "pages": {
     "docs/en/sdk-integration/js-sdk/01-getting-started.md": {
       "source": "docs/ja/sdk-integration/js-sdk/01-getting-started.md",
-      "source_sha": "49262412b02aea90657d24a1fb442d70e19fdefd",
-      "translated_at": "2026-08-02T14:34:48.457Z"
+      "source_sha": "cfabb0a898863fc71051177d5eb3d53d8968ecce",
+      "translated_at": "2026-11-01T05:03:56.654Z"
     },
     "docs/en/sdk-integration/js-sdk/02-transports.md": {
       "source": "docs/ja/sdk-integration/js-sdk/02-transports.md",
@@ -14,78 +14,78 @@
     },
     "docs/en/sdk-integration/js-sdk/03-command-vs-clip.md": {
       "source": "docs/ja/sdk-integration/js-sdk/03-command-vs-clip.md",
-      "source_sha": "205b88fce1477913934db5964a446117d7bc8b0f",
-      "translated_at": "2026-06-25T20:42:51Z"
+      "source_sha": "ffd8c7fd30463ea7540e991767a4d5dbb4b09e18",
+      "translated_at": "2026-11-01T05:03:56.889Z"
     },
     "docs/en/sdk-integration/js-sdk/04-project-structure.md": {
       "source": "docs/ja/sdk-integration/js-sdk/04-project-structure.md",
-      "source_sha": "733cdccd69af978fefdb147a5e4edbc40612752e",
-      "translated_at": "2026-06-25T20:42:51Z"
+      "source_sha": "5c5b7505f1ca113cee28c8d080e3b225c5917899",
+      "translated_at": "2026-11-01T05:03:57.132Z"
     },
     "docs/en/sdk-integration/js-sdk/05-streaming-clips.md": {
       "source": "docs/ja/sdk-integration/js-sdk/05-streaming-clips.md",
-      "source_sha": "22f976d137e626996de69f96b2f63185d32c0e1d",
-      "translated_at": "2026-06-25T20:42:51Z"
+      "source_sha": "2cd559c04ead9b429cdbc20ed1b3186d58b27c11",
+      "translated_at": "2026-11-01T05:03:57.371Z"
     },
     "docs/en/sdk-integration/js-sdk/06-streaming-live.md": {
       "source": "docs/ja/sdk-integration/js-sdk/06-streaming-live.md",
-      "source_sha": "da7d727bb10ed0dc726804484266ee4911097bca",
-      "translated_at": "2026-06-25T20:42:51Z"
+      "source_sha": "d14b19ec0609ef8efd28b99458944748940bfe77",
+      "translated_at": "2026-11-01T05:03:57.606Z"
     },
     "docs/en/sdk-integration/js-sdk/07-event-map.md": {
       "source": "docs/ja/sdk-integration/js-sdk/07-event-map.md",
-      "source_sha": "7f4f3dc8aee9c8b2f3a768102a792efd23834e73",
-      "translated_at": "2026-06-25T20:42:51Z"
+      "source_sha": "3a0a732b2f9d4d52c6d8f0462cf5160904e3a7f3",
+      "translated_at": "2026-11-01T05:03:57.837Z"
     },
     "docs/en/sdk-integration/js-sdk/08-examples.md": {
       "source": "docs/ja/sdk-integration/js-sdk/08-examples.md",
-      "source_sha": "9474effa013cd81cb1622cab4d2edac30e9d1514",
-      "translated_at": "2026-06-27T11:38:05.889Z"
+      "source_sha": "16bf55191b1abb11875cea85f5d5bd7d21b7dce3",
+      "translated_at": "2026-11-01T05:03:58.098Z"
     },
     "docs/en/sdk-integration/python-sdk/01-getting-started.md": {
       "source": "docs/ja/sdk-integration/python-sdk/01-getting-started.md",
-      "source_sha": "3f2fee875e0cc3f3296f9f2140385bc2e758445d",
-      "translated_at": "2026-08-02T14:34:48.921Z"
+      "source_sha": "93a65b6ebfa3cf73a09513d3be790329e3f769da",
+      "translated_at": "2026-11-01T05:03:58.328Z"
     },
     "docs/en/sdk-integration/python-sdk/02-command-vs-clip.md": {
       "source": "docs/ja/sdk-integration/python-sdk/02-command-vs-clip.md",
-      "source_sha": "f4a345e529532b6bf2a0ff7e96f0f1d824211ff2",
-      "translated_at": "2026-06-25T20:42:51Z"
+      "source_sha": "8732c41c4eddd2993a9e18c19bf3078ac77b97e1",
+      "translated_at": "2026-11-01T05:03:58.561Z"
     },
     "docs/en/sdk-integration/python-sdk/03-project-structure.md": {
       "source": "docs/ja/sdk-integration/python-sdk/03-project-structure.md",
-      "source_sha": "073a2de9c3465c40347becb514d95997b968dfa6",
-      "translated_at": "2026-06-25T20:42:51Z"
+      "source_sha": "8f4317906ee24ff6397ac21a2237b6f8210d69e0",
+      "translated_at": "2026-11-01T05:03:58.794Z"
     },
     "docs/en/sdk-integration/python-sdk/04-streaming.md": {
       "source": "docs/ja/sdk-integration/python-sdk/04-streaming.md",
-      "source_sha": "a2b65567c6f6dd18e04e2205e55b3fa1c6db9181",
-      "translated_at": "2026-06-25T20:42:51Z"
+      "source_sha": "1d3d9d4f6521c54f0038acba08534de20a1588db",
+      "translated_at": "2026-11-01T05:03:59.160Z"
     },
     "docs/en/sdk-integration/python-sdk/05-event-map.md": {
       "source": "docs/ja/sdk-integration/python-sdk/05-event-map.md",
-      "source_sha": "1cc44bea6f5199ceb457efeca9230068d477bddf",
-      "translated_at": "2026-06-25T20:42:51Z"
+      "source_sha": "56f2dd12bd033ea86a9bed07573d57c3bad44e30",
+      "translated_at": "2026-11-01T05:03:59.412Z"
     },
     "docs/en/sdk-integration/python-sdk/06-osc.md": {
       "source": "docs/ja/sdk-integration/python-sdk/06-osc.md",
-      "source_sha": "beeed33cc570aef551451bad5bf8daac2f70cbc6",
-      "translated_at": "2026-06-25T20:42:51Z"
+      "source_sha": "ec412991f1ebb5aad67759769e11dc9ca6fe5b2f",
+      "translated_at": "2026-11-01T05:03:59.657Z"
     },
     "docs/en/sdk-integration/python-sdk/07-examples.md": {
       "source": "docs/ja/sdk-integration/python-sdk/07-examples.md",
-      "source_sha": "7e1f0d12b68c79ae38665f29c53dc131e984b50e",
-      "translated_at": "2026-06-25T20:42:51Z"
+      "source_sha": "bc9bd35582d41dbde1049ef11bd2fe6fb809b64a",
+      "translated_at": "2026-11-01T05:03:59.901Z"
     },
     "docs/en/sdk-integration/unity-sdk/01-getting-started.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/01-getting-started.md",
-      "source_sha": "75cab897774533a706fd0d57d2e2560429faf32d",
-      "translated_at": "2026-10-14T15:19:12.100Z"
+      "source_sha": "09a1a89fcb40f8b3385756789055646322b5bcac",
+      "translated_at": "2026-11-01T05:04:00.145Z"
     },
     "docs/en/sdk-integration/unity-sdk/02-integration.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/02-integration.md",
-      "source_sha": "8b33e530aed49cb6891cfdcaf29a247b200e0e78",
-      "translated_at": "2026-10-14T15:19:12.456Z"
+      "source_sha": "599b245bf718a4eaadaf4e497160d2c215420ea7",
+      "translated_at": "2026-11-01T05:04:00.397Z"
     },
     "docs/en/sdk-integration/unity-sdk/03-ai-assisted-workflow.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/03-ai-assisted-workflow.md",
@@ -99,8 +99,8 @@
     },
     "docs/en/sdk-integration/unity-sdk/05-fire-vs-clip.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/05-fire-vs-clip.md",
-      "source_sha": "7f5f925563f13a13ede66d3802f80b343f1e9bcb",
-      "translated_at": "2026-10-14T15:19:13.704Z"
+      "source_sha": "15d38f7d86faa6e755b4b4e9b2b63fbc83605c86",
+      "translated_at": "2026-11-01T05:04:00.630Z"
     },
     "docs/en/sdk-integration/unity-sdk/08-editor-menus.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/08-editor-menus.md",
@@ -109,28 +109,28 @@
     },
     "docs/en/sdk-integration/unity-sdk/09-event-map.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/09-event-map.md",
-      "source_sha": "b8ab572730c968a020f836860dd2fce6fc4e6928",
-      "translated_at": "2026-10-14T15:19:14.610Z"
+      "source_sha": "30bf1aa1a78a360b64dea5c65332f7ea7822f036",
+      "translated_at": "2026-11-01T05:04:00.864Z"
     },
     "docs/en/sdk-integration/unity-sdk/10-installation.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/10-installation.md",
-      "source_sha": "1579acc475034a88989da6af889479e87517942a",
-      "translated_at": "2026-10-14T15:19:14.959Z"
+      "source_sha": "2fc481c019e4ebd679288150d4a46e5c74e92464",
+      "translated_at": "2026-11-01T05:04:01.158Z"
     },
     "docs/en/sdk-integration/unity-sdk/11-parameter-binding.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/11-parameter-binding.md",
-      "source_sha": "fce81b51e5900f24df5e2a71deb29e4b0d0d129b",
-      "translated_at": "2026-10-14T15:19:15.318Z"
+      "source_sha": "20176c74b11d97f7c9a69425bda67a84c3f933e8",
+      "translated_at": "2026-11-01T05:04:01.398Z"
     },
     "docs/en/sdk-integration/unity-sdk/12-triggers.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/12-triggers.md",
-      "source_sha": "7fd1416d8033069f14a4dde77f3d271cc214846e",
-      "translated_at": "2026-10-14T15:19:15.697Z"
+      "source_sha": "9ffcd59eef600674cae0874d638092cbfa91133f",
+      "translated_at": "2026-11-01T05:04:01.654Z"
     },
     "docs/en/sdk-integration/unity-sdk/13-xri-handdemo-quickstart.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/13-xri-handdemo-quickstart.md",
-      "source_sha": "23aa3394c048fc91c4ffaa049c873a0546a3aa98",
-      "translated_at": "2026-10-14T15:19:16.035Z"
+      "source_sha": "08ffe5bc65f529dd5c95f5c8a36509d17acc38f3",
+      "translated_at": "2026-11-01T05:04:01.910Z"
     },
     "docs/en/sdk-integration/unity-sdk/15-vr-config-example.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/15-vr-config-example.md",
@@ -144,18 +144,18 @@
     },
     "docs/en/sdk-integration/unity-sdk/18-scripting.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/18-scripting.md",
-      "source_sha": "b0307b5f2d94e36ec9fc524ceaf83330ba1b9d2a",
-      "translated_at": "2026-10-14T15:19:17.240Z"
+      "source_sha": "8edc1f6d39d8cf39110eae939d575a30602c833f",
+      "translated_at": "2026-11-01T05:04:02.231Z"
     },
     "docs/en/sdk-integration/unity-sdk/19-script-api.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/19-script-api.md",
-      "source_sha": "7c1b61586761aa28f825c1f830b7e4b2b3da500f",
-      "translated_at": "2026-10-14T15:19:17.621Z"
+      "source_sha": "78e331b8df30c96b807fc294e9c7c961e5c93e99",
+      "translated_at": "2026-11-01T05:04:02.474Z"
     },
     "docs/en/sdk-integration/unity-sdk/showcase/01-overview.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/showcase/01-overview.md",
-      "source_sha": "bedaf85a4e444185a0ce46a3881c598ad340f4d8",
-      "translated_at": "2026-10-14T15:19:17.982Z"
+      "source_sha": "349d769eec24858468730ef4f5761ae532a22ec1",
+      "translated_at": "2026-11-01T05:04:02.741Z"
     },
     "docs/en/sdk-integration/unity-sdk/showcase/02-walkthrough.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/showcase/02-walkthrough.md",
@@ -174,8 +174,8 @@
     },
     "docs/en/tools/studio/11-editor-scene-beta.md": {
       "source": "docs/ja/tools/studio/11-editor-scene-beta.md",
-      "source_sha": "42069d1b08a2d6d6f99657010fe8e0669c0206a4",
-      "translated_at": "2026-10-08T19:40:32.626Z"
+      "source_sha": "ffcb7e5401fde57d035f6a778e34401074e25c6f",
+      "translated_at": "2026-11-01T05:04:02.995Z"
     }
   }
 }

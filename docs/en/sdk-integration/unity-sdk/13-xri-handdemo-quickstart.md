@@ -61,7 +61,7 @@ Instead of step 6, run `Hapbeat > Samples > Augment XRI Hand Demo (+ diagnostic 
 :::
 
 :::note[No Kit deployment required]
-All entries in the bundled EventMaps (10 each for left and right) are CLIP (StreamClip), so the waveforms are streamed from the app. The bundled `hand-demo-kit-manifest.json` exists to preview the reference intensity in the EventMap. For the difference from FIRE, see [](/en/docs/sdk-integration/unity-sdk/fire-vs-clip/).
+All entries in the bundled EventMaps (10 each for left and right) are CLIP (StreamClip), so the waveforms are streamed from the app. The bundled `hand-demo-kit-manifest.json` exists to preview the clip gain (clip_gain) in the EventMap. For the difference from FIRE, see [](/en/docs/sdk-integration/unity-sdk/fire-vs-clip/).
 :::
 
 ## When it doesn't work

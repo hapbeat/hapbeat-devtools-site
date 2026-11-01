@@ -45,8 +45,9 @@ hb.close()
   Sending is **unicast** to devices that answered a PING, and broadcast only
   while none has replied yet (APs hold broadcast frames up to one beacon
   interval — 100–300 ms).
-- `play(event_id, gain)` sends a play instruction. `gain` is 0..1; if omitted, the
-  EventMap described below supplies the default (the kit's intensity).
+- `play(event_id, gain)` sends a play instruction. `gain` is the app gain (0 or
+  more, default 1) and multiplies the material strength held by the EventMap described
+  below (the kit's `clip_gain`). The value sent is `clamp(clip_gain × gain, 0, 1)`.
 
 `"sample-kit.sine_100hz"` must be an event id present in the **kit deployed to the
 device** (flashed via [Hapbeat Studio](https://studio.hapbeat.com/en/)). The SDK
@@ -64,14 +65,14 @@ with hapbeat.connect() as hb:
 
 ## Separating the fire side from the tuning side (EventMap)
 
-Instead of writing "haptic tuning values" such as intensity into your firing code,
+Instead of writing "haptic tuning values" such as strength into your firing code,
 collect them in a **haptic file (kit manifest = EventMap)**. `play("id")` resolves
 the defaults from there.
 
 ```python
 em = hapbeat.EventMap.from_manifest("kits/my-kit/my-kit-manifest.json")
 with hapbeat.connect(event_map=em) as hb:
-    hb.play("sample-kit.sine_100hz")     # fires at the kit manifest's intensity
+    hb.play("sample-kit.sine_100hz")     # fires at the kit manifest's clip_gain
 ```
 
 This lets you swap "when to play (code)" and "how strong (kit)" independently.

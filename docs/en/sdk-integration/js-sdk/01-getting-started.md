@@ -69,8 +69,8 @@ The latest version of every tool is listed on [](/en/docs/support/changelog/).
 import { connect } from "@hapbeat/sdk";
 
 const hb = await connect({ appName: "MyApp" }); // UDP socket + keep-alive
-hb.play("sample-kit.sine_100hz", { gain: 0.3 });           // fire by event id (gain is 0..1)
-hb.play("sample-kit.sine_100hz");                          // gain omitted → kit / EventMap default
+hb.play("sample-kit.sine_100hz", { gain: 0.3 });           // fire by event id (gain is the app gain, 0 or more)
+hb.play("sample-kit.sine_100hz");                          // gain omitted → 1 (the kit's clip_gain as authored)
 hb.stopAll();
 await hb.close();
 ```
@@ -81,8 +81,8 @@ await hb.close();
   a PING, and broadcast only while none has replied yet — see
   [](/en/docs/sdk-integration/js-sdk/transports/).
 - `play(eventId, opts)` is a fire-and-forget call that sends a playback instruction. `gain` is
-  0..1 (clamped by the SDK). If omitted, the EventMap described below supplies the default
-  (the kit's intensity).
+  the app gain (0 or more, default 1) and multiplies the material strength held by the
+  EventMap described below (the kit's `clip_gain`). The value sent is `clamp(clip_gain × gain, 0, 1)`.
 - Always `await hb.close()` on shutdown. It tells the device the app has left and cancels
   any streams currently playing.
 
@@ -137,7 +137,7 @@ for (const d of await hb.discover(1500)) {
 
 ## Separating the fire side from the tuning side (EventMap)
 
-Instead of writing "haptic tuning values" such as intensity into your firing code, collect
+Instead of writing "haptic tuning values" such as strength into your firing code, collect
 them in the **kit manifest (= EventMap)**. `play("id")` resolves the defaults from there.
 
 ```ts
@@ -145,7 +145,7 @@ import { connect, EventMap } from "@hapbeat/sdk";
 
 const manifest = await fetch("/my-kit/my-kit-manifest.json").then((r) => r.json());
 const hb = await connect({ eventMap: EventMap.fromManifest(manifest) });
-hb.play("sample-kit.sine_100hz"); // fires with the intensity from the kit manifest
+hb.play("sample-kit.sine_100hz"); // fires with the clip_gain from the kit manifest
 ```
 
 You can swap "when to play (code)" and "how strong (kit)" independently.
@@ -170,6 +170,6 @@ player slot and never matches). For the notation, see
 
 - [](/en/docs/sdk-integration/js-sdk/transports/) — differences and constraints of Node (UDP) vs Browser (helper WS)
 - [](/en/docs/sdk-integration/js-sdk/command-vs-clip/) — choosing between command and clip ([](/en/docs/concepts/fire-vs-clip/))
-- [](/en/docs/sdk-integration/js-sdk/event-map/) — resolving default intensity from the kit manifest ([](/en/docs/concepts/event-id-and-kit/))
+- [](/en/docs/sdk-integration/js-sdk/event-map/) — resolving the clip gain (clip_gain) from the kit manifest ([](/en/docs/concepts/event-id-and-kit/))
 - [](/en/docs/sdk-integration/js-sdk/project-structure/) — how to lay out kits and clips in your project
 - [](/en/docs/sdk-integration/js-sdk/examples/) — a walkthrough of working samples

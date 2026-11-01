@@ -16,7 +16,7 @@ A Kit is a folder that bundles **haptic waveforms (WAV files) + metadata (`<kit-
 
 ```
 my-game/                            ← Kit folder (= kit-name)
-  my-game-manifest.json             ← event definitions + baseline intensity
+  my-game-manifest.json             ← event definitions + clip gain (clip_gain)
   install-clips/                    ← WAV files for Fire (command) mode
     sword-hit.wav
     footstep-grass.wav
@@ -45,7 +45,7 @@ The manifest has **two buckets: `events` (for Fire) and `stream_events` (for Cli
     "my-game.sword-hit": {
       "clip": "sword-hit.wav",
       "parameters": {
-        "intensity": 0.8,
+        "clip_gain": 0.8,
         "device_wiper": 64
       }
     }
@@ -54,7 +54,7 @@ The manifest has **two buckets: `events` (for Fire) and `stream_events` (for Cli
     "my-game.bgm-tension": {
       "clip": "bgm-tension.wav",
       "parameters": {
-        "intensity": 0.5,
+        "clip_gain": 0.5,
         "loop": true
       }
     }
@@ -72,8 +72,8 @@ The manifest has **two buckets: `events` (for Fire) and `stream_events` (for Cli
 | `events` | ✓ | Dictionary of **Fire (command)** events. Constitutes the device event table; the key appears in the `event_id` field of PLAY/STOP packets |
 | `stream_events` | — | Dictionary of **Clip (stream)** events. Sent by the SDK as a UDP audio stream. The device does not recognize the eventId — it is used only as a binding label within the SDK |
 | `<bucket>[<id>].clip` | ✓ | WAV filename (bare filename) for the corresponding bucket. `events.<id>.clip` → resolved as `install-clips/<clip>`; `stream_events.<id>.clip` → resolved as `stream-clips/<clip>` |
-| `<bucket>[<id>].parameters.intensity` | — | Baseline vibration intensity 0.0–1.0 (the baseline value in the [gain multiplication chain](/en/docs/concepts/gain-architecture/)) |
-| `events[<id>].parameters.device_wiper` | — | MCP4018 wiper value (0..127). Reference information for reproducing authoring-time intensity. Not applicable to the `stream_events` side |
+| `<bucket>[<id>].parameters.clip_gain` | — | The material strength 0.0–1.0 (absent = 1). The sender multiplies it with the app gain (`app_gain`) at call time ([gain multiplication chain](/en/docs/concepts/gain-architecture/)) |
+| `events[<id>].parameters.device_wiper` | — | MCP4018 wiper value (0..127). Reference information for reproducing the authoring-time strength. Not applicable to the `stream_events` side |
 | `<bucket>[<id>].parameters.loop` | — | Whether to loop playback (default `false`) |
 
 > **The `mode` field was removed in schema 2.0.0** ([DEC-031](https://github.com/Hapbeat/hapbeat-sdk-workspace/blob/master/docs/decision-log.md#DEC-031)). Which mode an entry uses is determined by **which bucket it is in**. Placing the same Event ID in both buckets = BOTH mode. See the [kit-format spec](https://github.com/Hapbeat/hapbeat-contracts/blob/master/specs/kit-format.md) for the complete schema.
@@ -117,7 +117,7 @@ The `kit_id` field still exists in the wire protocol, but its value is physicall
 
 ## Deploy Flow
 
-1. Edit the Kit in Studio's Library (adjust intensity, toggle Fire / Clip / BOTH, add clips)
+1. Edit the Kit in Studio's Library (adjust the clip gain (clip_gain), toggle Fire / Clip / BOTH, add clips)
 2. Studio writes `<kit-name>-manifest.json` and WAV files to the working directory
 3. Transfer to the device's Kit partition via Helper (`events`-derived = Fire WAVs only; manifest is renamed to `manifest.json` on the wire)
 4. `stream_events`-derived WAVs are NOT deployed — the SDK sends them directly via UDP at runtime
@@ -125,6 +125,6 @@ The `kit_id` field still exists in the wire protocol, but its value is physicall
 ## See Also
 
 - [Fire vs. Clip](/en/docs/concepts/fire-vs-clip/) — Choosing a mode
-- [Gain Architecture](/en/docs/concepts/gain-architecture/) — Where `intensity` fits in the multiplication chain
+- [Gain Architecture](/en/docs/concepts/gain-architecture/) — Where `clip_gain` fits in the multiplication chain
 - [](/en/docs/tools/studio/kit-design/) — How to create a Kit in Studio (how-to)
 - [](/en/docs/tools/studio/modes/) — Switching modes in the Studio UI

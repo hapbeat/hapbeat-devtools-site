@@ -1,7 +1,7 @@
 ---
 title: Glossary
 kind: reference
-description: Definitions of terms used in the Hapbeat SDK — Event ID, Kit, Group, Player, intensity, gain, Fire, Clip, and more.
+description: Definitions of terms used in the Hapbeat SDK — Event ID, Kit, Group, Player, clip_gain, app_gain, gain, Fire, Clip, and more.
 sidebar:
   order: 99
 ---
@@ -28,13 +28,16 @@ Each term used throughout the documentation is defined in one to two lines. For 
 **Group ID**
 : The unit that separates players or booths from one another. Used to prevent interference between different groups on the same Wi-Fi network. Range: 1..99 (omitting it means all groups receive the packet).
 
-## Intensity and Modes
+## Strength and Modes
 
-**intensity**
-: The baseline vibration intensity defined at Kit authoring time. Recorded as 0.0–1.0 in `events[<id>].parameters.intensity` / `stream_events[<id>].parameters.intensity` in the manifest. Acts as the **baseline value (× 1.0 reference)** for the SDK-side `gain`.
+**clip_gain (clip gain)**
+: The material strength defined at Kit authoring time. Paired with the WAV, it forms the "clip (material)". Recorded as 0.0–1.0 in `events[<id>].parameters.clip_gain` / `stream_events[<id>].parameters.clip_gain` in the manifest (absent = 1). The sender (SDK / Studio) multiplies it with the app gain (`app_gain`); the sent value is `clamp(clip_gain × app_gain, 0, 1)`. The device does not read `clip_gain`.
+
+**app_gain (app gain)**
+: The product of the multipliers the playing app applies: the EventMap entry's `gain`, the ParameterBinding output, the `gain` argument at call time, and so on. 0 or more (1 = as authored). The output is `clip × app_gain × device_volume` (`clip = WAV × clip_gain`).
 
 **gain**
-: The dynamic intensity multiplier applied at SDK runtime. Supplied via the EventMap or ParameterBinding in the Unity SDK or equivalent. `gain = 1.0` means "play at the standard intensity the Kit author defined."
+: A multiplier held by an SDK API or an EventMap entry (a part of `app_gain`). It multiplies `clip_gain` rather than replacing it. It is 0 or more and may exceed 1; `gain = 1.0` means "play at the material strength the Kit author defined." The sent value is capped at 1.
 
 **Fire**
 : Common name for one haptic delivery method. Triggers an Event stored in the manifest's `events` bucket by its Event ID, and the device plays back the pre-installed waveform from its storage. Low latency, stable — suited for production. Details: [Fire vs. Clip](/en/docs/concepts/fire-vs-clip/)

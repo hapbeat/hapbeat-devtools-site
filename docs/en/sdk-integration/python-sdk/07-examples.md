@@ -55,8 +55,8 @@ when copying".
 The examples show this separation in stages.
 
 - minimal.py — the smallest form, writing `gain` directly in code.
-- clip_project/ — intensity and mode go into the **kit** (`connect(kit=...)`).
-- osc_remote/ — target and intensity go into the **haptic file**
+- clip_project/ — the clip gain (clip_gain) and mode go into the **kit** (`connect(kit=...)`).
+- osc_remote/ — target and gain (multiplier) go into the **haptic file**
   (`connect(haptics=...)`).
 
 For details, see [](/en/docs/sdk-integration/python-sdk/project-structure/) and
@@ -75,6 +75,6 @@ For details, see [](/en/docs/sdk-integration/python-sdk/project-structure/) and
   the device's address.
 - **The clip audio sounds wrong** — prepare clip WAVs as 16 kHz mono PCM16 (the
   SDK does not resample).
-- **gain isn't what you expect** — gain is an absolute value in 0..1. The one
+- **gain isn't what you expect** — gain is the app gain, and the value sent is `clamp(clip_gain × gain, 0, 1)` (`clip_gain` = 1 without an EventMap). The one
   exception is `haptic_pad.py`'s `--master`, which is a multiplier applied to
   each pad, so be careful.

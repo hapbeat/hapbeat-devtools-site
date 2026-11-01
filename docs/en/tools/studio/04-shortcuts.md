@@ -13,7 +13,7 @@ Click the **"?"** (Controls) button at the top of the Kit tab to display an up-t
 | Key | Action |
 |------|--------|
 | `↑` / `↓` | Move to previous / next clip |
-| `←` / `→` | Adjust Library Amp (libraryIntensity) by ±5% |
+| `←` / `→` | Adjust Library Amp (libraryClipGain) by ±5% |
 | `Space` | Play / stop the selected clip |
 | `Enter` | Add the selected clip to the active Kit |
 
@@ -22,7 +22,7 @@ Click the **"?"** (Controls) button at the top of the Kit tab to display an up-t
 | Key | Action |
 |------|--------|
 | `↑` / `↓` | Move to previous / next Kit Event |
-| `←` / `→` | Adjust Event intensity by ±5% |
+| `←` / `→` | Adjust the Event clip_gain by ±5% |
 | `Space` | Play / stop the selected Event |
 | `Delete` / `Backspace` | Remove the selected Event from the Kit |
 

@@ -34,10 +34,10 @@ Even when scripting, calling `HapbeatManager.Instance.Play()` directly is not re
 
 Why:
 - Gain / target / clip can be adjusted in the EventMap window without rewriting code
-- Kit intensity compensation and latency compensation apply automatically
+- The Kit clip gain (`clip_gain`) and latency compensation apply automatically
 - The EventMap window shows "where it is called from"
 
-Calling `HapbeatManager` directly is limited to cases such as building the Event ID at runtime (→ [](/en/docs/sdk-integration/unity-sdk/scripting/#firing-without-a-trigger)).
+Calling `HapbeatManager` directly is limited to cases such as building the Event ID at runtime (→ [](/en/docs/sdk-integration/unity-sdk/scripting/#b-call-hapbeatmanager-directly)).
 
 ### Combine both approaches
 

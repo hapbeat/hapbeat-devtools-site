@@ -1,7 +1,7 @@
 ---
 title: EventMap Reference
 kind: reference
-description: The haptic file (EventMap / EventDef) API. The tuning-side catalog that resolves intensity, loop, clip, mode, and target from the kit manifest.
+description: The haptic file (EventMap / EventDef) API. The tuning-side catalog that resolves clip_gain, loop, clip, mode, and target from the kit manifest.
 sidebar:
   order: 5
   label: EventMap
@@ -19,19 +19,19 @@ import hapbeat
 # From a haptic file (overlay) — recommended; can carry per-event target/gain
 em = hapbeat.EventMap.from_file("haptics.json")
 
-# From a kit folder (intensity/clip only; no targeting)
+# From a kit folder (clip_gain/clip only; no targeting)
 em = hapbeat.EventMap.from_kit("kits/my-kit")
 
 # Point at a manifest directly
 em = hapbeat.EventMap.from_manifest("kits/my-kit/my-kit-manifest.json")
 em = hapbeat.EventMap.from_manifest(parsed_dict)        # a dict works too
 
-# By hand (command only, gain only)
+# By hand (command only, per-event gain only; clip_gain is 1)
 em = hapbeat.EventMap.from_dict({"sample-kit.sine_100hz": 0.5})
 ```
 
 `from_file` reads a **haptic file** (an overlay that references a kit) and layers
-**target / gain overrides** on top of the manifest's intensity/clip
+**target / gain (multiplier)** on top of the manifest's clip_gain/clip
 ([](/en/docs/sdk-integration/python-sdk/project-structure/)). `from_kit` /
 `from_manifest`(path) remember the **kit_dir** and resolve clip-mode WAVs from
 `<kit_dir>/stream-clips/<clip>`.
@@ -43,7 +43,8 @@ The `EventDef` returned by `em.get(event_id)`:
 | Field | Meaning |
 |---|---|
 | `event_id` | Event id |
-| `intensity` | Default gain (the manifest's `parameters.intensity`; default 1.0) |
+| `clip_gain` | Material strength (the manifest's `parameters.clip_gain`; 0–1, default 1.0) |
+| `gain` | App-side per-event multiplier (set in the haptic file; default 1.0). Multiplies `clip_gain` rather than overwriting it |
 | `loop` | Whether playback loops |
 | `device_wiper` | Device-side wiper value (optional) |
 | `streaming` | `True` for clip mode (derived from `stream_events`) |
@@ -60,7 +61,7 @@ The destination for `play(id)` is resolved in this order: **the caller's
 
 ```python
 em.get("sample-kit.sine_100hz")          # EventDef | None
-em.gain_for("sample-kit.sine_100hz")     # default gain (1.0 if absent)
+em.gain_for("sample-kit.sine_100hz")     # value sent when called with gain=1: clamp(clip_gain × gain, 0, 1) (1.0 if absent)
 em.ids()                      # all event ids
 "sample-kit.sine_100hz" in em            # membership test
 len(em)                       # count
@@ -74,10 +75,10 @@ em.kit_dir                    # kit folder (from from_kit/path) or None
   "schema_version": "2.0.0",
   "name": "my-kit",
   "events": {
-    "sample-kit.sine_100hz": { "clip": "sine_100hz.wav", "parameters": { "intensity": 0.8 } }
+    "sample-kit.sine_100hz": { "clip": "sine_100hz.wav", "parameters": { "clip_gain": 0.8 } }
   },
   "stream_events": {
-    "rain.loop": { "clip": "rain.wav", "parameters": { "intensity": 0.3, "loop": true } }
+    "rain.loop": { "clip": "rain.wav", "parameters": { "clip_gain": 0.3, "loop": true } }
   }
 }
 ```

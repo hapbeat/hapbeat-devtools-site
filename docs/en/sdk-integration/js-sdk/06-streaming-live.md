@@ -40,7 +40,7 @@ live.close();
 openStream(opts?: {
   sampleRate?: number;  // default 16000
   channels?: number;    // 1 = mono / 2 = stereo (L/R for direction; PLAY has no pan)
-  gain?: number;        // 0..1, default 1.0
+  gain?: number;        // app gain (0 or more, default 1.0). The PCM is scaled by clamp(gain, 0, 1)
   target?: string;      // device-addressing. "" = broadcast
 }): LiveStreamHandle
 ```

@@ -90,8 +90,9 @@ app's responsibility).
 
 ## gain is applied only once
 
-The `gain` for a clip / `streamPcm()` is folded into the `STREAM_BEGIN` metadata and
-applied **once to the entire stream** on the device. You cannot change gain dynamically
+The `gain` (app gain) for a clip / `streamPcm()` is multiplied with the material strength
+(the clip's `clip_gain`, 1 for `streamPcm()`) into `clamp(clip_gain × gain, 0, 1)`, and the SDK
+applies it **once to the source PCM** before sending (`STREAM_BEGIN`'s `gain` is 1.0). You cannot change gain dynamically
 during playback (mid-clip gain/pan tween is not implemented).
 
 If you want to **continuously modulate** intensity or direction during playback, use a

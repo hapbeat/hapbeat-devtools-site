@@ -94,11 +94,11 @@ Editing `src/*.ts` rebuilds `dist/` and auto-reloads the browser. `npm run serve
 
 The arcade is a reference implementation that translates the ideas explained in this documentation into real code.
 
-- **kit manifest** — reads it to resolve per-event default intensity ([](/en/docs/sdk-integration/js-sdk/event-map/)). `demo-kit/hapbeat-arcade-manifest.json` is a schema 2.0.0 kit manifest.
+- **kit manifest** — reads it to resolve per-event clip gain (clip_gain) ([](/en/docs/sdk-integration/js-sdk/event-map/)). `demo-kit/hapbeat-arcade-manifest.json` is a schema 2.0.0 kit manifest.
 - **command vs clip router** — the mode is split by the manifest bucket (`events` = command / `stream_events` = clip), and the game code just calls `play(id)`, unchanged ([](/en/docs/sdk-integration/js-sdk/command-vs-clip/)).
 - **file-first / synth-fallback** — `shared/event-content.js` consolidates each event's haptic (synthesized PCM) + sound in one file, falling back to synthesis when the kit/WAV is absent. This is the starting point (source of truth) for tuning.
 
-Each event's clip / intensity is a **placeholder** borrowed from Studio's `showcase-kit`, with final tuning expected to be done by the user (mapping table: <a href="https://github.com/hapbeat/hapbeat-js-sdk/blob/master/examples/games/TUNING.md" target="_blank" rel="noopener noreferrer">`TUNING.md`</a>).
+Each event's clip / clip gain (clip_gain) is a **placeholder** borrowed from Studio's `showcase-kit`, with final tuning expected to be done by the user (mapping table: <a href="https://github.com/hapbeat/hapbeat-js-sdk/blob/master/examples/games/TUNING.md" target="_blank" rel="noopener noreferrer">`TUNING.md`</a>).
 
 ## Pitfalls
 
@@ -109,7 +109,7 @@ Each event's clip / intensity is a **placeholder** borrowed from Studio's `showc
 
 ## Related
 
-- [](/en/docs/sdk-integration/js-sdk/event-map/) — resolving default intensity from a kit manifest
+- [](/en/docs/sdk-integration/js-sdk/event-map/) — resolving the clip gain (clip_gain) from a kit manifest
 - [](/en/docs/sdk-integration/js-sdk/command-vs-clip/) — choosing between command and clip
 - [](/en/docs/sdk-integration/js-sdk/streaming-clips/) — clip streaming
 - [](/en/docs/sdk-integration/js-sdk/streaming-live/) — continuous streams (`openStream`)

@@ -19,7 +19,7 @@ A list of the public members of the main classes used from C# scripts. For the o
 |---|---|
 | Play / stop an EventMap entry | [HapbeatUnityEventTrigger](#hapbeatunityeventtrigger) |
 | Three stages: grab → hold → release | [HapbeatSequenceTrigger](#hapbeatsequencetrigger) |
-| Change the intensity / left-right balance of a CLIP while it plays | The Trigger's `GainMultiplier` / `Pan`, or [HapbeatStreamPlayback](#hapbeatstreamplayback) |
+| Change the strength / left-right balance of a CLIP while it plays | The Trigger's `GainMultiplier` / `Pan`, or [HapbeatStreamPlayback](#hapbeatstreamplayback) |
 | Play without going through the EventMap, check connection state | [HapbeatManager](#hapbeatmanager) |
 | Read an entry's settings from a script | [HapbeatEventMap / HapbeatEventEntry](#hapbeateventmap--hapbeatevententry) |
 
@@ -29,7 +29,7 @@ A list of the public members of the main classes used from C# scripts. For the o
 
 | Member | Type | Description |
 |---|---|---|
-| `GainMultiplier` | `float` (0–2) | A multiplier specific to this component. Final gain = entry Gain × Kit intensity × `GainMultiplier`. Rewriting it while a CLIP plays is reflected immediately |
+| `GainMultiplier` | `float` (0–2) | A multiplier specific to this component. Sent value = `clamp(Kit clip_gain × entry Gain × GainMultiplier, 0, 1)`. Rewriting it while a CLIP plays is reflected immediately |
 | `Pan` | `float` (−1 to +1) | Left / right balance. −1 = left only, 0 = center, +1 = right only. Rewriting it while a CLIP plays is reflected immediately |
 | `TriggerEnabled` | `bool` | While `false`, `Fire()` does not play |
 | `ActivePlayback` | [`HapbeatStreamPlayback`](#hapbeatstreamplayback) | Handle of the CLIP this component is playing. `null` if nothing is playing |
@@ -47,7 +47,7 @@ Items set only in the Inspector (cannot be changed from a script): **Event Map**
 |---|---|
 | `Fire()` | Plays the entry. For FIRE (Command), sends the Event ID; for CLIP (Stream), sends the AudioClip. A Loop entry keeps playing until `Stop()` |
 | `Stop()` | Stops the haptics this component is playing |
-| `FireWithGain(float gain)` | Plays with the given value as the final gain (the entry Gain, Kit intensity, and `GainMultiplier` are not applied). **For FIRE (Command) entries only**. To change the intensity of a CLIP entry, set `GainMultiplier` and then call `Fire()` |
+| `FireWithGain(float gain)` | Plays with the call-time multiplier `gain` applied (it does not replace anything; sent value = `clamp(Kit clip_gain × entry Gain × GainMultiplier × gain, 0, 1)`). **For FIRE (Command) entries only**. To change the strength of a CLIP entry, set `GainMultiplier` and then call `Fire()` |
 
 In addition, the members of [Members common to all Triggers](#members-common-to-all-triggers) are available.
 
@@ -93,10 +93,10 @@ A handle for each CLIP (Stream) playback. You get it as a Trigger's `ActivePlayb
 
 | Member | Type | Description |
 |---|---|---|
-| `Gain` | `float` (0–2) | Intensity during playback. Rewriting it is reflected from the next data sent |
+| `Gain` | `float` (0–2) | Strength during playback. Rewriting it is reflected from the next data sent |
 | `Pan` | `float` (−1 to +1) | Left / right balance |
 | `Loop` | `bool` | Whether to loop. Can be switched during playback |
-| `ApplyGainModulation(float m)` | — | Sets `Gain = BaselineGain × m`. `BaselineGain` is the reference gain at the start of playback (via a Trigger, the entry Gain × Kit intensity). A Trigger's `GainMultiplier` calls this internally as well |
+| `ApplyGainModulation(float m)` | — | Sets `Gain = BaselineGain × m`. `BaselineGain` is the reference gain at the start of playback (via a Trigger, the entry Gain × Kit `clip_gain`). A Trigger's `GainMultiplier` calls this internally as well |
 | `Stop()` | — | Stops only this playback (does not stop other CLIPs playing on the same device) |
 | `IsStopped` | `bool` | `true` once stopped or played to the end |
 | `IsActive` | `bool` | `true` once sending to the device has started (`false` until a destination is found) |
@@ -108,7 +108,7 @@ A singleton on `[Hapbeat Event Router]` that handles communication with devices.
 
 ### Play / stop
 
-These send directly without going through the EventMap. The EventMap's Gain, Target, Kit intensity compensation, and latency compensation are not applied, so pass every value as an argument.
+These send directly without going through the EventMap. The EventMap's Gain, Target, Kit `clip_gain`, and latency compensation are not applied, so pass every value as an argument.
 
 | Method | Description |
 |---|---|
@@ -152,7 +152,7 @@ Classes for reading the contents of an EventMap (`.asset`) from a script. Trigge
 | `mode` | `HapticMode.Command` (FIRE) / `HapticMode.StreamClip` (CLIP) |
 | `eventId` | Event ID (the string sent in FIRE) |
 | `streamClip` / `loop` | The AudioClip sent in CLIP / whether it loops |
-| `GetEffectiveGain()` | Entry Gain × Kit intensity (the reference value of the intensity actually sent) |
+| `GetEffectiveGain()` | Entry Gain × Kit `clip_gain` (the entry's part of the sent value; the product with the remaining multipliers is capped at 1) |
 | `target` / `HasTarget` | The destination / whether a destination is specified |
 
 ```csharp

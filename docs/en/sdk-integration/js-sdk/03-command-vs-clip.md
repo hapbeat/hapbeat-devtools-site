@@ -36,7 +36,7 @@ hb.stop("rain.loop");  // clip ends the stream currently playing
 ```
 
 If you do not pass `eventMap`, the SDK has no bucket information, so **everything is sent as
-command** (in which case the default gain is `1.0`).
+command** (in which case `clip_gain` is treated as `1.0`).
 
 ## Which to choose
 
@@ -87,19 +87,19 @@ const hb = await connect({
 If you `play` a clip event without `clipBase` / `clipLoader` set, the SDK cannot read the
 WAV, emits a warning, and plays nothing. command-mode events do not need this.
 
-## gain is not applied twice
+## gain multiplies the material strength
 
-The default gain is the **kit manifest's `intensity`**. Specifying `play`'s `gain` explicitly
-**overrides** it; it is not applied twice. Even in clip mode, the SDK does not process the PCM;
-it folds gain **only into STREAM_BEGIN.gain** and sends it, and the device applies it once
-(the same meaning as command's `gain`).
+`play`'s `gain` is **a multiplier on the kit manifest's `clip_gain` (the material strength)**
+(it does not replace it). The value sent is `clamp(clip_gain × gain, 0, 1)`: in command it is sent
+as PLAY's `gain`, and in clip mode the SDK applies it to the source PCM before sending
+(STREAM_BEGIN's `gain` is 1.0). Either way, the strength is applied only once.
 
 ```ts
-hb.play("rain.loop");              // fires with intensity (the kit default)
-hb.play("rain.loop", { gain: 0.3 }); // overridden by the caller
+hb.play("rain.loop");              // fires at the clip_gain (the kit's value) as authored
+hb.play("rain.loop", { gain: 0.3 }); // fires at clip_gain × 0.3
 ```
 
-`gain` is an absolute value 0..1, clamped by the SDK. There is no API to modulate gain over
+`gain` is 0 or more (1 = as authored) and may exceed 1. Only the final product is capped to 0–1. There is no API to modulate gain over
 the course of a clip already playing (for continuous modulation, see
 [Not implemented](/en/docs/sdk-integration/js-sdk/streaming-live/), which uses `openStream`).
 

@@ -40,16 +40,17 @@ do not pass an EventMap, everything is sent as command.
 
 When in doubt, the basic rule is **prototype with clip, ship with command**.
 
-## How gain is handled (no double-apply)
+## How gain is handled (multiplies the material strength)
 
-In clip mode the SDK does not process the PCM; it folds `gain` into
-**STREAM_BEGIN.gain only** and sends it, and the device applies it once (the same
-meaning as command's `gain`). If `gain` is omitted, the kit manifest's
-`intensity` is used; if specified, it overrides.
+`gain` is a multiplier on the kit manifest's `clip_gain` (the material strength); it does
+not replace it. The value sent is `clamp(clip_gain × gain, 0, 1)`: in command it is sent as
+PLAY's `gain`, and in clip mode the SDK applies it to the source PCM before sending
+(STREAM_BEGIN's `gain` is 1.0). If `gain` is omitted it is 1 (the kit's `clip_gain` as
+authored).
 
 ```python
-hb.play("rain.loop")            # intensity (the kit's default)
-hb.play("rain.loop", gain=0.3)  # overridden at the call site
+hb.play("rain.loop")            # clip_gain (the kit's value) as authored
+hb.play("rain.loop", gain=0.3)  # clip_gain × 0.3
 ```
 
 ## Notes

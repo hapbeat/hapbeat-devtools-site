@@ -101,11 +101,11 @@ The Kit section manages Kits already installed on the device.
 
 ### CLIP streaming test
 
-Browse a local WAV folder and stream it to selected LAN devices. The UI supports folder breadcrumbs, `📁 ..`, keyboard, double-click, and drag navigation; play / stop / pause / resume; seeking; and playback position. The **Intensity** slider (0–100%) is a live CLIP multiplier and does not affect FIRE. Selecting only USB devices shows an unsupported warning.
+Browse a local WAV folder and stream it to selected LAN devices. The UI supports folder breadcrumbs, `📁 ..`, keyboard, double-click, and drag navigation; play / stop / pause / resume; seeking; and playback position. The **Gain** slider (0–100%) is a live CLIP multiplier and does not affect FIRE. Selecting only USB devices shows an unsupported warning.
 
 ### FIRE command test
 
-Enter an Event ID (last five inputs are remembered), then send **PLAY** (`preview_event`, gain 1.0), **STOP**, or **PING**. For broadcast tests, enter Target such as `player_1`, `*/chest`, or empty for all devices and use PLAY ALL / STOP ALL.
+Enter an Event ID (last five inputs are remembered), then send **PLAY** (`preview_event`, gain 1.0; the device does not read the manifest's `clip_gain`, so it plays the device's WAV as it is), **STOP**, or **PING**. For broadcast tests, enter Target such as `player_1`, `*/chest`, or empty for all devices and use PLAY ALL / STOP ALL.
 
 ## Firmware
 

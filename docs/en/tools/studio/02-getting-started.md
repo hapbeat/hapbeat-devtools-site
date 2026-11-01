@@ -48,9 +48,9 @@ Use the Mode selector on each Kit Event row to choose a playback method.
 
 Starting with **FIRE** is the simplest approach. Click the **"Mode info"** button in the Kit header for detailed help. See [Switch Modes](./modes/) for more information.
 
-## 5. Adjust Intensity
+## 5. Adjust the clip gain (clip_gain)
 
-Use the Amp slider on each Kit Event card to set the base vibration intensity (0–100%). With the keyboard, press **← / →** on a selected Event to adjust by ±5%.
+Use the Amp slider on each Kit Event card to set the material strength (`clip_gain`, 0–100%). With the keyboard, press **← / →** on a selected Event to adjust by ±5%.
 
 ## 6. Preview with the Keyboard
 
@@ -68,7 +68,7 @@ Kit edits are auto-saved as metadata (`kits-meta.json`), but **writing WAV files
 | **Save Folder** | Writes `manifest.json` + WAVs to the local Kit folder. No Helper or device required |
 | **Deploy** | Runs the same build as Save Folder, then transfers the zip to the device via Helper |
 
-Save Folder is for local output only; Deploy also sends to the device. When only Amp / intensity / device_wiper values are changed, WAV re-encoding is skipped via cache, so the operation is fast.
+Save Folder is for local output only; Deploy also sends to the device. When only Amp (clip_gain) / device_wiper values are changed, WAV re-encoding is skipped via cache, so the operation is fast.
 
 ## 8. Fire Events on a Real Device
 

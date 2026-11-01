@@ -64,11 +64,11 @@ latency on the first playback, preload them in advance:
 hb.preload_clips()       # read the WAVs for all clip-mode events ahead of time
 ```
 
-## Gain is not double-applied
+## Gain is applied once
 
-The SDK does not process the PCM; it folds `gain` into **STREAM_BEGIN.gain only**
-and sends it, and the device applies it once. If `gain` is omitted, the kit
-manifest's `intensity` is used.
+The SDK applies `clamp(clip_gain × gain, 0, 1)` **once to the source PCM** before sending,
+and sends 1.0 as STREAM_BEGIN's `gain`. `clip_gain` is the kit manifest's material strength,
+and `gain` is the app gain (1 if omitted).
 
 ## Current limitations
 

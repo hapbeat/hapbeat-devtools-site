@@ -31,7 +31,7 @@ HapbeatEventEntry
 ├─ delayOffsetSeconds
 ├─ notes
 ├─ manifestOverride
-└─ _cachedManifestIntensity (HideInInspector)
+└─ _cachedManifestClipGain (HideInInspector)
 
 HapbeatBindingPreset (element of entry.bindings)
 ├─ _id (stable GUID)
@@ -128,13 +128,13 @@ The legacy `LIVE` (stream_source) mode has been removed. Enum names remain `Comm
 | `loop` | `bool` | false | If true, plays until Stop() is called. For SequenceTrigger hold phase / continuous modulation |
 | `bindings` | `List<HapbeatBindingPreset>` | empty | List of registered Parameter Binding presets |
 
-When `streamClip` changes, the owning Kit's `*-manifest.json` is **auto-attached** to `manifestOverride` (and `_cachedManifestIntensity` for that entry is refreshed).
+When `streamClip` changes, the owning Kit's `*-manifest.json` is **auto-attached** to `manifestOverride` (and `_cachedManifestClipGain` for that entry is refreshed).
 
 ### 3.5 Gain
 
 | Field | Type | Range | Description |
 |---|---|---|---|
-| `gain` | `float` | `[0, 2]` (Range attribute) | Master gain. `GetEffectiveGain() = gain × _cachedManifestIntensity` |
+| `gain` | `float` | `[0, 2]` (Range attribute) | Master gain (part of the app gain). `GetEffectiveGain() = gain × _cachedManifestClipGain`. The sent value is the product with the remaining multipliers, capped to 0–1 |
 
 ### 3.6 Targeting
 
@@ -189,16 +189,16 @@ The effective delay is displayed in milliseconds in the UI.
 |---|---|---|
 | `notes` | `string` (TextArea, 1–3 lines) | Designer notes. Not sent to the device |
 | `manifestOverride` | `TextAsset` | Forces a specific `<kit-name>-manifest.json` to be used. If unset, auto-resolved (by clip path → eventId match) |
-| `_cachedManifestIntensity` | `float` (HideInInspector) | Cached intensity value resolved from the manifest. `-1f` = unresolved, `0..1` = authored value |
+| `_cachedManifestClipGain` | `float` (HideInInspector) | Cached clip gain (`clip_gain`, the material strength) resolved from the manifest. `-1f` = unresolved, `0..1` = authored value |
 
-`CachedManifestIntensity` (getter): Read-only accessor.
-`SetCachedManifestIntensity(float)`: Editor-only setter (used for cache propagation on duplicate, etc.).
+`CachedManifestClipGain` (getter): Read-only accessor.
+`SetCachedManifestClipGain(float)`: Editor-only setter (used for cache propagation on duplicate, etc.).
 
 ### 3.9 Derived Methods
 
 | Method | Returns | Description |
 |---|---|---|
-| `GetEffectiveGain()` | `float` | `_cachedManifestIntensity < 0 ? gain : gain × _cachedManifestIntensity`. intensity=0 is honored (silence) |
+| `GetEffectiveGain()` | `float` | `_cachedManifestClipGain < 0 ? gain : gain × _cachedManifestClipGain`. clip_gain=0 is honored (silence) |
 | `GetSummary()` | `string` | Summary for list display. StreamClip → `streamClip.name`, Command → `eventId` |
 | `GetModeIcon()` | `string` | `>` / `♪` / `●` |
 
@@ -251,7 +251,7 @@ An element of `HapbeatEventEntry.bindings`. A preset for modulating gain / pan d
 
 | Value | Range | Effect |
 |---|---|---|
-| `StreamGain` | `0..2` (clamped) | `playback.ApplyGainModulation(output)`. Final stage of `entry.gain × manifest.intensity × bindingOutput` |
+| `StreamGain` | `0..2` (clamped) | `playback.ApplyGainModulation(output)`. Final stage of `entry.gain × manifest.clip_gain × bindingOutput` |
 | `StreamPan` | `-1..+1` | `playback.Pan = output`. Equal-power pan law. Ignored for mono clips |
 
 ---
@@ -291,7 +291,7 @@ Left to right:
 | `Bulk Edit` | Open a modal that applies mode / gain / target / delay / manifest / notes to multiple entries at once. Targets all entries by default; uncheck `Select all` in the modal to apply only to the rows selected in the Table view |
 | `Batch Setup` | Open `HapbeatBatchSetupWindow` |
 | `Scan Scene` | Re-scan Trigger / State / Script wiring in the scene |
-| `↻` | Refresh manifest intensity cache for all entries |
+| `↻` | Refresh manifest clip_gain cache for all entries |
 | `List` / `Table` (segmented) | Switch view mode |
 | `+` | Add a new entry (inherits mode from the previous entry) |
 | `−` | Delete the selected entry |
@@ -361,7 +361,7 @@ UI rendered in order:
   - Label `Manifest`
   - Picker (TextAsset field, limited to `*-manifest.json`) — sets `manifestOverride`
   - `↻` Refresh button — walks up from the clip's folder to auto-attach `*-manifest.json`
-- Inline hint: connection not established / missing intensity warning / streaming indicator
+- Inline hint: connection not established / missing clip_gain warning / streaming indicator
 - Compact mode when panel width < 260px (labels abbreviated)
 
 ---
@@ -486,9 +486,9 @@ When there are no entries, displays `(empty — click + to add)`.
 
 ---
 
-## 10. Manifest Intensity Resolution
+## 10. Manifest clip_gain Resolution
 
-`HapbeatEventEntry._cachedManifestIntensity` caches the `parameters.intensity` value from the Kit manifest deployed via Studio. Resolution happens only in the Editor; at runtime only the cache is read (the device does not read the manifest — the SDK sends `gain × intensity` as the wire `gain`).
+`HapbeatEventEntry._cachedManifestClipGain` caches the `parameters.clip_gain` value (the material strength) from the Kit manifest deployed via Studio. Resolution happens only in the Editor; at runtime only the cache is read (the device does not read the manifest — the SDK sends `clamp(clip_gain × app_gain, 0, 1)` as the wire `gain`, where `app_gain` is the product of the entry `gain`, the Trigger multiplier, the binding output, and the call-time gain).
 
 ### 10.1 Resolution Order
 
@@ -503,10 +503,10 @@ When there are no entries, displays `(empty — click + to add)`.
 |---|---|
 | `streamClip` changes | Auto-attach `manifestOverride` for that entry + update cache |
 | `category` / `eventName` changes | Update cache |
-| `↻` toolbar button | `HapbeatManifestIntensity.Invalidate()` + refresh cache for all entries |
-| EventMap window opens / entries change | `RefreshIntensityCache()` |
+| `↻` toolbar button | `HapbeatManifestClipGain.Invalidate()` + refresh cache for all entries |
+| EventMap window opens / entries change | `RefreshClipGainCache()` |
 
-When unresolved, `_cachedManifestIntensity = -1f`. `GetEffectiveGain()` returns only `gain` (no intensity multiplication). The Test Play bar shows a "manifest intensity not found" warning.
+When unresolved, `_cachedManifestClipGain = -1f`. `GetEffectiveGain()` returns only `gain` (treated as clip_gain = 1). The Test Play bar shows a "manifest clip_gain not found" warning.
 
 ---
 

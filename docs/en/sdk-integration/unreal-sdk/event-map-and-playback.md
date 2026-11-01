@@ -19,7 +19,7 @@ Each entry has the following values:
 
 - `Id`: an automatically assigned GUID. It keeps references stable when entries are reordered; do not enter it manually.
 - `Clip`: the haptic clip to play, or an event already deployed to the device.
-- `Gain`: base intensity.
+- `Gain`: the entry's multiplier (part of the app gain), multiplied with the Kit manifest clip gain (`clip_gain`).
 - `Pan`: left/right placement.
 - `Target`: logical address of the Hapbeat that receives the event.
 - `Loop`: whether to continuously play a Stream Clip. Repeating a Command depends on the Kit definition.

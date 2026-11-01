@@ -27,7 +27,7 @@ pip install "hapbeat-python-sdk[osc]"
 # destination (target) is resolved from the haptic file by event id alone
 hapbeat osc-bridge --listen 7702 --haptics haptics.json
 
-# Kit only (intensity/clip only; no target):  --kit kits/my-kit
+# Kit only (clip_gain/clip only; no target):  --kit kits/my-kit
 # Nothing (command only; pass target as an OSC argument):  no flag
 ```
 

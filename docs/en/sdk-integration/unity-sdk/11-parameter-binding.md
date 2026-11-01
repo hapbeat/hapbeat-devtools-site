@@ -158,6 +158,6 @@ In other words: whether you use ParameterBinding or write to `GainMultiplier` fr
 
 ## Reference
 
-- [](/en/docs/sdk-integration/unity-sdk/showcase/wiring/#z3-fishing-rod) — Z3 wiring details
-- [](/en/docs/sdk-integration/unity-sdk/showcase/method-choice/) — Component vs. script decision guide
+- [](/en/docs/sdk-integration/unity-sdk/showcase/zones/#z3-fishing-rod) — Showcase Z3 wiring
+- [](/en/docs/sdk-integration/unity-sdk/integration/#1-4-choosing-between-components-and-scripts) — Choosing between components and scripts
 - [](/en/docs/sdk-integration/unity-sdk/triggers/) — `HapbeatSequenceTrigger` details

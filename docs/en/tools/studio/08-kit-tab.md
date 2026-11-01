@@ -58,7 +58,7 @@ The Library lists source haptic WAV files. Studio imports them from the chosen L
 
 ### Amp presets
 
-The Amp preset bar saves and applies all Library `libraryIntensity` settings at once.
+The Amp preset bar saves and applies all Library `libraryClipGain` settings at once.
 
 - Choose `(new)` to reset every clip to Amp 0.5, or choose a saved preset for immediate application.
 - **Save as…** stores the current settings under a new preset name (default `amp-YYYYMMDD`; replacing an existing name asks first).
@@ -70,7 +70,7 @@ The Amp preset bar saves and applies all Library `libraryIntensity` settings at 
 | --- | --- |
 | `▶` / `■` | Play / stop. With Helper and a device connected, this plays haptics; otherwise it previews browser audio. |
 | Name | Click to rename. Allowed: lower-case English letters, digits, `-`, `_`. |
-| Amp slider | Baseline haptic intensity, 0–100% in 5% steps; click the number for direct entry. |
+| Amp slider | The material strength (`clip_gain`), 0–100% in 5% steps; click the number for direct entry. |
 | `+ Kit` | Adds to the active Kit; disabled with no active Kit. |
 | Edit | Opens Name / Note / Group / Tags, Swap, and Archive. |
 | `× Archive` | Moves the clip to `clips/archive/`; it is hidden in Studio and reappears if moved back. |

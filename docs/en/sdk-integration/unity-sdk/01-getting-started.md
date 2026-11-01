@@ -121,13 +121,23 @@ You have now experienced both **Clip (Stream)** and **Fire (Command)** modes.
 
 For guidance on choosing between them, see [](/en/docs/sdk-integration/unity-sdk/fire-vs-clip/).
 
-Also note that the Hapbeat SDK uses a **multiplicative gain structure**. The reference gain recorded in the manifest when designing a Kit in Studio represents the vibration intensity at 1.0×, and the gain values in the SDK and EventMap act as multipliers on top of it. The Kit design workflow and gain model are explained in [](/en/docs/tools/studio/kit-design/).
+Also note that the Hapbeat SDK uses a **multiplicative gain structure**. The clip gain (`clip_gain`) recorded in the manifest when designing a Kit in Studio represents the vibration strength at 1.0×, and the gain values in the SDK and EventMap (the app gain `app_gain`) act as multipliers on top of it (the sent value is capped at 1). The Kit design workflow and gain model are explained in [](/en/docs/tools/studio/kit-design/).
 :::
+
+## Align the timing of sound and haptics
+
+Audio output latency differs for each combination of PC, speakers, and headphones. Because Hapbeat receives UDP directly, depending on the environment **the haptics may be felt before the sound**. This is expected.
+
+1. Open `Hapbeat → Open Settings`
+2. Raise **Haptic Delay (ms)** under **Latency Compensation** gradually from `0`
+3. Stop at the value where the sound and haptics line up
+
+This is a common delay added to every fire via a Trigger / the EventMap. To fine-tune only an individual event, use the EventMap entry's **Delay Offset**. The new value is used from the next fire, and fires that were waiting before the adjustment are canceled.
 
 ## Next steps
 
 - [](/en/docs/sdk-integration/unity-sdk/integration/) — How to add the SDK to your own scene, plus the Showcase sample walkthrough
-- [](/en/docs/sdk-integration/unity-sdk/scripting/) — Fire haptics from your own C# script
+- [](/en/docs/sdk-integration/unity-sdk/scripting/) — Play haptics from your own C# script
 - [](/en/docs/sdk-integration/unity-sdk/triggers/) — Collision / Sequence / UnityEvent / TickEmitter / StateBehaviour
 - [](/en/docs/sdk-integration/unity-sdk/event-map/) — Manage Event ID ↔ waveform mappings in a GUI
 - [](/en/docs/sdk-integration/unity-sdk/parameter-binding/) — Dynamically map game state to gain / pan

@@ -51,7 +51,7 @@ Key fields (**frequently used fields only**; see [](/en/docs/sdk-integration/uni
 | Mode | `FIRE (Command)` — play device-stored audio by ID<br>`CLIP (Stream Clip)` — send a Unity `AudioClip` as PCM |
 | Event ID | The command to send |
 | Clip | The `AudioClip` to send in StreamClip mode |
-| Gain | Vibration intensity (0.0–2.0, multiplied against the Kit manifest `intensity`) |
+| Gain | App gain (0.0–2.0, multiplied against the Kit manifest clip gain `clip_gain`) |
 | Targeting | Destination (empty = all devices; `player_1` / `*/pos_neck` / `player_1/pos_chest`, etc.) |
 
 ### 1-3. Wire in-game events to entries
@@ -74,7 +74,7 @@ Component details: [](/en/docs/sdk-integration/unity-sdk/triggers/)
 
 #### B. Call Trigger from script (via EventMap)
 
-Place a `HapbeatUnityEventTrigger` on a GameObject and select the EventMap and entry in the Inspector, then hold a reference to that Trigger in your own script and call `Fire()`. Because it goes through an EventMap entry, gain / target / latency compensation / Kit intensity all apply automatically.
+Place a `HapbeatUnityEventTrigger` on a GameObject and select the EventMap and entry in the Inspector, then hold a reference to that Trigger in your own script and call `Fire()`. Because it goes through an EventMap entry, gain / target / latency compensation / the Kit clip gain (`clip_gain`) all apply automatically.
 
 ```csharp
 using UnityEngine;
@@ -82,13 +82,14 @@ using Hapbeat;
 
 public class PlayerHealth : MonoBehaviour
 {
-    // Drag a HapbeatUnityEventTrigger onto this field in the Inspector
+    // Drag a HapbeatUnityEventTrigger onto this field in the Inspector.
+    // The EventMap and entry to play are selected in that Trigger's Inspector.
     [SerializeField] private HapbeatUnityEventTrigger _damageHaptic;
 
     public void TakeDamage(int amount)
     {
-        _damageHaptic.GainMultiplier = Mathf.Clamp01(amount / 50f); // intensity multiplier (0–2)
-        _damageHaptic.Fire();
+        _damageHaptic.GainMultiplier = Mathf.Clamp01(amount / 50f); // strength multiplier (0–2)
+        _damageHaptic.Fire();   // play the selected entry
     }
 }
 ```
@@ -109,6 +110,19 @@ HapbeatManager.Instance?.Play("my-kit.enemy_hit", gain: 0.8f);
 
 For example: managing heartbeats for 100 players individually with per-player IDs. Statically enumerating them in EventMap would require hundreds of entries and make GUI management impractical; additionally, Event IDs must be constructed dynamically at runtime (`Play($"heartbeat.player_{id}")`). That combination is where C is appropriate.
 
+### 1-4. Choosing between components and scripts
+
+| Situation | Suited approach |
+|---|---|
+| Attaching the same Trigger to 3 or more objects | A (in bulk with [Batch Setup](/en/docs/sdk-integration/unity-sdk/editor-menus/#batch-setup)) |
+| The play condition is decided only by "it collided / a slider moved / a state changed" | A |
+| The strength stays at the entry's Gain, or only needs to scale with collision speed | A |
+| The play condition involves several game states (charge amount, held items, HP, etc.) | B |
+| You want to compute strength / left-right at runtime | B (`GainMultiplier` / `Pan`) |
+| You want one occurrence to play different entries depending on conditions | B (prepare a Trigger per entry and call the one you need) |
+
+A and B can be combined in the same scene. For example, Showcase Z3 handles the Fire → Loop → Stop structure with `HapbeatSequenceTrigger` (A), the timing of play and stop with its own script (B), and the strength during the loop with `HapbeatParameterBinding` (A).
+
 ---
 
 ## 2. Tuning
@@ -127,7 +141,7 @@ Decision criteria: [](/en/docs/sdk-integration/unity-sdk/fire-vs-clip/).
 
 ### 2-2. Gain and Target
 
-- **Gain** acts as a **multiplier** against the `intensity` in the Kit manifest (the reference vibration intensity set when designing the Kit in Hapbeat Studio). `1.0` plays at the manifest level; `0.5` plays at half. See [](/en/docs/tools/studio/kit-design/) for details on the gain hierarchy.
+- **Gain** acts as a **multiplier** against the `clip_gain` in the Kit manifest (the material strength set when designing the Kit in Hapbeat Studio). `1.0` plays at the manifest level; `0.5` plays at half; `2.0` plays at double (the sent value is capped at 1). See [](/en/docs/tools/studio/kit-design/) for details on the gain hierarchy.
 - **Target** specifies the destination device. Empty = all devices; `player_1` = a specific player; `*/pos_neck` = the neck position on all players; `player_1/pos_chest` = a specific player + body position, etc. See the contracts addressing spec for the full reference.
 
 ### 2-3. Dynamic modulation (Parameter Binding / script)

@@ -142,7 +142,7 @@ void OnFootstep() {
 }
 ```
 
-Automatic corrections provided by EventMap (manifest intensity / latency offset / wiring list / Inspector tuning) are lost. For when to choose this path, see [](/en/docs/sdk-integration/unity-sdk/integration/).
+Automatic corrections provided by EventMap (manifest clip_gain / latency offset / wiring list / Inspector tuning) are lost. For when to choose this path, see [](/en/docs/sdk-integration/unity-sdk/integration/).
 
 ---
 

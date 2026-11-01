@@ -46,7 +46,7 @@ A list of WAV / haptic clip files, automatically imported from the Library folde
 - **Sort select**: name / last modified / duration × ascending or descending (persisted in `localStorage`)
 - **+ Import**: add WAV files via file dialog
 - **Refresh**: re-scan for changes on disk
-- **Amp Preset bar**: save and load bulk Amp (libraryIntensity) presets for the Library
+- **Amp Preset bar**: save and load bulk Amp (libraryClipGain) presets for the Library
 - Each clip card has **+ Kit** (add to active Kit) / **Edit** (details modal) / **×** (move to `clips/archive/`) / **Swap** (swap Name ↔ Note)
 
 ### Kit Editor Panel (Right / Bottom)

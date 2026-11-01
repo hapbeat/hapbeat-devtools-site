@@ -214,7 +214,7 @@ static UHapbeatClip* CreateFromWavBytes(UObject* Outer, const TArray<uint8>& Wav
 
 These read RIFF/WAVE PCM16. `ParseWav` returns false and `OutError` on failure; `CreateFromWavBytes` returns `nullptr`. Created Clips are transient. `Pcm16` is little-endian interleaved data for all channels; `NumSamples()` is total sample count and `NumFrames()` divides it by channel count.
 
-`FHapbeatEventEntry::GetEventId()` combines Category and EventName. `GetEffectiveGain()` multiplies authored Gain by stored manifest intensity (or uses Gain if intensity is unresolved). `UHapbeatStreamPlayback::GetStereoChannelGains(float& OutL, float& OutR)` returns linear-balance gains: center 1/1, left 1/0, right 0/1.
+`FHapbeatEventEntry::GetEventId()` combines Category and EventName. `GetEffectiveGain()` multiplies authored Gain by the stored manifest clip gain (`CachedManifestClipGain`, or uses Gain if the clip gain is unresolved); the value sent is `clamp(clip_gain × app_gain, 0, 1)`. `UHapbeatStreamPlayback::GetStereoChannelGains(float& OutL, float& OutR)` returns linear-balance gains: center 1/1, left 1/0, right 0/1.
 
 ## Enumerations and conversions
 
@@ -250,7 +250,7 @@ The tables list game-facing `UFUNCTION` plus editable or Blueprint-visible `UPRO
 | `UHapbeatCollisionTriggerComponent` | `HapbeatCollisionTriggerComponent.h` | `TriggerEvent = Hit`, `GainMode = Fixed`, `TagFilter`, `VelocityThreshold = 0`, `MaxVelocity = 10`, `VelocityCurve`, `bEnterOnly = true`, `ContactSeparationSeconds = 0.2` | Inherits `UHapbeatTriggerComponent` |
 | `UHapbeatConfig` | `HapbeatConfig.h` | `Port = 7700` (1–65535), `AppName`, `PingInterval = 5` (1–60), `StreamSendAheadSeconds = 0.05` (0.01–0.2), `bCommandUnicast = true`, `HapticDelaySeconds = 0` (0–0.5), `ForcedOverridePlayer = -1`, `ForcedOverrideGroup = -1` (both −1–99), `bEnableLogging = true`, `bVerboseLogging = false` | — |
 | `FHapbeatEntryRef` | `HapbeatEntryRef.h` | `EntryId` | `IsSet()` |
-| `FHapbeatEventEntry` | `HapbeatEventEntry.h` | `Id` (read-only), `Mode = Command`, `DisplayName`, `Category`, `EventName`, `Gain = 1` (0–2), `Pan = 0` (−1–1), `Target`, `bLoop = false`, `DelayOffsetSeconds = 0` (−0.2–0.2), `Notes`, `StreamClip`, `CachedManifestIntensity` (read-only) | `GetEventId()`; `GetEffectiveGain()` |
+| `FHapbeatEventEntry` | `HapbeatEventEntry.h` | `Id` (read-only), `Mode = Command`, `DisplayName`, `Category`, `EventName`, `Gain = 1` (0–2), `Pan = 0` (−1–1), `Target`, `bLoop = false`, `DelayOffsetSeconds = 0` (−0.2–0.2), `Notes`, `StreamClip`, `CachedManifestClipGain` (read-only) | `GetEventId()`; `GetEffectiveGain()` |
 | `UHapbeatEventMap` | `HapbeatEventMap.h` | `Entries` | `FindById(Id, OutEntry) -> bool` |
 | `UHapbeatParameterBinding` | `HapbeatParameterBinding.h` | `SourceProperty = External`, `InputMin = 0`, `InputMax = 1`, `CurveType = Linear`, `CustomCurve`, `OutputParameter = StreamGain`, `OutputMin = 0`, `OutputMax = 1`, `TargetTrigger` | `SetValue(Value)`; `EvaluateNow() -> float`; `GetCurrentInput() -> float`; `GetCurrentNormalized() -> float`; `GetCurrentOutput() -> float` |
 | `UHapbeatSequenceComponent` | `HapbeatSequenceComponent.h` | `StartEntryId`, `StopEntryId`, `StopShotDelay = 0.05` (0–0.5) | Inherits Trigger `Fire` / `Stop` |

@@ -42,7 +42,7 @@ Each Kit Event card has the following settings:
 
 | Setting | Description |
 |---|---|
-| **intensity** (Amp slider) | Base vibration intensity (0.0–1.0). Recorded as the "standard strength" for this event at design time (the reference value in [](/en/docs/concepts/gain-architecture/)) |
+| **clip_gain** (Amp slider) | The material strength (0.0–1.0). Recorded in the manifest's `parameters.clip_gain`; the SDK multiplies it with the app gain (`app_gain`) ([](/en/docs/concepts/gain-architecture/)) |
 | **Mode** | 3-button radio: `> FIRE` / `♪ CLIP` / `>♪ BOTH`. Details: [Switch Modes](./modes/) |
 | **Edit** | Modal to review and edit Note / Event ID |
 | **Swap** | Swap clip name ↔ Note (handy when temporarily staging a source filename before renaming) |
@@ -65,17 +65,17 @@ Two buttons appear at the bottom of the Kit panel:
 - `stream_clip` (CLIP) mode WAVs are placed under `stream-clips/` and excluded from the deploy payload (streamed over UDP by the SDK / Helper at runtime).
 - `BOTH` mode outputs entries to both the `events` (FIRE) and `stream_events` (CLIP) buckets under the same base eventId.
 
-**Performance**: Events whose audio has not changed since the last save skip WAV re-encoding via cache. If only Amp / intensity / device_wiper values are modified, only the manifest is rewritten, making the operation very fast.
+**Performance**: Events whose audio has not changed since the last save skip WAV re-encoding via cache. If only Amp (clip_gain) / device_wiper values are modified, only the manifest is rewritten, making the operation very fast.
 
-**Kit metadata auto-save**: Metadata such as Kit name, events array, and intensity (`kits-meta.json`) is auto-saved on every edit action. However, **WAV files and `manifest.json` inside the Kit folder are not updated until you press Save Folder or Deploy** (per-edit auto-flush was removed on 2026-05-25).
+**Kit metadata auto-save**: Metadata such as Kit name, events array, and clip_gain (`kits-meta.json`) is auto-saved on every edit action. However, **WAV files and `manifest.json` inside the Kit folder are not updated until you press Save Folder or Deploy** (per-edit auto-flush was removed on 2026-05-25).
 
 ## 5. Verify with Test Play
 
-Select a Kit Event in Studio and press **Space** to play. If Helper + device is connected, you can verify vibration on the physical device; otherwise, the browser plays the audio for preview. While wearing the device, use **← / →** to fine-tune intensity in ±5% steps.
+Select a Kit Event in Studio and press **Space** to play. If Helper + device is connected, you can verify vibration on the physical device; otherwise, the browser plays the audio for preview. While wearing the device, use **← / →** to fine-tune the clip_gain in ±5% steps.
 
-## Tips for Setting Intensity
+## Tips for Setting clip_gain
 
-- Start all events at **the same intensity** and make relative adjustments on the SDK side for simplicity.
+- Start all events at **the same clip_gain** and make relative adjustments with the app gain (`app_gain`) for simplicity.
 - Clips meant to play at near-maximum (e.g., impact sounds): aim for `0.8–1.0`.
 - Ambient sounds, notifications, and similar: aim for `0.3–0.5`.
 - Fine-tune while wearing the device — don't judge by PC speakers or a laptop.
@@ -98,5 +98,5 @@ Floating-point, 24/32-bit, and 44.1/48 kHz formats are all automatically convert
 - [](/en/docs/concepts/event-id-and-kit/) — Kit / manifest / Event ID concepts
 - [Switch Modes](./modes/) — How to operate FIRE / CLIP / BOTH in Studio
 - [](/en/docs/concepts/fire-vs-clip/) — Decision criteria for mode selection
-- [](/en/docs/concepts/gain-architecture/) — Where intensity fits in the multiplication chain
+- [](/en/docs/concepts/gain-architecture/) — Where clip_gain fits in the multiplication chain
 - [Kit format spec](https://github.com/Hapbeat/hapbeat-contracts/blob/master/specs/kit-format.md) — Full `manifest.json` schema

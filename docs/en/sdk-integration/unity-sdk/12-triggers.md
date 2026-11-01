@@ -48,7 +48,7 @@ Setup:
 - **Event Map**: EventMap.asset
 - **On State Enter → Entry** / **On State Exit → Entry**: Fire a different entry for each state transition (one side alone is fine)
 - **Transition Filter → Required Previous State**: If non-empty, Enter fires only when transitioning from the specified state (e.g. only play a rattle sound on `Closed → LockedRattle`)
-- **Gain → Gain Multiplier**: Additional multiplier on top of entry gain × manifest intensity
+- **Gain → Gain Multiplier**: Additional multiplier on top of entry gain × manifest clip_gain
 
 Implementation notes:
 - If a looping StreamClip is fired on Enter, it is **automatically stopped** on Exit — looped sounds tied to a state end cleanly
@@ -118,4 +118,4 @@ To record detailed logs: `Hapbeat → Logs → Start Recording`
 - [](/en/docs/sdk-integration/unity-sdk/event-map/)
 - [](/en/docs/sdk-integration/unity-sdk/streaming/) — Stop latency and drop-out resilience tradeoffs for StreamClip mode
 - [](/en/docs/sdk-integration/unity-sdk/showcase/overview/) — Real examples for each Trigger (Z1 Collision / Z2 Animator / Z3 Sequence + Binding / Z4 TickEmitter / Z5 UnityEvent + script)
-- [](/en/docs/sdk-integration/unity-sdk/showcase/method-choice/)
+- [](/en/docs/sdk-integration/unity-sdk/scripting/)
