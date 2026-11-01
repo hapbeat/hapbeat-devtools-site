@@ -142,7 +142,9 @@ The cue table (JSON) maps **events → sounds and haptics** and is read by the g
 | Layer | Stored in | Edited in |
 |---|---|---|
 | **Shape** | The WAV (always full scale, peak about −0.5 dBFS) | Effects (Events panel "Adjust") |
-| **Material strength** | Each material's `clip_gain` (0–1) | The strength slider (Events panel "Adjust") |
+| **Material strength** | Each material's `clip_gain` (0–1) | The strength slider (Events panel "Adjust"); for a haptic clip in the Kit, the Kit tab |
 | **Scene multiplier** | Route gain / sfx.volume (default 1; a part of the app gain `app_gain`) | The Scene tab |
 
 The final output is **WAV × clip_gain × scene multiplier × device volume** (the sent value `clip_gain × scene multiplier` is capped at 1). For loop cues, the input → output (levelMap) output is applied too. Editor auditions play WAV × clip_gain (no scene multiplier); the Scene tab plays with the scene multipliers too.
+
+In a project with a Kit, the source of a haptic material's strength is the Kit manifest's `clip_gain`, and the cue table holds a copy (Studio aligns it when it saves the cue table). The strength slider of a haptic clip that is in the Kit is read-only: change the strength in the Kit tab and press **Save Folder**, which brings it to the Scene tab.
