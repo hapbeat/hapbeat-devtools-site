@@ -92,7 +92,7 @@ Play して `TakeDamage()` が呼ばれたときにデバイスが振動すれ�
 
 ### よく使う操作
 
-**強さを変えて再生する** — `GainMultiplier` に倍率（0〜2）を入れてから `Fire()` します。最終的な強さは「エントリの Gain × Kit の intensity × `GainMultiplier`」です。
+**強さを変えて再生する** — `GainMultiplier` に倍率（0〜2）を入れてから `Fire()` します。送る値は「Kit の素材の強さ（`clip_gain`）× エントリの Gain × `GainMultiplier`」を 1 で頭打ちにしたものです。
 
 ```csharp
 // 受けたダメージが大きいほど強く
@@ -147,7 +147,7 @@ HapbeatStreamPlayback pb = HapbeatManager.Instance?.StreamAudioClip(myClip, gain
 pb?.Stop();
 ```
 
-EventMap を通らないため、EventMap の Gain・Target、Kit の intensity 補正、遅延補正は効きません。次のような場合に使います。
+EventMap を通らないため、EventMap の Gain・Target、Kit の素材の強さ（`clip_gain`）、遅延補正は効きません。次のような場合に使います。
 
 - Event ID を実行時に組み立てる（例: プレイヤーごとに `$"heartbeat.player_{id}"`）
 - エントリの数が多すぎて EventMap で管理しきれない

@@ -40,15 +40,16 @@ hb.stop("rain.loop")    # clip は再生中のストリームを終了
 
 迷ったら **試作は clip、固まったら command** が基本です。
 
-## gain の扱い（二重適用しない）
+## gain の扱い（素材の強さに掛ける）
 
-clip では SDK が PCM を加工せず、`gain` を **STREAM_BEGIN.gain にのみ**畳んで送り、
-デバイスが一度だけ適用します（command の `gain` と同じ意味）。`gain` を省略すると
-kit manifest の `intensity` が使われ、明示すれば上書きできます。
+`gain` は kit manifest の `clip_gain`（素材の強さ）に掛ける倍率で、置き換えません。送る値は
+`clamp(clip_gain × gain, 0, 1)` で、command では PLAY の `gain` として送り、clip では SDK が
+source の PCM に掛けてから送ります（STREAM_BEGIN の `gain` は 1.0）。`gain` を省略すると 1
+（kit の `clip_gain` どおり）です。
 
 ```python
-hb.play("rain.loop")            # intensity（kit の既定値）
-hb.play("rain.loop", gain=0.3)  # 呼び出し側で上書き
+hb.play("rain.loop")            # clip_gain（kit の値）どおり
+hb.play("rain.loop", gain=0.3)  # clip_gain × 0.3
 ```
 
 ## 注意

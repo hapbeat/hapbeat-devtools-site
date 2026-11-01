@@ -15,8 +15,8 @@ kit（Studio が作る内容）と触覚ファイル（target などを足す設
 
 | | 何を持つ | 誰が作る |
 |---|---|---|
-| **kit manifest**（`<kit>-manifest.json`） | kit の内容: intensity / clip / command か clip か | **Hapbeat Studio が自動生成** |
-| **触覚ファイル**（`haptics.json`, EventMap overlay） | アプリ側の指定: **target（どの端末/部位）** / gain 上書き | **開発者が書く（kit を参照）** |
+| **kit manifest**（`<kit>-manifest.json`） | kit の内容: clip_gain / clip / command か clip か | **Hapbeat Studio が自動生成** |
+| **触覚ファイル**（`haptics.json`, EventMap overlay） | アプリ側の指定: **target（どの端末/部位）** / gain（倍率） | **開発者が書く（kit を参照）** |
 
 manifest は「kit の中身の記述」で、**どの端末/部位に出すか（target）は持ちません**
 （どこに出すかはアプリ・運用の都合なので kit には入れません）。それを足すのが
@@ -53,12 +53,12 @@ my-app/
 import hapbeat
 
 hb = hapbeat.connect(app_name="MyApp", haptics="haptics.json")
-hb.play("sample-kit.sine_100hz")     # player_1/chest に gain 0.8 で（触覚ファイルが決める）
+hb.play("sample-kit.sine_100hz")     # player_1/chest に clip_gain × 0.8 で（触覚ファイルが決める）
 hb.play("rain.loop")      # */back に clip ストリーム
 ```
 
-`connect(haptics=...)` は触覚ファイルを読み、その中の `kit` から manifest（intensity/clip）
-を取り込み、overlay の target/gain を上乗せします。**「いつ鳴らすか」だけがコード、
+`connect(haptics=...)` は触覚ファイルを読み、その中の `kit` から manifest（clip_gain/clip）
+を取り込み、overlay の target/gain を上乗せします（gain は `clip_gain` に掛ける倍率）。**「いつ鳴らすか」だけがコード、
 「何を・どこへ・どれくらい」は触覚ファイル**という分担です。
 
 targeting が要らない（全台ブロードキャストでよい）なら kit だけでも可:
@@ -69,7 +69,7 @@ hb = hapbeat.connect(app_name="MyApp", kit="kits/my-kit")   # target は play(id
 
 ## オーサリングのフロー
 
-1. [Hapbeat Studio](https://devtools.hapbeat.com) で kit を編集（クリップ・強度・command/clip）。
+1. [Hapbeat Studio](https://devtools.hapbeat.com) で kit を編集（クリップ・素材の強さ（clip_gain）・command/clip）。
 2. kit フォルダをプロジェクトの `kits/` に置く。
 3. `haptics.json` に各イベントの **target**（と必要なら gain）を書く。
 4. コードは `play("event.id")` を呼ぶだけ。

@@ -13,7 +13,7 @@ description: Studio の Kit Manager で使えるキーボードショートカ�
 | キー | 動作 |
 |------|-----|
 | `↑` / `↓` | 前後のクリップに移動 |
-| `←` / `→` | Library 側 Amp (libraryIntensity) を ±5% 調整 |
+| `←` / `→` | Library 側 Amp (libraryClipGain) を ±5% 調整 |
 | `Space` | 選択中クリップを再生 / 停止 |
 | `Enter` | 選択中クリップをアクティブ Kit に追加 |
 
@@ -22,7 +22,7 @@ description: Studio の Kit Manager で使えるキーボードショートカ�
 | キー | 動作 |
 |------|-----|
 | `↑` / `↓` | 前後の Kit Event に移動 |
-| `←` / `→` | Event intensity を ±5% 調整 |
+| `←` / `→` | Event の clip_gain を ±5% 調整 |
 | `Space` | 選択中 Event を再生 / 停止 |
 | `Delete` / `Backspace` | 選択中 Event を Kit から削除 |
 

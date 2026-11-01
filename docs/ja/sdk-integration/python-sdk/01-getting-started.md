@@ -45,8 +45,9 @@ hb.close()
   応答したデバイスへの **unicast** が標準で、1 台も応答していない間だけ
   ブロードキャストになります（Wi-Fi の AP がブロードキャストを最大 1 ビーコン
   間隔＝100〜300 ms 保留するため）。
-- `play(event_id, gain)` は再生指示を送ります。`gain` は 0..1 で、省略すると後述の
-  EventMap が既定値（kit の intensity）を補います。
+- `play(event_id, gain)` は再生指示を送ります。`gain` はアプリの倍率（0 以上、
+  既定 1）で、後述の EventMap が持つ素材の強さ（kit の `clip_gain`）に掛かります。送る値は
+  `clamp(clip_gain × gain, 0, 1)` です。
 
 `"sample-kit.sine_100hz"` は、**デバイスに配備した kit**（[Hapbeat Studio](https://devtools.hapbeat.com)
 で書き込み）に含まれる event id である必要があります。SDK は*指示*を送るだけで、
@@ -69,7 +70,7 @@ EventMap）**にまとめます。`play("id")` がそこから既定値を解決
 ```python
 em = hapbeat.EventMap.from_manifest("kits/my-kit/my-kit-manifest.json")
 with hapbeat.connect(event_map=em) as hb:
-    hb.play("sample-kit.sine_100hz")     # kit manifest の intensity で発火
+    hb.play("sample-kit.sine_100hz")     # kit manifest の clip_gain で発火
 ```
 
 「いつ鳴らすか（コード）」と「どれくらいの強さか（kit）」を独立して差し替えられます。

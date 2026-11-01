@@ -35,7 +35,7 @@ hb.stop("rain.loop");  // clip は再生中のストリームを終了
 ```
 
 `eventMap` を渡していなければ、SDK は bucket の情報を持たないため**すべて command
-として送られます**（このとき gain の既定値は `1.0`）。
+として送られます**（このとき `clip_gain` は `1.0` として扱います）。
 
 ## どちらを選ぶか
 
@@ -87,19 +87,19 @@ const hb = await connect({
 `clipBase` / `clipLoader` を設定していない clip イベントを `play` すると、SDK は
 WAV を読めず警告を出して何も鳴らしません。command モードのイベントには不要です。
 
-## gain は二重適用しない
+## gain は素材の強さに掛ける
 
-gain の既定値は **kit manifest の `intensity`** です。`play` の `gain` を明示すると
-それで**上書き**され、二重には掛かりません。clip モードでも SDK は PCM を加工せず、
-gain を **STREAM_BEGIN.gain にのみ**畳んで送り、デバイスが一度だけ適用します
-（command の `gain` と同じ意味）。
+`play` の `gain` は **kit manifest の `clip_gain`（素材の強さ）に掛ける倍率**です
+（置き換えません）。送る値は `clamp(clip_gain × gain, 0, 1)` で、command では PLAY の
+`gain` として送り、clip モードでは SDK が source の PCM に掛けてから送ります
+（STREAM_BEGIN の `gain` は 1.0）。どちらも強さは一度だけ掛かります。
 
 ```ts
-hb.play("rain.loop");              // intensity（kit の既定値）で発火
-hb.play("rain.loop", { gain: 0.3 }); // 呼び出し側で上書き
+hb.play("rain.loop");              // clip_gain（kit の値）どおりに発火
+hb.play("rain.loop", { gain: 0.3 }); // clip_gain × 0.3 で発火
 ```
 
-`gain` は絶対値 0..1 で、SDK 側で clamp されます。再生中の clip に対して gain を
+`gain` は 0 以上（1 = 素材どおり）で、1 を超えてもかまいません。0〜1 で頭打ちになるのは最後の積だけです。再生中の clip に対して gain を
 途中で変調する API はありません（[Not implemented](/docs/sdk-integration/js-sdk/streaming-live/)
 の連続変調は `openStream` を使います）。
 

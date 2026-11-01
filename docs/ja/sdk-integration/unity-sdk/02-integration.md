@@ -50,7 +50,7 @@ sidebar:
 | Mode | `FIRE (Command)`（デバイス内蔵音声を ID で再生）<br>`CLIP (Stream Clip)`（Unity の AudioClip を PCM 送信）|
 | Event ID | 送信するコマンド |
 | Clip | StreamClip モードで送信する `AudioClip` |
-| Gain | 振動強度（0.0〜2.0、Kit manifest の intensity と乗算される） |
+| Gain | アプリの倍率（0.0〜2.0、Kit manifest の素材の強さ `clip_gain` と乗算される） |
 | Targeting | 送信先（空 = 全デバイス、`player_1` / `*/pos_neck` / `player_1/pos_chest` など） |
 
 ### 1-3. ゲーム内イベントとエントリを紐づける
@@ -73,7 +73,7 @@ GameObject に Hapbeat 系の Trigger コンポーネント（または `Hapbeat
 
 #### B. スクリプトから Trigger を呼ぶ (EventMap 経由)
 
-GameObject に `HapbeatUnityEventTrigger` を置いて Inspector で EventMap とエントリを選び、自分のスクリプトにはその Trigger への参照を持たせて `Fire()` を呼びます。EventMap entry を介すので gain / target / 遅延補正 / Kit の intensity がすべて自動で効きます。
+GameObject に `HapbeatUnityEventTrigger` を置いて Inspector で EventMap とエントリを選び、自分のスクリプトにはその Trigger への参照を持たせて `Fire()` を呼びます。EventMap entry を介すので gain / target / 遅延補正 / Kit の素材の強さ（`clip_gain`）がすべて自動で効きます。
 
 ```csharp
 using UnityEngine;
@@ -140,7 +140,7 @@ EventMap entry の **Mode** で選びます:
 
 ### 2-2. Gain と Target
 
-- **Gain** は Kit manifest の `intensity` (Hapbeat Studio で Kit 設計時に決めた基準振動強度) との **乗算**として効きます。1.0 で manifest 通り、0.5 で半分。Gain の階層構造の詳細は [](/docs/tools/studio/kit-design/) を参照
+- **Gain** は Kit manifest の `clip_gain`（Hapbeat Studio で Kit 設計時に決めた素材の強さ）との **乗算**として効きます。1.0 で manifest 通り、0.5 で半分、2.0 で 2 倍（送る値は 1 で頭打ち）。Gain の階層構造の詳細は [](/docs/tools/studio/kit-design/) を参照
 - **Target** は送信先デバイスの指定。空 = 全デバイス、`player_1` で特定プレイヤー、`*/pos_neck` で全プレイヤーの首部位、`player_1/pos_chest` で特定プレイヤー+部位など。詳細は contracts の addressing spec を参照
 
 ### 2-3. 動的 modulation (Parameter Binding / スクリプト)

@@ -142,7 +142,7 @@ void OnFootstep() {
 }
 ```
 
-EventMap 経由の自動補正（manifest intensity / latency offset / wiring 一覧 / Inspector チューニング）は失われます。この経路を選ぶ条件は [](/docs/sdk-integration/unity-sdk/integration/) を参照。
+EventMap 経由の自動補正（manifest clip_gain / latency offset / wiring 一覧 / Inspector チューニング）は失われます。この経路を選ぶ条件は [](/docs/sdk-integration/unity-sdk/integration/) を参照。
 
 ---
 

@@ -69,8 +69,8 @@ npm install @hapbeat/sdk@latest
 import { connect } from "@hapbeat/sdk";
 
 const hb = await connect({ appName: "MyApp" }); // UDP ソケット + keep-alive
-hb.play("sample-kit.sine_100hz", { gain: 0.3 });           // event id で発火（gain は 0..1）
-hb.play("sample-kit.sine_100hz");                          // gain 省略 → kit / EventMap の既定値
+hb.play("sample-kit.sine_100hz", { gain: 0.3 });           // event id で発火（gain はアプリの倍率、0 以上）
+hb.play("sample-kit.sine_100hz");                          // gain 省略 → 1（kit の clip_gain どおり）
 hb.stopAll();
 await hb.close();
 ```
@@ -81,8 +81,8 @@ await hb.close();
   していない間だけブロードキャストになります（詳細は
   [](/docs/sdk-integration/js-sdk/transports/)）。
 - `play(eventId, opts)` は再生指示を送る fire-and-forget な呼び出しです。`gain` は
-  0..1（SDK 側で clamp）。省略すると後述の EventMap が既定値（kit の intensity）を
-  補います。
+  アプリの倍率（0 以上、既定 1）で、後述の EventMap が持つ素材の強さ（kit の
+  `clip_gain`）に掛かります。送る値は `clamp(clip_gain × gain, 0, 1)` です。
 - 終了時は必ず `await hb.close()`。アプリが離れたことをデバイスに伝え、再生中の
   ストリームをキャンセルします。
 
@@ -146,7 +146,7 @@ import { connect, EventMap } from "@hapbeat/sdk";
 
 const manifest = await fetch("/my-kit/my-kit-manifest.json").then((r) => r.json());
 const hb = await connect({ eventMap: EventMap.fromManifest(manifest) });
-hb.play("sample-kit.sine_100hz"); // kit manifest の intensity で発火
+hb.play("sample-kit.sine_100hz"); // kit manifest の clip_gain で発火
 ```
 
 「いつ鳴らすか（コード）」と「どれくらいの強さか（kit）」を独立して差し替えられます。
@@ -171,6 +171,6 @@ hb.play("sample-kit.sine_100hz", { target: "" });                  // 全台（�
 
 - [](/docs/sdk-integration/js-sdk/transports/) — Node（UDP）と Browser（helper WS）の違い・制約
 - [](/docs/sdk-integration/js-sdk/command-vs-clip/) — command と clip の使い分け（[](/docs/concepts/fire-vs-clip/)）
-- [](/docs/sdk-integration/js-sdk/event-map/) — kit manifest から既定強度を解決する（[](/docs/concepts/event-id-and-kit/)）
+- [](/docs/sdk-integration/js-sdk/event-map/) — kit manifest から素材の強さ（clip_gain）を解決する（[](/docs/concepts/event-id-and-kit/)）
 - [](/docs/sdk-integration/js-sdk/project-structure/) — kit と clip をプロジェクトに置く構成
 - [](/docs/sdk-integration/js-sdk/examples/) — 動くサンプルの歩き方

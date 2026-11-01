@@ -61,7 +61,7 @@ Unity 公式の [XR Interaction Toolkit (XRI)](https://docs.unity3d.com/Packages
 :::
 
 :::note[Kit のデプロイは不要です]
-同梱 EventMap（左右 各 10 エントリ）はすべて CLIP（StreamClip）で、波形はアプリからストリーミングされます。同梱の `hand-demo-kit-manifest.json` は、EventMap 上で基準 intensity をプレビューするためのものです。FIRE との違いは [](/docs/sdk-integration/unity-sdk/fire-vs-clip/) を参照してください。
+同梱 EventMap（左右 各 10 エントリ）はすべて CLIP（StreamClip）で、波形はアプリからストリーミングされます。同梱の `hand-demo-kit-manifest.json` は、EventMap 上で素材の強さ（clip_gain）をプレビューするためのものです。FIRE との違いは [](/docs/sdk-integration/unity-sdk/fire-vs-clip/) を参照してください。
 :::
 
 ## 動作しないとき

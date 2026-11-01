@@ -61,10 +61,11 @@ clip WAV は初回再生時に読み込まれ、以後はキャッシュされ�
 hb.preload_clips()       # clip モード全 event の WAV を先に読む
 ```
 
-## gain は二重適用しない
+## gain は一度だけ掛ける
 
-SDK は PCM を加工せず、`gain` を **STREAM_BEGIN.gain にのみ**畳んで送り、デバイスが
-一度だけ適用します。`gain` 省略時は kit manifest の `intensity`。
+SDK は `clamp(clip_gain × gain, 0, 1)` を **source の PCM に一度だけ**掛けてから送り、
+STREAM_BEGIN の `gain` は 1.0 を送ります。`clip_gain` は kit manifest の素材の強さ、`gain` は
+アプリの倍率（省略時 1）です。
 
 ## 現状の制限
 

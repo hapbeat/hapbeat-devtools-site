@@ -29,7 +29,7 @@ C# スクリプトから使う主なクラスの public メンバーの一覧で
 
 | メンバー | 型 | 内容 |
 |---|---|---|
-| `GainMultiplier` | `float`（0〜2） | このコンポーネント固有の倍率。最終 gain = エントリの Gain × Kit の intensity × `GainMultiplier`。CLIP の再生中に書き換えると即座に反映される |
+| `GainMultiplier` | `float`（0〜2） | このコンポーネント固有の倍率。送る値 = `clamp(Kit の clip_gain × エントリの Gain × GainMultiplier, 0, 1)`。CLIP の再生中に書き換えると即座に反映される |
 | `Pan` | `float`（−1〜+1） | 左右バランス。−1 = 左のみ、0 = 中央、+1 = 右のみ。CLIP の再生中に書き換えると即座に反映される |
 | `TriggerEnabled` | `bool` | `false` の間は `Fire()` しても再生されない |
 | `ActivePlayback` | [`HapbeatStreamPlayback`](#hapbeatstreamplayback) | このコンポーネントが再生中の CLIP のハンドル。再生していなければ `null` |
@@ -47,7 +47,7 @@ Inspector だけで設定する項目（スクリプトからは変更できな�
 |---|---|
 | `Fire()` | エントリを再生する。FIRE（Command）なら Event ID を送信、CLIP（Stream）なら AudioClip を送信する。Loop のエントリは `Stop()` まで鳴り続ける |
 | `Stop()` | このコンポーネントが再生している触覚を止める |
-| `FireWithGain(float gain)` | 指定した値を最終 gain として再生する（エントリの Gain・Kit の intensity・`GainMultiplier` は掛からない）。**FIRE（Command）のエントリ専用**。CLIP のエントリの強さを変えるときは `GainMultiplier` を設定してから `Fire()` を呼ぶ |
+| `FireWithGain(float gain)` | 呼ぶ時の倍率 `gain` を掛けて再生する（置き換えない。送る値 = `clamp(Kit の clip_gain × エントリの Gain × GainMultiplier × gain, 0, 1)`）。**FIRE（Command）のエントリ専用**。CLIP のエントリの強さを変えるときは `GainMultiplier` を設定してから `Fire()` を呼ぶ |
 
 加えて [Trigger 共通](#trigger-共通のメンバー) のメンバーを使えます。
 
@@ -96,7 +96,7 @@ CLIP（Stream）の再生 1 本ごとのハンドルです。Trigger の `Active
 | `Gain` | `float`（0〜2） | 再生中の強さ。書き換えると次に送るデータから反映される |
 | `Pan` | `float`（−1〜+1） | 左右バランス |
 | `Loop` | `bool` | ループするか。再生中に切り替えられる |
-| `ApplyGainModulation(float m)` | — | `Gain = BaselineGain × m` にする。`BaselineGain` は再生開始時の基準 gain（Trigger 経由ならエントリの Gain × Kit の intensity）。Trigger の `GainMultiplier` も内部でこれを呼ぶ |
+| `ApplyGainModulation(float m)` | — | `Gain = BaselineGain × m` にする。`BaselineGain` は再生開始時の基準 gain（Trigger 経由ならエントリの Gain × Kit の `clip_gain`）。Trigger の `GainMultiplier` も内部でこれを呼ぶ |
 | `Stop()` | — | この再生だけを止める（同じデバイスで鳴っている他の CLIP は止めない） |
 | `IsStopped` | `bool` | 停止済み、または最後まで再生し終えたら `true` |
 | `IsActive` | `bool` | デバイスへの送信が始まっていれば `true`（接続先が見つかるまでは `false`） |
@@ -108,7 +108,7 @@ CLIP（Stream）の再生 1 本ごとのハンドルです。Trigger の `Active
 
 ### 再生・停止
 
-EventMap を通さずに直接送ります。EventMap の Gain・Target・Kit の intensity 補正・遅延補正は掛からないので、値はすべて引数で渡します。
+EventMap を通さずに直接送ります。EventMap の Gain・Target・Kit の `clip_gain`・遅延補正は掛からないので、値はすべて引数で渡します。
 
 | メソッド | 内容 |
 |---|---|
@@ -152,7 +152,7 @@ EventMap（`.asset`）の中身をスクリプトから読むためのクラス�
 | `mode` | `HapticMode.Command`（FIRE）/ `HapticMode.StreamClip`（CLIP） |
 | `eventId` | Event ID（FIRE で送る文字列） |
 | `streamClip` / `loop` | CLIP で送る AudioClip / ループするか |
-| `GetEffectiveGain()` | エントリの Gain × Kit の intensity（実際に送る強さの基準値） |
+| `GetEffectiveGain()` | エントリの Gain × Kit の `clip_gain`（送る値のうちエントリの分。残りの倍率を掛けた積が 1 で頭打ちになる） |
 | `target` / `HasTarget` | 送信先 / 送信先が指定されているか |
 
 ```csharp

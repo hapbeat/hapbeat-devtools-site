@@ -129,7 +129,7 @@ Command モード（F キー）を動かすには、デバイスに `basic-exam-
 
 詳しい使い分けは [](/docs/sdk-integration/unity-sdk/fire-vs-clip/) を参照してください。
 
-また、Hapbeat SDK の **gain は乗算構造**になっています。Studio で Kit を設計する際に manifest に記録した基準 gain が「1.0 倍時の振動強度」となり、SDK 側の gain や EventMap の gain はそれに対する倍率として機能します。Kit の設計方法と gain の考え方は [](/docs/tools/studio/kit-design/) で解説しています。
+また、Hapbeat SDK の **gain は乗算構造**になっています。Studio で Kit を設計する際に manifest に記録した素材の強さ（`clip_gain`）が「1.0 倍時の振動の強さ」となり、SDK 側の gain や EventMap の gain（アプリの倍率 `app_gain`）はそれに対する倍率として機能します（送る値は 1 で頭打ち）。Kit の設計方法と gain の考え方は [](/docs/tools/studio/kit-design/) で解説しています。
 :::
 
 ## 音と触覚のタイミングを合わせる

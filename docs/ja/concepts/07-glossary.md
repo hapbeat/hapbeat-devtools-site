@@ -1,7 +1,7 @@
 ---
 title: 用語集
 kind: reference
-description: Hapbeat SDK に登場する用語の定義集。Event ID / Kit / Group / Player / intensity / gain / Fire / Clip など。
+description: Hapbeat SDK に登場する用語の定義集。Event ID / Kit / Group / Player / clip_gain / app_gain / Fire / Clip など。
 sidebar:
   order: 99
 ---
@@ -30,11 +30,14 @@ sidebar:
 
 ## 強度・モード
 
-**intensity**
-: Kit 設計時の基準振動強度。manifest の `events[<id>].parameters.intensity` / `stream_events[<id>].parameters.intensity` に 0.0〜1.0 で記録する。SDK 側 `gain` の **基準値 (× 1.0 の基準)** として働く。
+**clip_gain（素材の強さ）**
+: Kit 設計時に決める素材の強さ。WAV と 1 組で「クリップ（素材）」になる。manifest の `events[<id>].parameters.clip_gain` / `stream_events[<id>].parameters.clip_gain` に 0.0〜1.0 で記録する（省略 = 1）。送る側（SDK・Studio）がアプリの倍率（`app_gain`）と掛け、送る値は `clamp(clip_gain × app_gain, 0, 1)`。本体は `clip_gain` を読まない。
+
+**app_gain（アプリの倍率）**
+: 再生するアプリが掛ける倍率の積。EventMap のエントリの `gain`、ParameterBinding の出力、呼ぶ時の `gain` 引数などの積で、0 以上（1 = 素材どおり）。出力は `clip × app_gain × device_volume`（`clip = WAV × clip_gain`）。
 
 **gain**
-: SDK 実行時の動的強度倍率。Unity SDK 等で EventMap や ParameterBinding 経由で与える。`gain = 1.0` で「Kit 設計者が決めた標準の強さ」を意味する。
+: SDK の API や EventMap の項目が持つ倍率（`app_gain` の部品）。`clip_gain` を置き換えず掛ける。0 以上で 1 を超えてよく、`gain = 1.0` で「Kit 設計者が決めた素材の強さどおり」を意味する。送る値は 1 で頭打ちになる。
 
 **Fire**
 : 触覚送信方式の通称。manifest の `events` bucket に格納された Event を Event ID 指定で発火し、デバイス側にプリインストールされた波形を再生する。低遅延・安定で本番向き。詳細: [Fire と Clip](./fire-vs-clip/)

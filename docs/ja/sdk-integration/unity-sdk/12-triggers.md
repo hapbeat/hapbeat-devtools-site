@@ -48,7 +48,7 @@ On Activated:
 - **Event Map**: EventMap.asset
 - **On State Enter → Entry** / **On State Exit → Entry**: state 遷移ごとに別エントリを発火可能（片方だけでも OK）
 - **Transition Filter → Required Previous State**: 非空時は「指定 state からの遷移時のみ Enter 発火」（例: `Closed → LockedRattle` だけ鳴らす、など）
-- **Gain → Gain Multiplier**: entry gain × manifest intensity への追加倍率
+- **Gain → Gain Multiplier**: entry gain × manifest clip_gain への追加倍率
 
 実装上の特徴:
 - looping StreamClip を Enter で発火した場合、Exit で **自動的に Stop** されるので「state に紐付く擦り音」がクリーンに切れます

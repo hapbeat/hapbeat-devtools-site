@@ -1,7 +1,7 @@
 ---
 title: EventMap reference
 kind: reference
-description: 触覚の調整側カタログ EventMap / EventDef の API。kit manifest から intensity・loop・clip・mode を解決する。JS SDK は manifest-only。
+description: 触覚の調整側カタログ EventMap / EventDef の API。kit manifest から clip_gain・loop・clip・mode を解決する。JS SDK は manifest-only。
 sidebar:
   order: 7
   label: EventMap
@@ -9,9 +9,9 @@ sidebar:
 
 `EventMap` は SDK の**調整側**（何を・どれくらいの強さで鳴らすか）です。発火側
 （`play` / `stop` / `stopAll`）とは分かれ、**event id だけ**で結ばれます。kit
-manifest（schema 2.0.0）を読み、各イベントの既定 intensity・loop・clip を持ちます。
+manifest（schema 2.0.0）を読み、各イベントの素材の強さ（`clip_gain`）・loop・clip を持ちます。
 
-発火コードに強度を書かず EventMap にまとめておくと、「いつ鳴らすか（コード）」と
+発火コードに素材の強さを書かず EventMap にまとめておくと、「いつ鳴らすか（コード）」と
 「どれくらい鳴らすか（kit）」を独立して差し替えられます。発火側での使い分けは
 [](/docs/sdk-integration/js-sdk/command-vs-clip/) を参照。
 
@@ -23,8 +23,8 @@ import { EventMap } from "@hapbeat/sdk";
 // パース済み kit manifest から（推奨）
 EventMap.fromManifest(manifest: KitManifest): EventMap
 
-// { eventId: gain } の手書きマップから（command のみ・gain だけ）
-EventMap.fromGains(gains: Record<string, number>): EventMap
+// { eventId: clipGain } の手書きマップから（command のみ・clipGain だけ）
+EventMap.fromClipGains(clipGains: Record<string, number>): EventMap
 
 // EventDef を直接渡す（低レベル）
 new EventMap(events?: Record<string, EventDef> | Map<string, EventDef>)
@@ -35,27 +35,27 @@ import { connect, EventMap } from "@hapbeat/sdk";
 
 const manifest = await fetch("/my-kit/my-kit-manifest.json").then((r) => r.json());
 const hb = await connect({ eventMap: EventMap.fromManifest(manifest) });
-hb.play("sample-kit.sine_100hz"); // この manifest の intensity で発火
+hb.play("sample-kit.sine_100hz"); // この manifest の clip_gain で発火
 ```
 
 - `fromManifest` は `events`（command）と `stream_events`（clip）の両 bucket を
-  読み、各イベントの `parameters.intensity` / `loop` / `device_wiper` と clip 名を
+  読み、各イベントの `parameters.clip_gain` / `loop` / `device_wiper` と clip 名を
   取り込みます。
-- `fromGains` は `{ "sample-kit.sine_100hz": 0.5 }` のような単純マップから作り、すべて
+- `fromClipGains` は `{ "sample-kit.sine_100hz": 0.5 }`（値は `clipGain`）のような単純マップから作り、すべて
   command モード・`loop: false`・`streaming: false` になります。
 
 ## インスタンスメソッド
 
 ```ts
 em.get("sample-kit.sine_100hz");      // EventDef | undefined
-em.gainFor("sample-kit.sine_100hz");  // 既定 gain（intensity）。無ければ 1.0
+em.clipGainFor("sample-kit.sine_100hz");  // 素材の強さ（clip_gain）。無ければ 1.0
 em.has("sample-kit.sine_100hz");      // boolean
 em.ids();                  // string[] — 全 event id
 em.size;                   // number — 件数
 ```
 
-`gainFor(id)` は `play(id)` で gain を省略したときに使われる既定値です。EventMap に
-無い id を渡すと `1.0`（フルゲイン）にフォールバックします。
+`clipGainFor(id)` は `play(id)` が呼ぶ時の `gain`（アプリの倍率）と掛ける素材の強さです。
+EventMap に無い id を渡すと `1.0` にフォールバックします。
 
 ## EventDef のフィールド
 
@@ -64,7 +64,7 @@ em.size;                   // number — 件数
 | フィールド | 型 | 意味 |
 |---|---|---|
 | `eventId` | `string` | イベント id |
-| `intensity` | `number` | 既定 gain（manifest の `parameters.intensity`、既定 1.0） |
+| `clipGain` | `number` | 素材の強さ（manifest の `parameters.clip_gain`、0〜1、既定 1.0） |
 | `loop` | `boolean` | ループ再生か |
 | `deviceWiper?` | `number` | デバイス側ワイパー値（任意） |
 | `streaming` | `boolean` | `true` なら clip モード（`stream_events` 由来） |
@@ -85,10 +85,10 @@ interface KitManifest {
 {
   "schema_version": "2.0.0",
   "events": {
-    "sample-kit.sine_100hz": { "clip": "hit.wav", "parameters": { "intensity": 0.8 } }
+    "sample-kit.sine_100hz": { "clip": "hit.wav", "parameters": { "clip_gain": 0.8 } }
   },
   "stream_events": {
-    "rain.loop": { "clip": "rain.wav", "parameters": { "intensity": 0.3, "loop": true } }
+    "rain.loop": { "clip": "rain.wav", "parameters": { "clip_gain": 0.3, "loop": true } }
   }
 }
 ```
@@ -105,20 +105,20 @@ manifest 形と event id の規約は [](/docs/concepts/event-id-and-kit/)、mod
 
 `play(id)` を呼ぶと、SDK は接続時に渡した `eventMap` を引いて:
 
-1. gain 未指定なら `gainFor(id)`（= manifest の intensity）を既定値にする。
+1. 送る値を `clamp(clipGain × gain, 0, 1)` にする（`clipGain` = manifest の `clip_gain`、`gain` = 呼ぶ時の倍率。省略時は 1）。`gain` は `clipGain` を置き換えず掛ける。
 2. その id の `EventDef.streaming` を見て **command / clip を分岐**する。
    - `streaming: false` → PLAY 指示を送る（デバイスが clip を再生）。
    - `streaming: true` → `clip` の WAV を `clipBase` + `clipLoader` で読み込み、
-     16 kHz mono PCM16 として UDP ストリーミングする。
-- `eventMap` を渡さない場合は全イベントが command モード扱いで、gain は `1.0` に
-  なります。
+     16 kHz mono PCM16 として UDP ストリーミングする（送る値は source の PCM に掛ける）。
+- `eventMap` を渡さない場合は全イベントが command モード扱いで、`clip_gain` は `1.0`
+  として扱います（送る値 = `clamp(gain, 0, 1)`）。
 
 ## 重要な注記（Python SDK との差）
 
 JS の `EventMap` は **manifest-only** です。Python SDK が持つ次の機能は **JS には
 ありません**:
 
-- **触覚ファイル overlay（per-event target / gain 上書き）はない** — JS には
+- **触覚ファイル overlay（per-event target / gain の倍率）はない** — JS には
   `from_file` 相当がありません。送信先は呼び出し側の `target=` か接続の
   `defaultTarget` で指定します（[](/docs/sdk-integration/js-sdk/transports/)）。
 - **`target` / `mode` フィールドはない** — `EventDef` は targeting を持ちません。

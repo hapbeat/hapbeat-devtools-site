@@ -31,7 +31,7 @@ HapbeatEventEntry
 ├─ delayOffsetSeconds
 ├─ notes
 ├─ manifestOverride
-└─ _cachedManifestIntensity (HideInInspector)
+└─ _cachedManifestClipGain (HideInInspector)
 
 HapbeatBindingPreset (entry.bindings の要素)
 ├─ _id (stable GUID)
@@ -128,13 +128,13 @@ UI 表示ラベルは `s_ModeLabels`:
 | `loop` | `bool` | false | true で Stop() まで再生継続。SequenceTrigger の hold phase / 連続 modulation 用 |
 | `bindings` | `List<HapbeatBindingPreset>` | empty | Parameter Binding preset の登録リスト |
 
-streamClip 変更時、所属 Kit の `*-manifest.json` を `manifestOverride` に **auto-attach** する（同じ entry の `_cachedManifestIntensity` も refresh）。
+streamClip 変更時、所属 Kit の `*-manifest.json` を `manifestOverride` に **auto-attach** する（同じ entry の `_cachedManifestClipGain` も refresh）。
 
 ### 3.5 Gain
 
 | フィールド | 型 | 範囲 | 説明 |
 |---|---|---|---|
-| `gain` | `float` | `[0, 2]` (Range attribute) | master gain。`GetEffectiveGain() = gain × _cachedManifestIntensity` |
+| `gain` | `float` | `[0, 2]` (Range attribute) | master gain（アプリの倍率の一部）。`GetEffectiveGain() = gain × _cachedManifestClipGain`。送る値は残りの倍率も掛けた積を 0〜1 で頭打ちにしたもの |
 
 ### 3.6 Targeting
 
@@ -189,16 +189,16 @@ UI に effective delay を ms 単位で readout 表示。
 |---|---|---|
 | `notes` | `string` (TextArea 1-3 行) | デザイナーメモ。device には送られない |
 | `manifestOverride` | `TextAsset` | 特定 `<kit-name>-manifest.json` を強制参照。未設定なら auto-resolve (clip path → eventId match) |
-| `_cachedManifestIntensity` | `float` (HideInInspector) | manifest から resolve した intensity 値。`-1f` は "未解決"、`0..1` は authored 値 |
+| `_cachedManifestClipGain` | `float` (HideInInspector) | manifest から resolve した素材の強さ（`clip_gain`）。`-1f` は "未解決"、`0..1` は authored 値 |
 
-`CachedManifestIntensity` (getter): 読み取り専用 accessor。
-`SetCachedManifestIntensity(float)`: Editor-only setter (duplicate 時の cache 伝搬等)。
+`CachedManifestClipGain` (getter): 読み取り専用 accessor。
+`SetCachedManifestClipGain(float)`: Editor-only setter (duplicate 時の cache 伝搬等)。
 
 ### 3.9 派生メソッド
 
 | メソッド | 戻り値 | 説明 |
 |---|---|---|
-| `GetEffectiveGain()` | `float` | `_cachedManifestIntensity < 0 ? gain : gain × _cachedManifestIntensity`。intensity=0 は honored (silence) |
+| `GetEffectiveGain()` | `float` | `_cachedManifestClipGain < 0 ? gain : gain × _cachedManifestClipGain`。clip_gain=0 は honored (silence) |
 | `GetSummary()` | `string` | List 表示用要約。StreamClip → `streamClip.name`、Command → `eventId` |
 | `GetModeIcon()` | `string` | `>` / `♪` / `●` |
 
@@ -251,7 +251,7 @@ UI に effective delay を ms 単位で readout 表示。
 
 | 値 | 範囲 | 効果 |
 |---|---|---|
-| `StreamGain` | `0..2` (clamped) | `playback.ApplyGainModulation(output)`。`entry.gain × manifest.intensity × bindingOutput` の最終段 |
+| `StreamGain` | `0..2` (clamped) | `playback.ApplyGainModulation(output)`。`entry.gain × manifest.clip_gain × bindingOutput` の最終段 |
 | `StreamPan` | `-1..+1` | `playback.Pan = output`。equal-power pan law。mono clip では無視 |
 
 ---
@@ -291,7 +291,7 @@ UI に effective delay を ms 単位で readout 表示。
 | `Bulk Edit` | mode / gain / target / delay / manifest / notes を複数 entry にまとめて適用する modal を開く。既定は全 entry 対象、modal の `Select all` を外すと Table view で選択中の行だけに適用 |
 | `Batch Setup` | `HapbeatBatchSetupWindow` を開く |
 | `Scan Scene` | scene 内 Trigger / State / Script wiring を再スキャン |
-| `↻` | manifest intensity cache を全 entry 分 refresh |
+| `↻` | manifest clip_gain cache を全 entry 分 refresh |
 | `List` / `Table` (segmented) | view mode 切替 |
 | `+` | 新規 entry 追加（直前 entry の mode を継承） |
 | `−` | 選択中 entry を削除 |
@@ -361,7 +361,7 @@ UI に effective delay を ms 単位で readout 表示。
   - Label `Manifest`
   - Picker (`*-manifest.json` 限定 TextAsset field) — `manifestOverride` を設定
   - `↻` Refresh ボタン — clip の所属フォルダを walk up して `*-manifest.json` を auto-attach
-- inline hint: 接続未確立 / missing intensity warning / streaming indicator
+- inline hint: 接続未確立 / missing clip_gain warning / streaming indicator
 - パネル幅 < 260px で compact mode（label 省略）
 
 ---
@@ -486,9 +486,9 @@ heuristic なので false positive あり得る。
 
 ---
 
-## 10. Manifest intensity の解決
+## 10. Manifest clip_gain の解決
 
-`HapbeatEventEntry._cachedManifestIntensity` は Studio で deploy された Kit manifest の `parameters.intensity` 値をキャッシュする。Editor 時にのみ解決し、runtime は cache を読むのみ（device は manifest を見ず、SDK 側で `gain × intensity` を wire の `gain` として送る）。
+`HapbeatEventEntry._cachedManifestClipGain` は Studio で deploy された Kit manifest の `parameters.clip_gain`（素材の強さ）をキャッシュする。Editor 時にのみ解決し、runtime は cache を読むのみ（device は manifest を見ず、SDK 側で `clamp(clip_gain × app_gain, 0, 1)` を wire の `gain` として送る。`app_gain` は entry の `gain` と Trigger の倍率・binding 出力・呼ぶ時の gain の積）。
 
 ### 10.1 解決順序
 
@@ -503,10 +503,10 @@ heuristic なので false positive あり得る。
 |---|---|
 | streamClip 変更 | 該当 entry の `manifestOverride` を auto-attach + cache 更新 |
 | category / eventName 変更 | cache 更新 |
-| `↻` toolbar ボタン | `HapbeatManifestIntensity.Invalidate()` + 全 entry の cache 更新 |
-| EventMap window 起動 / entries 変更 | `RefreshIntensityCache()` |
+| `↻` toolbar ボタン | `HapbeatManifestClipGain.Invalidate()` + 全 entry の cache 更新 |
+| EventMap window 起動 / entries 変更 | `RefreshClipGainCache()` |
 
-未解決のとき `_cachedManifestIntensity = -1f`。`GetEffectiveGain()` は -1 のとき `gain` のみ返す（intensity 乗算なし）。Test Play bar に "manifest intensity not found" warning を表示。
+未解決のとき `_cachedManifestClipGain = -1f`。`GetEffectiveGain()` は -1 のとき `gain` のみ返す（clip_gain = 1 として扱う）。Test Play bar に "manifest clip_gain not found" warning を表示。
 
 ---
 

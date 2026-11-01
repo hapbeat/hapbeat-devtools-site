@@ -16,7 +16,7 @@ Kit は **触覚波形 (WAV) + メタデータ (`<kit-name>-manifest.json`)** �
 
 ```
 my-game/                            ← Kit フォルダ (= kit-name)
-  my-game-manifest.json             ← イベント定義・基準 intensity
+  my-game-manifest.json             ← イベント定義・素材の強さ（clip_gain）
   install-clips/                    ← Fire (command) 用 WAV
     sword-hit.wav
     footstep-grass.wav
@@ -45,7 +45,7 @@ manifest は **`events` (Fire 用) と `stream_events` (Clip 用) の 2 つの b
     "my-game.sword-hit": {
       "clip": "sword-hit.wav",
       "parameters": {
-        "intensity": 0.8,
+        "clip_gain": 0.8,
         "device_wiper": 64
       }
     }
@@ -54,7 +54,7 @@ manifest は **`events` (Fire 用) と `stream_events` (Clip 用) の 2 つの b
     "my-game.bgm-tension": {
       "clip": "bgm-tension.wav",
       "parameters": {
-        "intensity": 0.5,
+        "clip_gain": 0.5,
         "loop": true
       }
     }
@@ -72,7 +72,7 @@ manifest は **`events` (Fire 用) と `stream_events` (Clip 用) の 2 つの b
 | `events` | ✓ | **Fire (command)** イベントの辞書。device の event table を構成し、PLAY/STOP packet の `event_id` フィールドにこのキーが乗る |
 | `stream_events` | — | **Clip (stream)** イベントの辞書。SDK が UDP audio stream で送信。device は eventId を認識せず、SDK 内部の binding ラベルとしてのみ使う |
 | `<bucket>[<id>].clip` | ✓ | bucket に対応する WAV のファイル名 (bare filename)。`events.<id>.clip` → `install-clips/<clip>`、`stream_events.<id>.clip` → `stream-clips/<clip>` として自動解決 |
-| `<bucket>[<id>].parameters.intensity` | — | 基準振動強度 0.0〜1.0 ([gain の乗算構造](./gain-architecture/) の基準値) |
+| `<bucket>[<id>].parameters.clip_gain` | — | 素材の強さ 0.0〜1.0（省略 = 1）。送る側が呼ぶ時の倍率（`app_gain`）と掛ける ([gain の乗算構造](./gain-architecture/)) |
 | `events[<id>].parameters.device_wiper` | — | MCP4018 wiper 値 (0..127)。authoring 時の強度を再現するための参照情報。`stream_events` 側は対象外 |
 | `<bucket>[<id>].parameters.loop` | — | ループ再生の有無 (default `false`) |
 
@@ -117,7 +117,7 @@ wire-protocol 上の `kit_id` field 自体は引き続き存在しますが、�
 
 ## デプロイの流れ
 
-1. Studio の Library で Kit を編集 (intensity 調整、Fire / Clip / BOTH 切替、clip 追加)
+1. Studio の Library で Kit を編集 (素材の強さ（clip_gain）の調整、Fire / Clip / BOTH 切替、clip 追加)
 2. Studio が `<kit-name>-manifest.json` と WAV をワーキングディレクトリに書き出し
 3. Helper 経由でデバイスの Kit パーティションに転送 (`events` 由来 = Fire 用 WAV のみ。manifest は wire 上で `manifest.json` に rename)
 4. `stream_events` 由来の WAV はデプロイ対象外 — 実行時に SDK が直接 UDP で送信
@@ -125,6 +125,6 @@ wire-protocol 上の `kit_id` field 自体は引き続き存在しますが、�
 ## 関連リンク
 
 - [Fire と Clip の違い](./fire-vs-clip/) — mode の選び方
-- [gain の乗算構造](./gain-architecture/) — `intensity` が乗算チェーンのどこに入るか
+- [gain の乗算構造](./gain-architecture/) — `clip_gain` が乗算チェーンのどこに入るか
 - [](/docs/tools/studio/kit-design/) — Studio で Kit を作る手順 (howto)
 - [](/docs/tools/studio/modes/) — Studio UI 上での mode 切替

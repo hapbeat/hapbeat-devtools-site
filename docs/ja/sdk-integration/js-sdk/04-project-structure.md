@@ -15,7 +15,7 @@ play するだけ**になります。この分担をどうファイルに落と�
 
 | | 何を持つ | 誰が作る |
 |---|---|---|
-| **kit manifest**（`<kit>-manifest.json`） | kit の内容: intensity / clip / command か clip か | **Hapbeat Studio が自動生成** |
+| **kit manifest**（`<kit>-manifest.json`） | kit の内容: clip_gain / clip / command か clip か | **Hapbeat Studio が自動生成** |
 | **アプリのコード** | いつ・どこで発火するか（`play(id)` / `target`） | **開発者が書く** |
 
 manifest は「kit の中身の記述」であり、**どの端末/部位に出すか（target）は持ちません**。
@@ -26,7 +26,7 @@ manifest は「kit の中身の記述」であり、**どの端末/部位に出�
 
 Python SDK には `haptics.json`（kit を参照して target/gain を上乗せする overlay）が
 ありますが、**JS SDK にはありません**。JS の `EventMap` は **manifest 専用**で、
-各イベントの intensity / clip を運ぶだけです。target の決め方は次の 2 つです。
+各イベントの clip_gain / clip を運ぶだけです。target の決め方は次の 2 つです。
 
 - **呼び出し側で指定**: `hb.play("sample-kit.sine_100hz", { target: "player_1/chest" })`
 - **既定値**: `connect({ defaultTarget: "*/chest" })`（呼び出し側 `target` が優先）
@@ -137,7 +137,7 @@ clip モードの WAV は **16 kHz PCM16** が必要です。SDK はリサンプ
 
 ## オーサリングのフロー
 
-1. [Hapbeat Studio](https://devtools.hapbeat.com) で kit を編集（クリップ・強度・command/clip）。
+1. [Hapbeat Studio](https://devtools.hapbeat.com) で kit を編集（クリップ・素材の強さ（clip_gain）・command/clip）。
 2. kit フォルダ（manifest + `stream-clips/`）をアプリに置く（web: `public/`、node: 任意の dir）。
 3. manifest を `fetch`（web）/ `readFile`（node）で読み、`EventMap.fromManifest(manifest)` を `connect` に渡す。
 4. clip モードを使うなら `clipBase` を WAV の置き場所（URL prefix / dir）に向ける。

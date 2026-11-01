@@ -48,9 +48,9 @@ Kit Event 行の Mode セレクタで再生方式を選びます。
 
 最初は **FIRE** から始めるのが簡単です。Kit ヘッダーの **「モード説明」** ボタンで詳細ヘルプを開けます。詳細は [Mode を切り替える](/docs/tools/studio/modes/)。
 
-## 5. 強度（Intensity）を調整
+## 5. 素材の強さ（clip_gain）を調整
 
-各 Kit Event カードの Amp スライダーで基準振動強度 (0–100%) を設定します。キーボードでは選択中の Event で **← / →** で ±5% 調整できます。
+各 Kit Event カードの Amp スライダーで素材の強さ（`clip_gain`、0–100%）を設定します。キーボードでは選択中の Event で **← / →** で ±5% 調整できます。
 
 ## 6. キーボードで試聴
 
@@ -68,7 +68,7 @@ Kit の編集はメタデータ (kits-meta.json) として自動保存されま�
 | **Save Folder** | ローカルの Kit フォルダに `manifest.json` + WAV を書き出す。Helper / デバイス不要 |
 | **Deploy** | Save Folder と同じビルドを実行し、その zip を Helper 経由でデバイスに転送 |
 
-Save Folder はローカル保存だけ、Deploy はデバイスにも送るという関係です。Amp / intensity / device_wiper のみ変更したときは WAV の再エンコードがキャッシュで skip されるため高速です。
+Save Folder はローカル保存だけ、Deploy はデバイスにも送るという関係です。Amp（clip_gain）/ device_wiper のみ変更したときは WAV の再エンコードがキャッシュで skip されるため高速です。
 
 ## 8. 実機で Event を発火
 

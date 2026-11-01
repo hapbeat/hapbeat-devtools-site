@@ -90,8 +90,9 @@ hb.streamPcm(pcm, { channels: 2, sampleRate: 16000, gain: 0.6 });
 
 ## gain は 1 回だけ適用
 
-clip / `streamPcm()` の `gain` は `STREAM_BEGIN` のメタに畳み込まれて送られ、
-デバイス側で **そのストリーム全体に 1 回**適用されます。再生中に gain を動的に
+clip / `streamPcm()` の `gain`（アプリの倍率）は、素材の強さ（clip の `clip_gain`、
+`streamPcm()` では 1）と掛けて `clamp(clip_gain × gain, 0, 1)` にし、SDK が
+**source の PCM に 1 回**掛けてから送ります（`STREAM_BEGIN` の `gain` は 1.0）。再生中に gain を動的に
 変えることはできません（mid-clip の gain/pan tween は未実装）。
 
 再生しながら強度や方向を**連続的に変調**したい場合は、ペーシングを行わず自分で

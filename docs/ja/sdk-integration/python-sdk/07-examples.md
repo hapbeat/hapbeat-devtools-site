@@ -51,8 +51,8 @@ SDK の <a href="https://github.com/hapbeat/hapbeat-python-sdk/tree/master/examp
 サンプルは、この分離を段階的に見せています。
 
 - minimal.py — コードに `gain` を直接書く最小形。
-- clip_project/ — 強度や mode は **kit**（`connect(kit=...)`）に。
-- osc_remote/ — target や強度は **触覚ファイル**（`connect(haptics=...)`）に。
+- clip_project/ — 素材の強さ（clip_gain）や mode は **kit**（`connect(kit=...)`）に。
+- osc_remote/ — target や gain（倍率）は **触覚ファイル**（`connect(haptics=...)`）に。
 
 詳しくは [](/docs/sdk-integration/python-sdk/project-structure/) と
 [](/docs/sdk-integration/python-sdk/event-map/) を参照。
@@ -67,5 +67,5 @@ SDK の <a href="https://github.com/hapbeat/hapbeat-python-sdk/tree/master/examp
   （全台ブロードキャスト）で確認し、その後デバイスのアドレスに合わせます。
 - **clip の音がおかしい** — clip WAV は 16 kHz モノ PCM16 で用意してください（SDK は
   resample しません）。
-- **gain が想定と違う** — gain は 0..1 の絶対値です。ただし `haptic_pad.py` の `--master`
+- **gain が想定と違う** — gain はアプリの倍率で、送る値は `clamp(clip_gain × gain, 0, 1)` です（EventMap が無ければ `clip_gain` = 1）。ただし `haptic_pad.py` の `--master`
   だけは各パッドへの倍率なので注意。

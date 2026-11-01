@@ -40,7 +40,7 @@ live.close();
 openStream(opts?: {
   sampleRate?: number;  // 既定 16000
   channels?: number;    // 1 = mono / 2 = stereo（L/R で方向を出す。PLAY に pan は無い）
-  gain?: number;        // 0..1、既定 1.0
+  gain?: number;        // アプリの倍率（0 以上、既定 1.0）。PCM に clamp(gain, 0, 1) を掛ける
   target?: string;      // device-addressing。"" = ブロードキャスト
 }): LiveStreamHandle
 ```

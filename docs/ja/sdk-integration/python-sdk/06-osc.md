@@ -25,7 +25,7 @@ pip install "hapbeat-python-sdk[osc]"
 # 送信先(target)も触覚ファイルから決まる
 hapbeat osc-bridge --listen 7702 --haptics haptics.json
 
-# kit だけ（intensity/clip のみ・target なし）:  --kit kits/my-kit
+# kit だけ（clip_gain/clip のみ・target なし）:  --kit kits/my-kit
 # 何も指定しない（command のみ・target は OSC 引数で渡す）:  そのまま
 ```
 

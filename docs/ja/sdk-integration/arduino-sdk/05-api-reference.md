@@ -54,7 +54,7 @@ sidebar:
 
 ## level-1 の注意
 
-このバージョンには **EventMap クラスはありません**。チューニング（intensity / loop 等）は
+このバージョンには **EventMap クラスはありません**。チューニング（clip_gain / loop 等）は
 Hapbeat 側の kit に持たせます。保存 WAV / クリップのストリーミング、ESP-NOW transport も
 未対応です（[](/docs/sdk-integration/arduino-sdk/command-vs-sine/) 参照）。
 

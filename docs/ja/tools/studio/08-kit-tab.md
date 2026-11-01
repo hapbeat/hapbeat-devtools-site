@@ -91,7 +91,7 @@ WAV 素材を置くフォルダを指定します。ここから Studio が `cli
 
 ### Amp プリセットバー
 
-Library 側の Amp（`libraryIntensity`）を一括で保存 / 読込します。
+Library 側の Amp（`libraryClipGain`）を一括で保存 / 読込します。
 
 - **プリセット選択**: `(new)`（全クリップの Amp を 0.5 にリセット）＋保存済みプリセット。選ぶと即適用
 - **Save as…**: 現在の Amp 設定を新規プリセットとして保存（既定名 `amp-YYYYMMDD`、同名は上書き確認）
@@ -105,7 +105,7 @@ Library 側の Amp（`libraryIntensity`）を一括で保存 / 読込します�
 |---|---|
 | **▶ / ■** | 再生 / 停止。Helper + デバイス接続時は実機で振動、未接続はブラウザ音声でプレビュー |
 | **名前**（インライン編集） | クリックで rename。使用可能文字は英小文字 / 数字 / `-` / `_`（違反は警告） |
-| **Amp スライダー** | 基準振動強度（0〜100%、5% ステップ）。数値クリックで直接入力 |
+| **Amp スライダー** | 素材の強さ（`clip_gain`、0〜100%、5% ステップ）。数値クリックで直接入力 |
 | **+ Kit** | 選択中（アクティブ）Kit に追加。アクティブ Kit が無いと無効 |
 | **Edit** | 詳細モーダル（Name / Note / Group / Tags の編集、Swap、Archive） |
 | **× Archive** | クリップを `clips/archive/` に退避（Studio から非表示・確認なし・ファイルを戻せば復活） |
@@ -265,4 +265,4 @@ Kit 詳細の下部に 2 つのボタンが並びます（手順は [Kit を作�
 - [Mode を切り替える](/docs/tools/studio/modes/) — FIRE / CLIP / BOTH の操作と制約
 - [](/docs/concepts/event-id-and-kit/) — Kit / manifest / Event ID の概念
 - [](/docs/concepts/fire-vs-clip/) — mode 選択の判断材料
-- [](/docs/concepts/gain-architecture/) — intensity が乗算チェーンのどこに入るか
+- [](/docs/concepts/gain-architecture/) — clip_gain が乗算チェーンのどこに入るか

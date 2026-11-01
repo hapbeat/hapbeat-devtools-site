@@ -94,11 +94,11 @@ npm run dev                    # dist/ ビルド + tsc --watch + 静的配信 + 
 
 アーケードは、このドキュメントで説明している考え方を実コードに落とした参照実装です。
 
-- **kit manifest** を読んで per-event の既定 intensity を解決する（[](/docs/sdk-integration/js-sdk/event-map/)）。`demo-kit/hapbeat-arcade-manifest.json` が schema 2.0.0 の kit manifest。
+- **kit manifest** を読んで per-event の素材の強さ（clip_gain）を解決する（[](/docs/sdk-integration/js-sdk/event-map/)）。`demo-kit/hapbeat-arcade-manifest.json` が schema 2.0.0 の kit manifest。
 - **command vs clip ルーター** — manifest の bucket（`events` = command / `stream_events` = clip）でモードが分かれ、ゲームコード側は `play(id)` を呼ぶだけで変わらない（[](/docs/sdk-integration/js-sdk/command-vs-clip/)）。
 - **file-first / synth-fallback** — `shared/event-content.js` に各 event の触覚（合成 PCM）+ 音を 1 ファイルでまとめ、kit/WAV が無くても合成でフォールバックする。チューニングの起点（source of truth）はここ。
 
-各イベントの clip / 強度は studio の `showcase-kit` から流用した**仮置き**で、最終調整はユーザーが行う前提です（対応表は <a href="https://github.com/hapbeat/hapbeat-js-sdk/blob/master/examples/games/TUNING.md" target="_blank" rel="noopener noreferrer">`TUNING.md`</a>）。
+各イベントの clip / 素材の強さ（clip_gain）は studio の `showcase-kit` から流用した**仮置き**で、最終調整はユーザーが行う前提です（対応表は <a href="https://github.com/hapbeat/hapbeat-js-sdk/blob/master/examples/games/TUNING.md" target="_blank" rel="noopener noreferrer">`TUNING.md`</a>）。
 
 ## 落とし穴
 
@@ -109,7 +109,7 @@ npm run dev                    # dist/ ビルド + tsc --watch + 静的配信 + 
 
 ## 関連
 
-- [](/docs/sdk-integration/js-sdk/event-map/) — kit manifest から既定強度を解決する
+- [](/docs/sdk-integration/js-sdk/event-map/) — kit manifest から素材の強さ（clip_gain）を解決する
 - [](/docs/sdk-integration/js-sdk/command-vs-clip/) — command と clip の使い分け
 - [](/docs/sdk-integration/js-sdk/streaming-clips/) — clip ストリーミング
 - [](/docs/sdk-integration/js-sdk/streaming-live/) — 連続ストリーム（`openStream`）
