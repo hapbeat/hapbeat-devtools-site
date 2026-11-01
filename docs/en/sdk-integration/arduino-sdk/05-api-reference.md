@@ -56,8 +56,10 @@ does not match).
 
 ## level-1 notes
 
-This version has **no EventMap class**. Keep tuning (clip_gain / loop, etc.) in
-the kit on the Hapbeat. Stored-WAV / clip streaming and ESP-NOW transport are not
+This version has **no EventMap class**. Keep loop and the like in the kit on the
+Hapbeat. The SDK does not read the kit manifest, so the clip gain (`clip_gain`) is
+not applied: it counts as 1 and `play()`'s `gain` sets the strength (the device does
+not read `clip_gain` either). Stored-WAV / clip streaming and ESP-NOW transport are not
 supported yet (see [](/en/docs/sdk-integration/arduino-sdk/command-vs-sine/)).
 
 For the byte-level wire format, see `docs/wire-format.md` and

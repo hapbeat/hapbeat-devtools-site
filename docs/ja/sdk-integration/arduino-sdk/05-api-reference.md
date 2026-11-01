@@ -54,8 +54,9 @@ sidebar:
 
 ## level-1 の注意
 
-このバージョンには **EventMap クラスはありません**。チューニング（clip_gain / loop 等）は
-Hapbeat 側の kit に持たせます。保存 WAV / クリップのストリーミング、ESP-NOW transport も
+このバージョンには **EventMap クラスはありません**。loop などは Hapbeat 側の kit に持たせます。
+Kit の manifest は読まないので、素材の強さ（`clip_gain`）は掛かりません（1 として扱い、強さは
+`play()` の `gain` で決めます。本体も `clip_gain` を読みません）。保存 WAV / クリップのストリーミング、ESP-NOW transport も
 未対応です（[](/docs/sdk-integration/arduino-sdk/command-vs-sine/) 参照）。
 
 ワイヤフォーマット（バイト仕様）は repo の `docs/wire-format.md` と `src/HapbeatProtocol.h`
