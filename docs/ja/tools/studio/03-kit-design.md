@@ -14,14 +14,14 @@ description: Hapbeat Studio で Kit を作成・編集してデバイスにデ�
 - ヘッダーの **Helper 接続中**（緑バッジ）が表示されていること（デプロイに必要）
 - Hapbeat デバイスが同じ Wi-Fi に接続済みで Studio の Manage タブから見えていること
 
-## 1. Library フォルダと Kit フォルダ
+## 1. 作業フォルダと Kit フォルダ
 
-Studio は WAV 素材を **Library フォルダ** で管理し、Kit のビルド成果物を **Kit フォルダ** に出力します。
+Studio は WAV 素材を **作業フォルダ** で管理し、Kit のビルド成果物を **Kit フォルダ** に出力します。
 
 | 役割 | 場所 |
 |---|---|
-| Library | クリップパネル右上 `+ Library` チップで指定。WAV 素材の置き場 |
-| Kit フォルダ | Kit パネル右上 `+ Kit` チップで指定 (任意)。指定しなければ Library フォルダ直下に Kit が作られる |
+| 作業フォルダ | 初回の案内の「作業フォルダを選ぶ」で指定（変更はクリップパネル右上のフォルダチップの `⇄`）。WAV 素材の置き場 |
+| Kit フォルダ | Kit パネル右上 `+ Kit` チップで指定 (任意)。指定しなければ作業フォルダの中に Kit が作られる |
 
 **Unity プロジェクトと連携** するときは Kit フォルダに `<Project>/Assets/HapbeatSDK/Kits/` を指定すると、Unity SDK 側で Kit を first-class asset として直接読めます (推奨)。
 

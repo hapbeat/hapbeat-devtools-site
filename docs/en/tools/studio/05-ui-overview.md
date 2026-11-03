@@ -38,9 +38,9 @@ The most frequently used tab. It is split into two panes (left/right or top/bott
 
 ### Library Panel (Left / Top)
 
-A list of WAV / haptic clip files, automatically imported from the Library folder.
+A list of WAV / haptic clip files, automatically imported from the work folder.
 
-- **+ Library** chip: select, change, or clear the Library folder
+- **Work folder** chip: shows the work folder; `⇄` changes it and `×` disconnects it (before one is chosen, the guide at the top and the Clips panel show **Choose work folder**)
 - **Flat list (`=`) / Tree view (`▸`)** toggle: collapse or expand the folder structure
 - **Search box**: filter by name / Note
 - **Sort select**: name / last modified / duration × ascending or descending (persisted in `localStorage`)
@@ -54,7 +54,7 @@ A list of WAV / haptic clip files, automatically imported from the Library folde
 A list of Events in the selected Kit.
 
 - **Kit name input + Create** to create a new Kit
-- **+ Kit** chip: select or clear the Kit output folder (defaults to a subfolder inside the Library folder)
+- **+ Kit** chip: select or clear the Kit output folder (defaults to a subfolder inside the work folder)
 - Each Kit row is displayed in a **3-column grid card** layout:
   - Name / Note / Mode pill (`> FIRE` / `♪ CLIP` / `>♪ BOTH`)
   - Amp slider / Edit / Swap / × (remove from Kit)
@@ -149,12 +149,12 @@ The version label next to the title in the header (`v0.2.0 ▾`) is a **dropdown
 | Data | Location |
 |---|---|
 | Library / Kit metadata (equivalent to `kits-meta.json`) | Browser **IndexedDB** |
-| Library WAVs / Kit output (`install-clips/`, `stream-clips/`, `manifest.json`) | User-specified Library / Kit **local folder** |
+| Library WAVs / Kit output (`install-clips/`, `stream-clips/`, `manifest.json`) | User-specified work folder / Kit folder (**local folder**) |
 | UI settings such as sort order and view mode | `localStorage` |
 
 Nothing is stored on any server. Studio is **fully client-side**.
 
-Migrating to another machine only requires sharing the Library folder.
+Migrating to another machine only requires sharing the work folder.
 
 ## Keyboard Shortcuts
 
