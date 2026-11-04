@@ -16,6 +16,18 @@ import ReleaseTable from '../../../../components/ReleaseTable.astro';
 
 デバイスファームウェアはここには載りません。Studio の「Manage → ファームウェア」タブが最新版とアーカイブ版を常に表示します。
 
+## 1.0 に更新する前に
+
+素材の強さの名前が `intensity` から `clip_gain` に変わりました（Kit の manifest、cue 表、Unity の Event Map）。0.8 以前の Studio で保存した Kit を 1.0 の Studio で開くと、**Studio で下げた素材の強さは 1 と読まれ、次の保存で 1 に上書きされます**。強さを変えた Kit をお持ちの場合は、次のどちらかを行ってください。
+
+- **開く前に、名前を書き換える。** Studio と Unity を閉じ、フォルダのバックアップを取ってから [変換スクリプト](https://github.com/hapbeat/hapbeat-studio/blob/master/scripts/rename-intensity-to-clip-gain.py) を実行します。値は変わりません。`--write` を付けないと、書き換えるファイルの一覧だけを出します。Unreal では、変換の後に Event Map の **Refresh Clip Gains** を押してください。
+
+  ```bash
+  python rename-intensity-to-clip-gain.py <作業フォルダ> --write
+  ```
+
+- **開いた後に、強さを設定し直す。** Studio の Kit タブで設定し、**Save Folder** を押します。
+
 ## 更新にどう気付くか
 
 見に来なくても、それぞれのツールが使用時に知らせます。頻度は表示の種類で分けています。
