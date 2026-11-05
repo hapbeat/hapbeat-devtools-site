@@ -157,20 +157,10 @@
       "source_sha": "349d769eec24858468730ef4f5761ae532a22ec1",
       "translated_at": "2026-11-01T05:04:02.741Z"
     },
-    "docs/en/sdk-integration/unity-sdk/showcase/02-walkthrough.md": {
-      "source": "docs/ja/sdk-integration/unity-sdk/showcase/02-walkthrough.md",
-      "source_sha": "90131a9a792d7991de55013642ae235adacb689b",
-      "translated_at": "2026-10-14T15:19:18.390Z"
-    },
-    "docs/en/sdk-integration/unity-sdk/showcase/03-wiring.md": {
-      "source": "docs/ja/sdk-integration/unity-sdk/showcase/03-wiring.md",
-      "source_sha": "04a7b974f39ba035018cb21fc85188447bc7ca64",
-      "translated_at": "2026-10-14T15:19:18.822Z"
-    },
-    "docs/en/sdk-integration/unity-sdk/showcase/04-method-choice.md": {
-      "source": "docs/ja/sdk-integration/unity-sdk/showcase/04-method-choice.md",
-      "source_sha": "58d3e162c8ecea2df1c707866e0afcaea52bf864",
-      "translated_at": "2026-10-14T15:19:19.184Z"
+    "docs/en/sdk-integration/unity-sdk/showcase/02-zones.md": {
+      "source": "docs/ja/sdk-integration/unity-sdk/showcase/02-zones.md",
+      "source_sha": "53b3d1295e0a0cdb608142201c8a77b042c91fd5",
+      "translated_at": "2026-11-05T18:08:21.289Z"
     },
     "docs/en/tools/studio/11-editor-scene-beta.md": {
       "source": "docs/ja/tools/studio/11-editor-scene-beta.md",

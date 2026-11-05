@@ -16,6 +16,18 @@ Versions that are **actually published** on each distribution channel (PyPI / np
 
 Device firmware is not listed here. Studio's **Manage → Firmware** tab always shows the latest release plus the archived ones.
 
+## Before updating to 1.0
+
+The name of a clip's strength changed from `intensity` to `clip_gain` (in the Kit manifest, the cue table and Unity's Event Map). If you open a Kit saved with Studio 0.8 or earlier in Studio 1.0, **a clip strength you lowered in Studio is read as 1, and the next save overwrites it with 1**. If you have Kits with changed strengths, do one of the following.
+
+- **Before opening, rewrite the name.** Close Studio and Unity, back up the folder, then run the [conversion script](https://github.com/hapbeat/hapbeat-studio/blob/master/scripts/rename-intensity-to-clip-gain.py). The values do not change. Without `--write`, it only lists the files it would rewrite. In Unreal, press **Refresh Clip Gains** on the Event Map after converting.
+
+  ```bash
+  python rename-intensity-to-clip-gain.py <work folder> --write
+  ```
+
+- **After opening, set the strengths again.** Set them in Studio's Kit tab and press **Save Folder**.
+
 ## How you find out about updates
 
 You don't have to come here — each tool tells you while you use it. How often depends on the kind of notice:

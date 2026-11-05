@@ -458,6 +458,9 @@ export default defineConfig({
     // ターゲティング全般の explanation に再構成したため。
     '/docs/sdk-integration/unity-sdk/multi-app': '/docs/sdk-integration/unity-sdk/targeting/',
     '/en/docs/sdk-integration/unity-sdk/multi-app': '/en/docs/sdk-integration/unity-sdk/targeting/',
+    '/en/docs/sdk-integration/unity-sdk/showcase/walkthrough': '/en/docs/sdk-integration/unity-sdk/showcase/zones/',
+    '/en/docs/sdk-integration/unity-sdk/showcase/wiring': '/en/docs/sdk-integration/unity-sdk/showcase/zones/',
+    '/en/docs/sdk-integration/unity-sdk/showcase/method-choice': '/en/docs/sdk-integration/unity-sdk/integration/',
   },
   integrations: [
     // dev server 専用の /demos/ フォルダ URL フォールバック (定義は本ファイル
