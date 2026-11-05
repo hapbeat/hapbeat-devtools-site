@@ -31,7 +31,7 @@ https://github.com/Hapbeat/hapbeat-unity-sdk.git
 To pin a specific version, append a tag. See [Releases](https://github.com/Hapbeat/hapbeat-unity-sdk/releases) for the available tags:
 
 ```
-https://github.com/Hapbeat/hapbeat-unity-sdk.git#v0.6.0
+https://github.com/Hapbeat/hapbeat-unity-sdk.git#v1.0.1
 ```
 
 ### 2. Updating

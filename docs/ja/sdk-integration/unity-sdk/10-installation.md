@@ -30,7 +30,7 @@ https://github.com/Hapbeat/hapbeat-unity-sdk.git
 特定バージョンを固定する場合は末尾にタグを付けます。指定できるタグは [Releases](https://github.com/Hapbeat/hapbeat-unity-sdk/releases) を参照してください:
 
 ```
-https://github.com/Hapbeat/hapbeat-unity-sdk.git#v0.6.0
+https://github.com/Hapbeat/hapbeat-unity-sdk.git#v1.0.1
 ```
 
 ### 2. 更新

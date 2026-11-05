@@ -114,8 +114,8 @@
     },
     "docs/en/sdk-integration/unity-sdk/10-installation.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/10-installation.md",
-      "source_sha": "2fc481c019e4ebd679288150d4a46e5c74e92464",
-      "translated_at": "2026-11-01T05:04:01.158Z"
+      "source_sha": "2a9eb4a7d13c2504399e5c87eb25a6a30a8fce49",
+      "translated_at": "2026-11-05T18:24:50.308Z"
     },
     "docs/en/sdk-integration/unity-sdk/11-parameter-binding.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/11-parameter-binding.md",
@@ -129,8 +129,8 @@
     },
     "docs/en/sdk-integration/unity-sdk/13-xri-handdemo-quickstart.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/13-xri-handdemo-quickstart.md",
-      "source_sha": "08ffe5bc65f529dd5c95f5c8a36509d17acc38f3",
-      "translated_at": "2026-11-01T05:04:01.910Z"
+      "source_sha": "b620e131945ad99bba360f37f2073601bc6d3d83",
+      "translated_at": "2026-11-05T18:24:50.566Z"
     },
     "docs/en/sdk-integration/unity-sdk/15-vr-config-example.md": {
       "source": "docs/ja/sdk-integration/unity-sdk/15-vr-config-example.md",

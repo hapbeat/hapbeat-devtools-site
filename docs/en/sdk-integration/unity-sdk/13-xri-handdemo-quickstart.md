@@ -37,7 +37,7 @@ A prebuilt APK is available → [](/en/docs/sdk-integration/unity-sdk/xri-handde
      https://github.com/Hapbeat/hapbeat-unity-sdk.git
      ```
 
-   - To pin a version, append a tag (e.g. `#v0.6.0`)
+   - To pin a version, append a tag (e.g. `#v1.0.1`)
 
 4. **From the Hapbeat SDK Samples, import *XR Helpers* and *XRI Hand Demo (haptics add-on)***
    - **Both are required.** The former holds the XRI filter components and `HapbeatXRHandSideRouter`, which routes UnityEvents by the hand (left / right) that performed the interaction. The latter holds the two EventMaps (`HandsDemoLeftEventMap.asset` / `HandsDemoRightEventMap.asset`) and the Kit

@@ -37,7 +37,7 @@ Unity 公式の [XR Interaction Toolkit (XRI)](https://docs.unity3d.com/Packages
      https://github.com/Hapbeat/hapbeat-unity-sdk.git
      ```
 
-   - バージョン固定は末尾にタグを付与（例 `#v0.6.0`）
+   - バージョン固定は末尾にタグを付与（例 `#v1.0.1`）
 
 4. **Hapbeat SDK の Samples から *XR Helpers* と *XRI Hand Demo (haptics add-on)* を Import**
    - **両方必要**。前者は XRI 用のフィルタコンポーネントと、操作した手（左右）で UnityEvent を振り分ける `HapbeatXRHandSideRouter`。後者は左右 2 つの EventMap（`HandsDemoLeftEventMap.asset` / `HandsDemoRightEventMap.asset`）と Kit
