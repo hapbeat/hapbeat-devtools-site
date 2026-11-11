@@ -5,6 +5,10 @@ on:
     branches:
       - master
   workflow_dispatch:
+  # SDK repo の docs/ は deploy 時に各 repo の master から取得する（scripts/fetch-docs.mjs）。
+  # SDK 側の docs 更新を通知なしでも反映するため、6 時間ごとに作り直す（2026-11-12）。
+  schedule:
+    - cron: '17 */6 * * *'
   # 他リポジトリからの通知で起動するためのフック。
   #  - docs-updated:     docs/** or CHANGELOG.md を含む push。fetch-docs を再走させる。
   #  - release-published: 各 repo が新版を publish した直後。gen-release-feed を
